@@ -1,0 +1,10 @@
+{
+  "name": "Tab Control",
+  "version": "1.0",
+  "description": "Automatically closes tabs that are unused after X time.",
+  "browser_action": {
+    "default_icon": "icon.png"
+    "popup":"popup.html"
+  },
+  "permissions": [ "tabs" ]
+}

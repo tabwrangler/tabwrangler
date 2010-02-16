@@ -1,0 +1,46 @@
+<style>
+body {
+  min-width:357px;
+  overflow-x:hidden;
+color:black;
+}
+
+img {
+  margin:5px;
+  border:2px solid black;
+  vertical-align:middle;
+  width:75px;
+  height:75px;
+}
+</style>
+
+<script>
+
+function list(tabs) {
+  var tl = tabs.length;
+
+
+
+  for (var i = 0; i !== tl; i++) {
+    var f = tabs[i].favIconUrl;
+    var t = tabs[i].title;
+    var u = tabs[i].url;
+   var p = document.createElement("p");
+   var tn = document.createTextNode(t);
+  p.appendChild(tn);
+document.body.appendChild(p);
+   
+  }
+
+}
+
+function showPhotos() {
+
+  chrome.tabs.getAllInWindow(null, list);
+}
+
+window.onload = showPhotos;
+
+
+
+</script>

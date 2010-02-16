@@ -1,17 +1,25 @@
-<script>
+
+<script type="text/javascript">
+
+// http://code.google.com/chrome/extensions/tabs.html
+
+// needs to be able to save settings..through popup http://code.google.com/chrome/extensions/options.html
 
 var tabStarted = new Object();
-var tabIDS = new Array();
-var stayOpenFor = 240000;
+var TAB_IDS = new Array();
+var stayOpenFor = 240000; //4 minutes, 10000 for testing...
 
 function updateTabs(tab) {
     tabStarted[tab.id] = new Date().getTime();
-
-    if ( tabID.SindexOf(tab.id) == -1 ) {
-      tabIDS.push(tab.id);
+    if ( TAB_IDS.indexOf(tab.id) == -1 ) {
+      TAB_IDS.push(tab.id);
     } else {
      //alert("not added, id exists already");
     }
+}
+
+function onUpdateAction(tabId,changeInfo,tab) {
+    return updateTabs(tab);
 }
 
 function initTabs(tabs) {
@@ -23,34 +31,50 @@ function initTabs(tabs) {
     var u = tabs[i].url;
     var tid = tabs[i].id;
     tabStarted[tid] = new Date().getTime();
-    tabIDS.push(tid);
+    TAB_IDS.push(tid);
   }
 }
 
 function checkToClose() {
-  var tabNum = tabIDS.length;
+  refreshOptions();
+  var tabNum = TAB_IDS.length;
   var rightNow = new Date().getTime();
-
+  var toCut = new Array();
+  //alert("tabs open: " + TAB_IDS.length ); 
   for ( var i=0; i < tabNum; i++ ) {
-	var timeGone = rightNow - tabStarted[tabIDS[i]];
+	var timeGone = parseInt(rightNow) - parseInt(tabStarted[TAB_IDS[i]]);
+		     //alert(TAB_IDS[i] + " | " + parseInt(timeGone));
         if ( timeGone >= stayOpenFor ) {
-          chrome.tabs.remove(tabIDS[i]);
-          tabIDS.splice(i,1);
+          chrome.tabs.remove(TAB_IDS[i]);
+          toCut.push(i);
         }
+  }
+  //window.alert(toCut.length + " to close");
+  for ( var x=0;x < toCut.length;x++ ) {
+     TAB_IDS.splice(toCut[x],1);
+  }
+  //alert("tabs open NOW: " + TAB_IDS.length ); 
+}
+
+function refreshOptions() {
+  var m = localStorage["minutes_inactive"];
+  if ( m ) {
+    stayOpenFor = parseInt(m) * 60000;
   }
 }
 
 function startup() {
 //  alert("starting up");
-
+  refreshOptions();
   chrome.tabs.getAllInWindow(null, initTabs);
   chrome.tabs.onCreated.addListener(updateTabs);
-  chrome.tabs.onUpdated.addListener(updateTabs);
-  window.setInterval(checkToClose,10000);
+  chrome.tabs.onUpdated.addListener(onUpdateAction);
+  window.setInterval(checkToClose,5000);
 }
 
 
 
-window.onload = startup
+window.onload = startup;
+
 
 </script>

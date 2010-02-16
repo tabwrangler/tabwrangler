@@ -25,16 +25,17 @@ function list(tabs) {
     var f = tabs[i].favIconUrl;
     var t = tabs[i].title;
     var u = tabs[i].url;
-   var p = document.createElement("p");
-   var tn = document.createTextNode(t);
-  p.appendChild(tn);
-document.body.appendChild(p);
+    var p = document.createElement("p");
+    var tn = document.createTextNode(t);
+    p.appendChild(tn);
+    document.body.appendChild(p);
    
   }
 
 }
 
 function showPhotos() {
+
 
   chrome.tabs.getAllInWindow(null, list);
 }

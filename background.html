@@ -1,0 +1,56 @@
+<script>
+
+var tabStarted = new Object();
+var tabIDS = new Array();
+var stayOpenFor = 240000;
+
+function updateTabs(tab) {
+    tabStarted[tab.id] = new Date().getTime();
+
+    if ( tabID.SindexOf(tab.id) == -1 ) {
+      tabIDS.push(tab.id);
+    } else {
+     //alert("not added, id exists already");
+    }
+}
+
+function initTabs(tabs) {
+  var tl = tabs.length;
+
+  for (var i = 0; i !== tl; i++) {
+    var f = tabs[i].favIconUrl;
+    var t = tabs[i].title;
+    var u = tabs[i].url;
+    var tid = tabs[i].id;
+    tabStarted[tid] = new Date().getTime();
+    tabIDS.push(tid);
+  }
+}
+
+function checkToClose() {
+  var tabNum = tabIDS.length;
+  var rightNow = new Date().getTime();
+
+  for ( var i=0; i < tabNum; i++ ) {
+	var timeGone = rightNow - tabStarted[tabIDS[i]];
+        if ( timeGone >= stayOpenFor ) {
+          chrome.tabs.remove(tabIDS[i]);
+          tabIDS.splice(i,1);
+        }
+  }
+}
+
+function startup() {
+//  alert("starting up");
+
+  chrome.tabs.getAllInWindow(null, initTabs);
+  chrome.tabs.onCreated.addListener(updateTabs);
+  chrome.tabs.onUpdated.addListener(updateTabs);
+  window.setInterval(checkToClose,10000);
+}
+
+
+
+window.onload = startup
+
+</script>

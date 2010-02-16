@@ -1,6 +1,6 @@
 {
   "background_page": "background.html",
-  "name": "Tab Control",
+  "name": "Tab Wrangler",
   "options_page":"options.html",
   "version": "1.0",
   "description": "Automatically closes tabs that are unused after X time.",

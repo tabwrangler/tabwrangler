@@ -3,7 +3,7 @@
 
 var tabStarted = new Object();
 var TAB_IDS = new Array();
-var stayOpenFor = 240000; //4 minutes, 10000 for testing...
+var stayOpenFor = 420000; //7 minutes
 
 function updateTabs(tab) {
     tabStarted[tab.id] = new Date().getTime();
@@ -36,20 +36,18 @@ function checkToClose() {
   var tabNum = TAB_IDS.length;
   var rightNow = new Date().getTime();
   var toCut = new Array();
-  //alert("tabs open: " + TAB_IDS.length ); 
   for ( var i=0; i < tabNum; i++ ) {
 	var timeGone = parseInt(rightNow) - parseInt(tabStarted[TAB_IDS[i]]);
-		     //alert(TAB_IDS[i] + " | " + parseInt(timeGone));
         if ( timeGone >= stayOpenFor ) {
           chrome.tabs.remove(TAB_IDS[i]);
           toCut.push(i);
         }
   }
-  //window.alert(toCut.length + " to close");
+
   for ( var x=0;x < toCut.length;x++ ) {
      TAB_IDS.splice(toCut[x],1);
   }
-  //alert("tabs open NOW: " + TAB_IDS.length ); 
+
 }
 
 function refreshOptions() {

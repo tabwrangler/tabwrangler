@@ -1,8 +1,7 @@
 <html>
-<head><title>Tab Control Options</title></head>
+<head><title>TabWrangler Options</title></head>
 <script type="text/javascript">
 
-// Saves options to localStorage.
 function save_options() {
   var m = parseInt(document.getElementById("minutes_inactive").value);
 
@@ -21,11 +20,10 @@ function save_options() {
   }
 }
 
-// Restores select box state to saved value from localStorage.
 function restore_options() {
   var m = localStorage["minutes_inactive"];
   if (!m) {
-    m = 4;
+    m = 7; //default
   }
 
 document.getElementById("minutes_inactive").value = m;
@@ -37,13 +35,13 @@ document.getElementById("minutes_inactive").value = m;
 <body onload="restore_options()">
 
 Close inactive tabs after:
-<input type="text" id="minutes_inactive" > minutes.
+<input type="text" id="minutes_inactive" size="1" > minutes.
 
 
 
 <br>
 <button onclick="save_options()">Save</button>
 <br/>
-<div id="status"></div>
+<div id="status" style="color:green"></div>
 </body>
 </html>

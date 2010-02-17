@@ -3,10 +3,10 @@
 
 var tabStarted = new Object();
 var TAB_IDS = new Array();
-var stayOpenFor = 15000; //420000; //7 minutes
+var stayOpenFor = 420000; //7 minutes
+//var stayOpenFor = 15000; //DEBUG
 
 function updateTabs(tab) {
-//    alert(tab.id);
     tabStarted[tab.id] = new Date().getTime();
     if ( TAB_IDS.indexOf(tab.id) == -1 ) {
       TAB_IDS.push(tab.id);
@@ -41,6 +41,7 @@ function initTabs(tabs) {
 
 function checkToClose() {
   refreshOptions();
+  chrome.tabs.getSelected(null,updateTabs);
   var tabNum = TAB_IDS.length;
   var rightNow = new Date().getTime();
   var toCut = new Array();
@@ -61,8 +62,8 @@ function checkToClose() {
 function refreshOptions() {
   var m = localStorage["minutes_inactive"];
   if ( m ) {
-//    stayOpenFor = parseInt(m) * 60000;
-    stayOpenFor = 15000;
+    stayOpenFor = parseInt(m) * 60000;
+    //stayOpenFor = 15000; //DEBUG
   }
 }
 
@@ -71,6 +72,7 @@ function startup() {
   refreshOptions();
   chrome.tabs.getAllInWindow(null, initTabs);
   chrome.tabs.onCreated.addListener(updateTabs);
+
   chrome.tabs.onUpdated.addListener(onUpdateAction);
   chrome.tabs.onSelectionChanged.addListener(onSelectAction);
   window.setInterval(checkToClose,5000);

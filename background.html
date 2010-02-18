@@ -73,8 +73,11 @@ function checkToClose() {
   for ( var i=0; i < tabNum; i++ ) {
 	var timeGone = parseInt(rightNow) - parseInt(TAB_ACTION[TAB_IDS[i]]);
         if ( timeGone >= STAY_OPEN ) {
+          try {
           chrome.tabs.remove(TAB_IDS[i]);
+          } catch(e) {
 
+          }
 
 
           CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]]);

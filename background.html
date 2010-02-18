@@ -80,7 +80,7 @@ function checkToClose() {
           }
 
 
-          CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]]);
+          CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]].replace(/,/g,''));
           CLOSED_URL.push(TAB_URL[TAB_IDS[i]]);
           CLOSED_ICON.push(TAB_ICON[TAB_IDS[i]]);
 
@@ -111,7 +111,10 @@ function refreshOptions() {
 }
 
 function startup() {
-
+  localStorage["closed_tab_ids"] = "";
+  localStorage["closed_tab_titles"] = "";
+  localStorage["closed_tab_urls"] = "";
+  localStorage["closed_tab_icons"] = "";
   refreshOptions();
   chrome.tabs.getAllInWindow(null, initTabs);
   chrome.tabs.onCreated.addListener(updateTabs);

@@ -1,13 +1,30 @@
 
 <script type="text/javascript">
 
-var tabStarted = new Object();
+var TAB_ACTION = new Object();
+var TAB_TITLE = new Object();
+var TAB_URL = new Object();
+var TAB_ICON = new Object();
+
+var CLOSED_TITLE = new Array();
+var CLOSED_URL = new Array();
+var CLOSED_ICON = new Array();
+
+
+
+var CLOSED_DETAILS = new Array();
+
 var TAB_IDS = new Array();
-var stayOpenFor = 420000; //7 minutes
-//var stayOpenFor = 15000; //DEBUG
+var STAY_OPEN = 420000; //7 minutes
+//var STAY_OPEN = 15000; //DEBUG
 
 function updateTabs(tab) {
-    tabStarted[tab.id] = new Date().getTime();
+    TAB_ACTION[tab.id] = new Date().getTime();
+
+    TAB_TITLE[tab.id] = tab.title;
+    TAB_URL[tab.id] = tab.url;
+    TAB_ICON[tab.id] = tab.favIconUrl;    
+
     if ( TAB_IDS.indexOf(tab.id) == -1 ) {
       TAB_IDS.push(tab.id);
     } else {
@@ -20,9 +37,13 @@ function onUpdateAction(tabId,changeInfo,tab) {
 }
 
 function onSelectAction(tabId,selectInfo) {
-//   alert("selected");
+
    var tab = new Object();
    tab.id = tabId;
+   tab.title = 'BOO'; //TAB_TITLE[tabId];
+   tab.url = TAB_URL[tabId];
+   tab.favIconUrl = TAB_ICON[tabId];
+
    return updateTabs(tab);
 }
 
@@ -34,7 +55,11 @@ function initTabs(tabs) {
     var t = tabs[i].title;
     var u = tabs[i].url;
     var tid = tabs[i].id;
-    tabStarted[tid] = new Date().getTime();
+    TAB_ACTION[tid] = new Date().getTime();
+    TAB_TITLE[tid] = t;
+    TAB_URL[tid] = u;
+    TAB_ICON[tid] = f;
+
     TAB_IDS.push(tid);
   }
 }
@@ -46,12 +71,27 @@ function checkToClose() {
   var rightNow = new Date().getTime();
   var toCut = new Array();
   for ( var i=0; i < tabNum; i++ ) {
-	var timeGone = parseInt(rightNow) - parseInt(tabStarted[TAB_IDS[i]]);
-        if ( timeGone >= stayOpenFor ) {
+	var timeGone = parseInt(rightNow) - parseInt(TAB_ACTION[TAB_IDS[i]]);
+        if ( timeGone >= STAY_OPEN ) {
           chrome.tabs.remove(TAB_IDS[i]);
+
+
+
+          CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]]);
+          CLOSED_URL.push(TAB_URL[TAB_IDS[i]]);
+          CLOSED_ICON.push(TAB_ICON[TAB_IDS[i]]);
+
+
+          localStorage["closed_tab_titles"] = CLOSED_TITLE;
+          localStorage["closed_tab_urls"] = CLOSED_URL;
+          localStorage["closed_tab_icons"] = CLOSED_ICON;
+
+
           toCut.push(i);
         }
   }
+
+
 
   for ( var x=0;x < toCut.length;x++ ) {
      TAB_IDS.splice(toCut[x],1);
@@ -62,13 +102,13 @@ function checkToClose() {
 function refreshOptions() {
   var m = localStorage["minutes_inactive"];
   if ( m ) {
-    stayOpenFor = parseInt(m) * 60000;
-    //stayOpenFor = 15000; //DEBUG
+    STAY_OPEN = parseInt(m) * 60000;
+    //STAY_OPEN = 15000; //DEBUG
   }
 }
 
 function startup() {
-//  alert("starting up");
+
   refreshOptions();
   chrome.tabs.getAllInWindow(null, initTabs);
   chrome.tabs.onCreated.addListener(updateTabs);

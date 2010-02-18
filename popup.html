@@ -12,6 +12,11 @@ img {
   width:75px;
   height:75px;
 }
+
+table {
+  font-size:.8em;
+
+}
 </style>
 
 <script>
@@ -34,13 +39,54 @@ function list(tabs) {
 
 }
 
-function showPhotos() {
+function initTabWrangler() {
+  var titles = localStorage["closed_tab_titles"].split(',').reverse();
+  var urls = localStorage["closed_tab_urls"].split(',').reverse();
+  var icons = localStorage["closed_tab_icons"].split(',').reverse();
+  var closed_count = titles.length;
 
+//  alert(closed_count);
 
+  var table = document.createElement("table");
+  for ( var i = 0; i < closed_count; i++) {
+     var tr = document.createElement("tr");
+     var td_icon = document.createElement("td");
+     if ( icons[i].length > 0 ) {
+       var img_icon = document.createElement("img");
+
+       img_icon.src = icons[i]
+       img_icon.style.height =  "32px";
+       img_icon.style.width = "32px";
+       img_icon.style.border = "0px";
+     } else {
+       td_icon.style.textAlign = "center";
+       var img_icon = document.createTextNode("n/a");
+    }
+       td_icon.appendChild(img_icon);
+       tr.appendChild(td_icon);
+
+     var td_title = document.createElement("td");
+
+     var a_title = document.createElement("a");
+     a_title.target = "_blank";
+     a_title.href = urls[i];
+     var ptext = document.createTextNode(titles[i]);
+     a_title.appendChild(ptext);
+
+     td_title.appendChild(a_title);
+     tr.appendChild(td_title);
+     table.appendChild(tr);
+  }
+  
+  var h3 =  document.createElement("h3");
+  var h3_text = document.createTextNode("Recently Wrangled Tabs");
+  h3.appendChild(h3_text);
+  document.body.appendChild(h3);
+  document.body.appendChild(table);
   chrome.tabs.getAllInWindow(null, list);
 }
 
-window.onload = showPhotos;
+window.onload = initTabWrangler;
 
 
 

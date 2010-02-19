@@ -1,66 +1,88 @@
+
 <style>
 body {
   min-width:357px;
   overflow-x:hidden;
-color:black;
+  color:black;
 }
 
-img {
-  margin:5px;
-  border:2px solid black;
-  vertical-align:middle;
-  width:75px;
-  height:75px;
-}
 
-table {
+
+table.pretty {
+  width:330px;
   font-size:.8em;
-
+  margin-left:1px;
+  margin-right:1px;
+  background: whitesmoke;
+  border-collapse: collapse;
 }
+
+table.pretty th, table.pretty td {
+  border: 1px silver solid;
+  padding: 0.2em;
+}
+table.pretty th {
+  background: gainsboro;
+  text-align: left;
+}
+
+table.pretty a {
+  color: #0066cc;
+  font-weight:bold;
+}
+
+table.pretty caption {
+  margin-left: inherit;
+  margin-right: inherit;
+}
+
+.smallgrey {
+  font-size:.8em;color:#888;margin:0px
+}
+
+
 </style>
 
 <script>
 
-function list(tabs) {
-  var tl = tabs.length;
+// chrome-extension://bfbjlhinlheecjobilndbilkfpkmgiao/popup.html
 
-
-
-  for (var i = 0; i !== tl; i++) {
-    var f = tabs[i].favIconUrl;
-    var t = tabs[i].title;
-    var u = tabs[i].url;
-    var p = document.createElement("p");
-    var tn = document.createTextNode(t);
-    p.appendChild(tn);
-    //document.body.appendChild(p);
-   
-  }
-
+function openNewTab() {
+  chrome.tabs.create({'url':'chrome://newtab/'});
 }
 
+function openExtTab() {
+  chrome.tabs.create({'url':'chrome://extensions/'});
+}
+
+
 function initTabWrangler() {
-  var titles = localStorage["closed_tab_titles"].split(',').reverse();
-  var urls = localStorage["closed_tab_urls"].split(',').reverse();
-  var icons = localStorage["closed_tab_icons"].split(',').reverse();
+
+  var titles = JSON.parse(localStorage["closed_tab_titles"]).reverse();
+  var urls = JSON.parse(localStorage["closed_tab_urls"]).reverse();
+  var icons = JSON.parse(localStorage["closed_tab_icons"]).reverse();
+
   var closed_count = titles.length;
 
-//  alert(closed_count);
-
   var table = document.createElement("table");
+  table.className = "pretty";
+
   for ( var i = 0; i < closed_count; i++) {
      var tr = document.createElement("tr");
      var td_icon = document.createElement("td");
-     if ( icons[i].length > 0 ) {
+     if ( icons[i] != null && icons[i] != undefined && icons[i].length > 0 ) {
        var img_icon = document.createElement("img");
 
-       img_icon.src = icons[i]
-       img_icon.style.height =  "32px";
-       img_icon.style.width = "32px";
+       img_icon.src = icons[i];
+       img_icon.style.height =  "16px";
+       img_icon.style.width = "16px";
        img_icon.style.border = "0px";
+       img_icon.style.display = "inline";
+       img_icon.style.margin="0px";
+       img_icon.style.padding="0px";
      } else {
        td_icon.style.textAlign = "center";
-       var img_icon = document.createTextNode("n/a");
+       var img_icon = document.createTextNode("-");
     }
        td_icon.appendChild(img_icon);
        tr.appendChild(td_icon);
@@ -69,21 +91,40 @@ function initTabWrangler() {
 
      var a_title = document.createElement("a");
      a_title.target = "_blank";
-     a_title.href = urls[i];
-     var ptext = document.createTextNode(titles[i]);
+    if ( urls[i] == "chrome://newtab/") {
+            a_title.href = "javascript:openNewTab();";
+    } else  if ( urls[i] == "chrome://extensions/") {
+            a_title.href = "javascript:openExtTab();";
+    } else {
+       a_title.href = urls[i];
+    }
+     var ptext = document.createTextNode(tooLong(titles[i]));
      a_title.appendChild(ptext);
+    var spanurl = document.createElement("span");
+    spanurl.className = "smallgrey";
+    spanurl.appendChild(document.createTextNode(tooLong(urls[i])));
+
 
      td_title.appendChild(a_title);
+    td_title.appendChild(document.createElement("br"));
+  td_title.appendChild(spanurl);
      tr.appendChild(td_title);
      table.appendChild(tr);
   }
-  
-  var h3 =  document.createElement("h3");
-  var h3_text = document.createTextNode("Recently Wrangled Tabs");
-  h3.appendChild(h3_text);
-  document.body.appendChild(h3);
+
+  //var h3 =  document.createElement("h3");
+  //var h3_text = document.createTextNode("Recently Wrangled Tabs");
+  //h3.appendChild(h3_text);
+  //document.body.appendChild(h3);
   document.body.appendChild(table);
-  chrome.tabs.getAllInWindow(null, list);
+  //chrome.tabs.getAllInWindow(null, list);
+}
+
+function tooLong(a) {
+  if ( a.length > 83 ) {
+    return a.substring(0,80) + "...";
+  }
+  return a;
 }
 
 window.onload = initTabWrangler;
@@ -92,5 +133,9 @@ window.onload = initTabWrangler;
 
 </script>
 <body>
-Right-click this icon for options.
+ <h3 style="margin:0px">Tab Corral</h3>
+ <p class="smallgrey">(Recently Wrangled Tabs) |
+ Right-click the icon for options</p>
+
+
 </body>

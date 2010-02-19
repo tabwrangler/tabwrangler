@@ -80,14 +80,15 @@ function checkToClose() {
           }
 
 
-          CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]].replace(/,/g,''));
+//          CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]].replace(/,/g,''));
+          CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]]);
           CLOSED_URL.push(TAB_URL[TAB_IDS[i]]);
           CLOSED_ICON.push(TAB_ICON[TAB_IDS[i]]);
 
 
-          localStorage["closed_tab_titles"] = CLOSED_TITLE;
-          localStorage["closed_tab_urls"] = CLOSED_URL;
-          localStorage["closed_tab_icons"] = CLOSED_ICON;
+          localStorage["closed_tab_titles"] = JSON.stringify(CLOSED_TITLE);
+          localStorage["closed_tab_urls"] = JSON.stringify(CLOSED_URL);
+          localStorage["closed_tab_icons"] = JSON.stringify(CLOSED_ICON);
 
 
           toCut.push(i);

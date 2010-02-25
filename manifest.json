@@ -4,6 +4,10 @@
   "options_page":"options.html",
   "version": "1.1.1",
   "description": "Automatically closes tabs that are unused after X minutes.",
+  "icons": {                                                                                                                
+      "128": "icon128.png",                                                                                        
+      "48": "icon48.png"                                                                                           
+   },  
   "browser_action": {
     "default_icon": "icon.png",
     "popup":"popup.html"

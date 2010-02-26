@@ -9,6 +9,7 @@
       "48": "icon48.png"                                                                                           
    },  
   "browser_action": {
+    "name": "Tab Wrangler",
     "default_icon": "icon.png",
     "popup":"popup.html"
   },

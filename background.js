@@ -6,6 +6,7 @@ var TAB_ICON = new Object();
 var CLOSED_TITLE = new Array();
 var CLOSED_URL = new Array();
 var CLOSED_ICON = new Array();
+var CLOSED_ACTION = new Array();
 
 var CLOSED_DETAILS = new Array();
 
@@ -83,10 +84,13 @@ function checkToClose() {
           CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]]);
           CLOSED_URL.push(TAB_URL[TAB_IDS[i]]);
           CLOSED_ICON.push(TAB_ICON[TAB_IDS[i]]);
+	  CLOSED_ACTION.push(new Date().getTime());
+	  
 
           localStorage["closed_tab_titles"] = JSON.stringify(CLOSED_TITLE);
           localStorage["closed_tab_urls"] = JSON.stringify(CLOSED_URL);
           localStorage["closed_tab_icons"] = JSON.stringify(CLOSED_ICON);
+          localStorage["closed_tab_actions"] = JSON.stringify(CLOSED_ACTION);
 
           toCut.push(TAB_IDS[i]);
         } else {
@@ -128,6 +132,8 @@ function startup() {
     localStorage["closed_tab_titles"] = "";
     localStorage["closed_tab_urls"] = "";
     localStorage["closed_tab_icons"] = "";
+    localStorage["closed_tab_actions"] = "";
+
     localStorage["locked_ids"] = "";
 
   refreshOptions();

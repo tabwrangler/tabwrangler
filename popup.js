@@ -11,6 +11,8 @@ function loadClosedTabs() {
   var titles = JSON.parse(localStorage["closed_tab_titles"]).reverse();
   var urls = JSON.parse(localStorage["closed_tab_urls"]).reverse();
   var icons = JSON.parse(localStorage["closed_tab_icons"]).reverse();
+  var actions = JSON.parse(localStorage["closed_tab_actions"]).reverse();
+
   var closed_count = titles.length;
   var table = document.createElement("table");
   table.className = "pretty";
@@ -55,7 +57,13 @@ function loadClosedTabs() {
     td_title.appendChild(a_title);
     td_title.appendChild(document.createElement("br"));
     td_title.appendChild(spanurl);
+
+    var td_time = document.createElement('td');
+    td_time.appendChild(document.createTextNode(time_since(actions[i])));
+    
+
     tr.appendChild(td_title);
+    tr.appendChild(td_time);
     table.appendChild(tr);
   }
   document.getElementById('corralDyn').appendChild(table);

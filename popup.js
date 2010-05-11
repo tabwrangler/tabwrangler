@@ -6,6 +6,31 @@ function openExtTab() {
   chrome.tabs.create({'url':'chrome://extensions/'});
 }
 
+function checkToClose(tabs) {
+  var tl = tabs.length;
+  var locked_ids = getLsOr("locked_ids");
+  var do_unlocking = true;
+  if ( locked_ids.length == 0 ) {
+    if ( !window.confirm("No tabs are locked...close ALL tabs?") ) {
+      do_unlocking = false;
+    }
+  }
+  if ( !do_unlocking ) {
+    return; //close out
+  }
+  for (var i = 0; i !== tl; i++) {
+    var tmp_id = tabs[i].id;
+    var lock_check = locked_ids.indexOf(tmp_id);
+    if ( lock_check == -1 ) {
+      chrome.tabs.remove(tmp_id);
+    }
+  }
+}
+
+function closeUnlocked() {
+    chrome.tabs.getAllInWindow(null, checkToClose);
+}
+
 
 function loadClosedTabs() {
   try {

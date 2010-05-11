@@ -1,80 +1,57 @@
 
-<style>
-body {
-  min-width:357px;
-  overflow-x:hidden;
-  color:black;
-  font-family:sans-serif;
-}
-
-table.pretty {
-  width:330px;
-  font-size:.8em;
-  margin-left:1px;
-  margin-right:1px;
-  background: whitesmoke;
-  border-collapse: collapse;
-}
-
-table.pretty th, table.pretty td {
-  border: 1px silver solid;
-  padding: 0.2em;
-}
-table.pretty th {
-  background: gainsboro;
-  text-align: left;
-}
-
-table.pretty a {
-  color: #0066cc;
-  font-weight:bold;
-}
-
-table.pretty caption {
-  margin-left: inherit;
-  margin-right: inherit;
-}
-
-.smallgrey {
-  font-size:.8em;color:#888;margin:0px
-}
-
-#corralHolder {
-  display:none;
-}
-#activeHolder {
-  display:none;
-}
-</style>
+<link rel="stylesheet" href="popup.css" type="text/css"/>
 <!-- // chrome-extension://bfbjlhinlheecjobilndbilkfpkmgiao/popup.html -->
 
 <script type="text/javascript" src="time_since.js"></script>
+<script type="text/javascript" src="options.js"></script>
 <script type="text/javascript" src="tw_shared.js"></script>
 <script type="text/javascript" src="popup.js"></script>
 </head>
 
 <body>
+
+<ul id="tabnav">
+  <li class="tab1"><a href="javascript:showCorral()">Tab Corral</a></li>
+  <li class="tab2"><a href="javascript:showActive()">Tab Lock</a></li>
+  <li class="tab3"><a href="javascript:showOptions()">Options</a></li>
+</ul>
+
 <div id="corralHolder">
-<table>
+ <p class="smallgrey">Click the title to re-open the tab.</p>
+<div id="corralDyn">
+<table id="corralTable" class="pretty">
 <tr>
-<td><h3 style="margin:0px">Tab Corral</h3></td>
-<td> | </td>
-<td><a href="javascript:showActive()"><h5 style="margin:0px">Tab Lock</h5></a></td>
+<td class="smallhead" style="width:20px"></td>
+<td class="smallhead">title</td>
+<td class="smallhead">when</td>
 </tr>
 </table>
- <p class="smallgrey">Click the title to re-open the tab.</p>
-<div id="corralDyn"></div>
+
+</div>
 </div>
 
 <div id="activeHolder">
-<table >
+<p class="smallgrey">Click the checkbox to lock the tab.</p>
+<div id="activeDyn">
+<table id="activeTable" class="pretty">
 <tr>
-<td><a href="javascript:showCorral()"><h5 style="margin:0px">Tab Corral</h5></a></td>
-<td> | </td>
-<td><h3 style="margin:0px">Tab Lock</h3></td>
+<td class="smallhead" style="width:20px"><img src="lock.png" /></td>
+<td class="smallhead" style="width:20px"></td>
+<td class="smallhead">title</td>
+
 </tr>
 </table>
- <p class="smallgrey">Click the checkbox to lock the tab.</p>
-<div id="activeDyn"></div>
+</div>
+</div>
+
+<div id="optionsHolder">
+Close inactive tabs after:
+<input type="text" id="minutes_inactive" size="1" > minutes.
+
+<br>
+<button onclick="save_options()">Save</button>
+<br/>
+<div id="status" style="color:green"></div>
+
 </div>
 </body>

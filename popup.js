@@ -8,14 +8,19 @@ function openExtTab() {
 
 
 function loadClosedTabs() {
-  var titles = JSON.parse(localStorage["closed_tab_titles"]).reverse();
-  var urls = JSON.parse(localStorage["closed_tab_urls"]).reverse();
-  var icons = JSON.parse(localStorage["closed_tab_icons"]).reverse();
-  var actions = JSON.parse(localStorage["closed_tab_actions"]).reverse();
+  try {
+    var titles = JSON.parse(localStorage["closed_tab_titles"]).reverse();
+    var urls = JSON.parse(localStorage["closed_tab_urls"]).reverse();
+    var icons = JSON.parse(localStorage["closed_tab_icons"]).reverse();
+    var actions = JSON.parse(localStorage["closed_tab_actions"]).reverse();
+    var closed_count = titles.length;
+  } catch(e) {
+    closed_count = 0;
+  }
 
-  var closed_count = titles.length;
-  var table = document.createElement("table");
-  table.className = "pretty";
+  //var table = document.createElement("table");
+  var table = document.getElementById('corralTable');
+  //table.className = "pretty";
 
   for ( var i = 0; i < closed_count; i++) {
      var tr = document.createElement("tr");
@@ -59,14 +64,27 @@ function loadClosedTabs() {
     td_title.appendChild(spanurl);
 
     var td_time = document.createElement('td');
+    td_time.className = "smallgrey";
     td_time.appendChild(document.createTextNode(time_since(actions[i])));
-    
+
 
     tr.appendChild(td_title);
     tr.appendChild(td_time);
     table.appendChild(tr);
   }
-  document.getElementById('corralDyn').appendChild(table);
+
+  if ( closed_count == 0 ) {
+    var tr_no = document.createElement('tr');
+    var td_no = document.createElement('td');
+    td_no.colSpan = '3';
+    td_no.className = "smallgrey";
+    td_no.style.textAlign = 'center';
+    td_no.appendChild(document.createTextNode("No tabs have been wrangled...yet"));
+    tr_no.appendChild(td_no);
+    table.appendChild(tr_no);
+  }
+
+  //document.getElementById('corralDyn').appendChild(table);
 }
 
 function loadOpenTabs() {
@@ -79,8 +97,9 @@ function loadOpenTabs() {
 function openTabs(tabs) {
   var locked_ids = getLsOr("locked_ids");
   var tabNum = tabs.length;
-  var table = document.createElement("table");
-  table.className = "pretty";
+  var table = document.getElementById('activeTable');
+  //var table = document.createElement("table");
+  //table.className = "pretty";
 
   for ( var i=0; i < tabNum; i++ ) {
      var tr = document.createElement("tr");
@@ -136,7 +155,7 @@ function openTabs(tabs) {
 
      table.appendChild(tr);
   }
-  document.getElementById('activeDyn').appendChild(table);
+  //document.getElementById('activeDyn').appendChild(table);
   return;
 }
 
@@ -162,29 +181,47 @@ function initTabWrangler() {
     loadLastView();
     loadOpenTabs();
     loadClosedTabs();
+  restore_options(); // from options.js
 }
 
 function showCorral() {
     localStorage["popup_view"] = "corral";
     document.getElementById("corralHolder").style.display='block';
-    document.getElementById("activeHolder").style.display='none';
+  document.getElementById("activeHolder").style.display='none';
+  document.getElementById("optionsHolder").style.display='none';
+  document.body.id = 'tab1';
 }
 
 function showActive() {
     localStorage["popup_view"] = "active";
     document.getElementById("activeHolder").style.display='block';
     document.getElementById("corralHolder").style.display='none';
+  document.getElementById("optionsHolder").style.display='none';
+  document.body.id = 'tab2';
 }
+
+function showOptions() {
+    localStorage["popup_view"] = "options";
+    document.getElementById("activeHolder").style.display='none';
+    document.getElementById("corralHolder").style.display='none';
+    document.getElementById("optionsHolder").style.display='block';
+  document.body.id = 'tab3';
+}
+
 
 function loadLastView() {
   var pv = localStorage["popup_view"];
 
-  if ( pv != "active" ) {
-      showCorral();
-  } else {
+  if ( pv == "active" ) {
       showActive();
+  } else if ( pv == "corral" ) {
+      showCorral();
+  } else if ( pv == "options" ) {
+    showOptions();
+  } else {
+      showCorral();n
   }
-  
+
   //  document.getElementById(pv+"Holder").style.display='block';
 }
 

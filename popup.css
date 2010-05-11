@@ -1,0 +1,142 @@
+body {
+  min-width:357px;
+  overflow-x:hidden;
+  color:black;
+  font-family:sans-serif;
+  background-color:#ccc;
+}
+
+table.pretty {
+  width:330px;
+  font-size:.8em;
+  margin-left:1px;
+  margin-right:1px;
+  background: whitesmoke;
+  border-collapse: collapse;
+}
+
+table.pretty th, table.pretty td {
+  border: 1px silver solid;
+  padding: 0.2em;
+}
+table.pretty th {
+  background: gainsboro;
+  text-align: left;
+}
+
+table.pretty a {
+  color: #0066cc;
+  font-weight:bold;
+}
+
+table.pretty caption {
+  margin-left: inherit;
+  margin-right: inherit;
+}
+
+.smallgrey {
+  font-size:.8em;color:#888;margin:0px
+}
+
+.smallhead {
+  font-size:.9em;color:black;margin:0px;font-weight:bolder;
+}
+
+
+#corralHolder {
+  display:none;
+  background-color:#fff;
+  padding:12px;
+}
+#activeHolder {
+  display:none;
+  background-color:#fff;
+  padding:12px;
+}
+
+#optionsHolder {
+  display:none;
+  background-color:#fff;
+  padding:12px;
+}
+
+
+/* p {  */
+/*     margin:0px; */
+/*     padding:0px; */
+/* } */
+
+/* begin css tabs */
+
+ul#tabnav { /* general settings */
+text-align: left; /* set to left, right or center */
+margin-top: 1em; /* set margins as desired */
+font: bold 12px verdana, arial, sans-serif; /* set font as desired */
+border-bottom: 0px solid white; /* set border COLOR as desired */
+list-style-type: none;
+padding-bottom:2px;
+margin-bottom:0px;
+margin-left:0px;
+padding-left:12px;
+width:300px;
+
+}
+
+ul#tabnav li { /* do not change */
+display: inline;
+}
+
+body#tab1 li.tab1, body#tab2 li.tab2, body#tab3 li.tab3, body#tab4 li.tab4 { /* settings for selected tab */
+border-bottom: 1px solid #fff; /* set border color to page background color */
+background-color: #fff; /* set background color to match above border color */
+
+}
+
+body#tab1 li.tab1 a, body#tab2 li.tab2 a, body#tab3 li.tab3 a, body#tab4 li.tab4 a,body#tab5 li.tab5 a { /* settings for selected tab link */
+background-color: #fff; /* set selected tab background color as desired */
+color: #666666; /* set selected tab link color as desired */
+position: relative;
+top: 1px;
+/* must change with respect to padding (X) above and below */
+font-style:italic;
+font-weight:bolder;
+font-size:12px;
+-webkit-border-top-left-radius: 5px;
+-webkit-border-top-right-radius: 5px;
+-moz-border-radius-topleft: 5px;
+-moz-border-radius-topright: 5px;
+}
+
+ul#tabnav li a { /* settings for all tab links */
+padding: 2px 4px; /* set padding (tab size) as desired; FIRST number must change with respect to padding-top (X) above */
+border-bottom: 2px solid #666666; /* set border COLOR as desired; usually matches border color specified in #tabnav */
+background-color: #666666; /* set unselected tab background color as desired */
+color: white; /* set unselected tab link color as desired */
+margin-right: 0px; /* set additional spacing between tabs as desired */
+text-decoration: none;
+border-bottom: none;
+padding-top:6px;
+-webkit-border-top-left-radius: 5px;
+-webkit-border-top-right-radius: 5px;
+-moz-border-radius-topleft: 5px;
+-moz-border-radius-topright: 5px;
+}
+
+ul#tabnav a:hover { /* settings for hover effect */
+/*
+color: #849c3c;
+background-color:white;
+font-weight:bolder;
+border-bottom: 2px solid white;
+*/
+background-color: #fff; /* set selected tab background color as desired */
+color: #666666; /* set selected tab link color as desired */
+position: relative;
+top: 1px;
+/* must change with respect to padding (X) above and below */
+font-style:italic;
+wont-weight:bolder;
+font-size:12px;
+}
+
+/* end css tabs */

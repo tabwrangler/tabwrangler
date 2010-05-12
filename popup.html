@@ -5,6 +5,9 @@
 <script type="text/javascript" src="time_since.js"></script>
 <script type="text/javascript" src="options.js"></script>
 <script type="text/javascript" src="tw_shared.js"></script>
+
+<script type="text/javascript" src="popup-lock.js"></script>
+<script type="text/javascript" src="popup-corral.js"></script>
 <script type="text/javascript" src="popup.js"></script>
 </head>
 
@@ -17,7 +20,7 @@
 </ul>
 
 <div id="corralHolder">
- <p class="smallgrey">Click the title to re-open the tab.</p>
+ <p class="smallgrey" >Click the title to re-open the tab.</p>
 <div id="corralDyn">
 <table id="corralTable" class="pretty">
 <tr>
@@ -31,7 +34,7 @@
 </div>
 
 <div id="activeHolder">
-<p class="smallgrey">Click the checkbox to lock the tab. <a style="font-size:.8em" href="javascript:closeUnlocked()">close all unlocked tabs</a></p>
+<p class="smallgrey">Click the checkbox to lock the tab. <a id="close_unlocked" style="font-size:.8em" href="javascript:closeUnlocked()">close all unlocked tabs</a></p>
 
 <br/>
 <div id="activeDyn">

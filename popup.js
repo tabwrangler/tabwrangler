@@ -7,9 +7,10 @@ function openExtTab() {
 }
 
 function showCloseUnlocked() {
+  var locked_ids = getLsOr("locked_ids");
     chrome.tabs.getAllInWindow(null, function (tabs){
 	    var tl = tabs.length;
-	    var locked_ids = getLsOr("locked_ids");
+
 	    var do_unlocking = true;
 	    var cu = document.getElementById('close_unlocked');
 	    var lil = locked_ids.length;
@@ -26,9 +27,9 @@ function checkToClose(tabs) {
   var locked_ids = getLsOr("locked_ids");
   var do_unlocking = true;
   if ( locked_ids.length == 0 ) {
-    if ( !window.confirm("No tabs are locked...close ALL tabs?") ) {
-      do_unlocking = false;
-    }
+    // if ( !window.confirm("No tabs are locked...close ALL tabs?") ) {
+    //   do_unlocking = false;
+    // }
   }
   if ( !do_unlocking ) {
     return; //close out
@@ -38,6 +39,9 @@ function checkToClose(tabs) {
     var lock_check = locked_ids.indexOf(tmp_id);
     if ( lock_check == -1 ) {
       chrome.tabs.remove(tmp_id);
+      addToCorral(tabs[i].id,tabs[i].title,
+		  tabs[i].url,tabs[i].favIconUrl,
+		  new Date().getTime());
     }
   }
 }
@@ -73,7 +77,9 @@ function initTabWrangler() {
     loadLastView();
     loadOpenTabs();
     loadClosedTabs();
+
     restore_options(); // from options.js
+  updateWL();
 }
 
 function showCorral() {
@@ -111,13 +117,50 @@ function loadLastView() {
   } else if ( pv == "options" ) {
     showOptions();
   } else {
-      showCorral();n
+      showCorral();
+  }
+}
+
+function deleteWL() {
+  var wl_select = document.getElementById('whitelist');
+  var wl_data = getLsOr("whitelist");
+  var selected = wl_select.options.selectedIndex;
+  if ( selected != -1 ) {
+    //wl_select.options[selected] = null;
+    wl_data.splice(selected,1);
+  }
+  localStorage["whitelist"] = JSON.stringify(wl_data);
+  updateWL();
+}
+
+function addWL() {
+  var url = document.getElementById('wl_add').value;
+  alert(url);
+  var wl_data = getLsOr("whitelist");
+  if ( url.length > 0 && wl_data.indexOf(url) == -1 ) {
+    wl_data.push(url);
+  } else {
+    //alert("Already in list");
+  }
+  localStorage["whitelist"] = JSON.stringify(wl_data);
+  updateWL();
+}
+
+function updateWL() {
+  var wl_data = getLsOr("whitelist");
+  var wl_len = wl_data.length;
+  var wl_select = document.getElementById('whitelist');
+  wl_select.options.length = 0;
+  for ( var i=0;i<wl_len;i++ ) {
+    var tmp_opt = document.createElement('option');
+    tmp_opt.appendChild(document.createTextNode(wl_data[i]));
+    wl_select.appendChild(tmp_opt);
   }
 }
 
 function tooLong(a) {
-  if ( a.length > 83 ) {
-    return a.substring(0,80) + "...";
+  if ( a.length > 73 ) {
+    return a.substring(0,70) + "...";
   }
   return a;
 }

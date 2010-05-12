@@ -3,23 +3,39 @@ var TAB_TITLE = new Object();
 var TAB_URL = new Object();
 var TAB_ICON = new Object();
 
-var CLOSED_TITLE = new Array();
-var CLOSED_URL = new Array();
-var CLOSED_ICON = new Array();
-var CLOSED_ACTION = new Array();
-
-var CLOSED_DETAILS = new Array();
+// var CLOSED_TITLE = new Array();
+// var CLOSED_URL = new Array();
+// var CLOSED_ICON = new Array();
+// var CLOSED_ACTION = new Array();
+// var CLOSED_DETAILS = new Array();
 
 var TAB_IDS = new Array();
 var STAY_OPEN = 420000; //7 minutes
 //var STAY_OPEN = 15000; //DEBUG
 
+
+function checkAutoLock(tab_id,url) {
+  var wl_data = getLsOr("whitelist");
+  var wl_len = wl_data.length;
+  var locked_ids = getLsOr("locked_ids");
+
+  for ( var i=0;i<wl_len;i++ ) {
+    if ( url.indexOf(wl_data[i]) != -1 ) {
+      if ( locked_ids.indexOf(tab_id) == -1 ) {
+	locked_ids.push(tab_id);
+      }
+    }
+  }
+  localStorage["locked_ids"] = JSON.stringify(locked_ids);
+
+}
 function updateTabs(tab) {
+
     TAB_ACTION[tab.id] = new Date().getTime();
 
     TAB_TITLE[tab.id] = tab.title;
     TAB_URL[tab.id] = tab.url;
-    TAB_ICON[tab.id] = tab.favIconUrl;    
+    TAB_ICON[tab.id] = tab.favIconUrl;
 
     if ( TAB_IDS.indexOf(tab.id) == -1 ) {
       TAB_IDS.push(tab.id);
@@ -33,13 +49,11 @@ function onUpdateAction(tabId,changeInfo,tab) {
 }
 
 function onSelectAction(tabId,selectInfo) {
-
    var tab = new Object();
    tab.id = tabId;
    tab.title = TAB_TITLE[tabId];
    tab.url = TAB_URL[tabId];
    tab.favIconUrl = TAB_ICON[tabId];
-
    return updateTabs(tab);
 }
 
@@ -52,6 +66,8 @@ function initTabs(tabs) {
     var t = tabs[i].title;
     var u = tabs[i].url;
     var tid = tabs[i].id;
+    //so we don't have to wait 5 seconds
+    checkAutoLock(tabs[i].id,tabs[i].url);
     TAB_ACTION[tid] = new Date().getTime();
     TAB_TITLE[tid] = t;
     TAB_URL[tid] = u;
@@ -65,9 +81,11 @@ function checkToClose() {
   refreshOptions();
   chrome.tabs.getSelected(null,updateTabs);
 
-  var locked_ids = getLsOr("locked_ids");
-
   var tabNum = TAB_IDS.length;
+  for ( var i=0; i < tabNum; i++ ) {
+    checkAutoLock(TAB_IDS[i],TAB_URL[TAB_IDS[i]]);
+  }
+  var locked_ids = getLsOr("locked_ids");
   var rightNow = new Date().getTime();
   var toCut = new Array();
   for ( var i=0; i < tabNum; i++ ) {
@@ -76,21 +94,23 @@ function checkToClose() {
         if ( timeGone >= STAY_OPEN && lock_check == -1) {
           try {
           chrome.tabs.remove(TAB_IDS[i]);
+	  addToCorral(TAB_IDS[i],TAB_TITLE[TAB_IDS[i]],
+		      TAB_URL[TAB_IDS[i]],TAB_ICON[TAB_IDS[i]],
+		      new Date().getTime());
           } catch(e) {
 
           }
 
-//          CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]].replace(/,/g,''));
-          CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]]);
-          CLOSED_URL.push(TAB_URL[TAB_IDS[i]]);
-          CLOSED_ICON.push(TAB_ICON[TAB_IDS[i]]);
-	  CLOSED_ACTION.push(new Date().getTime());
-	  
+          // CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]]);
+          // CLOSED_URL.push(TAB_URL[TAB_IDS[i]]);
+          // CLOSED_ICON.push(TAB_ICON[TAB_IDS[i]]);
+	  // CLOSED_ACTION.push(new Date().getTime());
 
-          localStorage["closed_tab_titles"] = JSON.stringify(CLOSED_TITLE);
-          localStorage["closed_tab_urls"] = JSON.stringify(CLOSED_URL);
-          localStorage["closed_tab_icons"] = JSON.stringify(CLOSED_ICON);
-          localStorage["closed_tab_actions"] = JSON.stringify(CLOSED_ACTION);
+
+          // localStorage["closed_tab_titles"] = JSON.stringify(CLOSED_TITLE);
+          // localStorage["closed_tab_urls"] = JSON.stringify(CLOSED_URL);
+          // localStorage["closed_tab_icons"] = JSON.stringify(CLOSED_ICON);
+          // localStorage["closed_tab_actions"] = JSON.stringify(CLOSED_ACTION);
 
           toCut.push(TAB_IDS[i]);
         } else {

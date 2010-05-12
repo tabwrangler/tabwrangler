@@ -21,6 +21,7 @@
 
 <div id="corralHolder">
  <p class="smallgrey" >Click the title to re-open the tab.</p>
+<br/>
 <div id="corralDyn">
 <table id="corralTable" class="pretty">
 <tr>
@@ -34,7 +35,7 @@
 </div>
 
 <div id="activeHolder">
-<p class="smallgrey">Click the checkbox to lock the tab. <a id="close_unlocked" style="font-size:.8em" href="javascript:closeUnlocked()">close all unlocked tabs</a></p>
+<p class="smallgrey2">Click the checkbox to lock the tab. <a id="close_unlocked" style="font-size:.8em" href="javascript:closeUnlocked()">close all unlocked tabs</a></p>
 
 <br/>
 <div id="activeDyn">
@@ -50,10 +51,21 @@
 </div>
 
 <div id="optionsHolder">
-Close inactive tabs after:
+<strong>Close inactive tabs after:</strong><br/>
 <input type="text" id="minutes_inactive" size="1" > minutes.
+<br/>
+<br/>
+<strong>Auto-Lock tabs with urls "like":</strong><br/>
+<span><input type="text" id="wl_add" /><input type="button" value="Add" onclick="addWL()" /></span><br/>
+<select multiple="multiple" size="5" id="whitelist" style="width:200px"></select><br/>
+<input type="button" value="Delete" onclick="deleteWL()" /><br/>
+<p class="smallgrey2" >Note: If any item in list matches any part of URL it will match. 
+<br/>Example: <i>cnn</i> would match every page on cnn.com and any url with cnn anywhere in url<br/>
+Also, be aware of the actual URL for the page (Gmail would be mail.google.com NOT gmail.com)</p>
 
-<br>
+
+
+<hr/>
 <button onclick="save_options()">Save</button>
 <br/>
 <div id="status" style="color:green"></div>

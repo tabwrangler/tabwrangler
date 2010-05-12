@@ -19,9 +19,11 @@ function openTabs(tabs) {
        td_icon.style.textAlign = "center";
        var img_icon = document.createTextNode("-");
     }
-     td_icon.appendChild(img_icon);
+    td_icon.appendChild(img_icon);
 
-     var td_title = document.createElement("td");
+    var td_title = document.createElement("td");
+    td_title.style.fontSize ='.9em';
+    td_title.style.fontWeight = 'bold';
 
      var ptext = document.createTextNode(tooLong(tabs[i].title));
      td_title.appendChild(ptext);
@@ -29,7 +31,6 @@ function openTabs(tabs) {
      spanurl.className = "smallgrey";
      spanurl.appendChild(document.createTextNode(tooLong(tabs[i].url)));
 
-     //td_title.appendChild(a_title);
      td_title.appendChild(document.createElement("br"));
      td_title.appendChild(spanurl);
 

@@ -1,3 +1,28 @@
+function removeChildrenFromNode(node) {
+
+  var len = node.childNodes.length;
+  node.innerHTML = '';
+  // while (node.hasChildNodes()) {
+  //   node.removeChild(node.firstChild);
+  // }
+}
+
+function checkAutoLock(tab_id,url) {
+  var wl_data = getLsOr("whitelist");
+  var wl_len = wl_data.length;
+  var locked_ids = getLsOr("locked_ids");
+
+  for ( var i=0;i<wl_len;i++ ) {
+    if ( url.indexOf(wl_data[i]) != -1 ) {
+      if ( locked_ids.indexOf(tab_id) == -1 ) {
+	locked_ids.push(tab_id);
+      }
+    }
+  }
+  localStorage["locked_ids"] = JSON.stringify(locked_ids);
+}
+
+
 function getLsOr(LsString) {
     var ls = localStorage[LsString];
     var r;

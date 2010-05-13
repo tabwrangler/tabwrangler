@@ -38,10 +38,16 @@ function checkToClose(tabs) {
     var tmp_id = tabs[i].id;
     var lock_check = locked_ids.indexOf(tmp_id);
     if ( lock_check == -1 ) {
-      chrome.tabs.remove(tmp_id);
-      addToCorral(tabs[i].id,tabs[i].title,
+      try {
+	chrome.tabs.remove(tmp_id);
+	addToCorral(tabs[i].id,tabs[i].title,
 		  tabs[i].url,tabs[i].favIconUrl,
 		  new Date().getTime());
+
+      } catch(e) {
+
+      }
+
     }
   }
 }
@@ -74,29 +80,34 @@ function removeLock(tab_id) {
 }
 
 function initTabWrangler() {
-    loadLastView();
-    loadOpenTabs();
-    loadClosedTabs();
-
-    restore_options(); // from options.js
+  loadLastView();
+//    loadOpenTabs();
+//    loadClosedTabs();
+  restore_options(); // from options.js
   updateWL();
 }
 
 function showCorral() {
-    localStorage["popup_view"] = "corral";
-    document.getElementById("corralHolder").style.display='block';
-    document.getElementById("activeHolder").style.display='none';
-    document.getElementById("optionsHolder").style.display='none';
-    document.body.id = 'tab1';
+  localStorage["popup_view"] = "corral";
+
+  document.getElementById("corralHolder").style.display='block';
+  document.getElementById("activeHolder").style.display='none';
+  document.getElementById("optionsHolder").style.display='none';
+
+  document.body.id = 'tab1';
+  loadClosedTabs();
 }
 
 function showActive() {
-    localStorage["popup_view"] = "active";
-    document.getElementById("activeHolder").style.display='block';
-    document.getElementById("corralHolder").style.display='none';
-    document.getElementById("optionsHolder").style.display='none';
-    document.body.id = 'tab2';
-    showCloseUnlocked();
+  localStorage["popup_view"] = "active";
+
+  document.getElementById("activeHolder").style.display='block';
+  document.getElementById("corralHolder").style.display='none';
+  document.getElementById("optionsHolder").style.display='none';
+
+  document.body.id = 'tab2';
+  loadOpenTabs();
+  showCloseUnlocked();
 }
 
 function showOptions() {

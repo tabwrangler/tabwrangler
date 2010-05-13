@@ -13,22 +13,6 @@ var TAB_IDS = new Array();
 var STAY_OPEN = 420000; //7 minutes
 //var STAY_OPEN = 15000; //DEBUG
 
-
-function checkAutoLock(tab_id,url) {
-  var wl_data = getLsOr("whitelist");
-  var wl_len = wl_data.length;
-  var locked_ids = getLsOr("locked_ids");
-
-  for ( var i=0;i<wl_len;i++ ) {
-    if ( url.indexOf(wl_data[i]) != -1 ) {
-      if ( locked_ids.indexOf(tab_id) == -1 ) {
-	locked_ids.push(tab_id);
-      }
-    }
-  }
-  localStorage["locked_ids"] = JSON.stringify(locked_ids);
-
-}
 function updateTabs(tab) {
 
     TAB_ACTION[tab.id] = new Date().getTime();

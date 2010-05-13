@@ -1,8 +1,12 @@
 function openTabs(tabs) {
-  var locked_ids = getLsOr("locked_ids");
+
   var tabNum = tabs.length;
   var table = document.getElementById('activeTable');
-
+  removeChildrenFromNode(table);
+  for ( var i=0; i < tabNum; i++ ) {
+    checkAutoLock(tabs[i].id,tabs[i].url);
+  }
+  var locked_ids = getLsOr("locked_ids");
   for ( var i=0; i < tabNum; i++ ) {
      var tr = document.createElement("tr");
      var td_icon = document.createElement("td");

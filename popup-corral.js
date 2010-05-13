@@ -10,7 +10,8 @@ function loadClosedTabs() {
   }
 
   var table = document.getElementById('corralTable');
-
+  removeChildrenFromNode(table);
+  
   for ( var i = 0; i < closed_count; i++) {
      var tr = document.createElement("tr");
      var td_icon = document.createElement("td");

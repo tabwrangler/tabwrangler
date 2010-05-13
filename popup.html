@@ -52,23 +52,23 @@
 
 <div id="optionsHolder">
 <strong>Close inactive tabs after:</strong><br/>
-<input type="text" id="minutes_inactive" size="1" > minutes.
+<input type="text" id="minutes_inactive" size="1" > minutes. <button onclick="save_options()">Save</button>
 <br/>
+<div id="status" style="color:green"></div>
+<hr/>
 <br/>
 <strong>Auto-Lock tabs with urls "like":</strong><br/>
 <span><input type="text" id="wl_add" /><input type="button" value="Add" onclick="addWL()" /></span><br/>
 <select multiple="multiple" size="5" id="whitelist" style="width:200px"></select><br/>
 <input type="button" value="Delete" onclick="deleteWL()" /><br/>
-<p class="smallgrey2" >Note: If any item in list matches any part of URL it will match. 
-<br/>Example: <i>cnn</i> would match every page on cnn.com and any url with cnn anywhere in url<br/>
-Also, be aware of the actual URL for the page (Gmail would be mail.google.com NOT gmail.com)</p>
+<p class="smallgrey2" >Note: 
+<ol class="smallgrey2">
+<li>If any item in list matches any part of URL it will match. Example: <i>cnn</i> would match every page on cnn.com and any URL with cnn anywhere in url </li>
+<li>Be aware of the actual URL for the page (Gmail would be mail.google.com NOT gmail.com)</li>
+</ol>
+</p>
 
 
-
-<hr/>
-<button onclick="save_options()">Save</button>
-<br/>
-<div id="status" style="color:green"></div>
 
 </div>
 </body>

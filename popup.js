@@ -135,7 +135,6 @@ function deleteWL() {
 
 function addWL() {
   var url = document.getElementById('wl_add').value;
-  alert(url);
   var wl_data = getLsOr("whitelist");
   if ( url.length > 0 && wl_data.indexOf(url) == -1 ) {
     wl_data.push(url);

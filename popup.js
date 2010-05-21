@@ -26,11 +26,7 @@ function checkToClose(tabs) {
   var tl = tabs.length;
   var locked_ids = getLsOr("locked_ids");
   var do_unlocking = true;
-  if ( locked_ids.length == 0 ) {
-    // if ( !window.confirm("No tabs are locked...close ALL tabs?") ) {
-    //   do_unlocking = false;
-    // }
-  }
+
   if ( !do_unlocking ) {
     return; //close out
   }
@@ -81,8 +77,6 @@ function removeLock(tab_id) {
 
 function initTabWrangler() {
   loadLastView();
-//    loadOpenTabs();
-//    loadClosedTabs();
   restore_options(); // from options.js
   updateWL();
 }
@@ -149,6 +143,7 @@ function addWL() {
   var wl_data = getLsOr("whitelist");
   if ( url.length > 0 && wl_data.indexOf(url) == -1 ) {
     wl_data.push(url);
+    document.getElementById('wl_add').value= '';
   } else {
     //alert("Already in list");
   }

@@ -3,12 +3,6 @@ var TAB_TITLE = new Object();
 var TAB_URL = new Object();
 var TAB_ICON = new Object();
 
-// var CLOSED_TITLE = new Array();
-// var CLOSED_URL = new Array();
-// var CLOSED_ICON = new Array();
-// var CLOSED_ACTION = new Array();
-// var CLOSED_DETAILS = new Array();
-
 var TAB_IDS = new Array();
 var STAY_OPEN = 420000; //7 minutes
 //var STAY_OPEN = 15000; //DEBUG
@@ -40,7 +34,6 @@ function onSelectAction(tabId,selectInfo) {
    tab.favIconUrl = TAB_ICON[tabId];
    return updateTabs(tab);
 }
-
 
 function initTabs(tabs) {
   var tl = tabs.length;
@@ -85,17 +78,6 @@ function checkToClose() {
 
           }
 
-          // CLOSED_TITLE.push(TAB_TITLE[TAB_IDS[i]]);
-          // CLOSED_URL.push(TAB_URL[TAB_IDS[i]]);
-          // CLOSED_ICON.push(TAB_ICON[TAB_IDS[i]]);
-	  // CLOSED_ACTION.push(new Date().getTime());
-
-
-          // localStorage["closed_tab_titles"] = JSON.stringify(CLOSED_TITLE);
-          // localStorage["closed_tab_urls"] = JSON.stringify(CLOSED_URL);
-          // localStorage["closed_tab_icons"] = JSON.stringify(CLOSED_ICON);
-          // localStorage["closed_tab_actions"] = JSON.stringify(CLOSED_ACTION);
-
           toCut.push(TAB_IDS[i]);
         } else {
 	    // if tab is locked...keep it updated...
@@ -104,8 +86,6 @@ function checkToClose() {
 	    }
 	}
   }
-
-
 
   for ( var x=0;x < toCut.length;x++ ) {
       TAB_IDS.splice(TAB_IDS.indexOf(toCut[x]),1);
@@ -140,14 +120,13 @@ function startup() {
 
     localStorage["locked_ids"] = "";
 
-  refreshOptions();
-  chrome.tabs.getAllInWindow(null, initTabs);
-  chrome.tabs.onCreated.addListener(updateTabs);
+    refreshOptions();
+    chrome.tabs.getAllInWindow(null, initTabs);
+    chrome.tabs.onCreated.addListener(updateTabs);
 
-  chrome.tabs.onUpdated.addListener(onUpdateAction);
-  chrome.tabs.onSelectionChanged.addListener(onSelectAction);
-  window.setInterval(checkToClose,5000);
+    chrome.tabs.onUpdated.addListener(onUpdateAction);
+    chrome.tabs.onSelectionChanged.addListener(onSelectAction);
+    window.setInterval(checkToClose,5000);
 }
-
 
 window.onload = startup;

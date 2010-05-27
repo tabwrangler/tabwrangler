@@ -23,6 +23,8 @@ function checkAutoLock(tab_id,url) {
 }
 
 
+
+
 function getLsOr(LsString) {
     var ls = localStorage[LsString];
     var r;
@@ -48,6 +50,33 @@ function tooLong(a) {
 //     }
 //     return JSON.parse(ls);
 // }
+
+function cleanLocked() {
+  var locked_ids = getLsOr("locked_ids");
+  var cids = new Array();
+
+  chrome.tabs.getAllInWindow(null, function (tabs) {
+
+      var tlen = tabs.length;
+      for ( var i=0;i<tlen;i++ ) {
+          cids.push(tabs[i].id);
+      }
+//			       alert(cids.join(","));
+      var lock_size = locked_ids.length;
+      for ( var x=0;x<lock_size;x++ ) {
+          if ( cids.indexOf(locked_ids[x]) == -1 ) {
+              alert("removing: " + locked_ids[x]);
+              locked_ids.splice(locked_ids.indexOf(locked_ids[x]),1);
+	  }
+  }
+  localStorage["locked_ids"] = JSON.stringify(locked_ids);
+
+ } );
+  return true;
+  // alert(cids.join(","));
+  // alert(locked_ids.join(","));
+}
+
 
 function addToCorral(new_id,new_title,new_url,new_icon,new_action) {
   var titles = getLsOr("closed_tab_titles");

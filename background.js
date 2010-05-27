@@ -60,7 +60,7 @@ function checkToClose() {
 
   var tabNum = TAB_IDS.length;
   for ( var i=0; i < tabNum; i++ ) {
-    checkAutoLock(TAB_IDS[i],TAB_URL[TAB_IDS[i]]);
+    //checkAutoLock(TAB_IDS[i],TAB_URL[TAB_IDS[i]]);
   }
   var locked_ids = getLsOr("locked_ids");
   var rightNow = new Date().getTime();
@@ -92,12 +92,13 @@ function checkToClose() {
   }
 
   // remove locked id if not an active tab..
-  for ( var x=0;x < locked_ids.length;x++ ) {
-      if ( TAB_IDS.indexOf(locked_ids[x]) == -1 ) {
-	  	  locked_ids.splice(locked_ids.indexOf(locked_ids[x]),1);
-      }
-  }
-  localStorage["locked_ids"] = JSON.stringify(locked_ids);
+  // for ( var x=0;x < locked_ids.length;x++ ) {
+  //     if ( TAB_IDS.indexOf(locked_ids[x]) == -1 ) {
+  // 	  	  locked_ids.splice(locked_ids.indexOf(locked_ids[x]),1);
+  //     }
+  // }
+  // localStorage["locked_ids"] = JSON.stringify(locked_ids);
+  //cleanLocked();
 
 }
 

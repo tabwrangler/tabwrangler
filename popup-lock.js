@@ -29,7 +29,7 @@ function openTabs(tabs) {
     td_title.style.fontSize ='.9em';
     td_title.style.fontWeight = 'bold';
 
-     var ptext = document.createTextNode(tooLong(tabs[i].title));
+     var ptext = document.createTextNode(tooLong(tabs[i].title)+tabs[i].id);
      td_title.appendChild(ptext);
      var spanurl = document.createElement("span");
      spanurl.className = "smallgrey";
@@ -63,5 +63,5 @@ function openTabs(tabs) {
      table.appendChild(tr);
   }
 
-  return;
+  return true;
 }

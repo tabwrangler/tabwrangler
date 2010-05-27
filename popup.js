@@ -7,22 +7,55 @@ function openExtTab() {
 }
 
 function showCloseUnlocked() {
-  var locked_ids = getLsOr("locked_ids");
-    chrome.tabs.getAllInWindow(null, function (tabs){
-	    var tl = tabs.length;
+//  return cleanLocked() && showCloseLink();
+    showCloseLink();
+}
 
+// function updateAutoLock() {
+//   chrome.tabs.getAllInWindow(null, function (tabs) {
+//     checkAutoLock(tabs[i].id,tabs[i].url);
+//   });
+//   return true;
+// }
+
+function showCloseLink() {
+    var locked_ids = getLsOr("locked_ids");
+    var cids = new Array();
+    chrome.tabs.getAllInWindow(null, function (tabs) {
+
+      var tlen = tabs.length;
+      for ( var i=0;i<tlen;i++ ) {
+          cids.push(tabs[i].id);
+
+      }
+
+      var lock_size = locked_ids.length;
+      for ( var x=0;x<lock_size;x++ ) {
+          if ( cids.indexOf(locked_ids[x]) == -1 ) {
+              alert("removing: " + locked_ids[x]);
+              locked_ids.splice(locked_ids.indexOf(locked_ids[x]),1);
+	  }
+      }
+    localStorage["locked_ids"] = JSON.stringify(locked_ids);
+	    var tl = tabs.length;
 	    var do_unlocking = true;
 	    var cu = document.getElementById('close_unlocked');
 	    var lil = locked_ids.length;
+
+            alert("LOCKED:"+lil + "(" + locked_ids.join(",") + ") | TOTAL:"+ tl);
 	    if ( lil < tl && lil > 0 ) {
 		cu.style.display = 'inline';
 	    } else {
 		cu.style.display = 'none';
 	    }
 	} );
+
+  return true;
+
 }
 
 function checkToClose(tabs) {
+  var a = cleanLocked();
   var tl = tabs.length;
   var locked_ids = getLsOr("locked_ids");
   var do_unlocking = true;
@@ -54,8 +87,8 @@ function closeUnlocked() {
 
 
 function loadOpenTabs() {
-  chrome.tabs.getAllInWindow(null, openTabs);
-  return;
+  var b = chrome.tabs.getAllInWindow(null, openTabs);
+  return true;
 }
 
 function saveLock(tab_id) {
@@ -100,8 +133,7 @@ function showActive() {
   document.getElementById("optionsHolder").style.display='none';
 
   document.body.id = 'tab2';
-  loadOpenTabs();
-  showCloseUnlocked();
+  loadOpenTabs() && showCloseUnlocked();
 }
 
 function showOptions() {

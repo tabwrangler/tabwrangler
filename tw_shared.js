@@ -14,7 +14,7 @@ function checkAutoLock(tab_id,url) {
 
   for ( var i=0;i<wl_len;i++ ) {
     if ( url.indexOf(wl_data[i]) != -1 ) {
-      if ( locked_ids.indexOf(tab_id) == -1 ) {
+      if ( tab_id > 0 && locked_ids.indexOf(tab_id) == -1 ) {
 	locked_ids.push(tab_id);
       }
     }
@@ -51,6 +51,8 @@ function tooLong(a) {
 //     return JSON.parse(ls);
 // }
 
+
+// in case needs to be called from multiple places...
 function cleanLocked() {
   var locked_ids = getLsOr("locked_ids");
   var cids = new Array();
@@ -61,11 +63,10 @@ function cleanLocked() {
       for ( var i=0;i<tlen;i++ ) {
           cids.push(tabs[i].id);
       }
-//			       alert(cids.join(","));
       var lock_size = locked_ids.length;
       for ( var x=0;x<lock_size;x++ ) {
           if ( cids.indexOf(locked_ids[x]) == -1 ) {
-              alert("removing: " + locked_ids[x]);
+	      //              alert("removing: " + locked_ids[x]);
               locked_ids.splice(locked_ids.indexOf(locked_ids[x]),1);
 	  }
   }
@@ -73,9 +74,8 @@ function cleanLocked() {
 
  } );
   return true;
-  // alert(cids.join(","));
-  // alert(locked_ids.join(","));
 }
+
 
 
 function addToCorral(new_id,new_title,new_url,new_icon,new_action) {

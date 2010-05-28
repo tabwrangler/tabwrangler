@@ -7,8 +7,8 @@ function openExtTab() {
 }
 
 function showCloseUnlocked() {
-//  return cleanLocked() && showCloseLink();
-    showCloseLink();
+    //give it time to catch up
+    window.setTimeout(showCloseLink,500);
 }
 
 // function updateAutoLock() {
@@ -32,7 +32,7 @@ function showCloseLink() {
       var lock_size = locked_ids.length;
       for ( var x=0;x<lock_size;x++ ) {
           if ( cids.indexOf(locked_ids[x]) == -1 ) {
-              alert("removing: " + locked_ids[x]);
+	      //              alert("removing: " + locked_ids[x]);
               locked_ids.splice(locked_ids.indexOf(locked_ids[x]),1);
 	  }
       }
@@ -42,7 +42,7 @@ function showCloseLink() {
 	    var cu = document.getElementById('close_unlocked');
 	    var lil = locked_ids.length;
 
-            alert("LOCKED:"+lil + "(" + locked_ids.join(",") + ") | TOTAL:"+ tl);
+	    //            alert("LOCKED:"+lil + "(" + locked_ids.join(",") + ") | TOTAL:"+ tl);
 	    if ( lil < tl && lil > 0 ) {
 		cu.style.display = 'inline';
 	    } else {
@@ -79,6 +79,7 @@ function checkToClose(tabs) {
 
     }
   }
+  window.close(); //close popup
 }
 
 function closeUnlocked() {
@@ -94,7 +95,7 @@ function loadOpenTabs() {
 function saveLock(tab_id) {
     var locked_ids = getLsOr("locked_ids");
 
-    if ( locked_ids.indexOf(tab_id) == -1 ) {
+    if ( tab_id > 0 && locked_ids.indexOf(tab_id) == -1 ) {
 	locked_ids.push(tab_id);
     }
     localStorage["locked_ids"] = JSON.stringify(locked_ids);

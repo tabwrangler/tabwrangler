@@ -4,11 +4,16 @@
 
 <body onload="restore_options()">
 <h3>Tab Wrangler Options</h3>
-Close inactive tabs after:
-<input type="text" id="minutes_inactive" size="1" > minutes.
-
-
-
+<form>
+<p>
+<label for="minutes_inactive">Close inactive tabs after:</label>
+<input type="text" id="minutes_inactive" size="1" name="minutes_inactive"> minutes.
+</p>
+<p>
+<label for="max_tabs">Save up to:</label>
+<input type="text" id="max_tabs" size="5" name="max_tabs"> tabs in the "Tab Corral"
+</p>
+</form>
 <br>
 <button onclick="save_options()">Save</button>
 <br/>

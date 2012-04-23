@@ -83,11 +83,17 @@ function addToCorral(new_id,new_title,new_url,new_icon,new_action) {
   var urls = getLsOr("closed_tab_urls");
   var icons = getLsOr("closed_tab_icons");
   var actions = getLsOr("closed_tab_actions");
+  var max_tabs = localStorage["max_tabs"];
 
-  titles.push(new_title);
-  urls.push(new_url);
-  icons.push(new_icon);
-  actions.push(new_action);
+  var extras = urls.length - max_tabs;
+  if (extras < 0) {
+    extras = 0;
+  }
+  
+  titles.splice(0, extras, new_title);
+  urls.splice(0, extras, new_url);
+  icons.splice(0, extras, new_icon);
+  actions.splice(0, extras, new_action);
 
   localStorage["closed_tab_titles"] = JSON.stringify(titles);
   localStorage["closed_tab_urls"] = JSON.stringify(urls);

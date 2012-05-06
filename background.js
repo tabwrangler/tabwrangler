@@ -5,6 +5,8 @@ var TAB_ICON = new Object();
 
 var TAB_IDS = new Array();
 var STAY_OPEN = 420000; //7 minutes
+
+var CHECK_INTERVAL = 5000;
 //var STAY_OPEN = 15000; //DEBUG
 
 function updateTabs(tab) {
@@ -54,9 +56,36 @@ function initTabs(tabs) {
   }
 }
 
+function logCheckRun() {
+  LAST_RUN = new Date().getTime();
+}
+
+idleChecker = {
+  lastRun: null,
+  logRun: function(time) {
+    this.lastRun = time;
+  },
+  timeSinceLastRun: function(time) {
+    if (this.lastRun == null) {
+      return 0;
+    }
+    return parseInt(time) - parseInt(this.lastRun);
+  }
+}
+
 function checkToClose() {
   refreshOptions();
   chrome.tabs.getSelected(null,updateTabs);
+
+  var now = new Date().getTime();
+  var extraTime = parseInt(idleChecker.timeSinceLastRun(now)) - CHECK_INTERVAL * 1.1;
+  // extraTime is the time elapsed between runs.  This is probably time when the computer was asleep.
+  if (extraTime < 0) {
+    extraTime = 0;
+  }
+  idleChecker.logRun(now);
+
+  logCheckRun(now);
 
   var tabNum = TAB_IDS.length;
   for ( var i=0; i < tabNum; i++ ) {
@@ -67,6 +96,12 @@ function checkToClose() {
   var toCut = new Array();
   for ( var i=0; i < tabNum; i++ ) {
 	var timeGone = parseInt(rightNow) - parseInt(TAB_ACTION[TAB_IDS[i]]);
+
+
+    // We're going to now reset the timer on all tabs to {extraTime} greater.
+    // this in effect means the time elapsed doesn't count when the machine was in sleep.
+  timeGone += extraTime;
+
 	var lock_check = locked_ids.indexOf(TAB_IDS[i]);
         if ( timeGone >= STAY_OPEN && lock_check == -1) {
           try {
@@ -127,7 +162,7 @@ function startup() {
 
     chrome.tabs.onUpdated.addListener(onUpdateAction);
     chrome.tabs.onSelectionChanged.addListener(onSelectAction);
-    window.setInterval(checkToClose,5000);
+    window.setInterval(checkToClose, CHECK_INTERVAL);
 }
 
 window.onload = startup;

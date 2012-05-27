@@ -1,21 +1,22 @@
 <html>
 <head><title>Tab Wrangler Options</title></head>
+<script type="text/javascript" src="tw_shared.js"></script>
 <script type="text/javascript" src="options.js"></script>
 
-<body onload="restore_options()">
+<body onload="loadOptions()">
 <h3>Tab Wrangler Options</h3>
 <form>
 <p>
-<label for="minutes_inactive">Close inactive tabs after:</label>
-<input type="text" id="minutes_inactive" size="1" name="minutes_inactive"> minutes.
+<label for="minutesInactive">Close inactive tabs after:</label>
+<input type="text" id="minutesInactive" size="1" name="minutesInactive"> minutes.
 </p>
 <p>
-<label for="max_tabs">Save up to:</label>
-<input type="text" id="max_tabs" size="5" name="max_tabs"> tabs in the "Tab Corral"
+<label for="maxTabs">Save up to:</label>
+<input type="text" id="maxTabs" size="5" name="maxTabs"> tabs in the "Tab Corral"
 </p>
 </form>
 <br>
-<button onclick="save_options()">Save</button>
+<button onclick="saveOptions()">Save</button>
 <br/>
 <div id="status" style="color:green"></div>
 </body>

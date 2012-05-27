@@ -1,3 +1,86 @@
+var TW = TW || {};
+
+TW.settings = {
+  loaded: false,
+  cache: {},
+  defaults: {
+    checkInterval: 5000,
+    minutesInactive: 7,
+    maxTabs: 5
+  }
+}
+
+TW.settings.get = function(key) {
+  if (this.loaded == false) {
+    this.load();
+  }
+  switch (typeof(this.cache[key])) {
+    case 'function':
+      return this.cache[key]();
+      break;
+    case 'undefined':
+      if (this.defaults[key]) {
+        return this.defaults[key];
+      }
+      throw Error('Undefined setting "' + key + '"');
+      break;
+    default:
+      return this.cache[key];
+  }
+}
+
+TW.settings.stayOpen = function() {
+  return parseInt(this.get('minutesInactive')) * 60000;
+}
+
+TW.settings.resetToDefaults = function() {
+  this.cache = {};
+}
+
+TW.settings.set = function(key, value) {
+  this.cache[key] = value;
+}
+
+TW.settings.save = function() {
+  localStorage['TWSettings'] = JSON.stringify(this.cache);
+}
+
+TW.settings.validate = function() {
+  var errors = {}
+  if (parseInt(this.cache['maxTabs']) != this.cache['maxTabs']) {
+    errors['maxTabs'] = "Max tabs must be a number";
+  }
+  console.log(parseInt(this.cache['minutesInactive']));
+  if ( parseInt(this.cache['minutesInactive']) < 0 || parseInt(this.cache['minutesInactive']) > 720 ){
+    errors['minutesInactive'] = "Minutes Inactive must be greater than 0 and less than 720";
+  }
+
+  for(var i in errors) {
+    if (errors.hasOwnProperty(i)) {
+      return errors;
+    }
+  }
+  return false;
+}
+
+TW.settings.load = function() {
+  this.cache = JSON.parse(localStorage['TWSettings']);
+  this.loaded = true;
+}
+
+TW.idleChecker = {
+  lastRun: null,
+  logRun: function(time) {
+    this.lastRun = time;
+  },
+  timeSinceLastRun: function(time) {
+    if (this.lastRun == null) {
+      return 0;
+    }
+    return parseInt(time) - parseInt(this.lastRun);
+  }
+}
+
 function removeChildrenFromNode(node) {
 
   var len = node.childNodes.length;

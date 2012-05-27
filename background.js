@@ -4,13 +4,8 @@ var TAB_URL = new Object();
 var TAB_ICON = new Object();
 
 var TAB_IDS = new Array();
-var STAY_OPEN = 420000; //7 minutes
-
-var CHECK_INTERVAL = 5000;
-//var STAY_OPEN = 15000; //DEBUG
 
 function updateTabs(tab) {
-
     TAB_ACTION[tab.id] = new Date().getTime();
 
     TAB_TITLE[tab.id] = tab.title;
@@ -60,30 +55,19 @@ function logCheckRun() {
   LAST_RUN = new Date().getTime();
 }
 
-idleChecker = {
-  lastRun: null,
-  logRun: function(time) {
-    this.lastRun = time;
-  },
-  timeSinceLastRun: function(time) {
-    if (this.lastRun == null) {
-      return 0;
-    }
-    return parseInt(time) - parseInt(this.lastRun);
-  }
-}
 
 function checkToClose() {
-  refreshOptions();
+  TW.resetSettings();
   chrome.tabs.getSelected(null,updateTabs);
 
   var now = new Date().getTime();
-  var extraTime = parseInt(idleChecker.timeSinceLastRun(now)) - CHECK_INTERVAL * 1.1;
-  // extraTime is the time elapsed between runs.  This is probably time when the computer was asleep.
-  if (extraTime < 0) {
-    extraTime = 0;
+  var sleepTime = TW.idleChecker.timeSinceLastRun(now) - TW.settings.checkInterval * 1.1;
+  // sleepTime is the time elapsed between runs.  This is probably time when the computer was asleep.
+
+  if (sleepTime < 0) {
+    sleepTime = 0;
   }
-  idleChecker.logRun(now);
+  TW.idleChecker.logRun(now);
 
   logCheckRun(now);
 
@@ -98,12 +82,12 @@ function checkToClose() {
 	var timeGone = parseInt(rightNow) - parseInt(TAB_ACTION[TAB_IDS[i]]);
 
 
-    // We're going to now reset the timer on all tabs to {extraTime} greater.
+    // We're going to now reset the timer on all tabs to {sleepTime} or greater.
     // this in effect means the time elapsed doesn't count when the machine was in sleep.
-  timeGone += extraTime;
+  timeGone -= extraTime;
 
 	var lock_check = locked_ids.indexOf(TAB_IDS[i]);
-        if ( timeGone >= STAY_OPEN && lock_check == -1) {
+        if ( timeGone >= TW.settings.stayOpen && lock_check == -1) {
           try {
           chrome.tabs.remove(TAB_IDS[i]);
 	  addToCorral(TAB_IDS[i],TAB_TITLE[TAB_IDS[i]],
@@ -137,14 +121,6 @@ function checkToClose() {
 
 }
 
-function refreshOptions() {
-  var m = localStorage["minutes_inactive"];
-  if ( m ) {
-    STAY_OPEN = parseInt(m) * 60000;
-    //STAY_OPEN = 15000; //DEBUG
-  }
-}
-
 function startup() {
     // clear closed tabs DATA in options
     // CLEAR OLD DATA EVERY WHAT?..
@@ -156,13 +132,13 @@ function startup() {
 
     localStorage["locked_ids"] = "";
 
-    refreshOptions();
+    TW.resetSettings();
     chrome.tabs.getAllInWindow(null, initTabs);
     chrome.tabs.onCreated.addListener(updateTabs);
 
     chrome.tabs.onUpdated.addListener(onUpdateAction);
     chrome.tabs.onSelectionChanged.addListener(onSelectAction);
-    window.setInterval(checkToClose, CHECK_INTERVAL);
+    window.setInterval(checkToClose, TW.checkInterval);
 }
 
 window.onload = startup;

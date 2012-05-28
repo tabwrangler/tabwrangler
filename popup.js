@@ -111,7 +111,7 @@ function removeLock(tab_id) {
 
 function initTabWrangler() {
   loadLastView();
-  restore_options(); // from options.js
+  // Add it as an iframe?
   updateWL();
 }
 
@@ -138,7 +138,7 @@ function showActive() {
 }
 
 function showOptions() {
-    localStorage["popup_view"] = "options";
+    TW.settings.set('popup_view', 'options');
     document.getElementById("activeHolder").style.display='none';
     document.getElementById("corralHolder").style.display='none';
     document.getElementById("optionsHolder").style.display='block';
@@ -203,5 +203,28 @@ function tooLong(a) {
   return a;
 }
 
-window.onload = initTabWrangler;
+//window.onload = initTabWrangler;
+
+$(document).ready(function() {
+
+  $('a[data-toggle="tab"]').on('show', function (e) {
+    var tabId = event.target.hash;
+    console.log(tabId);
+    console.log(event.target);
+    switch (tabId) {
+      case '#tabOptions':
+        // In options.js, @todo: refactor this too.
+        console.log('ae');
+        loadOptions();
+        break;
+      case '#tabActive':
+        loadOpenTabs() && showCloseUnlocked();
+        break;
+
+      case '#tabCorral':
+        loadClosedTabs();
+        break;
+    }
+  });
+});
 

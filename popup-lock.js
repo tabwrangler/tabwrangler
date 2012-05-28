@@ -1,7 +1,12 @@
+/**
+ * OMFG this is painful.  Jquery please.
+ * @param tabs
+ * @return {Boolean}
+ */
 function openTabs(tabs) {
 
   var tabNum = tabs.length;
-  var table = document.getElementById('activeTable');
+  var table = document.getElementById('activeTableBody');
   removeChildrenFromNode(table);
   for ( var i=0; i < tabNum; i++ ) {
     checkAutoLock(tabs[i].id,tabs[i].url);

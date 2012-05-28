@@ -6,7 +6,8 @@ TW.settings = {
   defaults: {
     checkInterval: 5000,
     minutesInactive: 7,
-    maxTabs: 5
+    maxTabs: 5,
+    popup_view: 'corral'
   }
 }
 
@@ -64,6 +65,10 @@ TW.settings.validate = function() {
 }
 
 TW.settings.load = function() {
+  if (localStorage['TWSettings'] == '') {
+    this.loaded = true;
+    return;
+  }
   this.cache = JSON.parse(localStorage['TWSettings']);
   this.loaded = true;
 }

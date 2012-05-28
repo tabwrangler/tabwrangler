@@ -1,11 +1,38 @@
-
-<link rel="stylesheet" href="popup.css" type="text/css"/>
 <!-- // chrome-extension://bfbjlhinlheecjobilndbilkfpkmgiao/popup.html -->
+<html>
+<head>
 
+<script src="lib/jquery/js/jquery-1.7.2.min.js" type="text/javascript"></script>
+<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+<script src="lib/bootstrap/js/bootstrap-tab.js"></script>
+
+<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" type="text/css"/>
+<link rel="stylesheet" href="popup.css" type="text/css"/>
+
+
+<!--
+  All of these scripts need to be combined a bit and organized.  But for now, I'm doc'ing what's in them
+-->
+
+<!--
+   Some library for time math?
+-->
 <script type="text/javascript" src="time_since.js"></script>
-<script type="text/javascript" src="options.js"></script>
+
+<!--
+   Main namespace and class for the app.  Mostly settings and configuration stuff now.
+-->
 <script type="text/javascript" src="tw_shared.js"></script>
 
+<!--
+   Event handlers for settings form.  Could probably be wrapped in popup.js.
+-->
+<script type="text/javascript" src="options.js"></script>
+
+
+<!--
+   Makes the auto-lock tab table.
+-->
 <script type="text/javascript" src="popup-lock.js"></script>
 <script type="text/javascript" src="popup-corral.js"></script>
 <script type="text/javascript" src="popup.js"></script>
@@ -13,62 +40,92 @@
 
 <body>
 
-<ul id="tabnav">
-  <li class="tab1"><a href="javascript:showCorral()">Tab Corral</a></li>
-  <li class="tab2"><a href="javascript:showActive()">Tab Lock</a></li>
-  <li class="tab3"><a href="javascript:showOptions()">Options</a></li>
+<ul class="nav nav-tabs">
+  <li><a href="#tabCorral" data-toggle="tab">Tab Corral</a></li>
+  <li><a href="#tabActive" data-toggle="tab">Tab Lock</a></li>
+  <li><a href="#tabOptions" data-toggle="tab">Options</a></li>
 </ul>
 
-<div id="corralHolder">
- <p class="smallgrey" >Click the title to re-open the tab.</p>
-<br/>
-<div id="corralDyn">
-<table id="corralTable" class="pretty">
-<tr>
-<td class="smallhead" style="width:20px"></td>
-<td class="smallhead">title</td>
-<td class="smallhead">when</td>
-</tr>
-</table>
 
+<div class="tab-content">
+
+<div class="tab-pane" id="tabOptions">
+  <h3>Tab Wrangler Options</h3>
+
+  <form class="well">
+    <fieldset>
+      <legend>Settings</legend>
+    <p>
+      <label for="minutesInactive">Close inactive tabs after:</label>
+      <input type="text" id="minutesInactive" class="span1" name="minutesInactive"> minutes.
+    </p>
+
+    <p>
+      <label for="maxTabs">Save up to:</label>
+      <input type="text" id="maxTabs" class="span1" name="maxTabs"> tabs in the "Tab Corral"
+    </p>
+    </fieldset>
+
+  <fieldset>
+    <legend>Auto-Lock</legend>
+  <label for="wl_add">tabs with urls "like":</label>
+  <input type="text" id="wl_add" /> <button class="btn-mini add-on" onclick="addWL(); return false;">Add</button><br/>
+  <select multiple="multiple" id="whitelist"></select>
+  <br/>
+  <button class="btn" onclick="deleteWL(); return false;" />Delete selected</button>
+  <span class="help-block">
+    <ol>
+      <li>If any item in list matches any part of URL it will match. Example: <i>cnn</i> would match every page on cnn.com and any URL with cnn anywhere in url </li>
+      <li>Be aware of the actual URL for the page (Gmail would be mail.google.com NOT gmail.com)</li>
+    </ol>
+  </span>
+  </fieldset>
+
+  <button class="btn" onclick="saveOptions(); return false;">Save</button>
+
+  </form>
+
+  <div id="status" style="color:green"></div>
 </div>
+
+
+<div class="tab-pane  active" id="tabCorral">
+  <p class="smallgrey">Click the title to re-open the tab.</p>
+  <br/>
+
+  <div id="corralDyn">
+    <table id="corralTable" class="table-striped table">
+      <tr>
+        <td class="smallhead" style="width:20px"></td>
+        <td class="smallhead">title</td>
+        <td class="smallhead">when</td>
+      </tr>
+    </table>
+
+  </div>
 </div>
 
-<div id="activeHolder">
-<p class="smallgrey2">Click the checkbox to lock the tab. <a id="close_unlocked" style="font-size:.8em" href="javascript:closeUnlocked()">close all unlocked tabs</a></p>
+<div class="tab-pane" id="tabActive">
+  <p class="smallgrey2">Click the checkbox to lock the tab. <a id="close_unlocked" style="font-size:.8em"
+                                                               href="javascript:closeUnlocked()">close all unlocked
+    tabs</a></p>
 
-<br/>
-<div id="activeDyn">
-<table id="activeTable" class="pretty">
-<tr>
-<td class="smallhead" style="width:20px"><img src="lock.png" /></td>
-<td class="smallhead" style="width:20px"></td>
-<td class="smallhead">title</td>
+  <br/>
 
-</tr>
-</table>
-</div>
-</div>
+  <div id="activeDyn">
+    <table id="activeTable" class="table-striped table table-bordered">
+      <thead>
+        <tr>
+          <th style="width:20px"><img src="lock.png"/></td>
+          <th style="width:20px"></td>
+          <th>Title</td>
+        </tr>
+      </thead>
+      <!-- Class is a total kludge to keep popup=lock working -->
+      <tbody id="activeTableBody">
 
-<div id="optionsHolder">
-<strong>Close inactive tabs after:</strong><br/>
-<input type="text" id="minutes_inactive" size="1" > minutes. <button onclick="save_options()">Save</button>
-<br/>
-<div id="status" style="color:green"></div>
-<hr/>
-<br/>
-<strong>Auto-Lock tabs with urls "like":</strong><br/>
-<span><input type="text" id="wl_add" /><input type="button" value="Add" onclick="addWL()" /></span><br/>
-<select multiple="multiple" size="5" id="whitelist" style="width:200px"></select><br/>
-<input type="button" value="Delete" onclick="deleteWL()" /><br/>
-<p class="smallgrey2" >Note: 
-<ol class="smallgrey2">
-<li>If any item in list matches any part of URL it will match. Example: <i>cnn</i> would match every page on cnn.com and any URL with cnn anywhere in url </li>
-<li>Be aware of the actual URL for the page (Gmail would be mail.google.com NOT gmail.com)</li>
-</ol>
-</p>
-
-
-
+      </tbody>
+    </table>
+  </div>
 </div>
 </body>

@@ -1,47 +1,4 @@
 body {
-  min-width:500px;
+  width:500px;
   overflow-x:hidden;
 }
-/**
-
-table.pretty {
-  width:330px;
-  font-size:.8em;
-  margin-left:1px;
-  margin-right:1px;
-  background: whitesmoke;
-  border-collapse: collapse;
-}
-
-table.pretty th, table.pretty td {
-  border: 1px silver solid;
-  padding: 0.2em;
-}
-table.pretty th {
-  background: gainsboro;
-  text-align: left;
-}
-
-table.pretty a {
-  color: #0066cc;
-  font-weight:bold;
-}
-
-table.pretty caption {
-  margin-left: inherit;
-  margin-right: inherit;
-}
-
-.smallgrey {
-  font-size:.8em;color:#888;margin:0px
-}
-
-.smallgrey2 {
-  font-size:.7em;color:#888;margin:0px
-}
-
-.smallhead {
-  font-size:.9em;color:black;margin:0px;font-weight:bolder;
-}
-
-**/

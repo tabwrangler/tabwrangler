@@ -1,3 +1,11 @@
+function openExtTab() {
+  chrome.tabs.create({'url':'chrome://extensions/'});
+}
+
+function openNewTab() {
+  chrome.tabs.create({'url':'chrome://newtab/'});
+}
+
 function loadClosedTabs() {
   try {
     var titles = JSON.parse(localStorage["closed_tab_titles"]).reverse();
@@ -55,7 +63,7 @@ function loadClosedTabs() {
 
     var td_time = document.createElement('td');
     td_time.className = "smallgrey";
-    td_time.appendChild(document.createTextNode(time_since(actions[i])));
+    td_time.appendChild(document.createTextNode($.timeago(actions[i])));
 
     tr.appendChild(td_title);
     tr.appendChild(td_time);

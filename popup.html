@@ -15,11 +15,6 @@
 -->
 
 <!--
-   Some library for time math?
--->
-<script type="text/javascript" src="time_since.js"></script>
-
-<!--
    Main namespace and class for the app.  Mostly settings and configuration stuff now.
 -->
 <script type="text/javascript" src="tw_shared.js"></script>
@@ -51,6 +46,7 @@
 
 <div class="tab-pane" id="tabOptions">
   <form class="well">
+    <div id="status" class="alert alert-success" style="display:none;"></div>
     <fieldset>
       <legend>Settings</legend>
     <p>
@@ -82,8 +78,6 @@
   <button class="btn" onclick="saveOptions(); return false;">Save</button>
 
   </form>
-
-  <div id="status" style="color:green"></div>
 </div>
 
 

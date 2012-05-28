@@ -86,6 +86,10 @@ TW.idleChecker = {
   }
 }
 
+TW.log = function(msg) {
+  localStorage['log'].append(msg);
+}
+
 function removeChildrenFromNode(node) {
 
   var len = node.childNodes.length;
@@ -187,7 +191,6 @@ function addToCorral(new_id,new_title,new_url,new_icon,new_action) {
   localStorage["closed_tab_urls"] = JSON.stringify(urls);
   localStorage["closed_tab_icons"] = JSON.stringify(icons);
   localStorage["closed_tab_actions"] = JSON.stringify(actions);
-
 }
 
 

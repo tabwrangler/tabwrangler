@@ -9,7 +9,7 @@ function loadClosedTabs() {
     closed_count = 0;
   }
 
-  var table = document.getElementById('corralTable');
+  var table = document.getElementById('corralTableBody');
   removeChildrenFromNode(table);
   
   for ( var i = 0; i < closed_count; i++) {

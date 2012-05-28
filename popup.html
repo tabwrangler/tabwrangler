@@ -50,8 +50,6 @@
 <div class="tab-content">
 
 <div class="tab-pane" id="tabOptions">
-  <h3>Tab Wrangler Options</h3>
-
   <form class="well">
     <fieldset>
       <legend>Settings</legend>
@@ -90,25 +88,31 @@
 
 
 <div class="tab-pane  active" id="tabCorral">
-  <p class="smallgrey">Click the title to re-open the tab.</p>
-  <br/>
+  <div class="alert alert-info">Click the title to re-open the tab</div>
 
   <div id="corralDyn">
-    <table id="corralTable" class="table-striped table">
-      <tr>
-        <td class="smallhead" style="width:20px"></td>
-        <td class="smallhead">title</td>
-        <td class="smallhead">when</td>
-      </tr>
+    <table id="corralTable" class="table-striped table table-bordered">
+      <thead>
+        <tr>
+          <th style="width:20px"></th>
+          <th>Title</th>
+          <th>When</th>
+        </tr>
+      </thead>
+      <!--
+         ID is here for BC.  should really be fixed and jQuery based.
+      -->
+      <tbody id="corralTableBody">
+      </tbody>
     </table>
 
   </div>
 </div>
 
 <div class="tab-pane" id="tabActive">
-  <p class="smallgrey2">Click the checkbox to lock the tab. <a id="close_unlocked" style="font-size:.8em"
+  <div class="alert alert-info">Click the checkbox to lock the tab. <a id="close_unlocked" style="font-size:.8em"
                                                                href="javascript:closeUnlocked()">close all unlocked
-    tabs</a></p>
+    tabs</a></div>
 
   <br/>
 

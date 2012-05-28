@@ -75,7 +75,7 @@ function checkToClose() {
   for ( var i=0; i < tabNum; i++ ) {
     //checkAutoLock(TAB_IDS[i],TAB_URL[TAB_IDS[i]]);
   }
-  var locked_ids = getLsOr("locked_ids");
+  var locked_ids = TW.settings.get("locked_ids");
   var rightNow = new Date().getTime();
   var toCut = new Array();
   for ( var i=0; i < tabNum; i++ ) {
@@ -116,7 +116,7 @@ function checkToClose() {
   // 	  	  locked_ids.splice(locked_ids.indexOf(locked_ids[x]),1);
   //     }
   // }
-  // localStorage["locked_ids"] = JSON.stringify(locked_ids);
+  // TW.settings.set('locked_ids', locked_ids);
   //cleanLocked();
 
 }

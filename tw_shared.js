@@ -7,7 +7,14 @@ TW.settings = {
     checkInterval: 5000,
     minutesInactive: 7,
     maxTabs: 5,
-    popup_view: 'corral'
+    // @todo: rename
+    popup_view: 'corral',
+    locked_ids: new Array(),
+    closed_tab_titles: new Array(),
+    closed_tab_urls: new Array(),
+    closed_tab_icons: new Array(),
+    closed_tab_actions: new Array(),
+    whitelist: new Array()
   }
 }
 
@@ -90,19 +97,10 @@ TW.log = function(msg) {
   localStorage['log'].append(msg);
 }
 
-function removeChildrenFromNode(node) {
-
-  var len = node.childNodes.length;
-  node.innerHTML = '';
-  // while (node.hasChildNodes()) {
-  //   node.removeChild(node.firstChild);
-  // }
-}
-
 function checkAutoLock(tab_id,url) {
-  var wl_data = getLsOr("whitelist");
+  var wl_data = TW.settings.get("whitelist");
   var wl_len = wl_data.length;
-  var locked_ids = getLsOr("locked_ids");
+  var locked_ids = TW.settings.get("locked_ids");
 
   for ( var i=0;i<wl_len;i++ ) {
     if ( url.indexOf(wl_data[i]) != -1 ) {
@@ -111,19 +109,7 @@ function checkAutoLock(tab_id,url) {
       }
     }
   }
-  localStorage["locked_ids"] = JSON.stringify(locked_ids);
-}
-
-
-
-
-function getLsOr(LsString) {
-    var ls = localStorage[LsString];
-    var r;
-    if ( !ls ) {
-	return new Array();
-    }
-    return JSON.parse(ls);
+  TW.settings.set('locked_ids', locked_ids);
 }
 
 function tooLong(a) {
@@ -134,7 +120,7 @@ function tooLong(a) {
 }
 
 
-// function getLsOrObject(LsString) {
+// function TW.settings.getObject(LsString) {
 //     var ls = localStorage[LsString];
 //     var r;
 //     if ( !ls ) {
@@ -146,7 +132,7 @@ function tooLong(a) {
 
 // in case needs to be called from multiple places...
 function cleanLocked() {
-  var locked_ids = getLsOr("locked_ids");
+  var locked_ids = TW.settings.get("locked_ids");
   var cids = new Array();
 
   chrome.tabs.getAllInWindow(null, function (tabs) {
@@ -162,7 +148,7 @@ function cleanLocked() {
               locked_ids.splice(locked_ids.indexOf(locked_ids[x]),1);
 	  }
   }
-  localStorage["locked_ids"] = JSON.stringify(locked_ids);
+  TW.settings.set('locked_ids', locked_ids);
 
  } );
   return true;
@@ -171,10 +157,10 @@ function cleanLocked() {
 
 
 function addToCorral(new_id,new_title,new_url,new_icon,new_action) {
-  var titles = getLsOr("closed_tab_titles");
-  var urls = getLsOr("closed_tab_urls");
-  var icons = getLsOr("closed_tab_icons");
-  var actions = getLsOr("closed_tab_actions");
+  var titles = TW.settings.get("closed_tab_titles");
+  var urls = TW.settings.get("closed_tab_urls");
+  var icons = TW.settings.get("closed_tab_icons");
+  var actions = TW.settings.get("closed_tab_actions");
   var max_tabs = localStorage["max_tabs"];
 
   var extras = urls.length - max_tabs;

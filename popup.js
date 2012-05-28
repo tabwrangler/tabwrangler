@@ -5,7 +5,7 @@
 function checkToClose(tabs) {
   var a = cleanLocked();
   var tl = tabs.length;
-  var locked_ids = getLsOr("locked_ids");
+  var locked_ids = TW.settings.get("locked_ids");
   var do_unlocking = true;
 
   if ( !do_unlocking ) {
@@ -31,7 +31,7 @@ function checkToClose(tabs) {
 }
 
 function loadOpenTabs() {
-  var b = chrome.tabs.getAllInWindow(null, openTabs);
+  var b = chrome.tabs.getAllInWindow(null, buildTabLockTable);
   return true;
 }
 

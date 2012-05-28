@@ -1,4 +1,15 @@
 body {
-  width:500px;
+  width:700px;
   overflow-x:hidden;
+}
+
+.favicon {
+  width: 16px;
+  height: 16px;
+  padding: 0px;
+  margin: 0px;
+}
+
+.table td{
+  font-size: 11px;
 }

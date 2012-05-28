@@ -47,7 +47,7 @@ function loadOptions() {
 
 function deleteWL() {
   var wl_select = document.getElementById('whitelist');
-  var wl_data = getLsOr("whitelist");
+  var wl_data = TW.settings.get("whitelist");
   var selected = wl_select.options.selectedIndex;
   if ( selected != -1 ) {
     //wl_select.options[selected] = null;
@@ -59,7 +59,7 @@ function deleteWL() {
 
 function addWL() {
   var url = document.getElementById('wl_add').value;
-  var wl_data = getLsOr("whitelist");
+  var wl_data = TW.settings.get("whitelist");
   if ( url.length > 0 && wl_data.indexOf(url) == -1 ) {
     wl_data.push(url);
     document.getElementById('wl_add').value= '';
@@ -71,7 +71,7 @@ function addWL() {
 }
 
 function updateWL() {
-  var wl_data = getLsOr("whitelist");
+  var wl_data = TW.settings.get("whitelist");
   var wl_len = wl_data.length;
   var wl_select = document.getElementById('whitelist');
   wl_select.options.length = 0;

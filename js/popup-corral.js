@@ -17,6 +17,8 @@ function loadClosedTabs() {
     closed_count = 0;
   }
 
+  closedTabs = TW.TabManager.loadClosedTabs();
+
   var table = document.getElementById('corralTableBody');
   removeChildrenFromNode(table);
   

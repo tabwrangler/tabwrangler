@@ -19,22 +19,20 @@ TW.settings = {
 }
 
 TW.settings.get = function(key) {
-  if (this.loaded == false) {
-    this.load();
+  TW.settings.lazyLoad();
+  if (typeof this[key] == 'function') {
+    return this[key]();
   }
-  switch (typeof(this.cache[key])) {
-    case 'function':
-      return this.cache[key]();
-      break;
-    case 'undefined':
-      if (this.defaults[key]) {
-        return this.defaults[key];
-      }
-      throw Error('Undefined setting "' + key + '"');
-      break;
-    default:
-      return this.cache[key];
+
+  if (this.cache[key]) {
+    return this.cache[key];
   }
+
+  if (this.defaults[key]) {
+    return this.defaults[key];
+  }
+
+  throw Error('Undefined setting "' + key + '"');
 }
 
 TW.settings.stayOpen = function() {
@@ -45,11 +43,19 @@ TW.settings.resetToDefaults = function() {
   this.cache = {};
 }
 
+TW.settings.lazyLoad = function() {
+  if (this.loaded == false) {
+    this.load();
+  }
+}
+
 TW.settings.set = function(key, value) {
+  TW.settings.lazyLoad();
   this.cache[key] = value;
 }
 
 TW.settings.save = function() {
+  TW.settings.lazyLoad();
   localStorage['TWSettings'] = JSON.stringify(this.cache);
 }
 
@@ -94,7 +100,64 @@ TW.idleChecker = {
 }
 
 TW.log = function(msg) {
-  localStorage['log'].append(msg);
+  localStorage['log'].push(msg);
+}
+
+/**
+ * Stores the tabs in a separate variable to log Last Accessed time.
+ * Would be better probably to just store the lastModified
+ * @type {Object}
+ */
+TW.TabManager = {
+  tabs: {}
+};
+
+TW.TabManager.addTab = function(tab, lastModified) {
+  if (typeof tab == 'undefined') {
+    throw new Error('Undefined tab object... wtf?');
+  }
+  tab.lastModified = lastModified || new Date().getTime();
+  TW.TabManager.tabs[tab.id] = tab;
+}
+
+/**
+ * Kinda frivolous.  Abstracterbation FTW!
+ * @param tabId
+ */
+TW.TabManager.removeTab = function(tabId) {
+  delete TW.TabManager.tabs[tabId];
+}
+
+TW.TabManager.getOlderThen = function(time) {
+  var ret = Array();
+  for (i in this.tabs) {
+    if (this.tabs.hasOwnProperty(i)) {
+      if (this.tabs[i].lastModified < time) {
+        ret.push(this.tabs[i]);
+      }
+    }
+  }
+  return ret;
+}
+
+TW.TabManager.saveClosedTabs = function(tabs) {
+  var closedTabs = new Array();
+  var maxTabs = TW.settings.get('maxTabs');
+  if (localStorage['closedTabs']) {
+    closedTabs = JSON.parse(localStorage['closedTabs']);
+  }
+
+  for (i in tabs) {
+    closedTabs.push(tabs[i]);
+  }
+
+  var extras = closedTabs.length - maxTabs;
+  if (extras > 0) {
+    closedTabs = closedTabs.splice(0, maxTabs);
+  }
+
+  localStorage['closedTabs'] = JSON.stringify(closedTabs);
+  console.log('Saved ' + closedTabs.length + ' tabs to localStorage');
 }
 
 function checkAutoLock(tab_id,url) {
@@ -154,29 +217,29 @@ function cleanLocked() {
   return true;
 }
 
+/**
+ * Possible test, later...
+
+TW.TabManager.addTab({id: 1, title: 'Google', url: 'http://google.com'});
+console.log(TW.TabManager.tabs);
+
+setTimeout(function() {
+  TW.TabManager.addTab({id: 2, title: 'Yahoo', url: 'http://yahoo.com'});
+  console.log(TW.TabManager.tabs);
+}, 2000);
+
+setTimeout(function() {
+  TW.TabManager.addTab({id: 3, title: 'Facebook.com', url: 'http://facebook.com'});
+  console.log(TW.TabManager.tabs);
+}, 5000)
+
+setTimeout(function() {
+  TW.TabManager.addTab({id: 1, title: 'Google', url: 'http://google.com'});
+  console.log(TW.TabManager.tabs);
+}, 8000)
+*/
 
 
-function addToCorral(new_id,new_title,new_url,new_icon,new_action) {
-  var titles = TW.settings.get("closed_tab_titles");
-  var urls = TW.settings.get("closed_tab_urls");
-  var icons = TW.settings.get("closed_tab_icons");
-  var actions = TW.settings.get("closed_tab_actions");
-  var max_tabs = localStorage["max_tabs"];
 
-  var extras = urls.length - max_tabs;
-  if (extras < 0) {
-    extras = 0;
-  }
-  
-  titles.splice(0, extras, new_title);
-  urls.splice(0, extras, new_url);
-  icons.splice(0, extras, new_icon);
-  actions.splice(0, extras, new_action);
-
-  localStorage["closed_tab_titles"] = JSON.stringify(titles);
-  localStorage["closed_tab_urls"] = JSON.stringify(urls);
-  localStorage["closed_tab_icons"] = JSON.stringify(icons);
-  localStorage["closed_tab_actions"] = JSON.stringify(actions);
-}
 
 

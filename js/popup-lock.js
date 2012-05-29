@@ -127,6 +127,15 @@ function buildTabLockTable(tabs) {
     // Url
     $tr.append($('<td>' + tooLong(tabs[i].url) + '</td>'));
 
+    var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
+
+    console.log(TW.settings.get('stayOpen'));
+    console.log(tabs[i].id);
+    console.log(chrome.extension.getBackgroundPage().TW.TabManager.tabs);
+    console.log(cutOff);
+    $tr.append($('<td class="time-left">' + (cutOff - console.log(chrome.extension.getBackgroundPage().TW.TabManager.tabs[tabs[i]].lastModified).toString() + '</td>'));
+
+
     // Append the row.
     $tbody.append($tr);
   }

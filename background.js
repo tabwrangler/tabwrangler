@@ -9,6 +9,9 @@ function initTabs(tabs) {
  * So it can be tested.
  */
 function checkToClose(cutOff) {
+  // Clears the settings cache and loads from localStorage
+  TW.settings.resetToDefaults();
+
   var cutOff = cutOff || new Date().getTime() - TW.settings.get('stayOpen');
   // Tabs which have been locked via the checkbox.
   var locked_ids = TW.settings.get("locked_ids");

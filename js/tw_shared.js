@@ -8,13 +8,8 @@ TW.settings = {
     badgeCounterInterval: 6000,
     minutesInactive: 7,
     maxTabs: 5,
-    // @todo: rename
-    popup_view: 'corral',
+    // @todo: rename this
     locked_ids: new Array(),
-    closed_tab_titles: new Array(),
-    closed_tab_urls: new Array(),
-    closed_tab_icons: new Array(),
-    closed_tab_actions: new Array(),
     whitelist: new Array()
   }
 }
@@ -41,6 +36,7 @@ TW.settings.stayOpen = function() {
 }
 
 TW.settings.resetToDefaults = function() {
+  this.loaded = false;
   this.cache = {};
 }
 

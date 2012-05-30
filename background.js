@@ -31,28 +31,35 @@ function checkToClose(cutOff) {
   */
 
   var toCut = TW.TabManager.getOlderThen(cutOff);
+  var tabsToSave = new Array();
+
   if (toCut.length == 0) {
     return;
   }
   for (var i in toCut) {
-    var tabToCut = toCut[i];
+    var tabIdToCut = toCut[i];
     // @todo: move to TW.TabManager.
-    if (locked_ids.indexOf(tabToCut.id) != -1) {
+    if (locked_ids.indexOf(tabIdToCut) != -1) {
       // Update its time so it gets checked less frequently.
       // Would also be smart to just never add it.
       // @todo: fix that.
-      TW.TabManager.addTab(tabToCut);
+      TW.TabManager.updateLastAccessed(tabIdToCut);
       continue;
     }
 
-    // Close it in Chrome.
-    chrome.tabs.remove(tabToCut.id, function() {
-      console.log('wtf willis');
+    chrome.tabs.get(tabIdToCut, function(tab) {
+      // Close it in Chrome.
+      chrome.tabs.remove(tabIdToCut, function() {
+        tabsToSave.push(tab);
+
+        // End the loop.
+        if (tabsToSave.length == toCut.length) {
+          console.log("putting " + toCut.length + ' Tabs in storage');
+          TW.TabManager.saveClosedTabs(tabsToSave);
+        }
+      });
     });
   }
-
-  //@todo: add some error checking here.
-  TW.TabManager.saveClosedTabs(toCut);
 }
 
 function startup() {

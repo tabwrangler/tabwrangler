@@ -64,7 +64,6 @@ TW.settings.validate = function() {
   if (parseInt(this.cache['maxTabs']) != this.cache['maxTabs']) {
     errors['maxTabs'] = "Max tabs must be a number";
   }
-  console.log(parseInt(this.cache['minutesInactive']));
   if ( parseInt(this.cache['minutesInactive']) < 0 || parseInt(this.cache['minutesInactive']) > 720 ){
     errors['minutesInactive'] = "Minutes Inactive must be greater than 0 and less than 720";
   }
@@ -105,19 +104,28 @@ TW.log = function(msg) {
 
 /**
  * Stores the tabs in a separate variable to log Last Accessed time.
- * Would be better probably to just store the lastModified
+ * Would be better probably to just store the lastModified => id hash.
+ * The other data is redundant.
  * @type {Object}
  */
 TW.TabManager = {
-  tabs: {}
+  tabs: {},
+  tabTimes: {}
 };
 
-TW.TabManager.addTab = function(tab, lastModified) {
+TW.TabManager.addTab = function (tab, lastModified) {
+  lastModified = lastModified  || new Date().getTime();
   if (typeof tab == 'undefined') {
-    throw new Error('Undefined tab object... wtf?');
+    // console.log('Tab is undefined... this is a Chrome bug, continuing');
+    // throw new Error('Undefined tab object... wtf?');
+    return;
   }
-  tab.lastModified = lastModified || new Date().getTime();
-  TW.TabManager.tabs[tab.id] = tab;
+
+  TW.TabManager.tabTimes[tab.id] = lastModified;
+}
+
+TW.TabManager.updateLastAccessed = function (tabId, lastModified) {
+  TW.TabManager.tabTimes[tab.id] = lastModified;
 }
 
 /**
@@ -125,18 +133,19 @@ TW.TabManager.addTab = function(tab, lastModified) {
  * @param tabId
  */
 TW.TabManager.removeTab = function(tabId) {
-  delete TW.TabManager.tabs[tabId];
+  delete TW.TabManager.tabTimes[tabId];
 }
 
 TW.TabManager.getOlderThen = function(time) {
   var ret = Array();
-  for (i in this.tabs) {
-    if (this.tabs.hasOwnProperty(i)) {
-      if (this.tabs[i].lastModified < time) {
-        ret.push(this.tabs[i]);
+  for (i in this.tabTimes) {
+    if (this.tabTimes.hasOwnProperty(i)) {
+      if (this.tabTimes[i] < time) {
+        ret.push(parseInt(i));
       }
     }
   }
+
   return ret;
 }
 
@@ -148,6 +157,7 @@ TW.TabManager.saveClosedTabs = function(tabs) {
   }
 
   for (i in tabs) {
+    tabs[i].closedAt = new Date().getTime();
     closedTabs.push(tabs[i]);
   }
 
@@ -158,6 +168,13 @@ TW.TabManager.saveClosedTabs = function(tabs) {
 
   localStorage['closedTabs'] = JSON.stringify(closedTabs);
   console.log('Saved ' + closedTabs.length + ' tabs to localStorage');
+}
+
+TW.TabManager.loadClosedTabs = function() {
+  if (!localStorage['closedTabs']) {
+    return new Array();
+  }
+  return JSON.parse(localStorage['closedTabs']);
 }
 
 function checkAutoLock(tab_id,url) {
@@ -174,24 +191,6 @@ function checkAutoLock(tab_id,url) {
   }
   TW.settings.set('locked_ids', locked_ids);
 }
-
-function tooLong(a) {
-  if ( a.length > 83 ) {
-    return a.substring(0,80) + "...";
-  }
-  return a;
-}
-
-
-// function TW.settings.getObject(LsString) {
-//     var ls = localStorage[LsString];
-//     var r;
-//     if ( !ls ) {
-// 	return new Object();
-//     }
-//     return JSON.parse(ls);
-// }
-
 
 // in case needs to be called from multiple places...
 function cleanLocked() {

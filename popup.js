@@ -1,15 +1,12 @@
 TW = TW || {};
 
-TW.optionsTab = {}
+TW.optionsTab = {};
 
 TW.optionsTab.saveOptions = function () {
   for (var key in TW.settings.defaults) {
     var elem = document.getElementById(key);
     if (elem != undefined) {
-      console.log(key);
-      console.log(elem.value);
       TW.settings.set(key, elem.value);
-      console.log(v);
     }
   }
 
@@ -41,9 +38,7 @@ TW.optionsTab.loadOptions = function () {
   for (var key in TW.settings.defaults) {
     var elem = document.getElementById(key);
     if (elem != undefined) {
-      console.log(key);
       v = TW.settings.get(key);
-      console.log(v);
       elem.value = v;
     }
   }
@@ -86,70 +81,177 @@ TW.optionsTab.updateWL = function () {
   }
 }
 
-/**
- * WTF... this has the same name as a different function in background.js
- * @param tabs
- */
-function checkToClose(tabs) {
-  var a = cleanLocked();
-  var tl = tabs.length;
+// Active Tab;
+TW.activeTab = {};
+TW.activeTab.saveLock = function(tab_id) {
   var locked_ids = TW.settings.get("locked_ids");
-  var do_unlocking = true;
 
-  if ( !do_unlocking ) {
-    return; //close out
+  if (tab_id > 0 && locked_ids.indexOf(tab_id) == -1) {
+    locked_ids.push(tab_id);
   }
-  for (var i = 0; i !== tl; i++) {
-    var tmp_id = tabs[i].id;
-    var lock_check = locked_ids.indexOf(tmp_id);
-    if ( lock_check == -1 ) {
-      try {
-	chrome.tabs.remove(tmp_id);
-	addToCorral(tabs[i].id,tabs[i].title,
-		  tabs[i].url,tabs[i].favIconUrl,
-		  new Date().getTime());
-
-      } catch(e) {
-
-      }
-
-    }
-  }
-  window.close(); //close popup
+  TW.settings.set('locked_ids', locked_ids);
+  TW.settings.save();
 }
 
-function loadOpenTabs() {
-  var b = chrome.tabs.getAllInWindow(null, buildTabLockTable);
+TW.activeTab.removeLock = function(tab_id) {
+  var locked_ids = TW.settings.get("locked_ids");
+  if (locked_ids.indexOf(tab_id) > -1) {
+    locked_ids.splice(locked_ids.indexOf(tab_id), 1);
+  }
+  TW.settings.set('locked_ids', locked_ids);
+  TW.settings.save();
+}
+
+
+/**
+ * @param tabs
+ * @return {Boolean}
+ */
+TW.activeTab.buildTabLockTable = function (tabs) {
+
+  var tabNum = tabs.length;
+  var $tbody = $('#activeTabs tbody');
+  $tbody.html('');
+
+  for (var i = 0; i < tabNum; i++) {
+    checkAutoLock(tabs[i].id, tabs[i].url);
+  }
+  var locked_ids = TW.settings.get("locked_ids");
+  for (var i = 0; i < tabNum; i++) {
+
+    // Create a new row.
+    var $tr = $('<tr></tr>');
+
+    // Checkbox to lock it.
+    //@todo: put the handler in its own function
+    var $lock_box = $('<input />')
+      .attr('type', 'checkbox')
+      .attr('id', "cb" + tabs[i].id)
+      .attr('value', tabs[i].id)
+      .attr('checked', locked_ids.indexOf(tabs[i].id) != -1)
+      .click(function () {
+        if (this.checked) {
+          saveLock(parseInt(this.value));
+        } else {
+          removeLock(parseInt(this.value));
+        }
+        showCloseUnlocked();
+      });
+    $tr.append($('<td></td>').append($lock_box));
+
+    // Image cell.
+    var $img_td = $('<td></td>');
+    if (tabs[i].favIconUrl != null && tabs[i].favIconUrl != undefined && tabs[i].favIconUrl.length > 0) {
+      // We have an image to show.
+      var $img_icon = $('<img />')
+        .attr('class', 'favicon')
+        .attr('src', tabs[i].favIconUrl)
+      $img_td.append($img_icon);
+    } else {
+      $img_td.text('-');
+    }
+
+    $tr.append($img_td);
+
+    // Page title.
+    $tr.append($('<td>' + tabs[i].title.shorten(70) + '</td>'));
+    // Url
+    $tr.append($('<td>' + tabs[i].url.shorten(70) + '</td>'));
+
+    var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
+
+    var lastModified = chrome.extension.getBackgroundPage().TW.TabManager.tabTimes[tabs[i].id];
+    var timeLeft = (Math.round((cutOff - lastModified) / 1000)).toString();
+    $tr.append($('<td class="time-left">' + timeLeft + 's</td>'));
+
+
+    // Append the row.
+    $tbody.append($tr);
+  }
+
   return true;
 }
 
-function loadLastView() {
-  var pv = localStorage["popup_view"];
+TW.corralTab = {};
+TW.corralTab.loadClosedTabs = function() {
 
-  if ( pv == "active" ) {
-      showActive();
-  } else if ( pv == "corral" ) {
-      showCorral();
-  } else if ( pv == "options" ) {
-    showOptions();
-  } else {
-      showCorral();
+  /**
+   * @todo: add this back in
+   *
+   * function openExtTab() {
+   chrome.tabs.create({'url':'chrome://extensions/'});
+   }
+
+   function openNewTab() {
+   chrome.tabs.create({'url':'chrome://newtab/'});
+   }
+   */
+
+  var closedTabs = TW.TabManager.loadClosedTabs();
+  var $tbody = $('#corralTable tbody');
+  $tbody.html('');
+
+  if ( closedTabs.length == 0 ) {
+    var $tr = $('<tr></tr>');
+    $tr.append('<td>If tabs are closed automatically, they will be stored here</td>');
+    $tbody.append($tr);
+    return;
+  }
+
+  for ( var i = 0; i < closedTabs.length; i++) {
+    var tab = closedTabs[i];
+    // Create a new row.
+    var $tr = $('<tr></tr>');
+
+    // Image cell.
+    var $img_td = $('<td></td>');
+    if (tab.favIconUrl != null && tab.favIconUrl != undefined && tab.favIconUrl.length > 0) {
+      // We have an image to show.
+      var $img_icon = $('<img />')
+        .attr('class', 'favicon')
+        .attr('src', tab.favIconUrl)
+      $img_td.append($img_icon);
+    } else {
+      $img_td.text('-');
+    }
+
+    $tr.append($img_td);
+
+    // Page title.
+
+    // @todo: Add this logic back in:
+//    if ( urls[i] == "chrome://newtab/") {
+//      a_title.href = "javascript:openNewTab();";
+//    } else  if ( urls[i] == "chrome://extensions/") {
+//      a_title.href = "javascript:openExtTab();";
+//    } else {
+//      a_title.href = urls[i];
+//    }
+    $tr.append($('<td><a target="_blank" href="' + tab.url + '">' + tab.title.shorten(70) + '</a></td>'));
+    // Url
+    $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
+    // time ago.
+    $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
+    $tbody.append($tr);
   }
 }
 
-function tooLong(a) {
-  if ( a.length > 73 ) {
-    return a.substring(0,70) + "...";
-  }
-  return a;
-}
 
-//window.onload = initTabWrangler;
+// Utility stuff:
+String.prototype.shorten = function(length) {
+  if ( this.length > (length + 3) ) {
+    return this.substring(0, length) + "...";
+  }
+  return this;
+}
 
 $(document).ready(function() {
+  $('a[href="#tabCorral"]').tab('show');
+  // Seems we need to force this since corral is the default.
+  TW.corralTab.loadClosedTabs();
 
   $('#checkTimes').click(function() {
-
+    //@todo: make that button work on lock tab.
   });
 
   $('a[data-toggle="tab"]').on('show', function (e) {
@@ -160,11 +262,11 @@ $(document).ready(function() {
         TW.optionsTab.loadOptions();
         break;
       case '#tabActive':
-        loadOpenTabs() && showCloseUnlocked();
+        chrome.tabs.getAllInWindow(null, TW.activeTab.buildTabLockTable);
         break;
 
       case '#tabCorral':
-        loadClosedTabs();
+        TW.corralTab.loadClosedTabs();
         break;
     }
   });

@@ -3,6 +3,7 @@
 <head>
 
   <script src="lib/jquery/js/jquery-1.7.2.min.js" type="text/javascript"></script>
+  <script src="lib/js/jquery.timeago.js" type="text/javascript"></script>
   <script src="lib/bootstrap/js/bootstrap.min.js"></script>
   <script src="lib/bootstrap/js/bootstrap-tab.js"></script>
 
@@ -15,30 +16,22 @@
   -->
 
   <!--
-     Main namespace and class for the app.  Mostly settings and configuration stuff now.
+     Main namespace and class for the app.
   -->
   <script type="text/javascript" src="js/tw_shared.js"></script>
 
   <!--
-     Event handlers for settings form.  Could probably be wrapped in popup.js.
+    Popup related functionality.
   -->
-  <script type="text/javascript" src="js/options.js"></script>
-
-
-  <!--
-     Makes the auto-lock tab table.
-  -->
-  <script type="text/javascript" src="js/popup-lock.js"></script>
-  <script type="text/javascript" src="js/popup-corral.js"></script>
   <script type="text/javascript" src="popup.js"></script>
 </head>
 
 <body>
 
 <ul class="nav nav-tabs">
-  <li><a href="#tabCorral" data-toggle="tab">Tab Corral</a></li>
-  <li><a href="#tabActive" data-toggle="tab">Tab Lock</a></li>
-  <li><a href="#tabOptions" data-toggle="tab">Options</a></li>
+  <li><a href="#tabCorral" target="#tabCorral" data-toggle="tab">Tab Corral</a></li>
+  <li><a href="#tabActive" target="#tabActive" data-toggle="tab">Tab Lock</a></li>
+  <li><a href="#tabOptions" target="#tabOptions" data-toggle="tab">Options</a></li>
 </ul>
 
 
@@ -101,7 +94,7 @@
         <!--
            ID is here for BC.  should really be fixed and jQuery based.
         -->
-        <tbody id="corralTableBody">
+        <tbody>
         </tbody>
       </table>
 
@@ -109,12 +102,7 @@
   </div>
 
   <div class="tab-pane" id="tabActive">
-    <div class="alert alert-info">Click the checkbox to lock the tab. <a id="close_unlocked" style="font-size:.8em"
-                                                                         href="javascript:closeUnlocked()">close all
-      unlocked
-      tabs</a></div>
-
-    <br/>
+    <div class="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
 
     <div>
       <button class="btn-tiny" id="checkTimes">Show time to Corralling</button>

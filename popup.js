@@ -97,7 +97,7 @@ TW.activeTab = {};
 
 TW.activeTab.init = function(context) {
   this.context = context;
-  chrome.tabs.getAllInWindow(null, TW.activeTab.buildTabLockTable);
+  chrome.tabs.getAllInWindow(null, function(tabs) { TW.activeTab.buildTabLockTable(tabs);});
 }
 
 TW.activeTab.saveLock = function(tab_id) {
@@ -125,6 +125,7 @@ TW.activeTab.removeLock = function(tab_id) {
  * @return {Boolean}
  */
 TW.activeTab.buildTabLockTable = function (tabs) {
+  var self = this;
 
   var tabNum = tabs.length;
   var $tbody = $('#activeTabs tbody');
@@ -148,11 +149,10 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       .attr('checked', locked_ids.indexOf(tabs[i].id) != -1)
       .click(function () {
         if (this.checked) {
-          saveLock(parseInt(this.value));
+          self.saveLock(parseInt(this.value));
         } else {
-          removeLock(parseInt(this.value));
+          self.removeLock(parseInt(this.value));
         }
-        showCloseUnlocked();
       });
     $tr.append($('<td></td>').append($lock_box));
 

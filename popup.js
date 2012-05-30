@@ -212,6 +212,8 @@ TW.corralTab.loadClosedTabs = function() {
    */
 
   var closedTabs = TW.TabManager.loadClosedTabs();
+  closedTabs = closedTabs.reverse();
+
   var $tbody = $('#corralTable tbody');
   $tbody.html('');
 

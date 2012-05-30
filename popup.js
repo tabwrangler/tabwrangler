@@ -2,6 +2,16 @@ TW = TW || {};
 
 TW.optionsTab = {};
 
+/**
+ * Initialization for options tab.
+ * @param context
+ *  Optionally used to limit jQueries
+ */
+TW.optionsTab.init = function(context) {
+  $('#saveOptionsBtn', context).click(TW.optionsTab.saveOptions);
+  TW.optionsTab.loadOptions();
+}
+
 TW.optionsTab.saveOptions = function () {
   for (var key in TW.settings.defaults) {
     var elem = document.getElementById(key);
@@ -81,8 +91,15 @@ TW.optionsTab.updateWL = function () {
   }
 }
 
-// Active Tab;
+// Active Tab
+// @todo: rename this to lock tab, that's what it's for.;
 TW.activeTab = {};
+
+TW.activeTab.init = function(context) {
+  this.context = context;
+  chrome.tabs.getAllInWindow(null, TW.activeTab.buildTabLockTable);
+}
+
 TW.activeTab.saveLock = function(tab_id) {
   var locked_ids = TW.settings.get("locked_ids");
 
@@ -173,6 +190,11 @@ TW.activeTab.buildTabLockTable = function (tabs) {
 }
 
 TW.corralTab = {};
+
+TW.corralTab.init = function(context) {
+  // @todo: use context to select table.
+  TW.corralTab.loadClosedTabs();
+}
 TW.corralTab.loadClosedTabs = function() {
 
   /**
@@ -258,15 +280,14 @@ $(document).ready(function() {
     var tabId = event.target.hash;
     switch (tabId) {
       case '#tabOptions':
-        $('#saveOptionsBtn').click(TW.optionsTab.saveOptions);
-        TW.optionsTab.loadOptions();
+        TW.optionsTab.init($('div#tabOptions'));
         break;
       case '#tabActive':
-        chrome.tabs.getAllInWindow(null, TW.activeTab.buildTabLockTable);
+        TW.activeTab.init($('div#tabActive'));
         break;
 
       case '#tabCorral':
-        TW.corralTab.loadClosedTabs();
+        TW.corralTab.init($('div#tabCorral'));
         break;
     }
   });

@@ -5,6 +5,7 @@ TW.settings = {
   cache: {},
   defaults: {
     checkInterval: 5000,
+    badgeCounterInterval: 6000,
     minutesInactive: 7,
     maxTabs: 5,
     // @todo: rename
@@ -138,7 +139,7 @@ TW.TabManager.removeTab = function(tabId) {
 
 TW.TabManager.getOlderThen = function(time) {
   var ret = Array();
-  for (i in this.tabTimes) {
+  for (var i in this.tabTimes) {
     if (this.tabTimes.hasOwnProperty(i)) {
       if (this.tabTimes[i] < time) {
         ret.push(parseInt(i));
@@ -168,6 +169,7 @@ TW.TabManager.saveClosedTabs = function(tabs) {
 
   localStorage['closedTabs'] = JSON.stringify(closedTabs);
   console.log('Saved ' + closedTabs.length + ' tabs to localStorage');
+
 }
 
 TW.TabManager.loadClosedTabs = function() {

@@ -54,11 +54,17 @@ function checkToClose(cutOff) {
 
         // End the loop.
         if (tabsToSave.length == toCut.length) {
-          console.log("putting " + toCut.length + ' Tabs in storage');
           TW.TabManager.saveClosedTabs(tabsToSave);
         }
       });
     });
+  }
+}
+
+function updateClosedCount() {
+  var storedTabs = TW.TabManager.loadClosedTabs().length;
+  if (storedTabs > 0) {
+    chrome.browserAction.setBadgeText({text: storedTabs.toString()});
   }
 }
 
@@ -77,7 +83,8 @@ function startup() {
   chrome.tabs.onUpdated.addListener(TW.TabManager.addTab);
   chrome.tabs.onRemoved.addListener(TW.TabManager.removeTab);
   chrome.tabs.onSelectionChanged.addListener(TW.TabManager.addTab);
-  window.setInterval(checkToClose, TW.checkInterval);
+  window.setInterval(checkToClose, TW.settings.get('checkInterval'));
+  window.setInterval(updateClosedCount, TW.settings.get('badgeCounterInterval'));
 }
 
 window.onload = startup;

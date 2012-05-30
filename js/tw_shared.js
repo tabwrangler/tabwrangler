@@ -122,7 +122,7 @@ TW.TabManager.addTab = function (tab, lastModified) {
 }
 
 TW.TabManager.updateLastAccessed = function (tabId, lastModified) {
-  TW.TabManager.tabTimes[tab.id] = lastModified;
+  TW.TabManager.tabTimes[tabId] = lastModified;
 }
 
 /**

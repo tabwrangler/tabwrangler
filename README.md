@@ -17,8 +17,5 @@ Auto-closes tabs which you haven't used in awhile.
 
 ## Creds:
 
-Original extension and idea by Jacktasia in 2010. Rewriten by JacobSingh in 2012.
-
-## License:
-
-BSD
+Original extension and idea by [jacktasia](https://github.com/jacktasia/tabwrangler) in 2010. 
+Rewriten by [JacobSingh](https://github.com/jacobSingh) in 2012.

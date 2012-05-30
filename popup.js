@@ -178,7 +178,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
 
     var lastModified = chrome.extension.getBackgroundPage().TW.TabManager.tabTimes[tabs[i].id];
-    var timeLeft = (Math.round((cutOff - lastModified) / 1000)).toString();
+    var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
     $tr.append($('<td class="time-left">' + timeLeft + 's</td>'));
 
 
@@ -196,6 +196,8 @@ TW.corralTab.init = function(context) {
   TW.corralTab.loadClosedTabs();
 }
 TW.corralTab.loadClosedTabs = function() {
+  $('#autocloseMessage').hide();
+  $('#reopenTabMessage').hide();
 
   /**
    * @todo: add this back in
@@ -214,11 +216,11 @@ TW.corralTab.loadClosedTabs = function() {
   $tbody.html('');
 
   if ( closedTabs.length == 0 ) {
-    var $tr = $('<tr></tr>');
-    $tr.append('<td>If tabs are closed automatically, they will be stored here</td>');
-    $tbody.append($tr);
+    $('#autocloseMessage').show();
     return;
   }
+
+  $('#reopenTabMessage').show();
 
   for ( var i = 0; i < closedTabs.length; i++) {
     var tab = closedTabs[i];
@@ -250,8 +252,8 @@ TW.corralTab.loadClosedTabs = function() {
 //      a_title.href = urls[i];
 //    }
     $tr.append($('<td><a target="_blank" href="' + tab.url + '">' + tab.title.shorten(70) + '</a></td>'));
-    // Url
-    $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
+    // Url - not sure if we want this.
+    // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
     // time ago.
     $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
     $tbody.append($tr);

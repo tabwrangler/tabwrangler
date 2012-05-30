@@ -80,15 +80,15 @@
 
 
   <div class="tab-pane  active" id="tabCorral">
-    <div class="alert alert-info">Click the title to re-open the tab</div>
+    <div id="reopenTabMessage" class="alert alert-info">Click the title to re-open the tab</div>
 
     <div id="corralDyn">
       <table id="corralTable" class="table-striped table table-bordered">
         <thead>
         <tr>
-          <th style="width:20px"></th>
+          <th style="width: 20px;"></th>
           <th>Title</th>
-          <th>When</th>
+          <th>Closed</th>
         </tr>
         </thead>
         <!--
@@ -97,6 +97,7 @@
         <tbody>
         </tbody>
       </table>
+    <div id="autocloseMessage" class="alert alert-info">If tabs are closed automatically, they will be stored here</div>
 
     </div>
   </div>
@@ -105,7 +106,7 @@
     <div class="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
 
     <div>
-      <button class="btn-tiny" id="checkTimes">Show time to Corralling</button>
+
       <table id="activeTabs" class="table-striped table table-bordered">
         <thead>
         <tr>
@@ -113,6 +114,7 @@
           <th style="width:20px"></td>
           <th>Title</td>
           <th>Url</td>
+          <th>Countdown</td>
         </tr>
         </thead>
         <!-- Class is a total kludge to keep popup=lock working -->

@@ -101,21 +101,21 @@ TW.activeTab.init = function(context) {
 }
 
 TW.activeTab.saveLock = function(tab_id) {
-  var locked_ids = TW.settings.get("locked_ids");
+  var lockedIds = TW.settings.get("lockedIds");
 
-  if (tab_id > 0 && locked_ids.indexOf(tab_id) == -1) {
-    locked_ids.push(tab_id);
+  if (tab_id > 0 && lockedIds.indexOf(tab_id) == -1) {
+    lockedIds.push(tab_id);
   }
-  TW.settings.set('locked_ids', locked_ids);
+  TW.settings.set('lockedIds', lockedIds);
   TW.settings.save();
 }
 
 TW.activeTab.removeLock = function(tab_id) {
-  var locked_ids = TW.settings.get("locked_ids");
-  if (locked_ids.indexOf(tab_id) > -1) {
-    locked_ids.splice(locked_ids.indexOf(tab_id), 1);
+  var lockedIds = TW.settings.get("lockedIds");
+  if (lockedIds.indexOf(tab_id) > -1) {
+    lockedIds.splice(lockedIds.indexOf(tab_id), 1);
   }
-  TW.settings.set('locked_ids', locked_ids);
+  TW.settings.set('lockedIds', lockedIds);
   TW.settings.save();
 }
 
@@ -134,7 +134,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
   for (var i = 0; i < tabNum; i++) {
     checkAutoLock(tabs[i].id, tabs[i].url);
   }
-  var locked_ids = TW.settings.get("locked_ids");
+  var lockedIds = TW.settings.get("lockedIds");
   for (var i = 0; i < tabNum; i++) {
 
     // Create a new row.
@@ -146,7 +146,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       .attr('type', 'checkbox')
       .attr('id', "cb" + tabs[i].id)
       .attr('value', tabs[i].id)
-      .attr('checked', locked_ids.indexOf(tabs[i].id) != -1)
+      .attr('checked', lockedIds.indexOf(tabs[i].id) != -1)
       .click(function () {
         if (this.checked) {
           self.saveLock(parseInt(this.value));

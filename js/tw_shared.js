@@ -7,9 +7,8 @@ TW.settings = {
     checkInterval: 5000,
     badgeCounterInterval: 6000,
     minutesInactive: 7,
-    maxTabs: 5,
-    // @todo: rename this
-    locked_ids: new Array(),
+    maxTabs: 30,
+    lockedIds: new Array(),
     whitelist: new Array()
   }
 }
@@ -155,11 +154,10 @@ TW.TabManager.saveClosedTabs = function(tabs) {
 
   for (i in tabs) {
     tabs[i].closedAt = new Date().getTime();
-    closedTabs.push(tabs[i]);
+    closedTabs.unshift(tabs[i]);
   }
 
-  var extras = closedTabs.length - maxTabs;
-  if (extras > 0) {
+  if (closedTabs.length - maxTabs) {
     closedTabs = closedTabs.splice(0, maxTabs);
   }
 
@@ -178,21 +176,21 @@ TW.TabManager.loadClosedTabs = function() {
 function checkAutoLock(tab_id,url) {
   var wl_data = TW.settings.get("whitelist");
   var wl_len = wl_data.length;
-  var locked_ids = TW.settings.get("locked_ids");
+  var lockedIds = TW.settings.get("lockedIds");
 
   for ( var i=0;i<wl_len;i++ ) {
     if ( url.indexOf(wl_data[i]) != -1 ) {
-      if ( tab_id > 0 && locked_ids.indexOf(tab_id) == -1 ) {
-	locked_ids.push(tab_id);
+      if ( tab_id > 0 && lockedIds.indexOf(tab_id) == -1 ) {
+	lockedIds.push(tab_id);
       }
     }
   }
-  TW.settings.set('locked_ids', locked_ids);
+  TW.settings.set('lockedIds', lockedIds);
 }
 
 // in case needs to be called from multiple places...
 function cleanLocked() {
-  var locked_ids = TW.settings.get("locked_ids");
+  var lockedIds = TW.settings.get("lockedIds");
   var cids = new Array();
 
   chrome.tabs.getAllInWindow(null, function (tabs) {
@@ -201,14 +199,14 @@ function cleanLocked() {
       for ( var i=0;i<tlen;i++ ) {
           cids.push(tabs[i].id);
       }
-      var lock_size = locked_ids.length;
+      var lock_size = lockedIds.length;
       for ( var x=0;x<lock_size;x++ ) {
-          if ( cids.indexOf(locked_ids[x]) == -1 ) {
-	      //              alert("removing: " + locked_ids[x]);
-              locked_ids.splice(locked_ids.indexOf(locked_ids[x]),1);
+          if ( cids.indexOf(lockedIds[x]) == -1 ) {
+	      //              alert("removing: " + lockedIds[x]);
+              lockedIds.splice(lockedIds.indexOf(lockedIds[x]),1);
 	  }
   }
-  TW.settings.set('locked_ids', locked_ids);
+  TW.settings.set('lockedIds', lockedIds);
 
  } );
   return true;

@@ -14,7 +14,7 @@ function checkToClose(cutOff) {
 
   var cutOff = cutOff || new Date().getTime() - TW.settings.get('stayOpen');
   // Tabs which have been locked via the checkbox.
-  var locked_ids = TW.settings.get("locked_ids");
+  var lockedIds = TW.settings.get("lockedIds");
 
   // Update the selected one to make sure it doesn't get closed.
   chrome.tabs.getSelected(null, TW.TabManager.addTab);
@@ -42,7 +42,7 @@ function checkToClose(cutOff) {
   for (var i in toCut) {
     var tabIdToCut = toCut[i];
     // @todo: move to TW.TabManager.
-    if (locked_ids.indexOf(tabIdToCut) != -1) {
+    if (lockedIds.indexOf(tabIdToCut) != -1) {
       // Update its time so it gets checked less frequently.
       // Would also be smart to just never add it.
       // @todo: fix that.
@@ -77,7 +77,7 @@ function startup() {
   // CLEAR OLD DATA EVERY WHAT?..
   localStorage["closedTabs"] = "";
   // @todo: consider moving back to its own k/v since the other settings don't get reset on start.
-  TW.settings.set('locked_ids', new Array());
+  TW.settings.set('lockedIds', new Array());
   TW.settings.save();
 
   chrome.tabs.getAllInWindow(null, initTabs);

@@ -1,6 +1,0 @@
-
-
-whitelist/blacklist for options
-
-pull code for writing to tab corral into it's own code / class
---always read from localstorage and don't use globals...

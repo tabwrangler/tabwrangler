@@ -11,15 +11,7 @@
   <link rel="stylesheet" href="css/popup.css" type="text/css"/>
 
 
-  <!--
-    All of these scripts need to be combined a bit and organized.  But for now, I'm doc'ing what's in them
-  -->
-
-  <!--
-     Main namespace and class for the app.
-  -->
-  <script type="text/javascript" src="js/tw_shared.js"></script>
-
+  <script type="text/javascript" src="js/util.js"></script>
   <!--
     Popup related functionality.
   -->
@@ -39,7 +31,6 @@
 
   <div class="tab-pane" id="tabOptions">
     <form class="well">
-      <div id="status" class="alert alert-success" style="display:none;"></div>
       <fieldset>
         <legend>Settings</legend>
         <p>
@@ -55,33 +46,32 @@
 
       <fieldset>
         <legend>Auto-Lock</legend>
-        <label for="wl_add">tabs with urls "like":</label>
-        <input type="text" id="wl_add"/>
-        <button class="btn-mini add-on" onclick="TW.optionsTab.addWL(); return false;">Add</button>
-        <br/>
-        <select multiple="multiple" id="whitelist"></select>
-        <br/>
-        <button class="btn" onclick="TW.optionsTab.deleteWL(); return false;"/>
-        Delete selected</button>
+        <label for="wl-add">tabs with urls "like":</label>
+        <input type="text" id="wl-add"/>
+        <button class="btn-mini add-on" id="addToWL">Add</button>
+
+        <table class="table table-bordered table-striped" id="whitelist">
+          <thead>
+          <th>
+            Url pattern
+          </th>
+          <th>
+
+          </th>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
   <span class="help-block">
-    <ol>
-      <li>If any item in list matches any part of URL it will match. Example: <i>cnn</i> would match every page on
-        cnn.com and any URL with cnn anywhere in url
-      </li>
-      <li>Be aware of the actual URL for the page (Gmail would be mail.google.com NOT gmail.com)</li>
-    </ol>
+    Example: <i>cnn</i> would match every page on cnn.com and any URL with cnn anywhere in url.
   </span>
       </fieldset>
-
-      <button class="btn" id="saveOptionsBtn">Save</button>
-
     </form>
+    <div id="status" class="alert alert-success" style="visibility:hidden;"></div>
   </div>
 
 
   <div class="tab-pane  active" id="tabCorral">
-    <div id="reopenTabMessage" class="alert alert-info">Click the title to re-open the tab</div>
-
     <div id="corralDyn">
       <table id="corralTable" class="table-striped table table-bordered">
         <thead>
@@ -98,15 +88,13 @@
         </tbody>
       </table>
     <div id="autocloseMessage" class="alert alert-info">If tabs are closed automatically, they will be stored here</div>
+    <div id="clearCorralMessage" class="alert alert-info"><a id="clearCorralLink" href="#">Clear list</a></div>
 
     </div>
   </div>
 
   <div class="tab-pane" id="tabActive">
     <div class="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
-
-    <div>
-
       <table id="activeTabs" class="table-striped table table-bordered">
         <thead>
         <tr>
@@ -123,5 +111,4 @@
         </tbody>
       </table>
     </div>
-  </div>
 </body>

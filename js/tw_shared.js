@@ -13,72 +13,77 @@ TW.settings = {
   }
 }
 
+// Get/setters
+
+TW.settings.stayOpen = function(value) {
+  if (value) {
+    throw new Error('This setting is immutable, it is meant to be set via minutesInactive');
+  }
+  return parseInt(this.get('minutesInactive')) * 60000;
+}
+
+TW.settings.setminutesInactive = function(value) {
+  if ( parseInt(value) < 0 || parseInt(value) > 720 ){
+    throw Error("Minutes Inactive must be greater than 0 and less than 720");
+  }
+  // Reset the tabTimes since we changed the setting
+  TW.TabManager.tabTimes = {};
+
+
+  localStorage['minutesInactive'] = value;
+}
+
+TW.settings.setmaxTabs = function(value) {
+  if (parseInt(value) != value) {
+    throw Error("Max tabs must be a number");
+  }
+  localStorage['maxTabs'] = value;
+}
+
+TW.settings.setwhitelist = function(value) {
+  // It should be an array, but JS is stupid: http://javascript.crockford.com/remedial.html
+  if (typeof(value) != 'object') {
+    throw new Error('Whitelist should be an array, ' + typeof(value) + ' given');
+  }
+
+  localStorage['whitelist'] = JSON.stringify(value);
+}
+
+// CRUD
+
 TW.settings.get = function(key) {
-  TW.settings.lazyLoad();
   if (typeof this[key] == 'function') {
     return this[key]();
   }
 
-  if (this.cache[key]) {
-    return this.cache[key];
+  if(typeof localStorage[key] == 'undefined') {
+    if (this.defaults[key]) {
+      return this.defaults[key];
+    }
+    throw Error('Undefined setting "' + key + '"');
   }
 
-  if (this.defaults[key]) {
-    return this.defaults[key];
+  if (JSON.parse(localStorage[key])) {
+    return JSON.parse(localStorage[key]);
+  } else {
+    return localStorage[key];
   }
 
-  throw Error('Undefined setting "' + key + '"');
-}
-
-TW.settings.stayOpen = function() {
-  return parseInt(this.get('minutesInactive')) * 60000;
 }
 
 TW.settings.resetToDefaults = function() {
-  this.loaded = false;
-  this.cache = {};
-}
-
-TW.settings.lazyLoad = function() {
-  if (this.loaded == false) {
-    this.load();
-  }
+  localStorage.clear();
 }
 
 TW.settings.set = function(key, value) {
-  TW.settings.lazyLoad();
-  this.cache[key] = value;
-}
-
-TW.settings.save = function() {
-  TW.settings.lazyLoad();
-  localStorage['TWSettings'] = JSON.stringify(this.cache);
-}
-
-TW.settings.validate = function() {
-  var errors = {}
-  if (parseInt(this.cache['maxTabs']) != this.cache['maxTabs']) {
-    errors['maxTabs'] = "Max tabs must be a number";
+  // Magic setter functions are set{fieldname}
+  if (typeof this["set" + key] == 'function') {
+    return this["set" + key](value);
   }
-  if ( parseInt(this.cache['minutesInactive']) < 0 || parseInt(this.cache['minutesInactive']) > 720 ){
-    errors['minutesInactive'] = "Minutes Inactive must be greater than 0 and less than 720";
+  if (typeof(value) == 'object') {
+    value = JSON.stringify(value);
   }
-
-  for(var i in errors) {
-    if (errors.hasOwnProperty(i)) {
-      return errors;
-    }
-  }
-  return false;
-}
-
-TW.settings.load = function() {
-  if (localStorage['TWSettings'] == '') {
-    this.loaded = true;
-    return;
-  }
-  this.cache = JSON.parse(localStorage['TWSettings']);
-  this.loaded = true;
+  localStorage[key] = value;
 }
 
 TW.idleChecker = {
@@ -100,14 +105,18 @@ TW.log = function(msg) {
 
 /**
  * Stores the tabs in a separate variable to log Last Accessed time.
- * Would be better probably to just store the lastModified => id hash.
- * The other data is redundant.
  * @type {Object}
  */
 TW.TabManager = {
-  tabs: {},
-  tabTimes: {}
+  tabTimes: {},
+  closedTabs: new Array()
 };
+
+TW.TabManager.initTabs = function (tabs) {
+  for (i in tabs) {
+    TW.TabManager.addTab(tabs[i]);
+  }
+}
 
 TW.TabManager.addTab = function (tab, lastModified) {
   lastModified = lastModified  || new Date().getTime();
@@ -146,46 +155,45 @@ TW.TabManager.getOlderThen = function(time) {
 }
 
 TW.TabManager.saveClosedTabs = function(tabs) {
-  var closedTabs = new Array();
   var maxTabs = TW.settings.get('maxTabs');
-  if (localStorage['closedTabs']) {
-    closedTabs = JSON.parse(localStorage['closedTabs']);
-  }
 
-  for (i in tabs) {
+  for (var i=0; i < tabs.length; i++) {
+    if (tabs[i] == null) {
+      console.log('Weird bug, backtrace this...');
+    }
     tabs[i].closedAt = new Date().getTime();
-    closedTabs.unshift(tabs[i]);
+    TW.TabManager.closedTabs.unshift(tabs[i]);
   }
 
-  if (closedTabs.length - maxTabs) {
-    closedTabs = closedTabs.splice(0, maxTabs);
+  if ((TW.TabManager.closedTabs.length - maxTabs) > 0) {
+    TW.TabManager.closedTabs = TW.TabManager.closedTabs.splice(0, maxTabs);
   }
-
-  localStorage['closedTabs'] = JSON.stringify(closedTabs);
-  console.log('Saved ' + closedTabs.length + ' tabs to localStorage');
-
+  console.log('Saved ' + tabs.length + ' tabs');
 }
 
 TW.TabManager.loadClosedTabs = function() {
-  if (!localStorage['closedTabs']) {
-    return new Array();
-  }
-  return JSON.parse(localStorage['closedTabs']);
+  return TW.TabManager.closedTabs;
 }
 
-function checkAutoLock(tab_id,url) {
-  var wl_data = TW.settings.get("whitelist");
-  var wl_len = wl_data.length;
-  var lockedIds = TW.settings.get("lockedIds");
+TW.TabManager.clearClosedTabs = function() {
+  TW.TabManager.closedTabs = new Array();
+}
 
-  for ( var i=0;i<wl_len;i++ ) {
-    if ( url.indexOf(wl_data[i]) != -1 ) {
-      if ( tab_id > 0 && lockedIds.indexOf(tab_id) == -1 ) {
-	lockedIds.push(tab_id);
-      }
+TW.TabManager.isWhitelisted = function(url) {
+  var whitelist = TW.settings.get("whitelist");
+  for (var i=0; i < whitelist.length; i++) {
+    if (url.indexOf(whitelist[i]) != -1) {
+      return true;
     }
   }
-  TW.settings.set('lockedIds', lockedIds);
+  return false;
+}
+
+TW.TabManager.isLocked = function(tabId) {
+  var lockedIds = TW.settings.get("lockedIds");
+  if (lockedIds.indexOf(tabId) != -1) {
+    return true;
+  }
 }
 
 // in case needs to be called from multiple places...

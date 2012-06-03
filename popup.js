@@ -1,4 +1,5 @@
-TW = TW || {};
+var TW = chrome.extension.getBackgroundPage().TW;
+console.log(chrome.extension.getBackgroundPage());
 
 TW.optionsTab = {};
 
@@ -8,86 +9,92 @@ TW.optionsTab = {};
  *  Optionally used to limit jQueries
  */
 TW.optionsTab.init = function(context) {
-  $('#saveOptionsBtn', context).click(TW.optionsTab.saveOptions);
+  $('#saveOptionsBtn', context).click(TW.optionsTab.saveOption);
+
+  function onBlurTextField() {
+    var key = this.id;
+    TW.optionsTab.saveOption(key, $(this).val());
+  }
+
+  $('#minutesInactive').blur(onBlurTextField);
+  $('#maxTabs').blur(onBlurTextField);
+
   TW.optionsTab.loadOptions();
 }
 
-TW.optionsTab.saveOptions = function () {
-  for (var key in TW.settings.defaults) {
-    var elem = document.getElementById(key);
-    if (elem != undefined) {
-      TW.settings.set(key, elem.value);
-    }
-  }
 
-  var errors = TW.settings.validate();
+TW.optionsTab.saveOption = function (key, value) {
+
+  var errors = new Array();
+
+  try {
+    TW.settings.set(key, value);
+  } catch (err) {
+    errors.push(err);
+  }
 
   $('#status').removeClass();
 
-  if (!errors) {
-    // Update status to let user know options were saved.
-    TW.settings.save();
-    $('#status').html('Options have been saved');
+  if (errors.length == 0) {
+    $('#status').html('Saving...');
 
     $('#status').addClass('alert-success').addClass('alert');
-    setTimeout(function() { status.innerHTML = "";}, 4000);
   } else {
     var $errorList = $('<ul></ul>');
-    for (key in errors) {
-      $errorList.append('<li>' + errors[key] + '</li>');
+    for (var i in errors) {
+      $errorList.append('<li>' + errors[i].message + '</li>');
     }
     $('#status').append($errorList).addClass('alert-error').addClass('alert');
-
   }
-  $('#status').show();
-  $('#status').delay(5000).fadeOut(1000);
+  $('#status').css('visibility', 'visible');
+  $('#status').css('opacity', '100');
+  $('#status').delay(1000).animate({opacity:0});
   return false;
 }
 
 TW.optionsTab.loadOptions = function () {
-  for (var key in TW.settings.defaults) {
-    var elem = document.getElementById(key);
-    if (elem != undefined) {
-      v = TW.settings.get(key);
-      elem.value = v;
-    }
+  $('#minutesInactive').val(TW.settings.get('minutesInactive'));
+  $('#maxTabs').val(TW.settings.get('maxTabs'));
+
+  $('#whitelist').addOption = function(key, val) {
+    this.append(
+      $('<option />')
+      .value(val)
+      .text(key)
+    );
   }
+
+  var whitelist = TW.settings.get('whitelist');
+  TW.optionsTab.buildWLTable(whitelist);
+
+  $('#addToWL').click(function() {
+    whitelist.push($('#wl-add').val());
+    TW.optionsTab.saveOption('whitelist', whitelist);
+    TW.optionsTab.buildWLTable(whitelist);
+    return false;
+  });
+
+  $('.deleteLink').click(function() {
+    var p = $(this).attr('data-pattern');
+    whitelist.remove(whitelist.indexOf(p));
+    TW.optionsTab.saveOption('whitelist', whitelist);
+    TW.optionsTab.buildWLTable(whitelist);
+    return false;
+  })
 }
 
-TW.optionsTab.deleteWL = function () {
-  var wl_select = document.getElementById('whitelist');
-  var wl_data = TW.settings.get("whitelist");
-  var selected = wl_select.options.selectedIndex;
-  if ( selected != -1 ) {
-    //wl_select.options[selected] = null;
-    wl_data.splice(selected,1);
-  }
-  localStorage["whitelist"] = JSON.stringify(wl_data);
-  TW.optionsTab.updateWL();
-}
+TW.optionsTab.buildWLTable = function(whitelist) {
+  var $wlTable = $('table#whitelist tbody');
+  $wlTable.html('');
+  for (var i=0; i < whitelist.length; i++) {
+    $tr = $('<tr></tr>');
+    $urlTd = $('<td></td>').text(whitelist[i]);
+    $deleteLink = $('<a class="deleteLink" href="#">Remove</a>')
+      .attr('data-pattern', whitelist[i]);
 
-TW.optionsTab.addWL = function () {
-  var url = document.getElementById('wl_add').value;
-  var wl_data = TW.settings.get("whitelist");
-  if ( url.length > 0 && wl_data.indexOf(url) == -1 ) {
-    wl_data.push(url);
-    document.getElementById('wl_add').value= '';
-  } else {
-    //alert("Already in list");
-  }
-  localStorage["whitelist"] = JSON.stringify(wl_data);
-  TW.optionsTab.updateWL();
-}
-
-TW.optionsTab.updateWL = function () {
-  var wl_data = TW.settings.get("whitelist");
-  var wl_len = wl_data.length;
-  var wl_select = document.getElementById('whitelist');
-  wl_select.options.length = 0;
-  for ( var i=0;i<wl_len;i++ ) {
-    var tmp_opt = document.createElement('option');
-    tmp_opt.appendChild(document.createTextNode(wl_data[i]));
-    wl_select.appendChild(tmp_opt);
+    $tr.append($urlTd);
+    $tr.append($('<td></td>').append($deleteLink));
+    $wlTable.append($tr);
   }
 }
 
@@ -131,9 +138,6 @@ TW.activeTab.buildTabLockTable = function (tabs) {
   var $tbody = $('#activeTabs tbody');
   $tbody.html('');
 
-  for (var i = 0; i < tabNum; i++) {
-    checkAutoLock(tabs[i].id, tabs[i].url);
-  }
   var lockedIds = TW.settings.get("lockedIds");
   for (var i = 0; i < tabNum; i++) {
 
@@ -146,7 +150,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       .attr('type', 'checkbox')
       .attr('id', "cb" + tabs[i].id)
       .attr('value', tabs[i].id)
-      .attr('checked', lockedIds.indexOf(tabs[i].id) != -1)
+      .attr('checked', TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1)
       .click(function () {
         if (this.checked) {
           self.saveLock(parseInt(this.value));
@@ -177,7 +181,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
 
     var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
 
-    var lastModified = chrome.extension.getBackgroundPage().TW.TabManager.tabTimes[tabs[i].id];
+    var lastModified = TW.TabManager.tabTimes[tabs[i].id];
     var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
     $tr.append($('<td class="time-left">' + timeLeft + 's</td>'));
 
@@ -194,10 +198,14 @@ TW.corralTab = {};
 TW.corralTab.init = function(context) {
   // @todo: use context to select table.
   TW.corralTab.loadClosedTabs();
+  $('#clearCorralLink').click(function() {
+    TW.TabManager.clearClosedTabs();
+    TW.corralTab.loadClosedTabs();
+  });
 }
 TW.corralTab.loadClosedTabs = function() {
   $('#autocloseMessage').hide();
-  $('#reopenTabMessage').hide();
+  $('#clearCorralMessage').hide();
 
   /**
    * @todo: add this back in
@@ -211,18 +219,21 @@ TW.corralTab.loadClosedTabs = function() {
    }
    */
 
+  // Get saved closed tabs.
   var closedTabs = TW.TabManager.loadClosedTabs();
-  closedTabs = closedTabs.reverse();
 
+  // Clear out the table.
   var $tbody = $('#corralTable tbody');
   $tbody.html('');
 
+  // If we have no saved closed tabs, show the help text and quit.
   if ( closedTabs.length == 0 ) {
     $('#autocloseMessage').show();
     return;
   }
 
-  $('#reopenTabMessage').show();
+
+  $('#clearCorralMessage').show();
 
   for ( var i = 0; i < closedTabs.length; i++) {
     var tab = closedTabs[i];
@@ -262,19 +273,10 @@ TW.corralTab.loadClosedTabs = function() {
   }
 }
 
-
-// Utility stuff:
-String.prototype.shorten = function(length) {
-  if ( this.length > (length + 3) ) {
-    return this.substring(0, length) + "...";
-  }
-  return this;
-}
-
 $(document).ready(function() {
   $('a[href="#tabCorral"]').tab('show');
   // Seems we need to force this since corral is the default.
-  TW.corralTab.loadClosedTabs();
+  TW.corralTab.init();
 
   $('#checkTimes').click(function() {
     //@todo: make that button work on lock tab.

@@ -1,17 +1,8 @@
-function initTabs(tabs) {
-  for (i in tabs) {
-    TW.TabManager.addTab(tabs[i]);
-  }
-}
-
 /**
  * @todo: refactor into "get the ones to close" and "close 'em"
  * So it can be tested.
  */
 function checkToClose(cutOff) {
-  // Clears the settings cache and loads from localStorage
-  TW.settings.resetToDefaults();
-
   var cutOff = cutOff || new Date().getTime() - TW.settings.get('stayOpen');
   // Tabs which have been locked via the checkbox.
   var lockedIds = TW.settings.get("lockedIds");
@@ -34,12 +25,14 @@ function checkToClose(cutOff) {
   */
 
   var toCut = TW.TabManager.getOlderThen(cutOff);
+  console.log("Tabs to close", toCut);
   var tabsToSave = new Array();
 
   if (toCut.length == 0) {
     return;
   }
-  for (var i in toCut) {
+
+  for (var i=0; i < toCut.length; i++) {
     var tabIdToCut = toCut[i];
     // @todo: move to TW.TabManager.
     if (lockedIds.indexOf(tabIdToCut) != -1) {
@@ -51,15 +44,11 @@ function checkToClose(cutOff) {
     }
 
     chrome.tabs.get(tabIdToCut, function(tab) {
-      // Close it in Chrome.
-      chrome.tabs.remove(tabIdToCut, function() {
-        tabsToSave.push(tab);
-
-        // End the loop.
-        if (tabsToSave.length == toCut.length) {
-          TW.TabManager.saveClosedTabs(tabsToSave);
-        }
-      });
+      if (TW.TabManager.isWhitelisted(tab.url) == false) {
+        TW.TabManager.saveClosedTabs([tab]);
+        // Close it in Chrome.
+        chrome.tabs.remove(tab.id);
+      }
     });
   }
 }
@@ -72,15 +61,11 @@ function updateClosedCount() {
 }
 
 function startup() {
-  // I don't even know wtf we need this for.
-  // clear closed tabs DATA in options
-  // CLEAR OLD DATA EVERY WHAT?..
-  localStorage["closedTabs"] = "";
-  // @todo: consider moving back to its own k/v since the other settings don't get reset on start.
+  TW.TabManager.clearClosedTabs();
   TW.settings.set('lockedIds', new Array());
-  TW.settings.save();
+  // @todo: consider moving back to its own k/v since the other settings don't get reset on start.
 
-  chrome.tabs.getAllInWindow(null, initTabs);
+  chrome.tabs.query({windowType: 'normal'}, TW.TabManager.initTabs);
   chrome.tabs.onCreated.addListener(TW.TabManager.addTab);
 
   chrome.tabs.onUpdated.addListener(TW.TabManager.addTab);

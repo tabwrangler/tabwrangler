@@ -200,6 +200,7 @@ TW.corralTab.init = function(context) {
   TW.corralTab.loadClosedTabs();
   $('#clearCorralLink').click(function() {
     TW.TabManager.clearClosedTabs();
+    TW.TabManager.updateClosedCount();
     TW.corralTab.loadClosedTabs();
   });
 }

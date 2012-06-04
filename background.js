@@ -9,7 +9,7 @@ function checkToClose(cutOff) {
   var lockedIds = TW.settings.get("lockedIds");
 
   // Update the selected one to make sure it doesn't get closed.
-  chrome.tabs.getSelected(null, TW.TabManager.addTab);
+  chrome.tabs.getSelected(null, TW.TabManager.updateLastAccessed);
 
   /**
    * Idlechecker stuff, needs to be refactored
@@ -61,26 +61,18 @@ function checkToClose(cutOff) {
   }
 }
 
-function updateClosedCount() {
-  var storedTabs = TW.TabManager.loadClosedTabs().length;
-  if (storedTabs > 0) {
-    chrome.browserAction.setBadgeText({text: storedTabs.toString()});
-  }
-}
-
 function startup() {
   TW.TabManager.clearClosedTabs();
   TW.settings.set('lockedIds', new Array());
   // @todo: consider moving back to its own k/v since the other settings don't get reset on start.
 
   chrome.tabs.query({windowType: 'normal'}, TW.TabManager.initTabs);
-  chrome.tabs.onCreated.addListener(TW.TabManager.addTab);
-
+  chrome.tabs.onCreated.addListener(TW.TabManager.updateLastAccessed);
   chrome.tabs.onUpdated.addListener(TW.TabManager.updateLastAccessed);
   chrome.tabs.onRemoved.addListener(TW.TabManager.removeTab);
   chrome.tabs.onActivated.addListener(function(tabInfo) {TW.TabManager.updateLastAccessed(tabInfo['tabId'])});
   window.setInterval(checkToClose, TW.settings.get('checkInterval'));
-  window.setInterval(updateClosedCount, TW.settings.get('badgeCounterInterval'));
+  window.setInterval(TW.TabManager.updateClosedCount, TW.settings.get('badgeCounterInterval'));
 }
 
 window.onload = startup;

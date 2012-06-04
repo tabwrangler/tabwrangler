@@ -141,27 +141,19 @@ TW.TabManager = {
 
 TW.TabManager.initTabs = function (tabs) {
   for (var i=0; i < tabs.length; i++) {
-    TW.TabManager.addTab(tabs[i]);
+    TW.TabManager.updateLastAccessed(tabs[i]);
   }
 }
 
-TW.TabManager.addTab = function (tab, lastModified) {
-  lastModified = lastModified  || new Date().getTime();
-  if (typeof tab == 'undefined') {
-     console.log('Tab is undefined... Is this is a Chrome bug? Continuing, but should be backtraced.');
-     console.log(tab);
-    return;
-  }
-
-  if (typeof tab.id == 'undefined') {
-    throw new Error('Tab is in undefined format');
-    return;
-  }
-
-  TW.TabManager.tabTimes[tab.id] = lastModified;
-}
-
+/**
+ * Takes a tabId or a tab object
+ * @param {mixed} tabId
+ *  Tab ID or Tab object.
+ */
 TW.TabManager.updateLastAccessed = function (tabId) {
+  if (typeof tabId == "object") {
+    tabId = tabId.id
+  }
   TW.TabManager.tabTimes[tabId] = new Date().getTime();
 }
 
@@ -238,6 +230,13 @@ TW.TabManager.isLocked = function(tabId) {
   var lockedIds = TW.settings.get("lockedIds");
   if (lockedIds.indexOf(tabId) != -1) {
     return true;
+  }
+}
+
+TW.TabManager.updateClosedCount = function() {
+  var storedTabs = TW.TabManager.loadClosedTabs().length;
+  if (storedTabs > 0) {
+    chrome.browserAction.setBadgeText({text: storedTabs.toString()});
   }
 }
 

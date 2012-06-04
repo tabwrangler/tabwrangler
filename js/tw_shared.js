@@ -7,7 +7,8 @@ TW.settings = {
     checkInterval: 5000,
     badgeCounterInterval: 6000,
     minutesInactive: 7,
-    maxTabs: 30,
+    minTabs: 5, // Stop acting if there are only minTabs tabs open.
+    maxTabs: 100, // Just to keep memory / UI in check.  No UI for this.
     lockedIds: new Array(),
     whitelist: new Array()
   }
@@ -33,11 +34,11 @@ TW.settings.setminutesInactive = function(value) {
   localStorage['minutesInactive'] = value;
 }
 
-TW.settings.setmaxTabs = function(value) {
+TW.settings.setminTabs = function(value) {
   if (parseInt(value) != value) {
-    throw Error("Max tabs must be a number");
+    throw Error("Minimum tabs must be a number");
   }
-  localStorage['maxTabs'] = value;
+  localStorage['minTabs'] = value;
 }
 
 TW.settings.setwhitelist = function(value) {
@@ -113,7 +114,7 @@ TW.TabManager = {
 };
 
 TW.TabManager.initTabs = function (tabs) {
-  for (i in tabs) {
+  for (var i=0; i < tabs.length; i++) {
     TW.TabManager.addTab(tabs[i]);
   }
 }
@@ -121,16 +122,21 @@ TW.TabManager.initTabs = function (tabs) {
 TW.TabManager.addTab = function (tab, lastModified) {
   lastModified = lastModified  || new Date().getTime();
   if (typeof tab == 'undefined') {
-    // console.log('Tab is undefined... this is a Chrome bug, continuing');
-    // throw new Error('Undefined tab object... wtf?');
+     console.log('Tab is undefined... Is this is a Chrome bug? Continuing, but should be backtraced.');
+     console.log(tab);
+    return;
+  }
+
+  if (typeof tab.id == 'undefined') {
+    throw new Error('Tab is in undefined format');
     return;
   }
 
   TW.TabManager.tabTimes[tab.id] = lastModified;
 }
 
-TW.TabManager.updateLastAccessed = function (tabId, lastModified) {
-  TW.TabManager.tabTimes[tabId] = lastModified;
+TW.TabManager.updateLastAccessed = function (tabId) {
+  TW.TabManager.tabTimes[tabId] = new Date().getTime();
 }
 
 /**
@@ -141,17 +147,31 @@ TW.TabManager.removeTab = function(tabId) {
   delete TW.TabManager.tabTimes[tabId];
 }
 
+/**
+ *
+ * @param time
+ *  If null, returns all.
+ * @return {Array}
+ */
 TW.TabManager.getOlderThen = function(time) {
   var ret = Array();
   for (var i in this.tabTimes) {
     if (this.tabTimes.hasOwnProperty(i)) {
-      if (this.tabTimes[i] < time) {
+      if (time == null || this.tabTimes[i] < time) {
         ret.push(parseInt(i));
       }
     }
   }
 
   return ret;
+}
+
+/**
+ * Wrapper function basically
+ * @return {Array}
+ */
+TW.TabManager.getAll = function() {
+  return TW.TabManager.getOlderThen();
 }
 
 TW.TabManager.saveClosedTabs = function(tabs) {
@@ -196,29 +216,6 @@ TW.TabManager.isLocked = function(tabId) {
   }
 }
 
-// in case needs to be called from multiple places...
-function cleanLocked() {
-  var lockedIds = TW.settings.get("lockedIds");
-  var cids = new Array();
-
-  chrome.tabs.getAllInWindow(null, function (tabs) {
-
-      var tlen = tabs.length;
-      for ( var i=0;i<tlen;i++ ) {
-          cids.push(tabs[i].id);
-      }
-      var lock_size = lockedIds.length;
-      for ( var x=0;x<lock_size;x++ ) {
-          if ( cids.indexOf(lockedIds[x]) == -1 ) {
-	      //              alert("removing: " + lockedIds[x]);
-              lockedIds.splice(lockedIds.indexOf(lockedIds[x]),1);
-	  }
-  }
-  TW.settings.set('lockedIds', lockedIds);
-
- } );
-  return true;
-}
 
 /**
  * Possible test, later...

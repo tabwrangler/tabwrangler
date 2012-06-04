@@ -17,7 +17,7 @@ TW.optionsTab.init = function(context) {
   }
 
   $('#minutesInactive').blur(onBlurTextField);
-  $('#maxTabs').blur(onBlurTextField);
+  $('#minTabs').blur(onBlurTextField);
 
   TW.optionsTab.loadOptions();
 }
@@ -54,7 +54,7 @@ TW.optionsTab.saveOption = function (key, value) {
 
 TW.optionsTab.loadOptions = function () {
   $('#minutesInactive').val(TW.settings.get('minutesInactive'));
-  $('#maxTabs').val(TW.settings.get('maxTabs'));
+  $('#minTabs').val(TW.settings.get('minTabs'));
 
   $('#whitelist').addOption = function(key, val) {
     this.append(

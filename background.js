@@ -64,8 +64,8 @@ function checkToClose(cutOff) {
 function startup() {
   TW.TabManager.clearClosedTabs();
   TW.settings.set('lockedIds', new Array());
-  // @todo: consider moving back to its own k/v since the other settings don't get reset on start.
 
+  // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({windowType: 'normal'}, TW.TabManager.initTabs);
   chrome.tabs.onCreated.addListener(TW.TabManager.updateLastAccessed);
   chrome.tabs.onUpdated.addListener(TW.TabManager.updateLastAccessed);

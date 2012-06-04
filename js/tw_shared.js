@@ -40,6 +40,7 @@ TW.settings.setminutesInactive = function(value) {
   }
   // Reset the tabTimes since we changed the setting
   TW.TabManager.tabTimes = {};
+  chrome.tabs.query({windowType: 'normal'}, TW.TabManager.initTabs);
 
   localStorage['minutesInactive'] = value;
 }

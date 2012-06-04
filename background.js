@@ -31,6 +31,9 @@ function checkToClose(cutOff) {
   // If cutting will reduce us below 5 tabs, only remove the first N to get to 5.
   if ((TW.TabManager.getAll().length - minTabs) >= 0) {
     toCut = toCut.splice(0, TW.TabManager.getAll().length - minTabs);
+  } else {
+    // We have less than 5 tabs, abort.
+    return;
   }
 
   if (toCut.length == 0) {
@@ -75,7 +78,7 @@ function startup() {
 
   chrome.tabs.onUpdated.addListener(TW.TabManager.updateLastAccessed);
   chrome.tabs.onRemoved.addListener(TW.TabManager.removeTab);
-  chrome.tabs.onSelectionChanged.addListener(TW.TabManager.addTab);
+  chrome.tabs.onActivated.addListener(function(tabInfo) {TW.TabManager.updateLastAccessed(tabInfo['tabId'])});
   window.setInterval(checkToClose, TW.settings.get('checkInterval'));
   window.setInterval(updateClosedCount, TW.settings.get('badgeCounterInterval'));
 }

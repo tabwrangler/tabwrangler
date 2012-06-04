@@ -74,13 +74,6 @@ TW.optionsTab.loadOptions = function () {
     return false;
   });
 
-  $('.deleteLink').click(function() {
-    var p = $(this).attr('data-pattern');
-    whitelist.remove(whitelist.indexOf(p));
-    TW.optionsTab.saveOption('whitelist', whitelist);
-    TW.optionsTab.buildWLTable(whitelist);
-    return false;
-  })
 }
 
 TW.optionsTab.buildWLTable = function(whitelist) {
@@ -90,7 +83,12 @@ TW.optionsTab.buildWLTable = function(whitelist) {
     $tr = $('<tr></tr>');
     $urlTd = $('<td></td>').text(whitelist[i]);
     $deleteLink = $('<a class="deleteLink" href="#">Remove</a>')
-      .attr('data-pattern', whitelist[i]);
+      .click(function() {
+        whitelist.remove(whitelist.indexOf($(this).data('pattern')));
+        TW.optionsTab.saveOption('whitelist', whitelist);
+        TW.optionsTab.buildWLTable(whitelist);
+      })
+      .data('pattern', whitelist[i]);
 
     $tr.append($urlTd);
     $tr.append($('<td></td>').append($deleteLink));

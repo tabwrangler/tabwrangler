@@ -1,28 +1,39 @@
+/**
+ * @file: Mostly API functions
+ */
+
+// Name space
 var TW = TW || {};
 
+/**
+ * @type {Object}
+ */
 TW.settings = {
-  loaded: false,
-  cache: {},
   defaults: {
-    checkInterval: 5000,
-    badgeCounterInterval: 6000,
-    minutesInactive: 7,
+    checkInterval: 5000, // How often we check for old tabs.
+    badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
+    minutesInactive: 7, // How many minutes before we consider a tab "stale" and ready to close.
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
     maxTabs: 100, // Just to keep memory / UI in check.  No UI for this.
-    lockedIds: new Array(),
-    whitelist: new Array()
+    lockedIds: new Array(),  // An array of tabids which have been explicitly locked by the user.
+    whitelist: new Array() // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
   }
 }
 
-// Get/setters
-
-TW.settings.stayOpen = function(value) {
-  if (value) {
-    throw new Error('This setting is immutable, it is meant to be set via minutesInactive');
-  }
+/**
+ * Returns the number of milliseconds that tabs should stay open for without being used.
+ *
+ * @return {Number}
+ */
+TW.settings.stayOpen = function() {
   return parseInt(this.get('minutesInactive')) * 60000;
 }
 
+/**
+ *
+ * @param value
+ * @see TW.settings.set
+ */
 TW.settings.setminutesInactive = function(value) {
   if ( parseInt(value) < 0 || parseInt(value) > 720 ){
     throw Error("Minutes Inactive must be greater than 0 and less than 720");
@@ -30,10 +41,14 @@ TW.settings.setminutesInactive = function(value) {
   // Reset the tabTimes since we changed the setting
   TW.TabManager.tabTimes = {};
 
-
   localStorage['minutesInactive'] = value;
 }
 
+/**
+ *
+ * @param value
+ * @see TW.settings.set
+ */
 TW.settings.setminTabs = function(value) {
   if (parseInt(value) != value) {
     throw Error("Minimum tabs must be a number");
@@ -41,6 +56,10 @@ TW.settings.setminTabs = function(value) {
   localStorage['minTabs'] = value;
 }
 
+/**
+ * @param value
+ * @see TW.settings.set
+ */
 TW.settings.setwhitelist = function(value) {
   // It should be an array, but JS is stupid: http://javascript.crockford.com/remedial.html
   if (typeof(value) != 'object') {
@@ -50,8 +69,13 @@ TW.settings.setwhitelist = function(value) {
   localStorage['whitelist'] = JSON.stringify(value);
 }
 
-// CRUD
-
+/**
+ * Either calls a getter function or retunrs directly from localstorage.
+ *
+ * * If the value is a struct (object or array) it is JSONified.
+ * @param key
+ * @return {*}
+ */
 TW.settings.get = function(key) {
   if (typeof this[key] == 'function') {
     return this[key]();
@@ -72,10 +96,16 @@ TW.settings.get = function(key) {
 
 }
 
-TW.settings.resetToDefaults = function() {
-  localStorage.clear();
-}
-
+/**
+ * Sets a value in localStorage.  Can also call a setter.
+ *
+ * If the value is a struct (object or array) it is JSONified.
+ *
+ * @param key
+ *  Settings keyword string.
+ * @param value
+ * @return {*}
+ */
 TW.settings.set = function(key, value) {
   // Magic setter functions are set{fieldname}
   if (typeof this["set" + key] == 'function') {
@@ -98,10 +128,6 @@ TW.idleChecker = {
     }
     return parseInt(time) - parseInt(this.lastRun);
   }
-}
-
-TW.log = function(msg) {
-  localStorage['log'].push(msg);
 }
 
 /**
@@ -148,7 +174,6 @@ TW.TabManager.removeTab = function(tabId) {
 }
 
 /**
- *
  * @param time
  *  If null, returns all.
  * @return {Array}

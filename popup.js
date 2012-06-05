@@ -148,7 +148,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       .attr('type', 'checkbox')
       .attr('id', "cb" + tabs[i].id)
       .attr('value', tabs[i].id)
-      .attr('checked', TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1)
+      .attr('checked', tabs[i].pinned || TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1)
       .click(function () {
         if (this.checked) {
           self.saveLock(parseInt(this.value));

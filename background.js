@@ -52,11 +52,16 @@ function checkToClose(cutOff) {
     }
 
     chrome.tabs.get(tabIdToCut, function(tab) {
-      if (TW.TabManager.isWhitelisted(tab.url) == false) {
-        TW.TabManager.saveClosedTabs([tab]);
-        // Close it in Chrome.
-        chrome.tabs.remove(tab.id);
+      if (tab.pinned == true) {
+	  	return;
       }
+      if (TW.TabManager.isWhitelisted(tab.url)) {
+      	return;
+      }
+      
+      TW.TabManager.saveClosedTabs([tab]);
+      // Close it in Chrome.
+      chrome.tabs.remove(tab.id);
     });
   }
 }

@@ -8,6 +8,8 @@ Auto-closes tabs which you haven't used in awhile.
 * *Exclude list*: Provide the urls or domain names of the sites you never want auto-closed.
 * *Tab Lock*: Pick open tabs to "lock".  Locked tabs will not be auto-closed.
 * *Configurable*: Pick how long a tab should be considered ready to close and how many tabs should be open at a minimum. 
+* *Smart*: Doesn't autoclose pinned tabs, doesn't close all your tabs,
+  just enough to make your browser usable.
 
 ## Usage / Installation
 
@@ -24,7 +26,6 @@ Auto-closes tabs which you haven't used in awhile.
 
 ## Todo:
 
-* Auto-exclude pinned tabs
 * Pause the auto-close behavior if the browser has been idle
 
 ## Creds:

@@ -67,8 +67,10 @@ function checkToClose(cutOff) {
 }
 
 function startup() {
+  updateFromOldVersion();
   TW.TabManager.clearClosedTabs();
   TW.settings.set('lockedIds', new Array());
+  
 
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({windowType: 'normal'}, TW.TabManager.initTabs);
@@ -78,6 +80,33 @@ function startup() {
   chrome.tabs.onActivated.addListener(function(tabInfo) {TW.TabManager.updateLastAccessed(tabInfo['tabId'])});
   window.setInterval(checkToClose, TW.settings.get('checkInterval'));
   window.setInterval(TW.TabManager.updateClosedCount, TW.settings.get('badgeCounterInterval'));
+}
+
+function updateFromOldVersion() {
+  var map = {
+    'minutes_inactive' : 'minutesInactive',
+    'closed_tab_ids' : null,
+    'closed_tab_titles': null,
+    'closed_tab_urls' : null,
+    'closed_tab_icons' : null,
+    'closed_tab_actions': null,
+    'locked_ids' : 'lockedIds',
+    'popup_view' : null
+  }
+  
+  var oldValue;
+  
+  for (var i in map) {
+    if (map.hasOwnProperty(i)) {
+      oldValue = localStorage[i];
+      if (oldValue) {
+        if (map[i] != null) {
+          localStorage[map[i]] = oldValue;
+        }
+        localStorage.removeItem(i);
+      }
+    }
+  }
 }
 
 window.onload = startup;

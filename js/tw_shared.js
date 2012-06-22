@@ -20,6 +20,8 @@ TW.settings = {
   }
 }
 
+
+
 /**
  * Returns the number of milliseconds that tabs should stay open for without being used.
  *
@@ -214,6 +216,7 @@ TW.TabManager.loadClosedTabs = function() {
 }
 
 TW.TabManager.clearClosedTabs = function() {
+  
   TW.TabManager.closedTabs = new Array();
 }
 
@@ -236,9 +239,10 @@ TW.TabManager.isLocked = function(tabId) {
 
 TW.TabManager.updateClosedCount = function() {
   var storedTabs = TW.TabManager.loadClosedTabs().length;
-  if (storedTabs > 0) {
-    chrome.browserAction.setBadgeText({text: storedTabs.toString()});
+  if (storedTabs == 0) {
+    storedTabs = '';
   }
+  chrome.browserAction.setBadgeText({text: storedTabs.toString()});
 }
 
 

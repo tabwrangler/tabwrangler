@@ -204,7 +204,7 @@ TW.corralTab.init = function(context) {
 }
 TW.corralTab.loadClosedTabs = function() {
   $('#autocloseMessage').hide();
-  $('#clearCorralMessage').hide();
+  $('.clearCorralMessage').hide();
 
   /**
    * @todo: add this back in
@@ -232,7 +232,7 @@ TW.corralTab.loadClosedTabs = function() {
   }
 
 
-  $('#clearCorralMessage').show();
+  $('.clearCorralMessage').show();
 
   for ( var i = 0; i < closedTabs.length; i++) {
     var tab = closedTabs[i];

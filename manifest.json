@@ -2,7 +2,7 @@
   "background_page": "background.html",
   "name": "Tab Wrangler",
   "options_page":"popup.html",
-  "version": "2.0",
+  "version": "2.1",
   "description": "Automatically closes inactive tabs and makes it easy to get them back", 
   "icons": {
       "128": "img/icon128.png",

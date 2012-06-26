@@ -4,10 +4,10 @@
   "options_page":"popup.html",
   "version": "2.0"
   "description": "Automatically closes tabs that are unused after X minutes.",
-  "icons": {                                                                                                                
+  "icons": {
       "128": "img/icon128.png",
       "48": "img/icon48.png"
-   },  
+   },
   "browser_action": {
     "name": "Tab Wrangler",
     "default_icon": "img/icon.png",

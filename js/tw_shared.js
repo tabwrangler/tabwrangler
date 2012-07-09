@@ -194,30 +194,36 @@ TW.TabManager.getAll = function() {
   return TW.TabManager.getOlderThen();
 }
 
-TW.TabManager.saveClosedTabs = function(tabs) {
-  var maxTabs = TW.settings.get('maxTabs');
+TW.TabManager.closedTabs = {
+  tabs: new Array()
+};
 
+TW.TabManager.closedTabs.findById = function(id) {
+  for (var i = 0; i < this.tabs.length; i++) {
+    if(this.tabs[i].id == id) {
+      return i;
+    }
+  }
+}
+
+TW.TabManager.closedTabs.saveTabs = function(tabs) {
+  var maxTabs = TW.settings.get('maxTabs');
   for (var i=0; i < tabs.length; i++) {
     if (tabs[i] == null) {
       console.log('Weird bug, backtrace this...');
     }
     tabs[i].closedAt = new Date().getTime();
-    TW.TabManager.closedTabs.unshift(tabs[i]);
+    this.tabs.unshift(tabs[i]);
   }
 
-  if ((TW.TabManager.closedTabs.length - maxTabs) > 0) {
-    TW.TabManager.closedTabs = TW.TabManager.closedTabs.splice(0, maxTabs);
+  if ((this.tabs.length - maxTabs) > 0) {
+    this.tabs = this.tabs.splice(0, maxTabs);
   }
   console.log('Saved ' + tabs.length + ' tabs');
 }
 
-TW.TabManager.loadClosedTabs = function() {
-  return TW.TabManager.closedTabs;
-}
-
-TW.TabManager.clearClosedTabs = function() {
-  
-  TW.TabManager.closedTabs = new Array();
+TW.TabManager.closedTabs.clear = function() {
+  this.tabs = new Array(); 
 }
 
 TW.TabManager.isWhitelisted = function(url) {
@@ -238,7 +244,7 @@ TW.TabManager.isLocked = function(tabId) {
 }
 
 TW.TabManager.updateClosedCount = function() {
-  var storedTabs = TW.TabManager.loadClosedTabs().length;
+  var storedTabs = TW.TabManager.closedTabs.tabs.length;
   if (storedTabs == 0) {
     storedTabs = '';
   }

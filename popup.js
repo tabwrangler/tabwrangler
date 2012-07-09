@@ -197,7 +197,7 @@ TW.corralTab.init = function(context) {
   // @todo: use context to select table.
   TW.corralTab.loadClosedTabs();
   $('#clearCorralLink').click(function() {
-    TW.TabManager.clearClosedTabs();
+    TW.TabManager.closedTabs.clear();
     TW.TabManager.updateClosedCount();
     TW.corralTab.loadClosedTabs();
   });
@@ -219,7 +219,7 @@ TW.corralTab.loadClosedTabs = function() {
    */
 
   // Get saved closed tabs.
-  var closedTabs = TW.TabManager.loadClosedTabs();
+  var closedTabs = TW.TabManager.closedTabs.tabs;
 
   // Clear out the table.
   var $tbody = $('#corralTable tbody');
@@ -263,7 +263,13 @@ TW.corralTab.loadClosedTabs = function() {
 //    } else {
 //      a_title.href = urls[i];
 //    }
-    $tr.append($('<td><a target="_blank" href="' + tab.url + '">' + tab.title.shorten(70) + '</a></td>'));
+
+    $link = $('<a target="_blank" data-tabid="' + tab.id + '" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
+    $link.click(function() {
+      TW.TabManager.closedTabs.tabs.splice(TW.TabManager.closedTabs.findById($(this).data('tabid')), 1);
+      $(this).parent().remove();
+    });
+    $tr.append($('<td></td/>').append($link));
     // Url - not sure if we want this.
     // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
     // time ago.

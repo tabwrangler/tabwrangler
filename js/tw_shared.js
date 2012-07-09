@@ -12,7 +12,7 @@ TW.settings = {
   defaults: {
     checkInterval: 5000, // How often we check for old tabs.
     badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
-    minutesInactive: 7, // How many minutes before we consider a tab "stale" and ready to close.
+    minutesInactive: 20, // How many minutes before we consider a tab "stale" and ready to close.
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
     maxTabs: 100, // Just to keep memory / UI in check.  No UI for this.
     lockedIds: new Array(),  // An array of tabids which have been explicitly locked by the user.

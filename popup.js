@@ -16,8 +16,8 @@ TW.optionsTab.init = function(context) {
     TW.optionsTab.saveOption(key, $(this).val());
   }
 
-  $('#minutesInactive').blur(onBlurTextField);
-  $('#minTabs').blur(onBlurTextField);
+  $('#minutesInactive').change(onBlurTextField);
+  $('#minTabs').change(onBlurTextField);
 
   TW.optionsTab.loadOptions();
 }
@@ -105,23 +105,12 @@ TW.activeTab.init = function(context) {
   chrome.tabs.getAllInWindow(null, function(tabs) { TW.activeTab.buildTabLockTable(tabs);});
 }
 
-TW.activeTab.saveLock = function(tab_id) {
-  var lockedIds = TW.settings.get("lockedIds");
-
-  if (tab_id > 0 && lockedIds.indexOf(tab_id) == -1) {
-    lockedIds.push(tab_id);
-  }
-  TW.settings.set('lockedIds', lockedIds);
-  TW.settings.save();
+TW.activeTab.saveLock = function(tabId) {
+  TW.TabManager.lockTab(tabId);
 }
 
-TW.activeTab.removeLock = function(tab_id) {
-  var lockedIds = TW.settings.get("lockedIds");
-  if (lockedIds.indexOf(tab_id) > -1) {
-    lockedIds.splice(lockedIds.indexOf(tab_id), 1);
-  }
-  TW.settings.set('lockedIds', lockedIds);
-  TW.settings.save();
+TW.activeTab.removeLock = function(tabId) {
+  TW.TabManager.unlockTab();
 }
 
 

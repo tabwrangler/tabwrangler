@@ -1,17 +1,24 @@
 {
-  "background_page": "background.html",
+  "background": {
+    "page": "background.html"
+  },
+  "manifest_version": 2,
   "name": "Tab Wrangler",
   "options_page":"popup.html",
-  "version": "2.1",
+  "version": "2.2",
   "description": "Automatically closes inactive tabs and makes it easy to get them back", 
   "icons": {
       "128": "img/icon128.png",
-      "48": "img/icon48.png"
+      "48": "img/icon48.png",
+      "16": "img/icon16.png"
    },
   "browser_action": {
-    "name": "Tab Wrangler",
+    "default_title": "Tab Wrangler",
     "default_icon": "img/icon.png",
-    "popup":"popup.html"
+    "default_popup":"popup.html"
   },
-  "permissions": [ "tabs" ]
+  "web_accessible_resources": [
+    "img/icon48.png"
+  ],
+  "permissions": [ "tabs", "notifications", "storage", "contextMenus" ]
 }

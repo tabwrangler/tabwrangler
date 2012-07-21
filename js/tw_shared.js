@@ -241,6 +241,24 @@ TW.TabManager.isLocked = function(tabId) {
   if (lockedIds.indexOf(tabId) != -1) {
     return true;
   }
+  return false;
+}
+
+TW.TabManager.lockTab = function(tabId) {
+  var lockedIds = TW.settings.get("lockedIds");
+
+  if (tabId > 0 && lockedIds.indexOf(tabId) == -1) {
+    lockedIds.push(tabId);
+  }
+  TW.settings.set('lockedIds', lockedIds);
+}
+
+TW.TabManager.unlockTab = function(tabId) {  
+  var lockedIds = TW.settings.get("lockedIds");
+  if (lockedIds.indexOf(tabId) > -1) {
+    lockedIds.splice(lockedIds.indexOf(tabId), 1);
+  }
+  TW.settings.set('lockedIds', lockedIds);
 }
 
 TW.TabManager.updateClosedCount = function() {
@@ -249,6 +267,30 @@ TW.TabManager.updateClosedCount = function() {
     storedTabs = '';
   }
   chrome.browserAction.setBadgeText({text: storedTabs.toString()});
+}
+
+/**
+ * Creates and updates context menus.
+ */
+TW.contextMenuManager = {
+  lockActionId: null,
+  createContextMenus: function () {
+    var lockItem = function(onClickData, selectedTab) {
+      TW.TabManager.lockTab(selectedTab.id);
+    }
+
+    var lockAction = {
+      'type': 'checkbox',
+      'title': "Never close this tab",
+      'onclick': lockItem
+    };
+
+    this.lockActionId = chrome.contextMenus.create(lockAction);
+  },
+  
+  updateContextMenus: function(tabId) {
+    chrome.contextMenus.update(this.lockActionId, {'checked': TW.TabManager.isLocked(tabId)});
+  }
 }
 
 

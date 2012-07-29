@@ -1,0 +1,16 @@
+h1 {
+  font-size: 18px;
+}
+
+.logo {
+  width:180px;
+}
+
+.logo img {
+  float: left;
+  margin-right: 5px;
+}
+
+body {
+  padding-left:5px;
+}

@@ -77,7 +77,7 @@ var onNewTab = function(tab) {
 }
 
 function startup() {
-  updateFromOldVersion();
+  TW.Updater.run();
   TW.TabManager.closedTabs.clear();
   TW.settings.set('lockedIds', new Array());
   
@@ -100,114 +100,5 @@ function startup() {
   TW.contextMenuHandler.createContextMenus();
 }
 
-function updateFromOldVersion() {
-  
-  var updates = {};
-  var firstInstall = function() {
-    var notification = window.webkitNotifications.createNotification(
-      'img/icon48.png',                      // The image.
-      'Tab Wrangler is installed',
-      'Tab wrangler is now auto-closing tabs after ' + TW.settings.get('minutesInactive') + ' minutes. \n\
-  To change this setting, click on the TabWrangler icon on your URL bar.'
-      );
-    notification.show();
-  };
-  
-  // These are also run for users with no currentVersion set.
-  // This update is for the 1.x -> 2.x users
-  updates[2.1] = {
-    fx: function() {
-      var map = {
-        'minutes_inactive' : 'minutesInactive',
-        'closed_tab_ids' : null,
-        'closed_tab_titles': null,
-        'closed_tab_urls' : null,
-        'closed_tab_icons' : null,
-        'closed_tab_actions': null,
-        'locked_ids' : 'lockedIds',
-        'popup_view' : null
-      }
-  
-      var oldValue;
-  
-      for (var i in map) {
-        if (map.hasOwnProperty(i)) {
-          oldValue = localStorage[i];
-          if (oldValue) {
-            if (map[i] != null) {
-              localStorage[map[i]] = oldValue;
-            }
-            localStorage.removeItem(i);
-          }
-        }
-      }
-    }
-  }
-  
-  updates[2.2] = {
-    fx: function() {
-    // No-op
-    },
-    
-    finished: function() {
-      
-      var updateTxt = "* Resets timer when minTabs is reached\n\
-\n* syncs settings between computers\n\
-\n*disable for a whole window";
-      var notification = window.webkitNotifications.createNotification(
-        'img/icon48.png',                      // The image.
-        'Tab Wrangler 2.2 updates',
-        updateTxt // The body.
-        );
-      notification.show();
-    }
-  }
-  
-  chrome.storage.sync.get('version', function(items) {
-    // Whatever is set in chrome.storage (if anything)
-    var currentVersion;
-    
-    // The version from the manifest file
-    var manifestVersion = parseFloat(chrome.app.getDetails().version);
-    
-    // If items[version] is undefined, the app has either not been installed, 
-    // or it is an upgrade from when we were not storing the version.
-    if (typeof items['version'] != 'undefined') {
-      currentVersion = items['version'];
-    }
-    
-    if (!currentVersion) {
-      // Hardcoded here to make the code simpler.
-      // This is the first update for users upgrading from when we didn't store
-      // a version.
-      updates[2.1].fx();
-      chrome.storage.sync.set({
-        'version': manifestVersion
-      },function() {
-        firstInstall();
-      });
-    } else if (currentVersion < manifestVersion) {
-      for (var i in updates) {
-        if (updates.hasOwnProperty(i)) {
-          if (i > currentVersion) {
-            updates[i].fx();
-          }
-          
-          // This is the version we are updating to.
-          if (i == manifestVersion) {
-            // Post 2.0 updates.
-            chrome.storage.sync.set({
-              'version': manifestVersion
-            },function() {
-              if (typeof updates[i].finished == 'function') {
-                updates[i].finished();
-              }
-            });
-          }
-        }
-      }
-    }
-  }); 
-}
 
 window.onload = startup;

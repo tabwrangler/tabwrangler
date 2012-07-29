@@ -1,5 +1,4 @@
 var TW = chrome.extension.getBackgroundPage().TW;
-console.log(chrome.extension.getBackgroundPage());
 
 TW.optionsTab = {};
 

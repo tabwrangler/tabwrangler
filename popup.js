@@ -10,13 +10,23 @@ TW.optionsTab = {};
 TW.optionsTab.init = function(context) {
   $('#saveOptionsBtn', context).click(TW.optionsTab.saveOption);
 
-  function onBlurTextField() {
+  function onBlurInput() {
     var key = this.id;
     TW.optionsTab.saveOption(key, $(this).val());
   }
-
-  $('#minutesInactive').change(onBlurTextField);
-  $('#minTabs').change(onBlurTextField);
+  
+  function onChangeCheckBox() {
+    var key = this.id;
+    if ($(this).attr('checked')) {
+      TW.optionsTab.saveOption(key, $(this).val());
+    } else {
+      TW.optionsTab.saveOption(key, false);
+    }
+  }
+  
+  $('#minutesInactive').change(onBlurInput);
+  $('#minTabs').change(onBlurInput);
+  $('#purgeClosedTabs').change(onChangeCheckBox);
 
   TW.optionsTab.loadOptions();
 }
@@ -54,6 +64,10 @@ TW.optionsTab.saveOption = function (key, value) {
 TW.optionsTab.loadOptions = function () {
   $('#minutesInactive').val(TW.settings.get('minutesInactive'));
   $('#minTabs').val(TW.settings.get('minTabs'));
+  if (TW.settings.get('purgeClosedTabs') != false) {
+    $('#purgeClosedTabs').attr('checked', true);
+  }
+  
 
   $('#whitelist').addOption = function(key, val) {
     this.append(

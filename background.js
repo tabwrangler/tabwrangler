@@ -77,6 +77,7 @@ var onNewTab = function(tab) {
 }
 
 function startup() {
+  TW.settings.init();
   TW.Updater.run();
   TW.TabManager.closedTabs.clear();
   TW.settings.set('lockedIds', new Array());

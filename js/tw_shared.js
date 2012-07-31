@@ -9,15 +9,37 @@ var TW = TW || {};
  * @type {Object}
  */
 TW.settings = {
+  ititialized: false,
   defaults: {
     checkInterval: 5000, // How often we check for old tabs.
     badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
     minutesInactive: 20, // How many minutes before we consider a tab "stale" and ready to close.
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
     maxTabs: 100, // Just to keep memory / UI in check.  No UI for this.
+    purgeClosedTabs: true, // Save closed tabs in between browser sessions.
     lockedIds: new Array(),  // An array of tabids which have been explicitly locked by the user.
     whitelist: new Array() // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
-  }
+  },
+  // Gets all settings from sync and stores them locally.
+  init: function() {
+    var self = this;
+    var keys = [];
+    for (var i in this.defaults) {
+      if (this.defaults.hasOwnProperty(i)) {
+        this.cache[i] = this.defaults[i];
+        keys.push(i);
+      }
+    }
+    chrome.storage.sync.get(keys, function(items) {
+      for (i in items) {
+        if (items.hasOwnProperty(i)) {
+          self.cache[i] = items[i];
+        }
+      }
+    });
+    ititialized = true;
+  },
+  cache: {}
 }
 
 
@@ -44,7 +66,7 @@ TW.settings.setminutesInactive = function(value) {
   TW.TabManager.tabTimes = {};
   chrome.tabs.query({windowType: 'normal'}, TW.TabManager.initTabs);
 
-  localStorage['minutesInactive'] = value;
+  TW.settings.setValue('minutesInactive', value);
 }
 
 /**
@@ -56,7 +78,7 @@ TW.settings.setminTabs = function(value) {
   if (parseInt(value) != value) {
     throw Error("Minimum tabs must be a number");
   }
-  localStorage['minTabs'] = value;
+  TW.settings.setValue('minTabs', value);
 }
 
 /**
@@ -68,35 +90,29 @@ TW.settings.setwhitelist = function(value) {
   if (typeof(value) != 'object') {
     throw new Error('Whitelist should be an array, ' + typeof(value) + ' given');
   }
-
-  localStorage['whitelist'] = JSON.stringify(value);
+  
+  TW.settings.setValue('whitelist', value);
 }
 
 /**
- * Either calls a getter function or retunrs directly from localstorage.
- *
- * * If the value is a struct (object or array) it is JSONified.
+ * Either calls a getter function or retunrs directly from storage.
  * @param key
+ * @param fx
+ *  Callback function after value is received.
  * @return {*}
  */
-TW.settings.get = function(key) {
+TW.settings.get = function(key, fx) {
   if (typeof this[key] == 'function') {
     return this[key]();
   }
+  return this.cache[key];
+}
 
-  if(typeof localStorage[key] == 'undefined') {
-    if (this.defaults[key]) {
-      return this.defaults[key];
-    }
-    throw Error('Undefined setting "' + key + '"');
-  }
-
-  if (JSON.parse(localStorage[key])) {
-    return JSON.parse(localStorage[key]);
-  } else {
-    return localStorage[key];
-  }
-
+TW.settings.setValue = function (key, value, fx) {
+  var items = {}
+  this.cache[key] = value;
+  items[key] = value;
+  chrome.storage.sync.set(items, fx);
 }
 
 /**
@@ -114,10 +130,7 @@ TW.settings.set = function(key, value) {
   if (typeof this["set" + key] == 'function') {
     return this["set" + key](value);
   }
-  if (typeof(value) == 'object') {
-    value = JSON.stringify(value);
-  }
-  localStorage[key] = value;
+  TW.settings.setValue(key, value);
 }
 
 TW.idleChecker = {
@@ -307,6 +320,7 @@ TW.Updater = {
   },
   //@todo: refactor this into a couple functions
   run: function() {
+    var self = this;
     chrome.storage.sync.get('version', function(items) {
       // Whatever is set in chrome.storage (if anything)
       var currentVersion;
@@ -319,42 +333,54 @@ TW.Updater = {
       if (typeof items['version'] != 'undefined') {
         currentVersion = items['version'];
       }
+      
 
       if (!currentVersion) {
         // Hardcoded here to make the code simpler.
         // This is the first update for users upgrading from when we didn't store
         // a version.
-        this.updates[2.1].fx();
-        chrome.storage.sync.set({
-          'version': manifestVersion
-        },function() {
-          firstInstall();
-        });
-      } else if (currentVersion < manifestVersion) {
-        for (var i in this.updates) {
-          if (this.updates.hasOwnProperty(i)) {
-            if (i > currentVersion) {
-              this.updates[i].fx();
-            }
+        if (localStorage['minutes_inactive']) {
+          // This is the ancient 1.x version
+          this.updates[2.1].fx();
+        }
+        if (localStorage['minutesInactive']) {
+          // This is an update from the 2.1 version
+          currentVersion = 2.1;
+        }
+      }
+      self.runUpdates(currentVersion, manifestVersion);
+    }); 
+  },
+  runUpdates: function(currentVersion, manifestVersion) {
+    var self = this;
+    if (!currentVersion) {
+      chrome.storage.sync.set({
+        'version': manifestVersion
+      },function() {
+        self.firstInstall();
+      });
+    } else if (currentVersion < manifestVersion) {
+      for (var i in this.updates) {
+        if (this.updates.hasOwnProperty(i)) {
+          if (i > currentVersion) {
+            this.updates[i].fx();
+          }
 
-            // This is the version we are updating to.
-            if (i == manifestVersion) {
-              // Post 2.0 updates.
-              chrome.storage.sync.set({
-                'version': manifestVersion
-              },function() {
-                if (typeof this.updates[i].finished == 'function') {
-                  this.updates[i].finished();
-                }
-              });
-            }
+          // This is the version we are updating to.
+          if (i == manifestVersion) {
+            // Post 2.0 updates.
+            chrome.storage.sync.set({
+              'version': manifestVersion
+            },function() {
+              if (typeof self.updates[i].finished == 'function') {
+                self.updates[i].finished();
+              }
+            });
           }
         }
       }
-    }); 
+    }
   }
-
-  
 }
 
 // These are also run for users with no currentVersion set.
@@ -390,7 +416,21 @@ TW.Updater.updates[2.1] = {
 
 TW.Updater.updates[2.2] = {
   fx: function() {
-  // No-op
+    // Move localStorage to chrome.storage.sync
+    var items = {}
+    var val;
+    for(var i in localStorage) {
+      val = String(localStorage[i]);
+      try {
+        items[i] = JSON.parse(val);
+      } catch(err) {
+        items[i] = val;
+      }
+    }
+    chrome.storage.sync.set(items, function() {
+      localStorage.clear();
+      TW.settings.init();
+    });
   },
 
   finished: function() {
@@ -401,6 +441,7 @@ TW.Updater.updates[2.2] = {
     + '<li> Resets timer when minTabs is reached <span class="label label-success">Feature</span></li>'
     + '<li> Syncs settings between computers <span class="label label-success">Feature</span></li>'
     + '<li> Right-click to lock tab <span class="label label-success">Feature</span></li>'
+    + '<li> Chrome sync support <span class="label label-success">Feature</span></li>'
     + '</ul>';
 
     var notification = window.webkitNotifications.createHTMLNotification(
@@ -409,8 +450,6 @@ TW.Updater.updates[2.2] = {
     notification.show();
   }
 }
-
-
 
 /**
  * Possible test, later...

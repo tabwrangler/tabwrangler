@@ -198,7 +198,7 @@ TW.corralTab = {};
 TW.corralTab.init = function(context) {
   // @todo: use context to select table.
   TW.corralTab.loadClosedTabs();
-  $('#clearCorralLink').click(function() {
+  $('.clearCorralLink').click(function() {
     TW.TabManager.closedTabs.clear();
     TW.TabManager.updateClosedCount();
     TW.corralTab.loadClosedTabs();

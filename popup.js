@@ -183,7 +183,13 @@ TW.activeTab.buildTabLockTable = function (tabs) {
 
     var lastModified = TW.TabManager.tabTimes[tabs[i].id];
     var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
-    $tr.append($('<td class="time-left">' + timeLeft + 's</td>'));
+    
+    function secondsToMinutes(seconds) {
+      var s = seconds % 60;
+      s = s > 10 ? String(s) : "0" + String(s);
+      return String(Math.floor(seconds / 60)) + ":" + s;
+    }
+    $tr.append($('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>'));
 
 
     // Append the row.

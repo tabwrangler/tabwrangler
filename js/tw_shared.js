@@ -442,6 +442,8 @@ TW.Updater.updates[2.2] = {
     + '<li> Syncs settings between computers <span class="label label-success">Feature</span></li>'
     + '<li> Right-click to lock tab <span class="label label-success">Feature</span></li>'
     + '<li> Chrome sync support <span class="label label-success">Feature</span></li>'
+    + '<li> Bottom "Clear List" button <span class="label label-error">Bug fix</span></li>'
+  
     + '</ul>';
 
     var notification = window.webkitNotifications.createHTMLNotification(

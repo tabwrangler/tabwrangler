@@ -208,8 +208,17 @@ TW.TabManager.getAll = function() {
 }
 
 TW.TabManager.closedTabs = {
-  tabs: new Array()
+  tabs: []
 };
+
+TW.TabManager.closedTabs.init = function() {
+  var self = this;
+  chrome.storage.local.get('savedTabs', function(items) {
+    if (typeof items['savedTabs'] != 'undefined') {
+      self.tabs = items['savedTabs'];
+    }
+  });
+}
 
 TW.TabManager.closedTabs.findById = function(id) {
   for (var i = 0; i < this.tabs.length; i++) {
@@ -232,11 +241,12 @@ TW.TabManager.closedTabs.saveTabs = function(tabs) {
   if ((this.tabs.length - maxTabs) > 0) {
     this.tabs = this.tabs.splice(0, maxTabs);
   }
-  console.log('Saved ' + tabs.length + ' tabs');
+  chrome.storage.local.set({savedTabs: this.tabs});
 }
 
 TW.TabManager.closedTabs.clear = function() {
-  this.tabs = new Array(); 
+  this.tabs = new Array();
+  chrome.storage.local.remove('savedTabs');
 }
 
 TW.TabManager.isWhitelisted = function(url) {

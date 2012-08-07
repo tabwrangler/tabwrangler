@@ -24,8 +24,8 @@ TW.optionsTab.init = function(context) {
     }
   }
   
-  $('#minutesInactive').change(onBlurInput);
-  $('#minTabs').change(onBlurInput);
+  $('#minutesInactive').keyup(_.debounce(onBlurInput, 200));
+  $('#minTabs').keyup(_.debounce(onBlurInput, 200));
   $('#purgeClosedTabs').change(onChangeCheckBox);
 
   TW.optionsTab.loadOptions();
@@ -41,7 +41,8 @@ TW.optionsTab.saveOption = function (key, value) {
   } catch (err) {
     errors.push(err);
   }
-
+  
+  
   $('#status').removeClass();
 
   if (errors.length == 0) {
@@ -57,7 +58,7 @@ TW.optionsTab.saveOption = function (key, value) {
   }
   $('#status').css('visibility', 'visible');
   $('#status').css('opacity', '100');
-  $('#status').delay(1000).animate({opacity:0});
+  $('#status').delay(50).animate({opacity:0});
   return false;
 }
 

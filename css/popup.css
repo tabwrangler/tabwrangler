@@ -13,3 +13,11 @@ body {
 .table td{
   font-size: 11px;
 }
+
+#status {
+  margin-bottom:2px;
+}
+
+legend {
+  margin-bottom: 20px;
+}

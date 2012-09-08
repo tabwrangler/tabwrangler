@@ -170,6 +170,11 @@ TW.TabManager.updateLastAccessed = function (tabId) {
   if (typeof tabId == "object") {
     tabId = tabId.id
   }
+  
+  if (typeof tabId != 'number') {
+    console.log('Error: ' + tabId.toString() + ' is not an number', tabId);
+    return;
+  }
   TW.TabManager.tabTimes[tabId] = new Date().getTime();
 }
 

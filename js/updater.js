@@ -1,4 +1,6 @@
-
+/**
+ * Handles updates between versions of the extension.
+ */
 TW.Updater = {
   updates: {},
   firstInstall: function() {

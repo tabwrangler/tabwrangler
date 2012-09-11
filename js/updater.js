@@ -130,20 +130,17 @@ TW.Updater.updates[2.2] = {
   finished: function() {
 
     var updateTxt = ''
-    + '<strong>Changes:</strong>'
+    + '<strong>Big changes:</strong>'
     + '<ul>'
     + '<li> Resets timer when minTabs is reached <span class="label label-success">Feature</span></li>'
     + '<li> Syncs settings between computers <span class="label label-success">Feature</span></li>'
     + '<li> Right-click to lock tab <span class="label label-success">Feature</span></li>'
-    + '<li> Chrome sync support <span class="label label-success">Feature</span></li>'
-    + '<li> Countdown time shown in minutes <span class="label label-success">Feature</span></li>'
-    + '<li> Bottom "Clear List" button <span class="label label-error">Bug fix</span></li>'
-  
+    + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes#2.2"> See all changes</a></li>'
     + '</ul>';
 
     var notification = window.webkitNotifications.createHTMLNotification(
       'notification.html?title=Version 2.2&message=' + updateTxt
-      );
+    );
     notification.show();
   }
 }

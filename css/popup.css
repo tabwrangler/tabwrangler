@@ -21,3 +21,8 @@ body {
 legend {
   margin-bottom: 20px;
 }
+
+.narrowColumn {
+  width: 20px;
+}
+

@@ -80,12 +80,13 @@
 
 
   <div class="tab-pane  active" id="tabCorral">
-    <div id="corralDyn">
-      <div class="clearCorralMessage alert alert-info"><a class="clearCorralLink" href="#">Clear list</a></div>
+    <form class="form-search">
+      <input name="search" type="text" class="span9 corral-search search-query" placeholder="search"/>
+    </form>
       <table id="corralTable" class="table-striped table table-bordered">
         <thead>
         <tr>
-          <th style="width: 20px;"></th>
+          <th class="narrowColumn" style="width: 20px;"></th>
           <th>Title</th>
           <th>Closed</th>
         </tr>
@@ -98,8 +99,6 @@
       </table>
     <div id="autocloseMessage" class="alert alert-info">If tabs are closed automatically, they will be stored here</div>
     <div class="clearCorralMessage alert alert-info"><a class="clearCorralLink" href="#">Clear list</a></div>
-
-    </div>
   </div>
 
   <div class="tab-pane" id="tabActive">
@@ -107,8 +106,8 @@
       <table id="activeTabs" class="table-striped table table-bordered">
         <thead>
         <tr>
-          <th style="width:20px"><img src="img/lock.png"/></th>
-          <th style="width:20px"></th>
+          <th class="narrowColumn"><img src="img/lock.png"/></th>
+          <th class="narrowColumn"></th>
           <th>Title</th>
           <th>Url</th>
           <th>Closing in</th>

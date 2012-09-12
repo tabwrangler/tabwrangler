@@ -72,10 +72,10 @@ TW.optionsTab.loadOptions = function () {
 
   $('#whitelist').addOption = function(key, val) {
     this.append(
-      $('<option />')
-      .value(val)
-      .text(key)
-    );
+    $('<option />')
+    .value(val)
+    .text(key)
+  );
   }
 
   var whitelist = TW.settings.get('whitelist');
@@ -97,12 +97,12 @@ TW.optionsTab.buildWLTable = function(whitelist) {
     $tr = $('<tr></tr>');
     $urlTd = $('<td></td>').text(whitelist[i]);
     $deleteLink = $('<a class="deleteLink" href="#">Remove</a>')
-      .click(function() {
-        whitelist.remove(whitelist.indexOf($(this).data('pattern')));
-        TW.optionsTab.saveOption('whitelist', whitelist);
-        TW.optionsTab.buildWLTable(whitelist);
-      })
-      .data('pattern', whitelist[i]);
+    .click(function() {
+      whitelist.remove(whitelist.indexOf($(this).data('pattern')));
+      TW.optionsTab.saveOption('whitelist', whitelist);
+      TW.optionsTab.buildWLTable(whitelist);
+    })
+    .data('pattern', whitelist[i]);
 
     $tr.append($urlTd);
     $tr.append($('<td></td>').append($deleteLink));
@@ -148,17 +148,17 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     // Checkbox to lock it.
     //@todo: put the handler in its own function
     var $lock_box = $('<input />')
-      .attr('type', 'checkbox')
-      .attr('id', "cb" + tabs[i].id)
-      .attr('value', tabs[i].id)
-      .attr('checked', tabs[i].pinned || TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1)
-      .click(function () {
-        if (this.checked) {
-          self.saveLock(parseInt(this.value));
-        } else {
-          self.removeLock(parseInt(this.value));
-        }
-      });
+    .attr('type', 'checkbox')
+    .attr('id', "cb" + tabs[i].id)
+    .attr('value', tabs[i].id)
+    .attr('checked', tabs[i].pinned || TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1)
+    .click(function () {
+      if (this.checked) {
+        self.saveLock(parseInt(this.value));
+      } else {
+        self.removeLock(parseInt(this.value));
+      }
+    });
     $tr.append($('<td></td>').append($lock_box));
 
     // Image cell.
@@ -166,8 +166,8 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     if (tabs[i].favIconUrl != null && tabs[i].favIconUrl != undefined && tabs[i].favIconUrl.length > 0) {
       // We have an image to show.
       var $img_icon = $('<img />')
-        .attr('class', 'favicon')
-        .attr('src', tabs[i].favIconUrl)
+      .attr('class', 'favicon')
+      .attr('src', tabs[i].favIconUrl)
       $img_td.append($img_icon);
     } else {
       $img_td.text('-');
@@ -202,16 +202,44 @@ TW.activeTab.buildTabLockTable = function (tabs) {
 
 TW.corralTab = {};
 
+TW.corralTab.filters = {}
+TW.corralTab.filters.keyword = function(keyword) {
+  return function(tab) {
+    var test = new RegExp(keyword, 'i');
+    return test.exec(tab.title) || test.exec(tab.url);
+  }
+  
+}
+
 TW.corralTab.init = function(context) {
+  var self = this;
   // @todo: use context to select table.
-  TW.corralTab.loadClosedTabs();
+  this.getTabs(this.buildTable, []);
   $('.clearCorralLink').click(function() {
     TW.TabManager.closedTabs.clear();
     TW.TabManager.updateClosedCount();
     TW.corralTab.loadClosedTabs();
   });
+  
+  
+  $('.corral-search').keyup(_.debounce(
+  function() {
+    var keyword = $(this).val();
+    self.getTabs(self.buildTable, [self.filters.keyword(keyword)]);
+  }, 200));
 }
-TW.corralTab.loadClosedTabs = function() {
+
+TW.corralTab.getTabs = function (cb, filters) {
+  var tabs = TW.TabManager.closedTabs.tabs;
+  if (filters) {
+    for (i = 0; i < filters.length; i++) {
+      tabs = _.filter(tabs, filters[i]);
+    }
+  }
+  cb(tabs);
+}
+
+TW.corralTab.buildTable = function(closedTabs) {
   $('#autocloseMessage').hide();
   $('.clearCorralMessage').hide();
 
@@ -226,10 +254,7 @@ TW.corralTab.loadClosedTabs = function() {
    chrome.tabs.create({'url':'chrome://newtab/'});
    }
    */
-
-  // Get saved closed tabs.
-  var closedTabs = TW.TabManager.closedTabs.tabs;
-
+  
   // Clear out the table.
   var $tbody = $('#corralTable tbody');
   $tbody.html('');
@@ -253,8 +278,8 @@ TW.corralTab.loadClosedTabs = function() {
     if (tab.favIconUrl != null && tab.favIconUrl != undefined && tab.favIconUrl.length > 0) {
       // We have an image to show.
       var $img_icon = $('<img />')
-        .attr('class', 'favicon')
-        .attr('src', tab.favIconUrl)
+      .attr('class', 'favicon')
+      .attr('src', tab.favIconUrl)
       $img_td.append($img_icon);
     } else {
       $img_td.text('-');
@@ -265,13 +290,13 @@ TW.corralTab.loadClosedTabs = function() {
     // Page title.
 
     // @todo: Add this logic back in:
-//    if ( urls[i] == "chrome://newtab/") {
-//      a_title.href = "javascript:openNewTab();";
-//    } else  if ( urls[i] == "chrome://extensions/") {
-//      a_title.href = "javascript:openExtTab();";
-//    } else {
-//      a_title.href = urls[i];
-//    }
+    //    if ( urls[i] == "chrome://newtab/") {
+    //      a_title.href = "javascript:openNewTab();";
+    //    } else  if ( urls[i] == "chrome://extensions/") {
+    //      a_title.href = "javascript:openExtTab();";
+    //    } else {
+    //      a_title.href = urls[i];
+    //    }
 
     $link = $('<a target="_blank" data-tabid="' + tab.id + '" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
     $link.click(function() {
@@ -285,6 +310,11 @@ TW.corralTab.loadClosedTabs = function() {
     $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
     $tbody.append($tr);
   }
+}
+
+TW.corralTab.filterByKeyword = function() {
+  var keyword = $(this).val();
+  console.log(keyword);
 }
 
 $(document).ready(function() {

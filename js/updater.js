@@ -144,3 +144,27 @@ TW.Updater.updates[2.2] = {
     notification.show();
   }
 }
+
+TW.Updater.updates[2.3] = {
+  fx: function() {
+    
+  },
+
+  finished: function() {
+
+    var updateTxt = ''
+    + '<strong>Minor release:</strong>'
+    + '<ul>'
+  + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
+    + '<li> Fixes version requirement for (Chrome 20+ required) <span class="label label-error">Bug</span></li>'
+    + '<li> Adds a search box to Tab Corral <span class="label label-success">Feature</span></li>'
+    + '<li> Various consmetic improvements <span class="label label-success">Feature</span></li>'
+    
+    + '</ul>';
+
+    var notification = window.webkitNotifications.createHTMLNotification(
+      'notification.html?title=Version 2.3&message=' + updateTxt
+    );
+    notification.show();
+  }
+}

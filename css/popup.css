@@ -26,3 +26,16 @@ legend {
   width: 20px;
 }
 
+#tabActive table {
+  table-layout: fixed;
+}
+
+.countdownColumn {
+  width: 60px;
+}
+
+#tabActive .tabTitle {
+  font-weight: bolder;
+}
+
+

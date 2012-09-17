@@ -141,6 +141,8 @@ TW.activeTab.buildTabLockTable = function (tabs) {
 
   var lockedIds = TW.settings.get("lockedIds");
   for (var i = 0; i < tabNum; i++) {
+    
+    var tabIsLocked = tabs[i].pinned || TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1;
 
     // Create a new row.
     var $tr = $('<tr></tr>');
@@ -151,7 +153,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     .attr('type', 'checkbox')
     .attr('id', "cb" + tabs[i].id)
     .attr('value', tabs[i].id)
-    .attr('checked', tabs[i].pinned || TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1)
+    .attr('checked', tabIsLocked)
     .click(function () {
       if (this.checked) {
         self.saveLock(parseInt(this.value));
@@ -176,21 +178,23 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     $tr.append($img_td);
 
     // Page title.
-    $tr.append($('<td>' + tabs[i].title.shorten(70) + '</td>'));
-    // Url
-    $tr.append($('<td>' + tabs[i].url.shorten(70) + '</td>'));
+    $tr.append($('<td><span class="tabTitle">' + tabs[i].title.shorten(70) + '</span><br/><span class="tabUrl">' + tabs[i].url.shorten(70) + '</td>'));
 
-    var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
+    if (!tabIsLocked) {
+      var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
 
-    var lastModified = TW.TabManager.tabTimes[tabs[i].id];
-    var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
-    
-    function secondsToMinutes(seconds) {
-      var s = seconds % 60;
-      s = s > 10 ? String(s) : "0" + String(s);
-      return String(Math.floor(seconds / 60)) + ":" + s;
+      var lastModified = TW.TabManager.tabTimes[tabs[i].id];
+      var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
+
+      function secondsToMinutes(seconds) {
+        var s = seconds % 60;
+        s = s > 10 ? String(s) : "0" + String(s);
+        return String(Math.floor(seconds / 60)) + ":" + s;
+      }
+      $tr.append($('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>'));
+    } else {
+      $tr.append($('<td></td>'));
     }
-    $tr.append($('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>'));
 
 
     // Append the row.

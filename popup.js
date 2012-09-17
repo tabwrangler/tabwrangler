@@ -221,12 +221,19 @@ TW.corralTab.init = function(context) {
     TW.corralTab.loadClosedTabs();
   });
   
+  if(location.search !== "?foo") {
+    location.search = "?foo";
+    throw new Error;  // load everything on the next page;
+    // stop execution on this page
+  }
   
   $('.corral-search').keyup(_.debounce(
   function() {
     var keyword = $(this).val();
     self.getTabs(self.buildTable, [self.filters.keyword(keyword)]);
   }, 200));
+  
+  $('.corral-search').delay(1000).focus();
 }
 
 TW.corralTab.getTabs = function (cb, filters) {

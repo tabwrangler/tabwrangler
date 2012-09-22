@@ -140,6 +140,13 @@ TW.activeTab.buildTabLockTable = function (tabs) {
   $tbody.html('');
 
   var lockedIds = TW.settings.get("lockedIds");
+  
+  function secondsToMinutes(seconds) {
+    var s = seconds % 60;
+    s = s > 10 ? String(s) : "0" + String(s);
+    return String(Math.floor(seconds / 60)) + ":" + s;
+  }
+      
   for (var i = 0; i < tabNum; i++) {
     
     var tabIsLocked = tabs[i].pinned || TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1;
@@ -185,21 +192,28 @@ TW.activeTab.buildTabLockTable = function (tabs) {
 
       var lastModified = TW.TabManager.tabTimes[tabs[i].id];
       var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
-
-      function secondsToMinutes(seconds) {
-        var s = seconds % 60;
-        s = s > 10 ? String(s) : "0" + String(s);
-        return String(Math.floor(seconds / 60)) + ":" + s;
-      }
-      $tr.append($('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>'));
+            
+      $timer = $('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>');
+      $timer.data('countdown', timeLeft);
+      $tr.append($timer);
     } else {
       $tr.append($('<td></td>'));
     }
-
-
     // Append the row.
     $tbody.append($tr);
   }
+  
+  updateCountdown = function() {
+      $('.time-left').each(function() {
+        var t = null;
+        var myElem = $(this);
+        t = myElem.data('countdown') - 1;
+        myElem.html(secondsToMinutes(t));
+        myElem.data('countdown', t);
+      });
+    }
+    
+    setInterval(updateCountdown, 1000);
 
   return true;
 }

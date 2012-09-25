@@ -168,3 +168,27 @@ TW.Updater.updates[2.3] = {
     notification.show();
   }
 }
+
+TW.Updater.updates[2.4] = {
+  fx: function() {
+    
+  },
+
+  finished: function() {
+
+    var updateTxt = ''
+    + '<strong>New features!:</strong>'
+    + '<ul>'
+  + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
+    + '<li> Tabs now open in background <span class="label label-success">Feature</span></li>'
+    + '<li> Tabs are grouped by time closed - restore multiple <span class="label label-success">Feature</span></li>'
+    + '<li> Tab lock counter counts down <span class="label label-success">Feature</span></li>'
+    + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a> <span class="label label-info">Info</span></li>'
+    + '</ul>';
+
+    var notification = window.webkitNotifications.createHTMLNotification(
+      'notification.html?title=Version 2.4&message=' + updateTxt
+    );
+    notification.show();
+  }
+}

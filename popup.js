@@ -231,8 +231,20 @@ TW.corralTab.filters.keyword = function(keyword) {
 
 TW.corralTab.init = function(context) {
   var self = this;
+  
+  // Setup interface elements
+  $('#autocloseMessage').hide();
+  $('.clearCorralMessage').hide();
   // @todo: use context to select table.
-  this.getTabs(this.buildTable, []);
+  this.getTabs(function(closedTabs) {
+    if ( closedTabs.length == 0 ) {
+      // If we have no saved closed tabs, show the help text
+      $('#autocloseMessage').show();
+      return;
+    }
+    $('.clearCorralMessage').show();
+    self.buildTable(closedTabs);
+  });
   $('.clearCorralLink').click(function() {
     TW.TabManager.closedTabs.clear();
     TW.TabManager.updateClosedCount();
@@ -265,9 +277,7 @@ TW.corralTab.getTabs = function (cb, filters) {
 }
 
 TW.corralTab.buildTable = function(closedTabs) {
-  $('#autocloseMessage').hide();
-  $('.clearCorralMessage').hide();
-
+   
   /**
    * @todo: add this back in
    *
@@ -282,21 +292,42 @@ TW.corralTab.buildTable = function(closedTabs) {
   
   // Clear out the table.
   var $tbody = $('#corralTable tbody');
-  $tbody.html('');
-
-  // If we have no saved closed tabs, show the help text and quit.
-  if ( closedTabs.length == 0 ) {
-    $('#autocloseMessage').show();
-    return;
+  $tbody.html('');  
+  
+  var now = new Date().getTime();
+  separations = []
+  separations.push([now - (1000 * 60 * 30), 'in the last 1/2 hour']);
+  separations.push([now - (1000 * 60 * 60), 'in the last hour']);
+  separations.push([now - (1000 * 60 * 60 * 2),'in the last 2 hours']);
+  separations.push([now - (1000 * 60 * 60 * 24),'in the last day']);
+  separations.push([0, 'more than a day ago']);
+  
+  function getGroup(time) {
+    var limit, text, i;
+    for (i=0; i < separations.length; i++) {
+      limit = separations[i][0]
+      text = separations[i][1]
+      if (limit < time) {
+        return text;
+      }
+    }
   }
-
-
-  $('.clearCorralMessage').show();
-
-  for ( var i = 0; i < closedTabs.length; i++) {
-    var tab = closedTabs[i];
+  
+  function createGroupRow(timeGroup, $tbody) {
+    var $tr = $('<tr class="info"></tr>');
+    $button = $('<button class="btn btn-mini btn-primary" style="float:right;">restore all</button>').click(function() {
+      $('tr[data-group="' + timeGroup + '"]').each(function() {
+        $('a', this).click();
+      });
+    });
+    $td = $('<td colspan=3 style="padding-left:20px"> closed ' + timeGroup + '</td>').append($button);
+    $tr.append($td);
+    $tbody.append($tr);
+  }
+  
+  function createTabRow(tab, group, $tbody) {
     // Create a new row.
-    var $tr = $('<tr></tr>');
+    var $tr = $('<tr></tr>').attr('data-group', group);
 
     // Image cell.
     var $img_td = $('<td></td>');
@@ -325,8 +356,10 @@ TW.corralTab.buildTable = function(closedTabs) {
 
     $link = $('<a target="_blank" data-tabid="' + tab.id + '" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
     $link.click(function() {
+      chrome.tabs.create({active:false, url: $(this).attr('href')});
       TW.TabManager.closedTabs.tabs.splice(TW.TabManager.closedTabs.findById($(this).data('tabid')), 1);
-      $(this).parent().remove();
+      $(this).parent().parent().remove();
+      return false;
     });
     $tr.append($('<td></td/>').append($link));
     // Url - not sure if we want this.
@@ -334,6 +367,32 @@ TW.corralTab.buildTable = function(closedTabs) {
     // time ago.
     $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
     $tbody.append($tr);
+  }
+  
+  /** 
+    * Testing code to make fake tags
+    
+    closedTabs = [];
+    for (var i=0; i<20; i++) {
+      now = new Date().getTime();
+      x = Math.pow(2, i);
+      closedTabs.push({closedAt: now-1000*1*x, title: 'foo'});
+    }
+  
+  */
+ 
+  var currentGroup = '';
+  for ( var i = 0; i < closedTabs.length; i++) {
+    var tab = closedTabs[i];
+    
+    timeGroup = getGroup(tab.closedAt);
+    if (timeGroup != currentGroup) {
+      createGroupRow(timeGroup, $tbody);
+      currentGroup = timeGroup;
+    }
+    
+    createTabRow(tab, currentGroup, $tbody);
+    
   }
 }
 

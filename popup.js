@@ -240,15 +240,16 @@ TW.corralTab.init = function(context) {
     if ( closedTabs.length == 0 ) {
       // If we have no saved closed tabs, show the help text
       $('#autocloseMessage').show();
-      return;
+    } else {
+      $('.clearCorralMessage').show();
     }
-    $('.clearCorralMessage').show();
-    self.buildTable(closedTabs);
+    return self.buildTable(closedTabs);
   });
   $('.clearCorralLink').click(function() {
     TW.TabManager.closedTabs.clear();
     TW.TabManager.updateClosedCount();
-    TW.corralTab.loadClosedTabs();
+    TW.corralTab.init();
+    return;
   });
   
   if(location.search !== "?foo") {

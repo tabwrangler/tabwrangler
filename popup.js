@@ -35,6 +35,7 @@ TW.optionsTab.init = function(context) {
 TW.optionsTab.saveOption = function (key, value) {
 
   var errors = new Array();
+  $('#status').html();
 
   try {
     TW.settings.set(key, value);
@@ -44,21 +45,20 @@ TW.optionsTab.saveOption = function (key, value) {
   
   
   $('#status').removeClass();
+  $('#status').css('visibility', 'visible');
+  $('#status').css('opacity', '100');
 
   if (errors.length == 0) {
     $('#status').html('Saving...');
-
     $('#status').addClass('alert-success').addClass('alert');
+    $('#status').delay(50).animate({opacity:0});
   } else {
     var $errorList = $('<ul></ul>');
-    for (var i in errors) {
+    for (var i=0; i< errors.length; i++) {
       $errorList.append('<li>' + errors[i].message + '</li>');
     }
     $('#status').append($errorList).addClass('alert-error').addClass('alert');
   }
-  $('#status').css('visibility', 'visible');
-  $('#status').css('opacity', '100');
-  $('#status').delay(50).animate({opacity:0});
   return false;
 }
 

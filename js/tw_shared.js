@@ -59,7 +59,7 @@ TW.settings.stayOpen = function() {
  * @see TW.settings.set
  */
 TW.settings.setminutesInactive = function(value) {
-  if ( parseInt(value) < 0 || parseInt(value) > 720 ){
+  if ( isNaN(parseInt(value)) || parseInt(value) <= 0 || parseInt(value) > 720 ){
     throw Error("Minutes Inactive must be greater than 0 and less than 720");
   }
   // Reset the tabTimes since we changed the setting
@@ -75,8 +75,9 @@ TW.settings.setminutesInactive = function(value) {
  * @see TW.settings.set
  */
 TW.settings.setminTabs = function(value) {
-  if (parseInt(value) != value) {
-    throw Error("Minimum tabs must be a number");
+  console.log(value, parseInt(value), isNaN(value));
+  if ( isNaN(parseInt(value)) || parseInt(value) <= 0 || parseInt(value) > 30 ){
+    throw Error("Minimum tabs must be a number between 0 and 30");
   }
   TW.settings.setValue('minTabs', value);
 }

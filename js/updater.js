@@ -191,4 +191,26 @@ TW.Updater.updates[2.4] = {
     );
     notification.show();
   }
+
+  TW.Updater.updates[2.5] = {
+  fx: function() {
+    
+  },
+
+  finished: function() {
+
+    var updateTxt = ''
+    + '<strong>Minor release:</strong>'
+    + '<ul>'
+    + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
+    + '<li> Fixed error handling on options form <span class="label label-error">Bug</span></li>'
+    + '<li> Clear link was broken<span class="label label-error">Bug</span></li>'
+    + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
+    + '</ul>';
+
+    var notification = window.webkitNotifications.createHTMLNotification(
+      'notification.html?title=Version 2.5&message=' + updateTxt
+    );
+    notification.show();
+  }
 }

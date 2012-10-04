@@ -191,8 +191,9 @@ TW.Updater.updates[2.4] = {
     );
     notification.show();
   }
+}
 
-  TW.Updater.updates[2.5] = {
+TW.Updater.updates[2.5] = {
   fx: function() {
     
   },
@@ -210,6 +211,28 @@ TW.Updater.updates[2.4] = {
 
     var notification = window.webkitNotifications.createHTMLNotification(
       'notification.html?title=Version 2.5&message=' + updateTxt
+    );
+    notification.show();
+  }
+}
+
+TW.Updater.updates[2.6] = {
+  fx: function() {
+    
+  },
+
+  finished: function() {
+
+    var updateTxt = ''
+    + '<strong>Critical bug fix:</strong>'
+    + '<ul>'
+    + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
+    + '<li> Syntax error in updater caused new installs to fail <span class="label label-error">Bug</span></li>'
+    + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
+    + '</ul>';
+
+    var notification = window.webkitNotifications.createHTMLNotification(
+      'notification.html?title=Version 2.6&message=' + updateTxt
     );
     notification.show();
   }

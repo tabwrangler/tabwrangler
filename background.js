@@ -58,7 +58,7 @@ function checkToClose(cutOff) {
     }
 
     chrome.tabs.get(tabIdToCut, function(tab) {
-      if (tab.pinned == true) {
+      if (true == tab.pinned) {
         return;
       }
       if (TW.TabManager.isWhitelisted(tab.url)) {

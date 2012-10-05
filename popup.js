@@ -27,6 +27,7 @@ TW.optionsTab.init = function(context) {
   $('#minutesInactive').keyup(_.debounce(onBlurInput, 200));
   $('#minTabs').keyup(_.debounce(onBlurInput, 200));
   $('#purgeClosedTabs').change(onChangeCheckBox);
+  $('#showBadgeCount').change(onChangeCheckBox);
 
   TW.optionsTab.loadOptions();
 }
@@ -67,6 +68,9 @@ TW.optionsTab.loadOptions = function () {
   $('#minTabs').val(TW.settings.get('minTabs'));
   if (TW.settings.get('purgeClosedTabs') != false) {
     $('#purgeClosedTabs').attr('checked', true);
+  }
+  if (TW.settings.get('showBadgeCount') != false) {
+    $('#showBadgeCount').attr('checked', true);
   }
   
 

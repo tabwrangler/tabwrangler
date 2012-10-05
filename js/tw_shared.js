@@ -17,6 +17,7 @@ TW.settings = {
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
     maxTabs: 100, // Just to keep memory / UI in check.  No UI for this.
     purgeClosedTabs: true, // Save closed tabs in between browser sessions.
+    showBadgeCount: true, // Save closed tabs in between browser sessions.
     lockedIds: new Array(),  // An array of tabids which have been explicitly locked by the user.
     whitelist: new Array() // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
   },
@@ -75,11 +76,23 @@ TW.settings.setminutesInactive = function(value) {
  * @see TW.settings.set
  */
 TW.settings.setminTabs = function(value) {
-  console.log(value, parseInt(value), isNaN(value));
   if ( isNaN(parseInt(value)) || parseInt(value) <= 0 || parseInt(value) > 30 ){
     throw Error("Minimum tabs must be a number between 0 and 30");
   }
   TW.settings.setValue('minTabs', value);
+}
+
+/**
+ *
+ * @param value
+ * @see TW.settings.set
+ */
+TW.settings.setshowBadgeCount = function(value) {
+  if (value == false) {
+    // Clear out the current badge setting
+    chrome.browserAction.setBadgeText({text: ""});
+  }
+  TW.settings.setValue('showBadgeCount', value);
 }
 
 /**
@@ -291,6 +304,9 @@ TW.TabManager.unlockTab = function(tabId) {
 }
 
 TW.TabManager.updateClosedCount = function() {
+  if (TW.settings.get('showBadgeCount') == false) {
+    return;
+  }
   var storedTabs = TW.TabManager.closedTabs.tabs.length;
   if (storedTabs == 0) {
     storedTabs = '';

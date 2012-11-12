@@ -324,16 +324,37 @@ TW.contextMenuHandler = {
       TW.TabManager.lockTab(selectedTab.id);
     }
 
+    var lockDomain = function(onClickData, selectedTab) {
+      whitelist = TW.settings.get('whitelist');
+      domain = TW.util.getDomain(selectedTab.url);
+      whitelist.push(domain);
+      TW.settings.set('whitelist', whitelist);
+    }
+
     var lockAction = {
       'type': 'checkbox',
       'title': "Never close this tab",
       'onclick': lockItem
     };
 
+    var lockDomain = {
+      'type': 'checkbox',
+      'title': "Never close anything on this domain",
+      'onclick': lockDomain
+    };
+
     this.lockActionId = chrome.contextMenus.create(lockAction);
+    this.lockDomainId = chrome.contextMenus.create(lockDomain);
   },
   
   updateContextMenus: function(tabId) {
+    self = this;
+    // Little bit of a kludge, would be nice to be DRY here but this was simpler.
+    // Sets the title again for each page.
+    chrome.tabs.get(tabId, function(tab) {
+      var currentDomain = TW.util.getDomain(tab.url);
+      chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain})
+    });
     chrome.contextMenus.update(this.lockActionId, {'checked': TW.TabManager.isLocked(tabId)});
   }
 }

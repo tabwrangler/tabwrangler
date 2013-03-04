@@ -19,7 +19,8 @@ TW.settings = {
     purgeClosedTabs: true, // Save closed tabs in between browser sessions.
     showBadgeCount: true, // Save closed tabs in between browser sessions.
     lockedIds: new Array(),  // An array of tabids which have been explicitly locked by the user.
-    whitelist: new Array() // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
+    whitelist: new Array(), // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
+    paused: false, // If TabWrangler is paused (won't count down)
   },
   // Gets all settings from sync and stores them locally.
   init: function() {
@@ -108,6 +109,18 @@ TW.settings.setwhitelist = function(value) {
   TW.settings.setValue('whitelist', value);
 }
 
+TW.settings.setpaused = function(value) {
+  console.log(value);
+  if (value == false) {
+    // The user has just unpaused, immediately set all tabs to the current time
+    // so they will not be closed.
+    chrome.tabs.query({
+    windowType: 'normal'
+  }, TW.TabManager.initTabs);
+  }
+  TW.settings.setValue('paused', value);
+}
+
 /**
  * Either calls a getter function or retunrs directly from storage.
  * @param key
@@ -165,7 +178,7 @@ TW.idleChecker = {
  * @type {Object}
  */
 TW.TabManager = {
-  tabTimes: {},
+  tabTimes: {}, // An array of tabId => timestamp
   closedTabs: new Array()
 };
 
@@ -219,7 +232,7 @@ TW.TabManager.getOlderThen = function(time) {
 }
 
 /**
- * Wrapper function basically
+ * Wrapper function to get all tabs regardless of time inactive
  * @return {Array}
  */
 TW.TabManager.getAll = function() {

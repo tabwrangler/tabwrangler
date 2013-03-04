@@ -3,6 +3,9 @@
  * So it can be tested.
  */
 function checkToClose(cutOff) {
+  if (TW.settings.get('paused') == true) {
+    return;
+  }
   var cutOff = cutOff || new Date().getTime() - TW.settings.get('stayOpen');
   var minTabs = TW.settings.get('minTabs');
   // Tabs which have been locked via the checkbox.

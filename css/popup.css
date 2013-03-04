@@ -42,13 +42,17 @@ legend {
   float:left;
 }
 
+#pauseButton {
+  float: right;
+  margin-top: 10px;
+  margin-right:15px;
+  vertical-align: top;
+}
+
 #reviewButton {
   float: right;
   margin-top: 10px;
   margin-right:15px;
-}
-
-#reviewButton i {
   vertical-align: top;
 }
 

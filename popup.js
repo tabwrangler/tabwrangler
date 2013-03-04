@@ -196,8 +196,12 @@ TW.activeTab.buildTabLockTable = function (tabs) {
 
       var lastModified = TW.TabManager.tabTimes[tabs[i].id];
       var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
-            
-      $timer = $('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>');
+      if (TW.settings.get('paused')) {
+        $timer = $('<td class="time-left">paused</td>');  
+      } else {
+        $timer = $('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>');
+      }
+      
       $timer.data('countdown', timeLeft);
       $tr.append($timer);
     } else {
@@ -211,9 +215,13 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       $('.time-left').each(function() {
         var t = null;
         var myElem = $(this);
-        t = myElem.data('countdown') - 1;
-        myElem.html(secondsToMinutes(t));
-        myElem.data('countdown', t);
+        if (TW.settings.get('paused')) {
+          myElem.html('paused');
+        } else {
+          t = myElem.data('countdown') - 1;
+          myElem.html(secondsToMinutes(t));
+          myElem.data('countdown', t);
+        }
       });
     }
     
@@ -403,10 +411,44 @@ TW.corralTab.buildTable = function(closedTabs) {
 
 TW.corralTab.filterByKeyword = function() {
   var keyword = $(this).val();
-  console.log(keyword);
+}
+
+TW.pauseButton = {};
+
+TW.pauseButton.init = function() {
+  var self = this;
+  if (TW.settings.get('paused') == true) {
+    this.pause();
+  } else {
+    this.play();
+  }
+  this.elem = $('a#pauseButton');
+
+  this.elem.click(function() {
+    if (TW.settings.get('paused') == true) {
+      self.play();
+      TW.settings.set('paused', false);
+    } else {
+      self.pause();
+      TW.settings.set('paused', true);
+    }
+  });
+}
+TW.pauseButton.pause = function() {
+  chrome.browserAction.setIcon({'path': 'img/icon-paused.png'});
+  $('.unpaused-state', this.elem).hide();
+  $('.paused-state', this.elem).show();
+}
+
+TW.pauseButton.play = function() {
+  chrome.browserAction.setIcon({'path': 'img/icon.png'});
+  $('.paused-state',this.elem).hide();
+  $('.unpaused-state', this.elem).show();
 }
 
 $(document).ready(function() {
+  TW.pauseButton.init();
+
   $('a[href="#tabCorral"]').tab('show');
   // Seems we need to force this since corral is the default.
   TW.corralTab.init();

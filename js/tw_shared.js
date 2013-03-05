@@ -366,31 +366,44 @@ TW.TabManager.updateClosedCount = function() {
 TW.contextMenuHandler = {
   lockActionId: null,
   createContextMenus: function () {
-    var lockItem = function(onClickData, selectedTab) {
+    var lockTabAction = function(onClickData, selectedTab) {
       TW.TabManager.lockTab(selectedTab.id);
-    }
+    };
 
-    var lockDomain = function(onClickData, selectedTab) {
+    var lockDomainAction = function(onClickData, selectedTab) {
       whitelist = TW.settings.get('whitelist');
       domain = TW.util.getDomain(selectedTab.url);
       whitelist.push(domain);
       TW.settings.set('whitelist', whitelist);
-    }
+    };
 
-    var lockAction = {
+    var corralTabAction = function(onClickData, selectedTab) {
+      TW.TabManager.closedTabs.saveTabs([selectedTab]);
+      // Close it in Chrome.
+      chrome.tabs.remove(selectedTab.id);
+    };
+
+    var lockTab = {
       'type': 'checkbox',
       'title': "Never close this tab",
-      'onclick': lockItem
+      'onclick': lockTabAction
     };
 
     var lockDomain = {
       'type': 'checkbox',
       'title': "Never close anything on this domain",
-      'onclick': lockDomain
+      'onclick': lockDomainAction
     };
 
-    this.lockActionId = chrome.contextMenus.create(lockAction);
+    var corralTab = {
+      'type': 'normal',
+      'title': "Close tab and save URL immediately",
+      'onclick': corralTabAction
+    };
+
+    this.lockTabId = chrome.contextMenus.create(lockTab);
     this.lockDomainId = chrome.contextMenus.create(lockDomain);
+    chrome.contextMenus.create(corralTab);
   },
   
   updateContextMenus: function(tabId) {
@@ -399,11 +412,11 @@ TW.contextMenuHandler = {
     // Sets the title again for each page.
     chrome.tabs.get(tabId, function(tab) {
       var currentDomain = TW.util.getDomain(tab.url);
-      chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain})
+      chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
     });
-    chrome.contextMenus.update(this.lockActionId, {'checked': TW.TabManager.isLocked(tabId)});
+    chrome.contextMenus.update(this.lockTabId, {'checked': TW.TabManager.isLocked(tabId)});
   }
-}
+};
 
 /**
  * Possible test, later...

@@ -87,6 +87,7 @@ TW.optionsTab.loadOptions = function () {
 
   $('#addToWL').click(function() {
     whitelist.push($('#wl-add').val());
+    $('#wl-add').val('');
     TW.optionsTab.saveOption('whitelist', whitelist);
     TW.optionsTab.buildWLTable(whitelist);
     return false;

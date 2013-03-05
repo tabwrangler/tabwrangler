@@ -211,6 +211,7 @@ TW.TabManager.updateLastAccessed = function (tabId) {
  */
 TW.TabManager.removeTab = function(tabId) {
   delete TW.TabManager.tabTimes[tabId];
+  delete TW.TabManager.closedTabs
 }
 
 /**
@@ -237,10 +238,37 @@ TW.TabManager.getOlderThen = function(time) {
  */
 TW.TabManager.getAll = function() {
   return TW.TabManager.getOlderThen();
-}
+};
 
 TW.TabManager.closedTabs = {
   tabs: []
+};
+
+TW.TabManager.searchTabs = function (cb, filters) {
+  var tabs = TW.TabManager.closedTabs.tabs;
+  if (filters) {
+    for (i = 0; i < filters.length; i++) {
+      tabs = _.filter(tabs, filters[i]);
+    }
+  }
+  cb(tabs);
+};
+
+TW.TabManager.filters = {};
+
+// Matches either the title or URL containing "keyword"
+TW.TabManager.filters.keyword = function(keyword) {
+  return function(tab) {
+    var test = new RegExp(keyword, 'i');
+    return test.exec(tab.title) || test.exec(tab.url);
+  };
+};
+
+// Matches when the URL is exactly matching
+TW.TabManager.filters.exactUrl = function(url) {
+  return function(tab) {
+    return tab.url == url;
+  };
 };
 
 TW.TabManager.closedTabs.init = function() {
@@ -250,20 +278,25 @@ TW.TabManager.closedTabs.init = function() {
       self.tabs = items['savedTabs'];
     }
   });
-}
+};
 
-TW.TabManager.closedTabs.findById = function(id) {
+TW.TabManager.closedTabs.removeTab = function(tabId) {
+  TW.TabManager.closedTabs.tabs.splice(TW.TabManager.closedTabs.findPositionById(tabId), 1);
+};
+
+// @todo: move to filter system for consistency
+TW.TabManager.closedTabs.findPositionById = function(id) {
   for (var i = 0; i < this.tabs.length; i++) {
     if(this.tabs[i].id == id) {
       return i;
     }
   }
-}
+};
 
 TW.TabManager.closedTabs.saveTabs = function(tabs) {
   var maxTabs = TW.settings.get('maxTabs');
   for (var i=0; i < tabs.length; i++) {
-    if (tabs[i] == null) {
+    if (tabs[i] === null) {
       console.log('Weird bug, backtrace this...');
     }
     tabs[i].closedAt = new Date().getTime();
@@ -274,12 +307,12 @@ TW.TabManager.closedTabs.saveTabs = function(tabs) {
     this.tabs = this.tabs.splice(0, maxTabs);
   }
   chrome.storage.local.set({savedTabs: this.tabs});
-}
+};
 
 TW.TabManager.closedTabs.clear = function() {
-  this.tabs = new Array();
+  this.tabs = [];
   chrome.storage.local.remove('savedTabs');
-}
+};
 
 TW.TabManager.isWhitelisted = function(url) {
   var whitelist = TW.settings.get("whitelist");

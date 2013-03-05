@@ -76,8 +76,21 @@ function checkToClose(cutOff) {
 }
 
 var onNewTab = function(tab) {
+  // Check if it exists in corral already
+  // The 2nd argument is an array of filters, we add one filter
+  // which checks for an exact URL match.  If we match throw the old
+  // entry away.
+  TW.TabManager.searchTabs(function(tabs) {
+    if (tabs.length) {
+      _.each(tabs, function(t) {
+        TW.TabManager.closedTabs.removeTab(t.id);
+      });
+    }
+  }, [TW.TabManager.filters.exactUrl(tab.url)]);
+
+  // Add the new one;
   TW.TabManager.updateLastAccessed(tab.id);
-}
+};
 
 function startup() {
   TW.settings.init();

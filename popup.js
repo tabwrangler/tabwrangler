@@ -233,15 +233,6 @@ TW.activeTab.buildTabLockTable = function (tabs) {
 
 TW.corralTab = {};
 
-TW.corralTab.filters = {}
-TW.corralTab.filters.keyword = function(keyword) {
-  return function(tab) {
-    var test = new RegExp(keyword, 'i');
-    return test.exec(tab.title) || test.exec(tab.url);
-  }
-  
-}
-
 TW.corralTab.init = function(context) {
   var self = this;
   
@@ -249,7 +240,7 @@ TW.corralTab.init = function(context) {
   $('#autocloseMessage').hide();
   $('.clearCorralMessage').hide();
   // @todo: use context to select table.
-  this.getTabs(function(closedTabs) {
+  TW.TabManager.searchTabs(function(closedTabs) {
     if ( closedTabs.length == 0 ) {
       // If we have no saved closed tabs, show the help text
       $('#autocloseMessage').show();
@@ -274,20 +265,10 @@ TW.corralTab.init = function(context) {
   $('.corral-search').keyup(_.debounce(
   function() {
     var keyword = $(this).val();
-    self.getTabs(self.buildTable, [self.filters.keyword(keyword)]);
+    TW.TabManager.searchTabs(self.buildTable, [TW.TabManager.filters.keyword(keyword)]);
   }, 200));
   
   $('.corral-search').delay(1000).focus();
-}
-
-TW.corralTab.getTabs = function (cb, filters) {
-  var tabs = TW.TabManager.closedTabs.tabs;
-  if (filters) {
-    for (i = 0; i < filters.length; i++) {
-      tabs = _.filter(tabs, filters[i]);
-    }
-  }
-  cb(tabs);
 }
 
 TW.corralTab.buildTable = function(closedTabs) {
@@ -369,9 +350,12 @@ TW.corralTab.buildTable = function(closedTabs) {
     //    }
 
     $link = $('<a target="_blank" data-tabid="' + tab.id + '" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
+
+    // Create a new tab when clicked in the background
+    // Remove from the closedTabs list.
     $link.click(function() {
       chrome.tabs.create({active:false, url: $(this).attr('href')});
-      TW.TabManager.closedTabs.tabs.splice(TW.TabManager.closedTabs.findById($(this).data('tabid')), 1);
+      TW.TabManager.closedTabs.removeTab($(this).data('tabid'));
       $(this).parent().parent().remove();
       return false;
     });

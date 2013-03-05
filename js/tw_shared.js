@@ -211,7 +211,6 @@ TW.TabManager.updateLastAccessed = function (tabId) {
  */
 TW.TabManager.removeTab = function(tabId) {
   delete TW.TabManager.tabTimes[tabId];
-  delete TW.TabManager.closedTabs
 }
 
 /**
@@ -281,7 +280,7 @@ TW.TabManager.closedTabs.init = function() {
 };
 
 TW.TabManager.closedTabs.removeTab = function(tabId) {
-  TW.TabManager.closedTabs.tabs.splice(TW.TabManager.closedTabs.findPositionById(tabId), 1);
+  return TW.TabManager.closedTabs.tabs.splice(TW.TabManager.closedTabs.findPositionById(tabId), 1);
 };
 
 // @todo: move to filter system for consistency

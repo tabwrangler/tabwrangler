@@ -236,6 +236,7 @@ TW.Updater.updates[2.6] = {
     );
     notification.show();
   }
+};
 
 TW.Updater.updates[2.8] = {
   fx: function() {

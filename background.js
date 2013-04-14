@@ -3,23 +3,26 @@
  * So it can be tested.
  */
 function checkToClose(cutOff) {
+  
   if (TW.settings.get('paused') == true) {
     return;
   }
+  
   var cutOff = cutOff || new Date().getTime() - TW.settings.get('stayOpen');
   var minTabs = TW.settings.get('minTabs');
+  
   // Tabs which have been locked via the checkbox.
   var lockedIds = TW.settings.get("lockedIds");
 
   // Update the selected one to make sure it doesn't get closed.
   chrome.tabs.getSelected(null, TW.TabManager.updateLastAccessed);
 
-  var toCut = TW.TabManager.getOlderThen(cutOff);
+  var toCut = TW.TabManager.getOlderThan(cutOff);
   var tabsToSave = new Array();
   var allTabs = TW.TabManager.getAll();
 
-  // If cutting will reduce us below 5 tabs, only remove the first N to get to 5.
-  if ((allTabs.length - minTabs) >= 0) {
+  // If we have more tabs than minTabs tabs, remove enough to get to minTabs.
+  if (allTabs.length > minTabs) {
     toCut = toCut.splice(0, allTabs.length - minTabs);
   } else {
     // We have less than minTab tabs, abort.
@@ -31,6 +34,7 @@ function checkToClose(cutOff) {
     return;
   }
 
+  // there aren't enough expired tabs; abort.
   if (toCut.length == 0) {
     return;
   }

@@ -46,17 +46,17 @@ TW.TabManager.removeTab = function(tabId) {
 }
 
 /**
- * @param time
- *  If null, returns all.
- * @return {Array}
+ * @param time the time to use as the condition.
+ * @return the array of all tab ids not accessed since time.
+ *     all tab ids if time is null
  */
-TW.TabManager.getOlderThen = function(time) {
+TW.TabManager.getOlderThan = function(time) {
   var ret = Array();
+  this.removeBadTabIds();
+  
   for (var i in this.tabTimes) {
-    if (this.tabTimes.hasOwnProperty(i)) {
-      if (time == null || this.tabTimes[i] < time) {
-        ret.push(parseInt(i));
-      }
+    if (time == null || this.tabTimes[i] < time) {
+      ret.push(parseInt(i));
     }
   }
 
@@ -64,11 +64,31 @@ TW.TabManager.getOlderThen = function(time) {
 }
 
 /**
+ * Removes any tabs from tabTimes that don't actually exists.
+ * 
+ * An assumption was made that a tab will always have the same tab ID in it's
+ * lifetime, however this doesn't seem to hold (a good example is gmail.com, which
+ * reports a different tab ID after it loads). This function removes bad tabs
+ * to prevent a bug that causes tabs to close even if there are less than minTabs tabs.
+ *
+ * @todo: this is a hack, and a more permanent solution should be found.
+ */
+TW.TabManager.removeBadTabIds = function() {
+  for (var i in this.tabTimes) {
+    chrome.tabs.get(parseInt(i), function(tab) {
+      if(tab == null) {
+        TW.TabManager.removeTab(i);
+      }
+    }) 
+  }
+}
+
+/**
  * Wrapper function to get all tabs regardless of time inactive
  * @return {Array}
  */
 TW.TabManager.getAll = function() {
-  return TW.TabManager.getOlderThen();
+  return TW.TabManager.getOlderThan();
 };
 
 TW.TabManager.closedTabs = {

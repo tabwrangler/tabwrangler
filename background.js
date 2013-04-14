@@ -14,20 +14,6 @@ function checkToClose(cutOff) {
   // Update the selected one to make sure it doesn't get closed.
   chrome.tabs.getSelected(null, TW.TabManager.updateLastAccessed);
 
-  /**
-   * Idlechecker stuff, needs to be refactored
-   *
-
-  var sleepTime = TW.idleChecker.timeSinceLastRun(now) - TW.settings.checkInterval * 1.1;
-  // sleepTime is the time elapsed between runs.  This is probably time when the computer was asleep.
-
-  if (sleepTime < 0) {
-    sleepTime = 0;
-  }
-  TW.idleChecker.logRun(now);
-
-  */
-
   var toCut = TW.TabManager.getOlderThen(cutOff);
   var tabsToSave = new Array();
   var allTabs = TW.TabManager.getAll();

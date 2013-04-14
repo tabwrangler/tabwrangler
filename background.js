@@ -25,12 +25,6 @@ function checkToClose(cutOff) {
   if (allTabs.length > minTabs) {
     toCut = toCut.splice(0, allTabs.length - minTabs);
   } else {
-    // We have less than minTab tabs, abort.
-    // Also, let's reset the last accessed time of our current tabs so they
-    // don't get closed when we add a new one.
-    for (var i=0; i < allTabs.length; i++) {
-      TW.TabManager.updateLastAccessed(allTabs[i]);
-    }
     return;
   }
 

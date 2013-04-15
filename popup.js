@@ -143,8 +143,6 @@ TW.activeTab.buildTabLockTable = function (tabs) {
   var tabNum = tabs.length;
   var $tbody = $('#activeTabs tbody');
   $tbody.html('');
-
-  var lockedIds = TW.settings.get("lockedIds");
   
   function secondsToMinutes(seconds) {
     if (seconds > 0) {
@@ -158,7 +156,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       
   for (var i = 0; i < tabNum; i++) {
     
-    var tabIsLocked = tabs[i].pinned || TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1;
+    var tabIsLocked = tabs[i].locked || TW.TabManager.isWhitelisted(tabs[i].url);
 
     // Create a new row.
     var $tr = $('<tr></tr>');

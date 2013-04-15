@@ -11,8 +11,6 @@ function startup() {
     TW.TabManager.closedTabs.clear();
   }
   
-  TW.settings.set('lockedIds', new Array());
-  
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({
     windowType: 'normal'

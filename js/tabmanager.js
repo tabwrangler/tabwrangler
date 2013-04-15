@@ -15,8 +15,9 @@ TW.TabManager = {
 };
 
 TW.TabManager.initTabs = function (tabs) {
-  for (var i=0; i < tabs.length; i++) {
+  for (var i = 0; i < tabs.length; i++) {
     TW.TabManager.updateLastAccessed(tabs[i]);
+    tabs[i].locked = tabs[i].pinned;
   }
 }
 
@@ -128,13 +129,13 @@ TW.TabManager.checkToClose = function() {
   for (var i=0; i < toCut.length; i++) {
     var tabIdToCut = toCut[i];
     // @todo: move to TW.TabManager.
-    if (lockedIds.indexOf(tabIdToCut) != -1) {
+    //if (lockedIds.indexOf(tabIdToCut) != -1) {
       // Update its time so it gets checked less frequently.
       // Would also be smart to just never add it.
       // @todo: fix that.
-      TW.TabManager.updateLastAccessed(tabIdToCut);
-      continue;
-    }
+    //  TW.TabManager.updateLastAccessed(tabIdToCut);
+    //  continue;
+    //}
 
     chrome.tabs.get(tabIdToCut, function(tab) {
       if (tab.pinned) {
@@ -166,6 +167,8 @@ TW.TabManager.onNewTab = function(tab) {
       });
     }
   }, [TW.TabManager.filters.exactUrl(tab.url)]);
+  
+  tab.locked = tab.pinned;
 
   // Add the new one;
   TW.TabManager.updateLastAccessed(tab.id);
@@ -255,29 +258,18 @@ TW.TabManager.isWhitelisted = function(url) {
   return false;
 }
 
-TW.TabManager.isLocked = function(tabId) {
-  var lockedIds = TW.settings.get("lockedIds");
-  if (lockedIds.indexOf(tabId) != -1) {
-    return true;
-  }
-  return false;
-}
-
+/** Sets the locked attribute for the given tab to true. */
 TW.TabManager.lockTab = function(tabId) {
-  var lockedIds = TW.settings.get("lockedIds");
-
-  if (tabId > 0 && lockedIds.indexOf(tabId) == -1) {
-    lockedIds.push(tabId);
-  }
-  TW.settings.set('lockedIds', lockedIds);
+  chrome.tabs.get(tabId, function(tab) {
+    tab.locked = true;
+  })
 }
 
-TW.TabManager.unlockTab = function(tabId) {  
-  var lockedIds = TW.settings.get("lockedIds");
-  if (lockedIds.indexOf(tabId) > -1) {
-    lockedIds.splice(lockedIds.indexOf(tabId), 1);
-  }
-  TW.settings.set('lockedIds', lockedIds);
+/** Sets the locked attribute for the given tab to false. */
+TW.TabManager.unlockTab = function(tabId) {
+  chrome.tabs.get(tabId, function(tab) {
+    tab.locked = false;
+  })
 }
 
 TW.TabManager.updateClosedCount = function() {

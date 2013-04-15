@@ -57,8 +57,8 @@ TW.contextMenuHandler = {
     // Sets the title again for each page.
     chrome.tabs.get(tabId, function(tab) {
       var currentDomain = TW.util.getDomain(tab.url);
-      chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
+      chrome.contextMenus.update(self.lockDomainId, { 'title': 'Never close anything on ' + currentDomain });
+      chrome.contextMenus.update(self.lockTabId, { 'checked': tab.locked });
     });
-    chrome.contextMenus.update(this.lockTabId, {'checked': TW.TabManager.isLocked(tabId)});
   }
 };

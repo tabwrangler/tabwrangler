@@ -34,7 +34,7 @@ TW.TabManager.updateLastAccessed = function (tabId) {
     console.log('Error: ' + tabId.toString() + ' is not an number', tabId);
     return;
   }
-  TW.TabManager.tabTimes[tabId] = new Date().getTime();
+  TW.TabManager.tabTimes[tabId] = new Date();
 }
 
 /**

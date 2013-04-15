@@ -158,7 +158,12 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       
   for (var i = 0; i < tabNum; i++) {
     
-    var tabIsLocked = tabs[i].pinned || TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1;
+    // if the tab is pinned, then don't even display it in the table
+    if (tabs[i].pinned) {
+      continue;
+    }
+    
+    var tabIsLocked = TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1;
 
     // Create a new row.
     var $tr = $('<tr></tr>');

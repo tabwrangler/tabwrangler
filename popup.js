@@ -147,9 +147,9 @@ TW.activeTab.buildTabLockTable = function (tabs) {
   var lockedIds = TW.settings.get("lockedIds");
   
   function secondsToMinutes(seconds) {
-    if (seconds >= 0) {
+    if (seconds > 0) {
       var s = seconds % 60;
-      s = s > 10 ? String(s) : "0" + String(s);
+      s = s >= 10 ? String(s) : "0" + String(s);
       return String(Math.floor(seconds / 60)) + ":" + s;
     } else {
       return "0:00";

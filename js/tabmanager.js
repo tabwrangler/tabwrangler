@@ -11,6 +11,7 @@ var TW = TW || {};
  */
 TW.TabManager = {
   tabTimes: {}, // An array of tabId => timestamp
+  lockedTabs: new Array(),
   closedTabs: new Array()
 };
 
@@ -258,18 +259,18 @@ TW.TabManager.isWhitelisted = function(url) {
   return false;
 }
 
-/** Sets the locked attribute for the given tab to true. */
+/** Sets the given tab ID to be locked. */
 TW.TabManager.lockTab = function(tabId) {
-  chrome.tabs.get(tabId, function(tab) {
-    tab.locked = true;
-  })
+  if (tabId > 0 && this.lockedIds.indexOf(tabId) == -1) {
+    this.lockedIds.push(tabId);
+  }
 }
 
-/** Sets the locked attribute for the given tab to false. */
+/** Removes the given tab ID from the lock list. */
 TW.TabManager.unlockTab = function(tabId) {
-  chrome.tabs.get(tabId, function(tab) {
-    tab.locked = false;
-  })
+  if (this.lockedTabs.indexOf(tabId) > -1) {
+    this.lockedIds.splice(this.lockedIds.indexOf(tabId), 1);
+  }
 }
 
 TW.TabManager.updateClosedCount = function() {

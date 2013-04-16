@@ -14,16 +14,29 @@ TW.TabManager = {
   closedTabs: new Array()
 };
 
+/** Given a list of tabs, calls registerNewTab on all of them. */
 TW.TabManager.initTabs = function (tabs) {
-  for (var i=0; i < tabs.length; i++) {
-    TW.TabManager.updateLastAccessed(tabs[i]);
+  _.map(tabs, TW.TabManager.registerNewTab);
+}
+
+/**
+ * Takes a tab object and registers it as a new tab in the tab times
+ * only if it meets the criteria for a new tab.
+ */
+TW.TabManager.registerNewTab = function(tab) {
+  if (!tab.pinned) {
+    chrome.windows.get(tab.windowId, null, function(window) {
+      if (window.type == "normal") {
+        TW.TabManager.tabTimes[tab.id] = new Date();
+      }
+    })
   }
 }
 
 /**
- * Takes a tabId or a tab object
- * @param {mixed} tabId
- *  Tab ID or Tab object.
+ * Takes a tabId or a tab object and updates the accessed time if
+ * the tab has already been registered.
+ * @param {mixed} tabId Tab ID or Tab object.
  */
 TW.TabManager.updateLastAccessed = function (tabId) {
   if (typeof tabId == "object") {
@@ -34,7 +47,10 @@ TW.TabManager.updateLastAccessed = function (tabId) {
     console.log('Error: ' + tabId.toString() + ' is not an number', tabId);
     return;
   }
-  TW.TabManager.tabTimes[tabId] = new Date();
+  
+  if (_.has(TW.TabManager.tabTimes, tabId)) {
+    TW.TabManager.tabTimes[tabId] = new Date();
+  }
 }
 
 /**
@@ -49,8 +65,10 @@ TW.TabManager.removeTab = function(tabId) {
  * Handler for onReplaced event.
  */
 TW.TabManager.replaceTab = function(addedTabId, removedTabId) {
-  TW.TabManager.removeTab(removedTabId);
-  TW.TabManager.updateLastAccessed(addedTabId);
+  if (_.has(TW.TabManager.tabTimes, removedTabId)) {
+    TW.TabManager.tabTimes[addedTabId] = TW.TabManager.tabTimes[removedTabId];
+    TW.TabManager.removeTab(removedTabId);
+  }
 }
 
 /**
@@ -137,26 +155,6 @@ TW.TabManager.checkToClose = function() {
     });
   }
 }
-
-/**
- * When a new tab is created, handles adding it to the list of tabs.
- */
-TW.TabManager.onNewTab = function(tab) {
-  // Check if it exists in corral already
-  // The 2nd argument is an array of filters, we add one filter
-  // which checks for an exact URL match.  If we match throw the old
-  // entry away.
-  TW.TabManager.searchTabs(function(tabs) {
-    if (tabs.length) {
-      _.each(tabs, function(t) {
-        TW.TabManager.closedTabs.removeTab(t.id);
-      });
-    }
-  }, [TW.TabManager.filters.exactUrl(tab.url)]);
-
-  // Add the new one;
-  TW.TabManager.updateLastAccessed(tab.id);
-};
 
 TW.TabManager.closedTabs = {
   tabs: []

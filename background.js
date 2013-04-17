@@ -26,7 +26,6 @@ function startup() {
     }
   });
   
-  chrome.tabs.onUpdated.addListener(TW.TabManager.updateLastAccessed);
   chrome.tabs.onRemoved.addListener(TW.TabManager.removeTab);
   chrome.tabs.onActivated.addListener(function(tabInfo) {
     TW.contextMenuHandler.updateContextMenus(tabInfo.tabId);

@@ -199,7 +199,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     if (!tabIsLocked) {
       var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
 
-      var lastModified = TW.TabManager.tabTimes[tabs[i].id];
+      var lastModified = TW.TabManager.openTabs[tabs[i].id].time;
       var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
       if (TW.settings.get('paused')) {
         $timer = $('<td class="time-left">paused</td>');  

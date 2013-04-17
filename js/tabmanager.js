@@ -10,7 +10,7 @@ var TW = TW || {};
  * @type {Object}
  */
 TW.TabManager = {
-  tabTimes: {}, // An array of tabId => timestamp
+  openTabs: {},
   closedTabs: new Array()
 };
 
@@ -27,7 +27,10 @@ TW.TabManager.registerNewTab = function(tab) {
   if (!tab.pinned) {
     chrome.windows.get(tab.windowId, null, function(window) {
       if (window.type == "normal") {
-        TW.TabManager.tabTimes[tab.id] = new Date();
+        TW.TabManager.openTabs[tab.id] = {
+          time: new Date(),
+          locked: false
+        };
       }
     })
   }
@@ -48,8 +51,8 @@ TW.TabManager.updateLastAccessed = function (tabId) {
     return;
   }
   
-  if (_.has(TW.TabManager.tabTimes, tabId)) {
-    TW.TabManager.tabTimes[tabId] = new Date();
+  if (_.has(TW.TabManager.openTabs, tabId)) {
+    TW.TabManager.openTabs[tabId].time = new Date();
   }
 }
 
@@ -58,15 +61,15 @@ TW.TabManager.updateLastAccessed = function (tabId) {
  * @param tabId
  */
 TW.TabManager.removeTab = function(tabId) {
-  delete TW.TabManager.tabTimes[tabId];
+  delete TW.TabManager.openTabs[tabId];
 }
 
 /**
  * Handler for onReplaced event.
  */
 TW.TabManager.replaceTab = function(addedTabId, removedTabId) {
-  if (_.has(TW.TabManager.tabTimes, removedTabId)) {
-    TW.TabManager.tabTimes[addedTabId] = TW.TabManager.tabTimes[removedTabId];
+  if (_.has(TW.TabManager.openTabs, removedTabId)) {
+    TW.TabManager.openTabs[addedTabId] = TW.TabManager.openTabs[removedTabId];
     TW.TabManager.removeTab(removedTabId);
   }
 }
@@ -79,8 +82,8 @@ TW.TabManager.replaceTab = function(addedTabId, removedTabId) {
 TW.TabManager.getOlderThan = function(time) {
   var ret = Array();
   
-  for (var i in this.tabTimes) {
-    if (time == null || this.tabTimes[i] < time) {
+  for (var i in this.openTabs) {
+    if (time == null || this.openTabs[i] < time) {
       ret.push(parseInt(i));
     }
   }

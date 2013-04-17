@@ -11,7 +11,6 @@ var TW = TW || {};
  */
 TW.TabManager = {
   openTabs: {},
-  lockedTabs: new Array(),
   closedTabs: new Array()
 };
 
@@ -38,20 +37,11 @@ TW.TabManager.registerNewTab = function(tab) {
 }
 
 /**
- * Takes a tabId or a tab object and updates the accessed time if
- * the tab has already been registered.
- * @param {mixed} tabId Tab ID or Tab object.
+ * Takes a tabId and updates the accessed time if the tab has already
+ * been registered.
+ * @param tabId the tab ID to update the time for.
  */
 TW.TabManager.updateLastAccessed = function (tabId) {
-  if (typeof tabId == "object") {
-    tabId = tabId.id
-  }
-  
-  if (typeof tabId != 'number') {
-    console.log('Error: ' + tabId.toString() + ' is not an number', tabId);
-    return;
-  }
-  
   if (_.has(TW.TabManager.openTabs, tabId)) {
     TW.TabManager.openTabs[tabId].time = new Date();
   }
@@ -79,25 +69,18 @@ TW.TabManager.replaceTab = function(addedTabId, removedTabId) {
  * @param time the time to use as the condition.
  * @return the array of all tab ids not accessed since time.
  *     all tab ids if time is null
+ *
+ * @todo: This is wrong. it's returning all tabs newer than time do we actually need this function?
  */
 TW.TabManager.getOlderThan = function(time) {
-  var ret = Array();
-  
-  for (var i in this.openTabs) {
-    if (time == null || this.openTabs[i] < time) {
-      ret.push(parseInt(i));
-    }
-  }
-
-  return ret;
+  return _.filter(TW.TabManager.getAll(), function(tabId) {
+    return TW.TabManager.openTabs[tabId].time > time;
+  });
 }
 
-/**
- * Wrapper function to get all tabs regardless of time inactive
- * @return {Array}
- */
+/** Returns the IDs of all registered tabs. */
 TW.TabManager.getAll = function() {
-  return TW.TabManager.getOlderThan();
+  return _.map(_.keys(TW.TabManager.openTabs), function(tabId) { return parseInt(tabId); });
 };
 
 /**
@@ -111,9 +94,6 @@ TW.TabManager.checkToClose = function() {
   
   var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
   var minTabs = TW.settings.get('minTabs');
-  
-  // Tabs which have been locked via the checkbox.
-  var lockedIds = TW.settings.get("lockedIds");
 
   // Update the selected one to make sure it doesn't get closed.
   chrome.tabs.getSelected(null, TW.TabManager.updateLastAccessed);
@@ -137,13 +117,13 @@ TW.TabManager.checkToClose = function() {
   for (var i=0; i < toCut.length; i++) {
     var tabIdToCut = toCut[i];
     // @todo: move to TW.TabManager.
-    //if (lockedIds.indexOf(tabIdToCut) != -1) {
+    if (TW.TabManager.openTabs[tabIdToCut].locked) {
       // Update its time so it gets checked less frequently.
       // Would also be smart to just never add it.
       // @todo: fix that.
-    //  TW.TabManager.updateLastAccessed(tabIdToCut);
-    //  continue;
-    //}
+      TW.TabManager.updateLastAccessed(tabIdToCut);
+      continue;
+    }
 
     chrome.tabs.get(tabIdToCut, function(tab) {
       if (tab.pinned) {

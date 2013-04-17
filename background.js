@@ -17,7 +17,7 @@ function startup() {
   
   // Handles pinning and unpinning a tab
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    if (!_.has(changeInfo, 'pinned')) {
+    if (_.has(changeInfo, 'pinned')) {
       if (changeInfo.pinned) {
         TW.TabManager.removeTab(tabId);
       } else {
@@ -33,8 +33,8 @@ function startup() {
     TW.TabManager.updateLastAccessed(tabInfo.tabId)
   });
   chrome.tabs.onReplaced.addListener(TW.TabManager.replaceTab);
-  //window.setInterval(TW.TabManager.checkToClose, TW.settings.get('checkInterval'));
-  //window.setInterval(TW.TabManager.updateClosedCount, TW.settings.get('badgeCounterInterval'));
+  window.setInterval(TW.TabManager.checkToClose, TW.settings.get('checkInterval'));
+  window.setInterval(TW.TabManager.updateClosedCount, TW.settings.get('badgeCounterInterval'));
   
   // Create the "lock tab" context menu:
   TW.contextMenuHandler.createContextMenus();

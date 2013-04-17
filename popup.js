@@ -120,8 +120,10 @@ TW.optionsTab.buildWLTable = function(whitelist) {
 TW.activeTab = {};
 
 TW.activeTab.init = function(context) {
-  this.context = context;
-  chrome.tabs.getAllInWindow(null, function(tabs) { TW.activeTab.buildTabLockTable(tabs);});
+  chrome.windows.getCurrent(null, function(window) {
+    chrome.tabs.query({ windowId: window.id, pinned: false },
+                     function(tabs) { TW.activeTab.buildTabLockTable(tabs); });
+  });
 }
 
 TW.activeTab.saveLock = function(tabId) {
@@ -129,7 +131,7 @@ TW.activeTab.saveLock = function(tabId) {
 }
 
 TW.activeTab.removeLock = function(tabId) {
-  TW.TabManager.unlockTab();
+  TW.TabManager.unlockTab(tabId);
 }
 
 
@@ -156,12 +158,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       
   for (var i = 0; i < tabNum; i++) {
     
-    // if the tab is pinned, then don't even display it in the table
-    if (tabs[i].pinned) {
-      continue;
-    }
-    
-    var tabIsLocked = tabs[i].locked || TW.TabManager.isWhitelisted(tabs[i].url);
+    var tabIsLocked = TW.TabManager.isLocked(tabs[i].id) || TW.TabManager.isWhitelisted(tabs[i].url);
 
     // Create a new row.
     var $tr = $('<tr></tr>');

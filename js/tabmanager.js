@@ -246,16 +246,17 @@ TW.TabManager.isWhitelisted = function(url) {
 
 /** Sets the given tab ID to be locked. */
 TW.TabManager.lockTab = function(tabId) {
-  if (tabId > 0 && this.lockedIds.indexOf(tabId) == -1) {
-    this.lockedIds.push(tabId);
-  }
+  TW.TabManager.openTabs[tabId].locked = true;
 }
 
 /** Removes the given tab ID from the lock list. */
 TW.TabManager.unlockTab = function(tabId) {
-  if (this.lockedTabs.indexOf(tabId) > -1) {
-    this.lockedIds.splice(this.lockedIds.indexOf(tabId), 1);
-  }
+  TW.TabManager.openTabs[tabId].locked = false;
+}
+
+/** Returns the lock status of the given tabId. */
+TW.TabManager.isLocked = function(tabId) {
+  return TW.TabManager.openTabs[tabId].locked;
 }
 
 TW.TabManager.updateClosedCount = function() {

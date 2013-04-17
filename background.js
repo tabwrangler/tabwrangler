@@ -16,6 +16,18 @@ function startup() {
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({ windowType: 'normal', pinned: false }, TW.TabManager.initTabs);
   chrome.tabs.onCreated.addListener(TW.TabManager.registerNewTab);
+  
+  // Handles pinning and unpinning a tab
+  chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    if (!_.has(changeInfo, 'pinned')) {
+      if (changeInfo.pinned) {
+        TW.TabManager.removeTab(tabId);
+      } else {
+        TW.TabManager.registerNewTab(tab);
+      }
+    }
+  });
+  
   chrome.tabs.onUpdated.addListener(TW.TabManager.updateLastAccessed);
   chrome.tabs.onRemoved.addListener(TW.TabManager.removeTab);
   chrome.tabs.onActivated.addListener(function(tabInfo) {

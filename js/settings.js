@@ -18,7 +18,6 @@ TW.settings = {
     maxTabs: 100, // Just to keep memory / UI in check.  No UI for this.
     purgeClosedTabs: true, // Save closed tabs in between browser sessions.
     showBadgeCount: true, // Save closed tabs in between browser sessions.
-    lockedIds: new Array(),  // An array of tabids which have been explicitly locked by the user.
     whitelist: new Array(), // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
     paused: false, // If TabWrangler is paused (won't count down)
   },

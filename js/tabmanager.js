@@ -11,6 +11,7 @@ var TW = TW || {};
  */
 TW.TabManager = {
   openTabs: {},
+  lockedTabs: new Array(),
   closedTabs: new Array()
 };
 
@@ -136,13 +137,13 @@ TW.TabManager.checkToClose = function() {
   for (var i=0; i < toCut.length; i++) {
     var tabIdToCut = toCut[i];
     // @todo: move to TW.TabManager.
-    if (lockedIds.indexOf(tabIdToCut) != -1) {
+    //if (lockedIds.indexOf(tabIdToCut) != -1) {
       // Update its time so it gets checked less frequently.
       // Would also be smart to just never add it.
       // @todo: fix that.
-      TW.TabManager.updateLastAccessed(tabIdToCut);
-      continue;
-    }
+    //  TW.TabManager.updateLastAccessed(tabIdToCut);
+    //  continue;
+    //}
 
     chrome.tabs.get(tabIdToCut, function(tab) {
       if (tab.pinned) {
@@ -243,29 +244,18 @@ TW.TabManager.isWhitelisted = function(url) {
   return false;
 }
 
-TW.TabManager.isLocked = function(tabId) {
-  var lockedIds = TW.settings.get("lockedIds");
-  if (lockedIds.indexOf(tabId) != -1) {
-    return true;
-  }
-  return false;
-}
-
+/** Sets the given tab ID to be locked. */
 TW.TabManager.lockTab = function(tabId) {
-  var lockedIds = TW.settings.get("lockedIds");
-
-  if (tabId > 0 && lockedIds.indexOf(tabId) == -1) {
-    lockedIds.push(tabId);
+  if (tabId > 0 && this.lockedIds.indexOf(tabId) == -1) {
+    this.lockedIds.push(tabId);
   }
-  TW.settings.set('lockedIds', lockedIds);
 }
 
-TW.TabManager.unlockTab = function(tabId) {  
-  var lockedIds = TW.settings.get("lockedIds");
-  if (lockedIds.indexOf(tabId) > -1) {
-    lockedIds.splice(lockedIds.indexOf(tabId), 1);
+/** Removes the given tab ID from the lock list. */
+TW.TabManager.unlockTab = function(tabId) {
+  if (this.lockedTabs.indexOf(tabId) > -1) {
+    this.lockedIds.splice(this.lockedIds.indexOf(tabId), 1);
   }
-  TW.settings.set('lockedIds', lockedIds);
 }
 
 TW.TabManager.updateClosedCount = function() {

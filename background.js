@@ -26,15 +26,6 @@ function startup() {
     }
   });
   
-  // Handles keeping track of the tab URL
-  chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    if(_.has(changeInfo, 'url')) {
-      TW.TabManager.openTabs[tabId].url = tab.url;
-      TW.TabManager.openTabs[tabId].title = tab.title;
-      TW.TabManager.openTabs[tabId].favIconUrl = tab.favIconUrl;
-    }
-  })
-  
   chrome.tabs.onRemoved.addListener(TW.TabManager.removeTab);
   chrome.tabs.onActivated.addListener(function(tabInfo) {
     TW.contextMenuHandler.updateContextMenus(tabInfo.tabId);

@@ -108,16 +108,18 @@ TW.TabManager.closeExpiredTabs = function() {
     }));
     
     /* Now that we have the tabs to close, close them. */
-    TW.TabManager.wrangleAndClose(_.pluck(tabsToClose, "id"));
+    TW.TabManager.wrangleAndClose(tabsToClose);
     
   });
 }
 
 /* Given a list of tabsIDs to close, wrangle and close them. */
-TW.TabManager.wrangleAndClose = function(tabIds) {
-  var closingTabs = _.pick(TW.TabManager.openTabs, tabIds);
+TW.TabManager.wrangleAndClose = function(tabs) {
+  var tabIds = _.pluck(tabs, 'id');
   chrome.tabs.remove(tabIds, function() {
-    _.map(closingTabs, function(tab) { TW.TabManager.closedTabs.tabs.push(tab); });
+    _.map(tabs, function(tab) {
+      TW.TabManager.closedTabs.tabs.push(_.pick(tab, 'url', 'title'));
+    });
   });
 }
 

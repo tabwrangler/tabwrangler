@@ -11,8 +11,14 @@ var TW = TW || {};
  */
 TW.TabManager = {
   openTabs: {},
-  closedTabs: new Array()
+  closedTabs: { tabs: [] },
+  filters: {}
 };
+
+/* Gets the latest access time of the given tab ID. */
+TW.TabManager.getTime = function(tabId) {
+  return TW.TabManager.openTabs[tabId].time;
+}
 
 /** Given a list of tabs, calls registerNewTab on all of them. */
 TW.TabManager.initTabs = function (tabs) {
@@ -65,84 +71,55 @@ TW.TabManager.replaceTab = function(addedTabId, removedTabId) {
   }
 }
 
-/**
- * @param time the time to use as the condition.
- * @return the array of all tab ids not accessed since time.
- *     all tab ids if time is null
- *
- * @todo: This is wrong. it's returning all tabs newer than time do we actually need this function?
- */
-TW.TabManager.getOlderThan = function(time) {
-  return _.filter(TW.TabManager.getAll(), function(tabId) {
-    return TW.TabManager.openTabs[tabId].time > time;
+/* Calculates the list of tab IDs to close based on the constraints, then closes them. */
+TW.TabManager.closeExpiredTabs = function() {
+  
+  var cutOff = new Date() - TW.settings.get('stayOpen');
+  var minTabs = TW.settings.get('minTabs');
+  
+  /* Only consider tabs that are not pinned and are in a normal window. */
+  chrome.tabs.query({ pinned: false, windowType: "normal" }, function(tabs) {
+    
+    /* Group the tabs by windowId so each window can be calculated separately */
+    var windowGroups = _.groupBy(tabs, function(tab) { return tab.windowId; });
+    
+    /* Calculates the list of all tabs to close accross all windows. */
+    var tabsToClose = _.flatten(_.map(windowGroups, function(tabGroup) {
+      
+      if (tabGroup.length <= minTabs) {
+        
+        return [];
+        
+      } else {
+        
+        /* Do not close any tabs that are unexpired, active, or locked.
+         * @todo: whitelisted tabs also shouldn't be closed.
+         */
+        var canClose = _.reject(tabGroup, function(tab) {
+          return tab.active || TW.TabManager.getTime(tab.id) > cutOff || TW.TabManager.isLocked(tab.id);
+        });
+        
+        /* Sort tabs by time so that the older tabs are closed before newer ones. */
+        var sortedByTime = _.sortBy(canClose, function(tab) { return TW.TabManager.getTime(tab.id); });
+        
+        /* Only take the minimum number of tabs requried to get to minTabs */
+        return _.take(sortedByTime, tabGroup.length - minTabs);
+      }
+    }));
+    
+    /* Now that we have the tabs to close, close them. */
+    TW.TabManager.wrangleAndClose(_.pluck(tabsToClose, "id"));
+    
   });
 }
 
-/** Returns the IDs of all registered tabs. */
-TW.TabManager.getAll = function() {
-  return _.map(_.keys(TW.TabManager.openTabs), function(tabId) { return parseInt(tabId); });
-};
-
-/**
- * Closes all tabs that have been open too long if there are more than minTabs tabs.
- */
-TW.TabManager.checkToClose = function() {
-  
-  if (TW.settings.get('paused')) {
-    return;
-  }
-  
-  var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
-  var minTabs = TW.settings.get('minTabs');
-
-  // Update the selected one to make sure it doesn't get closed.
-  chrome.tabs.getSelected(null, TW.TabManager.updateLastAccessed);
-
-  var toCut = TW.TabManager.getOlderThan(cutOff);
-  var tabsToSave = new Array();
-  var allTabs = TW.TabManager.getAll();
-
-  // If we have more tabs than minTabs tabs, remove enough to get to minTabs.
-  if (allTabs.length > minTabs) {
-    toCut = toCut.splice(0, allTabs.length - minTabs);
-  } else {
-    return;
-  }
-
-  // there aren't enough expired tabs; abort.
-  if (toCut.length == 0) {
-    return;
-  }
-
-  for (var i=0; i < toCut.length; i++) {
-    var tabIdToCut = toCut[i];
-    // @todo: move to TW.TabManager.
-    if (TW.TabManager.openTabs[tabIdToCut].locked) {
-      // Update its time so it gets checked less frequently.
-      // Would also be smart to just never add it.
-      // @todo: fix that.
-      TW.TabManager.updateLastAccessed(tabIdToCut);
-      continue;
-    }
-
-    chrome.tabs.get(tabIdToCut, function(tab) {
-      if (tab.pinned) {
-        return;
-      }
-      if (TW.TabManager.isWhitelisted(tab.url)) {
-        return;
-      }
-      
-      TW.TabManager.closedTabs.saveTabs([tab]);
-      // Close it in Chrome.
-      chrome.tabs.remove(tab.id);
-    });
-  }
+/* Given a list of tabsIDs to close, wrangle and close them. */
+TW.TabManager.wrangleAndClose = function(tabIds) {
+  var closingTabs = _.pick(TW.TabManager.openTabs, tabIds);
+  chrome.tabs.remove(tabIds, function() {
+    _.map(closingTabs, function(tab) { TW.TabManager.closedTabs.tabs.push(tab); });
+  });
 }
-
-TW.TabManager.closedTabs = {
-  tabs: []
-};
 
 TW.TabManager.searchTabs = function (cb, filters) {
   var tabs = TW.TabManager.closedTabs.tabs;
@@ -153,8 +130,6 @@ TW.TabManager.searchTabs = function (cb, filters) {
   }
   cb(tabs);
 };
-
-TW.TabManager.filters = {};
 
 // Matches either the title or URL containing "keyword"
 TW.TabManager.filters.keyword = function(keyword) {
@@ -210,7 +185,7 @@ TW.TabManager.closedTabs.saveTabs = function(tabs) {
 };
 
 TW.TabManager.closedTabs.clear = function() {
-  this.tabs = [];
+  TW.TabManager.closedTabs.tabs = [];
   chrome.storage.local.remove('savedTabs');
 };
 

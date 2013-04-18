@@ -367,7 +367,7 @@ TW.corralTab.buildTable = function(closedTabs) {
     // Url - not sure if we want this.
     // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
     // time ago.
-    $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
+    $tr.append('<td>' + $.timeago(tab.closedAt.getTime()) + '</td>');
     $tbody.append($tr);
   }
   

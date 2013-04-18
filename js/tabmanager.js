@@ -116,9 +116,11 @@ TW.TabManager.closeExpiredTabs = function() {
 /* Given a list of tabsIDs to close, wrangle and close them. */
 TW.TabManager.wrangleAndClose = function(tabs) {
   var tabIds = _.pluck(tabs, 'id');
+  var closeTime = new Date();
   chrome.tabs.remove(tabIds, function() {
     _.map(tabs, function(tab) {
-      TW.TabManager.closedTabs.tabs.push(_.pick(tab, 'url', 'title'));
+      var tabToSave = _.extend(_.pick(tab, 'url', 'title', 'favIconUrl', 'id'), { closedAt: closeTime });
+      TW.TabManager.closedTabs.tabs.push(tabToSave);
     });
   });
 }

@@ -124,6 +124,7 @@ TW.TabManager.wrangleAndClose = function(tabs) {
       TW.TabManager.closedTabs.tabs.push(tabToSave);
     });
     
+    chrome.storage.local.set({ savedTabs: TW.TabManager.closedTabs.tabs });
     TW.TabManager.updateClosedCount();
   });
 }
@@ -177,21 +178,6 @@ TW.TabManager.closedTabs.findPositionById = function(id) {
   }
 };
 
-TW.TabManager.closedTabs.saveTabs = function(tabs) {
-  var maxTabs = TW.settings.get('maxTabs');
-  for (var i=0; i < tabs.length; i++) {
-    if (tabs[i] === null) {
-      console.log('Weird bug, backtrace this...');
-    }
-    tabs[i].closedAt = new Date().getTime();
-    this.tabs.unshift(tabs[i]);
-  }
-
-  if ((this.tabs.length - maxTabs) > 0) {
-    this.tabs = this.tabs.splice(0, maxTabs);
-  }
-  chrome.storage.local.set({savedTabs: this.tabs});
-};
 
 TW.TabManager.closedTabs.clear = function() {
   TW.TabManager.closedTabs.tabs = [];
@@ -224,6 +210,7 @@ TW.TabManager.isLocked = function(tabId) {
   return TW.TabManager.openTabs[tabId].locked;
 }
 
+/** Updates the closed count on the badge icon. */
 TW.TabManager.updateClosedCount = function() {
   if (TW.settings.get('showBadgeCount') == false) {
     return;
@@ -232,5 +219,5 @@ TW.TabManager.updateClosedCount = function() {
   if (storedTabs == 0) {
     storedTabs = '';
   }
-  chrome.browserAction.setBadgeText({text: storedTabs.toString()});
+  chrome.browserAction.setBadgeText({ text: storedTabs.toString() });
 }

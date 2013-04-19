@@ -118,10 +118,13 @@ TW.TabManager.wrangleAndClose = function(tabs) {
   var tabIds = _.pluck(tabs, 'id');
   var closeTime = new Date();
   chrome.tabs.remove(tabIds, function() {
+    
     _.map(tabs, function(tab) {
       var tabToSave = _.extend(_.pick(tab, 'url', 'title', 'favIconUrl', 'id'), { closedAt: closeTime });
       TW.TabManager.closedTabs.tabs.push(tabToSave);
     });
+    
+    TW.TabManager.updateClosedCount();
   });
 }
 
@@ -155,12 +158,14 @@ TW.TabManager.closedTabs.init = function() {
   chrome.storage.local.get('savedTabs', function(items) {
     if (typeof items['savedTabs'] != 'undefined') {
       self.tabs = items['savedTabs'];
+      TW.TabManager.updateClosedCount();
     }
   });
 };
 
 TW.TabManager.closedTabs.removeTab = function(tabId) {
-  return TW.TabManager.closedTabs.tabs.splice(TW.TabManager.closedTabs.findPositionById(tabId), 1);
+  TW.TabManager.closedTabs.tabs.splice(TW.TabManager.closedTabs.findPositionById(tabId), 1);
+  TW.TabManager.updateClosedCount();
 };
 
 // @todo: move to filter system for consistency
@@ -191,6 +196,7 @@ TW.TabManager.closedTabs.saveTabs = function(tabs) {
 TW.TabManager.closedTabs.clear = function() {
   TW.TabManager.closedTabs.tabs = [];
   chrome.storage.local.remove('savedTabs');
+  TW.TabManager.updateClosedCount();
 };
 
 TW.TabManager.isWhitelisted = function(url) {

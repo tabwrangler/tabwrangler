@@ -33,7 +33,6 @@ function startup() {
   });
   chrome.tabs.onReplaced.addListener(TW.TabManager.replaceTab);
   window.setInterval(TW.TabManager.closeExpiredTabs, TW.settings.get('checkInterval'));
-  window.setInterval(TW.TabManager.updateClosedCount, TW.settings.get('badgeCounterInterval'));
   
   // Create the "lock tab" context menu:
   TW.contextMenuHandler.createContextMenus();

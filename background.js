@@ -7,10 +7,6 @@ function startup() {
   TW.Updater.run();
   TW.TabManager.closedTabs.init();
   
-  if (TW.settings.get('purgeClosedTabs')) {
-    TW.TabManager.closedTabs.clear();
-  }
-  
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({ windowType: 'normal', pinned: false }, TW.TabManager.initTabs);
   chrome.tabs.onCreated.addListener(TW.TabManager.registerNewTab);

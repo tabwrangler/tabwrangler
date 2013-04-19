@@ -154,14 +154,17 @@ TW.TabManager.filters.exactUrl = function(url) {
   };
 };
 
+/* Initializes the closedTabs variable from local storage, or clears local storage
+ * if tabs shouldn't be saved across quits.
+ */
 TW.TabManager.closedTabs.init = function() {
-  var self = this;
-  chrome.storage.local.get('savedTabs', function(items) {
-    if (typeof items['savedTabs'] != 'undefined') {
-      self.tabs = items['savedTabs'];
-      TW.TabManager.updateClosedCount();
-    }
-  });
+  if (TW.settings.get('purgeClosedTabs')) {
+    chrome.storage.local.remove('savedTabs');
+  } else {
+    chrome.storage.local.get({ savedTabs: [] }, function(items) {
+      TW.TabManager.closedTabs.tabs = items['savedTabs'];
+    });
+  }
 };
 
 TW.TabManager.closedTabs.removeTab = function(tabId) {

@@ -129,6 +129,46 @@ TW.TabManager.wrangleAndClose = function(tabs) {
   });
 }
 
+/** Schedules the next close expired tabs action. */
+TW.TabManager.scheduleNextClose = function () {
+  
+  var cutOff = new Date() - TW.settings.get('stayOpen');
+  var minTabs = TW.settings.get('minTabs');
+  
+  // scheduling should not occur if paused
+  if (TW.settings.get('paused')) {
+    return;
+  }
+  
+  chrome.tabs.query({ pinned: false, windowType: "normal" }, function(tabs) {
+    
+    /* Group the tabs by windowId so each window can be calculated separately */
+    var windowGroups = _.groupBy(tabs, function(tab) { return tab.windowId; });
+    var tabsToClose = _.sortBy(_.flatten(_.map(windowGroups, function(tabGroup) {
+      if (tabGroup.length <= minTabs) {
+        return [];
+      } else {
+        var sortedByTime = _.sortBy(tabGroup, function(tab) { return TW.TabManager.getTime(tab.id); });
+        return _.take(sortedByTime, tabGroup.length - minTabs);
+      }
+    })), function(tab) { return TW.TabManager.getTime(tab.id); });
+    
+    if (tabsToClose.length > 0) {
+      
+      // we either need schedule a new close alarm or we need to close now
+      var closeTime = TW.TabManager.getTime(_.first(tabsToClose).id).getTime() + TW.settings.get('stayOpen');
+      
+      if (closeTime < new Date()) {
+        TW.TabManager.closeExpiredTabs();
+      } else {
+        chrome.alarms.create(null, { when: closeTime });
+      }
+    }
+    
+  });
+}
+
+
 TW.TabManager.searchTabs = function (cb, filters) {
   var tabs = TW.TabManager.closedTabs.tabs;
   if (filters) {

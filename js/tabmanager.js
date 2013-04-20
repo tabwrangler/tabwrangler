@@ -37,8 +37,14 @@ TW.TabManager.registerNewTab = function(tab) {
           time: new Date(),
           locked: false
         };
+        
+        /* A new tab was just opened and registered, so it's possible that
+         * we just exceeded the minimum tab limit on the current window.
+         * Check to make sure and schedule the next close workflow if required.
+         */
+        TW.TabManager.scheduleNextClose(tab);
       }
-    })
+    });
   }
 }
 
@@ -129,34 +135,28 @@ TW.TabManager.wrangleAndClose = function(tabs) {
   });
 }
 
-/** Schedules the next close expired tabs action. */
-TW.TabManager.scheduleNextClose = function () {
+/**
+ * Schedules the next close expired tabs action.
+ * @param tab the tab that was opened/moved to cause this action to occur.
+ */
+TW.TabManager.scheduleNextClose = function (tab) {
   
-  var cutOff = new Date() - TW.settings.get('stayOpen');
-  var minTabs = TW.settings.get('minTabs');
-  
-  // scheduling should not occur if paused
+  // If tab wrangler is paused then we don't need to schedule anything.
   if (TW.settings.get('paused')) {
     return;
   }
   
-  chrome.tabs.query({ pinned: false, windowType: "normal" }, function(tabs) {
+  // We only need to look at tabs in same window as tab, since that's the
+  // only window that could have been exceeded
+  chrome.tabs.query({ pinned: false, windowId: tab.windowId }, function(tabs) {
     
-    /* Group the tabs by windowId so each window can be calculated separately */
-    var windowGroups = _.groupBy(tabs, function(tab) { return tab.windowId; });
-    var tabsToClose = _.sortBy(_.flatten(_.map(windowGroups, function(tabGroup) {
-      if (tabGroup.length <= minTabs) {
-        return [];
-      } else {
-        var sortedByTime = _.sortBy(tabGroup, function(tab) { return TW.TabManager.getTime(tab.id); });
-        return _.take(sortedByTime, tabGroup.length - minTabs);
-      }
-    })), function(tab) { return TW.TabManager.getTime(tab.id); });
-    
-    if (tabsToClose.length > 0) {
+    if (tabs.length > TW.settings.get('minTabs')) {
       
-      // we either need schedule a new close alarm or we need to close now
-      var closeTime = TW.TabManager.getTime(_.first(tabsToClose).id).getTime() + TW.settings.get('stayOpen');
+      var tabTimes = _.map(tabs, function(tab) {
+        return { id: tab.id, time: TW.TabManager.getTime(tab.id) };
+      });
+      var earliestTab = _.min(tabTimes, function(tab) { return tab.time; });
+      var closeTime = earliestTab.time.getTime() + TW.settings.get('stayOpen');
       
       if (closeTime < new Date()) {
         TW.TabManager.closeExpiredTabs();

@@ -32,17 +32,20 @@ TW.TabManager.initTabs = function (tabs) {
 TW.TabManager.registerNewTab = function(tab) {
   if (!tab.pinned) {
     chrome.windows.get(tab.windowId, null, function(window) {
-      if (window.type == "normal") {
+      if (window.type == 'normal') {
         TW.TabManager.openTabs[tab.id] = {
+          // tab Id should either be removed from this object somehow or openTabs
+          // should be a list of objects.
+          id: tab.id,
           time: new Date(),
           locked: false
         };
         
         /* A new tab was just opened and registered, so it's possible that
-         * we just exceeded the minimum tab limit on the current window.
+         * we just exceeded the minimum tab limit.
          * Check to make sure and schedule the next close workflow if required.
          */
-        TW.TabManager.scheduleNextClose(tab);
+        TW.TabManager.scheduleNextClose();
       }
     });
   }
@@ -55,13 +58,22 @@ TW.TabManager.registerNewTab = function(tab) {
  */
 TW.TabManager.updateLastAccessed = function (tabId) {
   if (_.has(TW.TabManager.openTabs, tabId)) {
-    TW.TabManager.openTabs[tabId].time = new Date();
+    var tab = TW.TabManager.openTabs[tabId];
+    tab.time = new Date();
+    
+    // If this tab was scheduled to close, we must cancel the close and schedule a new one
+    if (_.has(tab, 'scheduledClose')) {
+      clearTimeout(tab.scheduledClose);
+      delete tab['scheduledClose'];
+      TW.TabManager.scheduleNextClose();
+    }
   }
 }
 
-/**
- * Kinda frivolous.  Abstracterbation FTW!
- * @param tabId
+/* At this point, we have no idea if this was called because of the user closing a tab
+ * or a scheduled tab close being called.
+ * If this info can be obtained, then we should unschedule a close if the user closed a tab
+ * and do nothing if it was closed by a scheduled tab closing.
  */
 TW.TabManager.removeTab = function(tabId) {
   delete TW.TabManager.openTabs[tabId];
@@ -74,98 +86,62 @@ TW.TabManager.replaceTab = function(addedTabId, removedTabId) {
   if (_.has(TW.TabManager.openTabs, removedTabId)) {
     TW.TabManager.openTabs[addedTabId] = TW.TabManager.openTabs[removedTabId];
     TW.TabManager.removeTab(removedTabId);
+    
+    TW.TabManager.openTabs[addedTabId].id = addedTabId;
+    
+    // if the replaced tab was schedule to close then we must reschedule it.
+    if (_.has(TW.TabManager.openTabs[addedTabId], 'scheduledClose')) {
+      TW.TabManager.scheduleToClose(TW.TabManager.openTabs[addedTabId]);
+    }
   }
 }
 
-/* Calculates the list of tab IDs to close based on the constraints, then closes them. */
-TW.TabManager.closeExpiredTabs = function() {
+/* Given a tab Id to close, close it and add it to the corral. */
+TW.TabManager.wrangleAndClose = function(tabId) {
   
-  var cutOff = new Date() - TW.settings.get('stayOpen');
-  var minTabs = TW.settings.get('minTabs');
+  // we don't want to close anything if we're paused on have less than minTabs tabs.
+  if (TW.settings.get('paused') || _.size(TW.TabManager.openTabs) <= TW.settings.get('minTabs')) {
+    return;
+  }
   
-  /* Only consider tabs that are not pinned and are in a normal window. */
-  chrome.tabs.query({ pinned: false, windowType: "normal" }, function(tabs) {
-    
-    /* Group the tabs by windowId so each window can be calculated separately */
-    var windowGroups = _.groupBy(tabs, function(tab) { return tab.windowId; });
-    
-    /* Calculates the list of all tabs to close accross all windows. */
-    var tabsToClose = _.flatten(_.map(windowGroups, function(tabGroup) {
-      
-      if (tabGroup.length <= minTabs) {
-        
-        return [];
-        
-      } else {
-        
-        /* Do not close any tabs that are unexpired, active, or locked.
-         * @todo: whitelisted tabs also shouldn't be closed.
-         */
-        var canClose = _.reject(tabGroup, function(tab) {
-          return tab.active || TW.TabManager.getTime(tab.id) > cutOff || TW.TabManager.isLocked(tab.id);
-        });
-        
-        /* Sort tabs by time so that the older tabs are closed before newer ones. */
-        var sortedByTime = _.sortBy(canClose, function(tab) { return TW.TabManager.getTime(tab.id); });
-        
-        /* Only take the minimum number of tabs requried to get to minTabs */
-        return _.take(sortedByTime, tabGroup.length - minTabs);
-      }
-    }));
-    
-    /* Now that we have the tabs to close, close them. */
-    TW.TabManager.wrangleAndClose(tabsToClose);
-    
-  });
-}
-
-/* Given a list of tabsIDs to close, wrangle and close them. */
-TW.TabManager.wrangleAndClose = function(tabs) {
-  var tabIds = _.pluck(tabs, 'id');
   var closeTime = new Date();
-  chrome.tabs.remove(tabIds, function() {
-    
-    _.map(tabs, function(tab) {
+  
+  chrome.tabs.get(tabId, function(tab) {
+    chrome.tabs.remove(tabId, function() {
+      
       var tabToSave = _.extend(_.pick(tab, 'url', 'title', 'favIconUrl', 'id'), { closedAt: closeTime });
       TW.TabManager.closedTabs.tabs.push(tabToSave);
+      
+      chrome.storage.local.set({ savedTab: TW.TabManager.closedTabs.tabs });
+      TW.TabManager.updateClosedCount();
     });
-    
-    chrome.storage.local.set({ savedTabs: TW.TabManager.closedTabs.tabs });
-    TW.TabManager.updateClosedCount();
   });
 }
 
 /**
  * Schedules the next close expired tabs action.
- * @param tab the tab that was opened/moved to cause this action to occur.
  */
-TW.TabManager.scheduleNextClose = function (tab) {
+TW.TabManager.scheduleNextClose = function () {
   
   // If tab wrangler is paused then we don't need to schedule anything.
-  if (TW.settings.get('paused')) {
+  if (TW.settings.get('paused') || _.size(TW.TabManager.openTabs) <= TW.settings.get('minTabs')) {
     return;
   }
   
-  // We only need to look at tabs in same window as tab, since that's the
-  // only window that could have been exceeded
-  chrome.tabs.query({ pinned: false, windowId: tab.windowId }, function(tabs) {
-    
-    if (tabs.length > TW.settings.get('minTabs')) {
-      
-      var tabTimes = _.map(tabs, function(tab) {
-        return { id: tab.id, time: TW.TabManager.getTime(tab.id) };
-      });
-      var earliestTab = _.min(tabTimes, function(tab) { return tab.time; });
-      var closeTime = earliestTab.time.getTime() + TW.settings.get('stayOpen');
-      
-      if (closeTime < new Date()) {
-        TW.TabManager.closeExpiredTabs();
-      } else {
-        chrome.alarms.create(null, { when: closeTime });
-      }
-    }
-    
+  var unscheduledTabs = _.reject(TW.TabManager.openTabs, function(tab) {
+    return _.has(tab, 'scheduledClose');
   });
+  
+  var earliestTab = _.min(unscheduledTabs, function(tab) { return tab.time; });
+  TW.TabManager.scheduleToClose(earliestTab);
+}
+
+/* Given a tab object that is registered as an open tab, schedules it to close
+ * at some time in the future.
+ */
+TW.TabManager.scheduleToClose = function(tab) {
+  var timeout = tab.time.getTime() + TW.settings.get('stayOpen') - new Date();
+  tab.scheduledClose = setTimeout(function() { TW.TabManager.wrangleAndClose(tab.id); }, timeout);
 }
 
 

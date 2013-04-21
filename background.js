@@ -10,13 +10,13 @@ function startup() {
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({ windowType: 'normal', pinned: false }, TW.TabManager.initTabs);
   chrome.tabs.onCreated.addListener(TW.TabManager.registerNewTab);
-  //chrome.tabs.onCreated.addListener(TW.TabManager.scheduleNextClose);
   
   // Handles pinning and unpinning a tab
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if (_.has(changeInfo, 'pinned')) {
       if (changeInfo.pinned) {
-        TW.TabManager.removeTab(tabId);
+        clearTimeout(TW.TabManager.openTabs[tabId].scheduledClose);
+        TW.TabManager.tabPinned(tabId);
       } else {
         TW.TabManager.registerNewTab(tab);
       }
@@ -29,9 +29,6 @@ function startup() {
     TW.TabManager.updateLastAccessed(tabInfo.tabId)
   });
   chrome.tabs.onReplaced.addListener(TW.TabManager.replaceTab);
-  chrome.alarms.onAlarm.addListener(TW.TabManager.closeExpiredTabs);
-  
-  //window.setInterval(TW.TabManager.closeExpiredTabs, TW.settings.get('checkInterval'));
   
   // Create the "lock tab" context menu:
   TW.contextMenuHandler.createContextMenus();

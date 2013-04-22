@@ -15,7 +15,7 @@ TW.settings = {
     minutesInactive: 20, // How many minutes before we consider a tab "stale" and ready to close.
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
     maxTabs: 100, // Just to keep memory / UI in check.  No UI for this.
-    purgeClosedTabs: true, // Save closed tabs in between browser sessions.
+    purgeClosedTabs: false, // Save closed tabs in between browser sessions.
     showBadgeCount: true, // Save closed tabs in between browser sessions.
     whitelist: new Array(), // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
     paused: false, // If TabWrangler is paused (won't count down)
@@ -63,11 +63,10 @@ TW.settings.setminutesInactive = function(value) {
   if ( isNaN(parseInt(value)) || parseInt(value) <= 0 || parseInt(value) > 720 ){
     throw Error("Minutes Inactive must be greater than 0 and less than 720");
   }
-  // Reset the tabTimes since we changed the setting
-  TW.TabManager.tabTimes = {};
-  chrome.tabs.query({windowType: 'normal'}, TW.TabManager.initTabs);
-
   TW.settings.setValue('minutesInactive', value);
+
+  // Reschedule all schedule tabs since we changed the setting
+  TW.TabManager.rescheduleAllTabs();
 }
 
 /**

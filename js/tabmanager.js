@@ -152,6 +152,16 @@ TW.TabManager.scheduleToClose = function(tab) {
   tab.scheduledClose = setTimeout(function() { TW.TabManager.wrangleAndClose(tab.id); }, timeout);
 }
 
+/* Reschedules all scheduled tabs */
+TW.TabManager.rescheduleAllTabs = function() {
+  var scheduledTabs = _.filter(TW.TabManager.openTabs, function(tab) {
+    return _.has(tab, 'scheduledClose');
+  });
+
+  _.map(scheduledTabs, TW.TabManager.unscheduleTab);
+  _.map(scheduledTabs, TW.TabManager.scheduleToClose);
+}
+
 /**
  * Unschedules the most recently scheduled close event.
  */

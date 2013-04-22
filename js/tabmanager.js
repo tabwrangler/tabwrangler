@@ -63,19 +63,29 @@ TW.TabManager.updateLastAccessed = function (tabId) {
     
     // If this tab was scheduled to close, we must cancel the close and schedule a new one
     if (_.has(tab, 'scheduledClose')) {
-      clearTimeout(tab.scheduledClose);
-      delete tab['scheduledClose'];
+      TW.TabManager.unscheduleTab(tab);
       TW.TabManager.scheduleNextClose();
     }
   }
 }
 
-/* At this point, we have no idea if this was called because of the user closing a tab
- * or a scheduled tab close being called.
- * If this info can be obtained, then we should unschedule a close if the user closed a tab
- * and do nothing if it was closed by a scheduled tab closing.
+/* Removes the given tab Id from the openTabs list, possibly unscheduling another tab
+ * from closing as well.
  */
 TW.TabManager.removeTab = function(tabId) {
+  
+  var tab = TW.TabManager.openTabs[tabId];
+  
+  if (_.has(tab, 'scheduledClose')) {
+    // If this case is true, then a scheduled tabs was closed (doesn't matter if it was
+    // by the user or by a close event), so attmpt to unschedule it.
+    TW.TabManager.unscheduleTab(tab);
+  } else {
+    // Otherwise an unscheduled tab was definitely closed by the user, so we may have to
+    // unschedule another tab.
+    TW.TabManager.unscheduleLatestClose();
+  }
+  
   delete TW.TabManager.openTabs[tabId];
 }
 
@@ -85,7 +95,7 @@ TW.TabManager.removeTab = function(tabId) {
 TW.TabManager.replaceTab = function(addedTabId, removedTabId) {
   if (_.has(TW.TabManager.openTabs, removedTabId)) {
     TW.TabManager.openTabs[addedTabId] = TW.TabManager.openTabs[removedTabId];
-    TW.TabManager.removeTab(removedTabId);
+    delete TW.TabManager.openTabs[removedTabId];
     
     TW.TabManager.openTabs[addedTabId].id = addedTabId;
     
@@ -99,17 +109,15 @@ TW.TabManager.replaceTab = function(addedTabId, removedTabId) {
 /* Given a tab Id to close, close it and add it to the corral. */
 TW.TabManager.wrangleAndClose = function(tabId) {
   
-  // we don't want to close anything if we're paused on have less than minTabs tabs.
+  // This if statement should be unneeded; need to remove once all cases are handled.
   if (TW.settings.get('paused') || _.size(TW.TabManager.openTabs) <= TW.settings.get('minTabs')) {
     return;
   }
   
-  var closeTime = new Date();
-  
   chrome.tabs.get(tabId, function(tab) {
     chrome.tabs.remove(tabId, function() {
       
-      var tabToSave = _.extend(_.pick(tab, 'url', 'title', 'favIconUrl', 'id'), { closedAt: closeTime });
+      var tabToSave = _.extend(_.pick(tab, 'url', 'title', 'favIconUrl', 'id'), { closedAt: new Date() });
       TW.TabManager.closedTabs.tabs.push(tabToSave);
       
       chrome.storage.local.set({ savedTab: TW.TabManager.closedTabs.tabs });
@@ -143,6 +151,28 @@ TW.TabManager.scheduleToClose = function(tab) {
   var timeout = tab.time.getTime() + TW.settings.get('stayOpen') - new Date();
   tab.scheduledClose = setTimeout(function() { TW.TabManager.wrangleAndClose(tab.id); }, timeout);
 }
+
+/**
+ * Unschedules the most recently scheduled close event.
+ */
+TW.TabManager.unscheduleLatestClose = function () {
+  
+  var scheduledTabs = _.filter(TW.TabManager.openTabs, function(tab) {
+    return _.has(tab, 'scheduledClose');
+  });
+  
+  if (_.size(scheduledTabs) > 0) {
+    var latestTab = _.max(scheduledTabs, function(tab) { return tab.time; });
+    TW.TabManager.unscheduleTab(latestTab);
+  }
+}
+
+/* Given a tab object that is scheduled to close, unschedule it. */
+TW.TabManager.unscheduleTab = function(tab) {
+  clearTimeout(tab.scheduledClose);
+  delete tab['scheduledClose'];
+}
+
 
 
 TW.TabManager.searchTabs = function (cb, filters) {

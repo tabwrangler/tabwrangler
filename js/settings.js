@@ -16,7 +16,6 @@ TW.settings = {
     purgeClosedTabs: false, // Save closed tabs in between browser sessions.
     showBadgeCount: true, // Save closed tabs in between browser sessions.
     whitelist: new Array(), // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
-    paused: false, // If TabWrangler is paused (won't count down)
   },
   
   // Gets all settings from sync and stores them locally.
@@ -110,18 +109,6 @@ TW.settings.setwhitelist = function(value) {
   }
   
   TW.settings.setValue('whitelist', value);
-}
-
-TW.settings.setpaused = function(value) {
-  console.log(value);
-  if (value == false) {
-    // The user has just unpaused, immediately set all tabs to the current time
-    // so they will not be closed.
-    chrome.tabs.query({
-    windowType: 'normal'
-  }, TW.TabManager.initTabs);
-  }
-  TW.settings.setValue('paused', value);
 }
 
 /**

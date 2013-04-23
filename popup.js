@@ -201,7 +201,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
 
       var lastModified = TW.TabManager.openTabs[tabs[i].id].time;
       var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
-      if (TW.settings.get('paused')) {
+      if (TW.TabManager.paused) {
         $timer = $('<td class="time-left">paused</td>');  
       } else {
         $timer = $('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>');
@@ -220,7 +220,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       $('.time-left').each(function() {
         var t = null;
         var myElem = $(this);
-        if (TW.settings.get('paused')) {
+        if (TW.TabManager.paused) {
           myElem.html('paused');
         } else {
           t = myElem.data('countdown') - 1;
@@ -406,7 +406,7 @@ TW.pauseButton = {};
 
 TW.pauseButton.init = function() {
   var self = this;
-  if (TW.settings.get('paused') == true) {
+  if (TW.TabManager.paused) {
     this.pause();
   } else {
     this.play();
@@ -414,12 +414,12 @@ TW.pauseButton.init = function() {
   this.elem = $('a#pauseButton');
 
   this.elem.click(function() {
-    if (TW.settings.get('paused') == true) {
+    if (TW.TabManager.paused) {
       self.play();
-      TW.settings.set('paused', false);
+      TW.TabManager.setPaused(false);
     } else {
       self.pause();
-      TW.settings.set('paused', true);
+      TW.TabManager.setPaused(true);
     }
   });
 }

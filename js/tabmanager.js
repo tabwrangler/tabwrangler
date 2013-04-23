@@ -12,7 +12,8 @@ var TW = TW || {};
 TW.TabManager = {
   openTabs: {},
   closedTabs: { tabs: [] },
-  filters: {}
+  filters: {},
+  paused: false
 };
 
 /* Gets the latest access time of the given tab ID. */
@@ -71,6 +72,10 @@ TW.TabManager.updateLastAccessed = function (tabId) {
  */
 TW.TabManager.removeTab = function(tabId) {
   
+  if (!_.has(TW.TabManager.openTabs, tabId)) {
+    return;
+  }
+    
   var tab = TW.TabManager.openTabs[tabId];
   
   if (_.has(tab, 'scheduledClose')) {
@@ -105,12 +110,6 @@ TW.TabManager.replaceTab = function(addedTabId, removedTabId) {
 
 /* Given a tab Id to close, close it and add it to the corral. */
 TW.TabManager.wrangleAndClose = function(tabId) {
-  
-  // This if statement should be unneeded; need to remove once all cases are handled.
-  if (TW.settings.get('paused') || _.size(TW.TabManager.openTabs) <= TW.settings.get('minTabs')) {
-    return;
-  }
-  
   chrome.tabs.get(tabId, function(tab) {
     chrome.tabs.remove(tabId, function() {
       
@@ -128,7 +127,7 @@ TW.TabManager.wrangleAndClose = function(tabId) {
  */
 TW.TabManager.scheduleNextClose = function () {
   
-  if (TW.settings.get('paused')) { return; }
+  if (TW.TabManager.paused) { return; }
   
   chrome.tabs.query({ pinned: false, windowType: 'normal' }, function(tabs) {
     var tabsToSchedule = TW.TabManager.getTabsToSchedule(tabs);
@@ -211,7 +210,16 @@ TW.TabManager.unscheduleTab = function(tab) {
   delete tab['scheduledClose'];
 }
 
-
+/** Handles pausing and resuming the closing of tabs. */
+TW.TabManager.setPaused = function(pause) {
+  TW.TabManager.paused = pause;
+  
+  if (pause) {
+    TW.TabManager.unscheduleAllTabs();
+  } else {
+    TW.TabManager.scheduleNextClose();
+  }
+}
 
 TW.TabManager.searchTabs = function (cb, filters) {
   var tabs = TW.TabManager.closedTabs.tabs;

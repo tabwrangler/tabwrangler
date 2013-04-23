@@ -34,9 +34,6 @@ TW.TabManager.registerNewTab = function(tab) {
     chrome.windows.get(tab.windowId, null, function(window) {
       if (window.type == 'normal') {
         TW.TabManager.openTabs[tab.id] = {
-          // tab Id should either be removed from this object somehow or openTabs
-          // should be a list of objects.
-          id: tab.id,
           time: new Date(),
           locked: false
         };
@@ -127,29 +124,52 @@ TW.TabManager.wrangleAndClose = function(tabId) {
 }
 
 /**
- * Schedules the next close expired tabs action.
+ * Schedules all tabs that will need to be closed next.
  */
 TW.TabManager.scheduleNextClose = function () {
   
-  // If tab wrangler is paused then we don't need to schedule anything.
-  if (TW.settings.get('paused') || _.size(TW.TabManager.openTabs) <= TW.settings.get('minTabs')) {
-    return;
-  }
+  if (TW.settings.get('paused')) { return; }
   
-  var unscheduledTabs = _.reject(TW.TabManager.openTabs, function(tab) {
-    return _.has(tab, 'scheduledClose');
+  chrome.tabs.query({ pinned: false, windowType: 'normal' }, function(tabs) {
+    var tabsToSchedule = TW.TabManager.getTabsToSchedule(tabs);
+    _.map(tabsToSchedule, TW.TabManager.scheduleToClose);
   });
+}
+
+/* Given a list of tab objects, returns the list of tabs than should be scheduled. */
+TW.TabManager.getTabsToSchedule = function(tabs) {
   
-  var earliestTab = _.min(unscheduledTabs, function(tab) { return tab.time; });
-  TW.TabManager.scheduleToClose(earliestTab);
+  var minTabs = TW.settings.get('minTabs');
+      
+  if (tabs.length <= minTabs) {
+    return [];
+  } else {
+    
+    /* Do not schedule any tabs that are active or locked.
+     * @todo: whitelisted tabs also shouldn't be scheduled.
+     */
+    var canSchedule = _.reject(tabs, function(tab) {
+      return tab.active || TW.TabManager.isLocked(tab.id);
+    });
+    
+    /* Sort tabs by time so that the older tabs are closed before newer ones. */
+    var sortedByTime = _.sortBy(canSchedule, function(tab) { return TW.TabManager.getTime(tab.id); });
+    
+    /* Only take the minimum number of tabs requried to get to minTabs */
+    return _.take(sortedByTime, tabs.length - minTabs);
+  }
 }
 
 /* Given a tab object that is registered as an open tab, schedules it to close
- * at some time in the future.
+ * at some time in the future if it is not already scheduled.
  */
 TW.TabManager.scheduleToClose = function(tab) {
-  var timeout = tab.time.getTime() + TW.settings.get('stayOpen') - new Date();
-  tab.scheduledClose = setTimeout(function() { TW.TabManager.wrangleAndClose(tab.id); }, timeout);
+  if (!_.has(TW.TabManager.openTabs[tab.id], 'scheduledClose')) {
+    var timeout = TW.TabManager.getTime(tab.id).getTime() + TW.settings.get('stayOpen') - new Date();
+    TW.TabManager.openTabs[tab.id].scheduledClose = setTimeout(function() {
+      TW.TabManager.wrangleAndClose(tab.id);
+    }, timeout);
+  }
 }
 
 /* Reschedules all scheduled tabs */

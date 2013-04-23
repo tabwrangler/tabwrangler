@@ -11,10 +11,8 @@ var TW = TW || {};
 TW.settings = {
   ititialized: false,
   defaults: {
-    checkInterval: 5000, // How often we check for old tabs.
     minutesInactive: 20, // How many minutes before we consider a tab "stale" and ready to close.
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
-    maxTabs: 100, // Just to keep memory / UI in check.  No UI for this.
     purgeClosedTabs: false, // Save closed tabs in between browser sessions.
     showBadgeCount: true, // Save closed tabs in between browser sessions.
     whitelist: new Array(), // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
@@ -78,7 +76,14 @@ TW.settings.setminTabs = function(value) {
   if ( isNaN(parseInt(value)) || parseInt(value) <= 0 || parseInt(value) > 30 ){
     throw Error("Minimum tabs must be a number between 0 and 30");
   }
+  var oldValue = TW.settings.get('minTabs');
   TW.settings.setValue('minTabs', value);
+  
+  /* Make sure the tab scheduling is correct. */
+  if (parseInt(value) > oldValue) {
+    TW.TabManager.unscheduleAllTabs();
+  }
+  TW.TabManager.scheduleNextClose();
 }
 
 /**

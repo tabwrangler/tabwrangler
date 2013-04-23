@@ -197,6 +197,14 @@ TW.TabManager.unscheduleLatestClose = function () {
   }
 }
 
+/** Unschedules every scheduled tab. */
+TW.TabManager.unscheduleAllTabs = function() {
+  var scheduledTabs = _.filter(TW.TabManager.openTabs, function(tab) {
+    return _.has(tab, 'scheduledClose');
+  });
+  _.map(scheduledTabs, TW.TabManager.unscheduleTab);
+}
+
 /* Given a tab object that is scheduled to close, unschedule it. */
 TW.TabManager.unscheduleTab = function(tab) {
   clearTimeout(tab.scheduledClose);

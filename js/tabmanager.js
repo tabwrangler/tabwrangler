@@ -292,12 +292,20 @@ TW.TabManager.isWhitelisted = function(url) {
 
 /** Sets the given tab ID to be locked. */
 TW.TabManager.lockTab = function(tabId) {
-  TW.TabManager.openTabs[tabId].locked = true;
+  var tab = TW.TabManager.openTabs[tabId]
+  tab.locked = true;
+  
+  if (_.has(tab, 'scheduledClose')) {
+    TW.TabManager.unscheduleTab(tab);
+    TW.TabManager.scheduleNextClose();
+  }
 }
 
 /** Removes the given tab ID from the lock list. */
 TW.TabManager.unlockTab = function(tabId) {
   TW.TabManager.openTabs[tabId].locked = false;
+  TW.TabManager.unscheduleLatestClose();
+  TW.TabManager.scheduleNextClose();
 }
 
 /** Returns the lock status of the given tabId. */

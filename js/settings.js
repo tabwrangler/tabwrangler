@@ -48,6 +48,46 @@ TW.settings = {
 }
 
 /**
+ * Sets a value in localStorage.  Can also call a setter.
+ *
+ * If the value is a struct (object or array) it is JSONified.
+ *
+ * @param key
+ *  Settings keyword string.
+ * @param value
+ * @return {*}
+ */
+TW.settings.set = function(key, value) {
+  // Magic setter functions are set{fieldname}
+  if (typeof this["set" + key] == 'function') {
+    return this["set" + key](value);
+  }
+  TW.settings.setValue(key, value);
+}
+
+
+TW.settings.setValue = function (key, value, fx) {
+  var items = {}
+  this.cache[key] = value;
+  items[key] = value;
+  chrome.storage.sync.set(items, fx);
+}
+
+/**
+ * Either calls a getter function or retunrs directly from storage.
+ * @param key
+ * @param fx
+ *  Callback function after value is received.
+ * @return {*}
+ */
+TW.settings.get = function(key, fx) {
+  if (typeof this[key] == 'function') {
+    return this[key]();
+  }
+  return this.cache[key];
+}
+
+/**
  * Returns the number of milliseconds that tabs should stay open for without being used.
  *
  * @return {Number}
@@ -120,43 +160,4 @@ TW.settings.setpaused = function(value) {
   }, TW.TabManager.initTabs);
   }
   TW.settings.setValue('paused', value);
-}
-
-/**
- * Either calls a getter function or retunrs directly from storage.
- * @param key
- * @param fx
- *  Callback function after value is received.
- * @return {*}
- */
-TW.settings.get = function(key, fx) {
-  if (typeof this[key] == 'function') {
-    return this[key]();
-  }
-  return this.cache[key];
-}
-
-TW.settings.setValue = function (key, value, fx) {
-  var items = {}
-  this.cache[key] = value;
-  items[key] = value;
-  chrome.storage.sync.set(items, fx);
-}
-
-/**
- * Sets a value in localStorage.  Can also call a setter.
- *
- * If the value is a struct (object or array) it is JSONified.
- *
- * @param key
- *  Settings keyword string.
- * @param value
- * @return {*}
- */
-TW.settings.set = function(key, value) {
-  // Magic setter functions are set{fieldname}
-  if (typeof this["set" + key] == 'function') {
-    return this["set" + key](value);
-  }
-  TW.settings.setValue(key, value);
 }

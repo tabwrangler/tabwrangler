@@ -9,6 +9,7 @@ var TW = TW || {};
  * @type {Object}
  */
 TW.settings = {
+  enableSync: true, // Enables reading settings from sync
   defaults: {
     checkInterval: 5000, // How often we check for old tabs.
     badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
@@ -26,8 +27,19 @@ TW.settings = {
 
 // Gets all settings from sync and stores them locally.
 TW.settings.init = function() {
-  chrome.storage.sync.get(TW.settings.defaults, function(items) {
-    _.extend(TW.settings.cache, items);
+  chrome.storage.local.get({ enableSync: TW.settings.enableSync }, function(sync) {
+    
+    TW.settings.enableSync = sync.enableSync;
+    
+    if (TW.settings.enableSync) {
+      chrome.storage.sync.get(TW.settings.defaults, function(items) {
+        _.extend(TW.settings.cache, items);
+      });
+    } else {
+      chrome.storage.local.get(TW.settings.defaults, function(items) {
+        _.extend(TW.settings.cache, items);
+      });
+    }
   });
 }
 
@@ -58,11 +70,17 @@ TW.settings.set = function(key, value) {
   TW.settings.setValue(key, value);
 }
 
-
 TW.settings.setValue = function (key, value) {
   var items = {};
   items[key] = value;
-  chrome.storage.sync.set(items);
+  TW.settings.cache[key] = value;
+  
+  // Set the appropriate storage location
+  if (TW.settings.enableSync) {
+    chrome.storage.sync.set(items);
+  } else {
+    chrome.storage.local.set(items);
+  }
 }
 
 /**
@@ -87,6 +105,24 @@ TW.settings.get = function(key, fx) {
  */
 TW.settings.stayOpen = function() {
   return parseInt(this.get('minutesInactive')) * 60000;
+}
+
+/* Sets the enableSync attribute, which is only stored locally. */
+TW.settings.setenableSync = function(value) {
+  if (TW.settings.enableSync == value) {
+    return;
+  }
+  
+  TW.settings.enableSync = value;
+  
+  chrome.storage.local.set({ enableSync: value }, function() {
+  
+    if (value) {
+      TW.settings.init();
+    } else {
+      chrome.storage.local.set(TW.settings.cache);
+    }
+  });
 }
 
 /**

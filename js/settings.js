@@ -9,7 +9,6 @@ var TW = TW || {};
  * @type {Object}
  */
 TW.settings = {
-  ititialized: false,
   defaults: {
     checkInterval: 5000, // How often we check for old tabs.
     badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
@@ -22,29 +21,23 @@ TW.settings = {
     whitelist: new Array(), // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
     paused: false, // If TabWrangler is paused (won't count down)
   },
-  
-  // Gets all settings from sync and stores them locally.
-  init: function() {
-    var self = this;
-    var keys = [];
-    for (var i in this.defaults) {
-      if (this.defaults.hasOwnProperty(i)) {
-        this.cache[i] = this.defaults[i];
-        keys.push(i);
-      }
-    }
-    
-    chrome.storage.sync.get(keys, function(items) {
-      for (i in items) {
-        if (items.hasOwnProperty(i)) {
-          self.cache[i] = items[i];
-        }
-      }
-    });
-    
-    ititialized = true;
-  },
   cache: {}
+}
+
+// Gets all settings from sync and stores them locally.
+TW.settings.init = function() {
+  chrome.storage.sync.get(TW.settings.defaults, function(items) {
+    _.extend(TW.settings.cache, items);
+  });
+}
+
+// Whenever settings change in sync, copy them to cache
+TW.settings.copySyncChanges = function(changes, area) {
+  if (area == 'sync' && TW.settings.enableSync) {
+    var changeList = _.map(changes, function(change, key) { return [ key, change.newValue ]; });
+    var changeObject = _.object(changeList);
+    _.extend(TW.settings.cache, changeObject);
+  }
 }
 
 /**
@@ -66,11 +59,10 @@ TW.settings.set = function(key, value) {
 }
 
 
-TW.settings.setValue = function (key, value, fx) {
-  var items = {}
-  this.cache[key] = value;
+TW.settings.setValue = function (key, value) {
+  var items = {};
   items[key] = value;
-  chrome.storage.sync.set(items, fx);
+  chrome.storage.sync.set(items);
 }
 
 /**
@@ -84,6 +76,7 @@ TW.settings.get = function(key, fx) {
   if (typeof this[key] == 'function') {
     return this[key]();
   }
+  
   return this.cache[key];
 }
 

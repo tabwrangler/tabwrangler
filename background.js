@@ -28,6 +28,8 @@ function startup() {
   window.setInterval(TW.TabManager.checkToClose, TW.settings.get('checkInterval'));
   window.setInterval(TW.TabManager.updateClosedCount, TW.settings.get('badgeCounterInterval'));
   
+  chrome.storage.onChanged.addListener(TW.settings.copySyncChanges);
+  
   // Create the "lock tab" context menu:
   TW.contextMenuHandler.createContextMenus();
 }

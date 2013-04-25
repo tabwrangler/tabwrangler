@@ -28,6 +28,7 @@ TW.optionsTab.init = function(context) {
   $('#minTabs').keyup(_.debounce(onBlurInput, 200));
   $('#purgeClosedTabs').change(onChangeCheckBox);
   $('#showBadgeCount').change(onChangeCheckBox);
+  $('#enableSync').change(onChangeCheckBox);
 
   TW.optionsTab.loadOptions();
 }
@@ -66,11 +67,14 @@ TW.optionsTab.saveOption = function (key, value) {
 TW.optionsTab.loadOptions = function () {
   $('#minutesInactive').val(TW.settings.get('minutesInactive'));
   $('#minTabs').val(TW.settings.get('minTabs'));
-  if (TW.settings.get('purgeClosedTabs') != false) {
+  if (TW.settings.get('purgeClosedTabs')) {
     $('#purgeClosedTabs').attr('checked', true);
   }
-  if (TW.settings.get('showBadgeCount') != false) {
+  if (TW.settings.get('showBadgeCount')) {
     $('#showBadgeCount').attr('checked', true);
+  }
+  if (TW.settings.enableSync) {
+    $('#enableSync').attr('checked', true);
   }
   
 

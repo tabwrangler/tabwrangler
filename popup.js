@@ -363,7 +363,14 @@ TW.corralTab.buildTable = function(closedTabs) {
       $(this).parent().parent().remove();
       return false;
     });
-    $tr.append($('<td></td/>').append($link));
+    
+    $clear = $('<img />').attr('class', 'close-button').attr('src', 'img/close.jpg');
+    $clear.click(function() {
+      TW.TabManager.closedTabs.removeTab($(this).data('tabid'));
+      $(this).parent().parent().remove();      
+    });
+    
+    $tr.append($('<td></td/>').append($link).append($clear));
     // Url - not sure if we want this.
     // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
     // time ago.

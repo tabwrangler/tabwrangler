@@ -10,6 +10,10 @@ body {
   margin: 0px;
 }
 
+.closeButton {
+  float: right;
+}
+
 .table td{
   font-size: 11px;
 }

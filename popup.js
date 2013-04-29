@@ -364,7 +364,7 @@ TW.corralTab.buildTable = function(closedTabs) {
       return false;
     });
     
-    $clear = $('<img />').attr('class', 'closeButton').attr('src', 'img/close.jpg');
+    $clear = $('<img />').attr('class', 'clearButton').attr('src', 'img/clear.png');
     $clear.click(function() {
       TW.TabManager.closedTabs.removeTab($(this).data('tabid'));
       $(this).parent().parent().remove();      

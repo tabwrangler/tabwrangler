@@ -38,6 +38,10 @@ legend {
   width: 60px;
 }
 
+.closedColumn {
+  width: 200px;
+}
+
 #tabActive .tabTitle {
   font-weight: bolder;
 }

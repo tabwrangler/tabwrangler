@@ -353,7 +353,8 @@ TW.corralTab.buildTable = function(closedTabs) {
     //      a_title.href = urls[i];
     //    }
 
-    $link = $('<a target="_blank" data-tabid="' + tab.id + '" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
+    var $link = $('<a>').attr('target', '_blank').attr('data-tabid', tab.id).attr('href', tab.url);
+    $link.text(tab.title.shorten(70));
 
     // Create a new tab when clicked in the background
     // Remove from the closedTabs list.
@@ -364,7 +365,7 @@ TW.corralTab.buildTable = function(closedTabs) {
       return false;
     });
     
-    $clear = $('<img />').attr('class', 'clearButton').attr('src', 'img/clear.png').hide();
+    var $clear = $('<img />').attr('class', 'clearButton').attr('src', 'img/clear.png').hide();
     $clear.click(function() {
       TW.TabManager.closedTabs.removeTab($(this).data('tabid'));
       $(this).parent().parent().remove();      
@@ -372,14 +373,13 @@ TW.corralTab.buildTable = function(closedTabs) {
     $clear.hover(function() { $clear.attr('src', 'img/clear-hover.png'); },
                 function() { $clear.attr('src', 'img/clear.png'); });
     
-    $tr.hover(function() { $clear.fadeIn(100); },
-             function() { $clear.fadeOut(100); });
-    
+    $tr.hover(function() { $clear.fadeIn(100); }, function() { $clear.fadeOut(100); });
     $tr.append($('<td></td/>').append($link).append($clear));
+    
     // Url - not sure if we want this.
     // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
     // time ago.
-    $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
+    $tr.append($('<td></td>').append($.timeago(tab.closedAt)))
     $tbody.append($tr);
   }
   

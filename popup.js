@@ -364,11 +364,16 @@ TW.corralTab.buildTable = function(closedTabs) {
       return false;
     });
     
-    $clear = $('<img />').attr('class', 'clearButton').attr('src', 'img/clear.png');
+    $clear = $('<img />').attr('class', 'clearButton').attr('src', 'img/clear.png').hide();
     $clear.click(function() {
       TW.TabManager.closedTabs.removeTab($(this).data('tabid'));
       $(this).parent().parent().remove();      
     });
+    $clear.hover(function() { $clear.attr('src', 'img/clear-hover.png'); },
+                function() { $clear.attr('src', 'img/clear.png'); });
+    
+    $tr.hover(function() { $clear.fadeIn(100); },
+             function() { $clear.fadeOut(100); });
     
     $tr.append($('<td></td/>').append($link).append($clear));
     // Url - not sure if we want this.

@@ -23,9 +23,7 @@ TW.contextMenuHandler = {
     };
 
     var corralTabAction = function(onClickData, selectedTab) {
-      TW.TabManager.closedTabs.saveTabs([selectedTab]);
-      // Close it in Chrome.
-      chrome.tabs.remove(selectedTab.id);
+      TW.TabManager.wrangleAndClose(selectedTab.id);
     };
 
     var lockTab = {
@@ -50,15 +48,15 @@ TW.contextMenuHandler = {
     this.lockDomainId = chrome.contextMenus.create(lockDomain);
     chrome.contextMenus.create(corralTab);
   },
-  
+
   updateContextMenus: function(tabId) {
     self = this;
     // Little bit of a kludge, would be nice to be DRY here but this was simpler.
     // Sets the title again for each page.
     chrome.tabs.get(tabId, function(tab) {
       var currentDomain = TW.util.getDomain(tab.url);
-      chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
+      chrome.contextMenus.update(self.lockDomainId, { 'title': 'Never close anything on ' + currentDomain });
+      chrome.contextMenus.update(self.lockTabId, { 'checked': tab.locked });
     });
-    chrome.contextMenus.update(this.lockTabId, {'checked': TW.TabManager.isLocked(tabId)});
   }
 };

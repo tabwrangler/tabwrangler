@@ -261,6 +261,7 @@ TW.TabManager.closedTabs.init = function() {
 
 TW.TabManager.closedTabs.removeTab = function(tabId) {
   TW.TabManager.closedTabs.tabs.splice(TW.TabManager.closedTabs.findPositionById(tabId), 1);
+  chrome.storage.local.set({ savedTabs: TW.TabManager.closedTabs.tabs });
   TW.TabManager.updateClosedCount();
 };
 

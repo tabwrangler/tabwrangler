@@ -278,12 +278,7 @@ TW.TabManager.closedTabs.clear = function() {
 
 TW.TabManager.isWhitelisted = function(url) {
   var whitelist = TW.settings.get("whitelist");
-  for (var i=0; i < whitelist.length; i++) {
-    if (url.indexOf(whitelist[i]) != -1) {
-      return true;
-    }
-  }
-  return false;
+  return _.any(whitelist, function(item) { return url.indexOf(item) != -1 });
 }
 
 /** Sets the given tab ID to be locked. */

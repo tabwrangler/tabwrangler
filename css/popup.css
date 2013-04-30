@@ -10,6 +10,10 @@ body {
   margin: 0px;
 }
 
+.clearButton {
+  float: right;
+}
+
 .table td{
   font-size: 11px;
 }
@@ -31,7 +35,11 @@ legend {
 }
 
 .countdownColumn {
-  width: 60px;
+  width: 80px;
+}
+
+.closedColumn {
+  width: 200px;
 }
 
 #tabActive .tabTitle {
@@ -43,13 +51,6 @@ legend {
 }
 
 #pauseButton {
-  float: right;
-  margin-top: 10px;
-  margin-right:15px;
-  vertical-align: top;
-}
-
-#reviewButton {
   float: right;
   margin-top: 10px;
   margin-right:15px;

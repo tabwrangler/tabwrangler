@@ -8,13 +8,12 @@ TW.optionsTab = {};
  *  Optionally used to limit jQueries
  */
 TW.optionsTab.init = function(context) {
-  $('#saveOptionsBtn', context).click(TW.optionsTab.saveOption);
 
   function onBlurInput() {
     var key = this.id;
     TW.optionsTab.saveOption(key, $(this).val());
   }
-  
+
   function onChangeCheckBox() {
     var key = this.id;
     if ($(this).attr('checked')) {
@@ -23,11 +22,12 @@ TW.optionsTab.init = function(context) {
       TW.optionsTab.saveOption(key, false);
     }
   }
-  
+
   $('#minutesInactive').keyup(_.debounce(onBlurInput, 200));
   $('#minTabs').keyup(_.debounce(onBlurInput, 200));
   $('#purgeClosedTabs').change(onChangeCheckBox);
   $('#showBadgeCount').change(onChangeCheckBox);
+  $('#enableSync').change(onChangeCheckBox);
 
   TW.optionsTab.loadOptions();
 }
@@ -43,8 +43,8 @@ TW.optionsTab.saveOption = function (key, value) {
   } catch (err) {
     errors.push(err);
   }
-  
-  
+
+
   $('#status').removeClass();
   $('#status').css('visibility', 'visible');
   $('#status').css('opacity', '100');
@@ -66,13 +66,15 @@ TW.optionsTab.saveOption = function (key, value) {
 TW.optionsTab.loadOptions = function () {
   $('#minutesInactive').val(TW.settings.get('minutesInactive'));
   $('#minTabs').val(TW.settings.get('minTabs'));
-  if (TW.settings.get('purgeClosedTabs') != false) {
+  if (TW.settings.get('purgeClosedTabs')) {
     $('#purgeClosedTabs').attr('checked', true);
   }
-  if (TW.settings.get('showBadgeCount') != false) {
+  if (TW.settings.get('showBadgeCount')) {
     $('#showBadgeCount').attr('checked', true);
   }
-  
+  if (TW.settings.enableSync) {
+    $('#enableSync').attr('checked', true);
+  }
 
   $('#whitelist').addOption = function(key, val) {
     this.append(
@@ -120,8 +122,10 @@ TW.optionsTab.buildWLTable = function(whitelist) {
 TW.activeTab = {};
 
 TW.activeTab.init = function(context) {
-  this.context = context;
-  chrome.tabs.getAllInWindow(null, function(tabs) { TW.activeTab.buildTabLockTable(tabs);});
+  chrome.windows.getCurrent(null, function(window) {
+    chrome.tabs.query({ windowId: window.id, pinned: false },
+                     function(tabs) { TW.activeTab.buildTabLockTable(tabs); });
+  });
 }
 
 TW.activeTab.saveLock = function(tabId) {
@@ -129,7 +133,7 @@ TW.activeTab.saveLock = function(tabId) {
 }
 
 TW.activeTab.removeLock = function(tabId) {
-  TW.TabManager.unlockTab();
+  TW.TabManager.unlockTab(tabId);
 }
 
 
@@ -144,17 +148,20 @@ TW.activeTab.buildTabLockTable = function (tabs) {
   var $tbody = $('#activeTabs tbody');
   $tbody.html('');
 
-  var lockedIds = TW.settings.get("lockedIds");
-  
   function secondsToMinutes(seconds) {
-    var s = seconds % 60;
-    s = s > 10 ? String(s) : "0" + String(s);
-    return String(Math.floor(seconds / 60)) + ":" + s;
+    if (seconds > 0) {
+      var s = seconds % 60;
+      s = s >= 10 ? String(s) : "0" + String(s);
+      return String(Math.floor(seconds / 60)) + ":" + s;
+    } else {
+      return "0:00";
+    }
   }
-      
+
   for (var i = 0; i < tabNum; i++) {
-    
-    var tabIsLocked = tabs[i].pinned || TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1;
+
+    var tabIsLocked = TW.TabManager.isLocked(tabs[i].id);
+    var tabIsWhitelisted = TW.TabManager.isWhitelisted(tabs[i].url);
 
     // Create a new row.
     var $tr = $('<tr></tr>');
@@ -165,7 +172,8 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     .attr('type', 'checkbox')
     .attr('id', "cb" + tabs[i].id)
     .attr('value', tabs[i].id)
-    .attr('checked', tabIsLocked)
+    .attr('checked', tabIsLocked || tabIsWhitelisted)
+    .attr('disabled', tabIsWhitelisted)
     .click(function () {
       if (this.checked) {
         self.saveLock(parseInt(this.value));
@@ -192,17 +200,17 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     // Page title.
     $tr.append($('<td><span class="tabTitle">' + tabs[i].title.shorten(70) + '</span><br/><span class="tabUrl">' + tabs[i].url.shorten(70) + '</td>'));
 
-    if (!tabIsLocked) {
+    if (!tabIsLocked && !tabIsWhitelisted) {
       var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
 
-      var lastModified = TW.TabManager.tabTimes[tabs[i].id];
+      var lastModified = TW.TabManager.openTabs[tabs[i].id].time;
       var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
-      if (TW.settings.get('paused')) {
-        $timer = $('<td class="time-left">paused</td>');  
+      if (TW.TabManager.paused) {
+        $timer = $('<td class="time-left">paused</td>');
       } else {
         $timer = $('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>');
       }
-      
+
       $timer.data('countdown', timeLeft);
       $tr.append($timer);
     } else {
@@ -211,12 +219,12 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     // Append the row.
     $tbody.append($tr);
   }
-  
+
   updateCountdown = function() {
       $('.time-left').each(function() {
         var t = null;
         var myElem = $(this);
-        if (TW.settings.get('paused')) {
+        if (TW.TabManager.paused) {
           myElem.html('paused');
         } else {
           t = myElem.data('countdown') - 1;
@@ -225,7 +233,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
         }
       });
     }
-    
+
     setInterval(updateCountdown, 1000);
 
   return true;
@@ -235,7 +243,7 @@ TW.corralTab = {};
 
 TW.corralTab.init = function(context) {
   var self = this;
-  
+
   // Setup interface elements
   $('#autocloseMessage').hide();
   $('.clearCorralMessage').hide();
@@ -255,24 +263,24 @@ TW.corralTab.init = function(context) {
     TW.corralTab.init();
     return;
   });
-  
+
   if(location.search !== "?foo") {
     location.search = "?foo";
     throw new Error;  // load everything on the next page;
     // stop execution on this page
   }
-  
+
   $('.corral-search').keyup(_.debounce(
   function() {
     var keyword = $(this).val();
     TW.TabManager.searchTabs(self.buildTable, [TW.TabManager.filters.keyword(keyword)]);
   }, 200));
-  
+
   $('.corral-search').delay(1000).focus();
 }
 
 TW.corralTab.buildTable = function(closedTabs) {
-   
+
   /**
    * @todo: add this back in
    *
@@ -284,11 +292,11 @@ TW.corralTab.buildTable = function(closedTabs) {
    chrome.tabs.create({'url':'chrome://newtab/'});
    }
    */
-  
+
   // Clear out the table.
   var $tbody = $('#corralTable tbody');
-  $tbody.html('');  
-  
+  $tbody.html('');
+
   var now = new Date().getTime();
   separations = []
   separations.push([now - (1000 * 60 * 30), 'in the last 1/2 hour']);
@@ -296,7 +304,7 @@ TW.corralTab.buildTable = function(closedTabs) {
   separations.push([now - (1000 * 60 * 60 * 2),'in the last 2 hours']);
   separations.push([now - (1000 * 60 * 60 * 24),'in the last day']);
   separations.push([0, 'more than a day ago']);
-  
+
   function getGroup(time) {
     var limit, text, i;
     for (i=0; i < separations.length; i++) {
@@ -307,7 +315,7 @@ TW.corralTab.buildTable = function(closedTabs) {
       }
     }
   }
-  
+
   function createGroupRow(timeGroup, $tbody) {
     var $tr = $('<tr class="info"></tr>');
     $button = $('<button class="btn btn-mini btn-primary" style="float:right;">restore all</button>').click(function() {
@@ -319,7 +327,7 @@ TW.corralTab.buildTable = function(closedTabs) {
     $tr.append($td);
     $tbody.append($tr);
   }
-  
+
   function createTabRow(tab, group, $tbody) {
     // Create a new row.
     var $tr = $('<tr></tr>').attr('data-group', group);
@@ -349,7 +357,8 @@ TW.corralTab.buildTable = function(closedTabs) {
     //      a_title.href = urls[i];
     //    }
 
-    $link = $('<a target="_blank" data-tabid="' + tab.id + '" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
+    var $link = $('<a>').attr('target', '_blank').attr('data-tabid', tab.id).attr('href', tab.url);
+    $link.text(tab.title.shorten(70));
 
     // Create a new tab when clicked in the background
     // Remove from the closedTabs list.
@@ -359,38 +368,49 @@ TW.corralTab.buildTable = function(closedTabs) {
       $(this).parent().parent().remove();
       return false;
     });
-    $tr.append($('<td></td/>').append($link));
+
+    var $clear = $('<img />').attr('class', 'clearButton').attr('src', 'img/clear.png').hide();
+    $clear.click(function() {
+      TW.TabManager.closedTabs.removeTab($(this).data('tabid'));
+      $(this).parent().parent().remove();
+    });
+    $clear.hover(function() { $clear.attr('src', 'img/clear-hover.png'); },
+                function() { $clear.attr('src', 'img/clear.png'); });
+
+    $tr.hover(function() { $clear.fadeIn(100); }, function() { $clear.fadeOut(100); });
+    $tr.append($('<td></td/>').append($link).append($clear));
+
     // Url - not sure if we want this.
     // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
     // time ago.
-    $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
+    $tr.append($('<td></td>').append($.timeago(tab.closedAt)))
     $tbody.append($tr);
   }
-  
-  /** 
+
+  /**
     * Testing code to make fake tags
-    
+
     closedTabs = [];
     for (var i=0; i<20; i++) {
       now = new Date().getTime();
       x = Math.pow(2, i);
       closedTabs.push({closedAt: now-1000*1*x, title: 'foo'});
     }
-  
+
   */
- 
+
   var currentGroup = '';
   for ( var i = 0; i < closedTabs.length; i++) {
     var tab = closedTabs[i];
-    
+
     timeGroup = getGroup(tab.closedAt);
     if (timeGroup != currentGroup) {
       createGroupRow(timeGroup, $tbody);
       currentGroup = timeGroup;
     }
-    
+
     createTabRow(tab, currentGroup, $tbody);
-    
+
   }
 }
 
@@ -402,7 +422,7 @@ TW.pauseButton = {};
 
 TW.pauseButton.init = function() {
   var self = this;
-  if (TW.settings.get('paused') == true) {
+  if (TW.TabManager.paused) {
     this.pause();
   } else {
     this.play();
@@ -410,12 +430,12 @@ TW.pauseButton.init = function() {
   this.elem = $('a#pauseButton');
 
   this.elem.click(function() {
-    if (TW.settings.get('paused') == true) {
+    if (TW.TabManager.paused) {
       self.play();
-      TW.settings.set('paused', false);
+      TW.TabManager.setPaused(false);
     } else {
       self.pause();
-      TW.settings.set('paused', true);
+      TW.TabManager.setPaused(true);
     }
   });
 }
@@ -432,29 +452,12 @@ TW.pauseButton.play = function() {
 }
 
 $(document).ready(function() {
+
+  // Initialize the pause button and all tabs.
   TW.pauseButton.init();
+  TW.corralTab.init();
+  TW.activeTab.init();
+  TW.optionsTab.init();
 
   $('a[href="#tabCorral"]').tab('show');
-  // Seems we need to force this since corral is the default.
-  TW.corralTab.init();
-
-  $('#checkTimes').click(function() {
-    //@todo: make that button work on lock tab.
-  });
-
-  $('a[data-toggle="tab"]').on('show', function (e) {
-    var tabId = event.target.hash;
-    switch (tabId) {
-      case '#tabOptions':
-        TW.optionsTab.init($('div#tabOptions'));
-        break;
-      case '#tabActive':
-        TW.activeTab.init($('div#tabActive'));
-        break;
-
-      case '#tabCorral':
-        TW.corralTab.init($('div#tabCorral'));
-        break;
-    }
-  });
 });

@@ -28,15 +28,9 @@
   <li><a href="#tabOptions" target="#tabOptions" data-toggle="tab">Options</a></li>
 </ul>
 
-
-
-<a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews" id="reviewButton" class="btn btn-mini"> 
-	<i class="icon-star"></i> Review Tab Wrangler
-</a>
-
-<a href="javascript:void(0);" id="pauseButton" class="btn btn-mini"> 
+<a href="javascript:void(0);" id="pauseButton" class="btn btn-mini">
   <span class="unpaused-state"><i class="icon-pause"></i> Pause</span>
-  <span class="paused-state"><i class="icon-play"></i> Play</span>
+  <span class="paused-state"><i class="icon-play"></i> Resume</span>
   </a>
 
 <div class="tab-content">
@@ -54,7 +48,7 @@
           <label for="minTabs">Don't auto-close if I only have</label>
           <input type="text" id="minTabs" class="span1" name="minTabs"> tabs open
         </p>
-        
+
         <p>
           <label for="purgeClosedTabs" class="checkbox">Clear closed tabs list on quit
             <input type="checkbox" id="purgeClosedTabs" class="span1" name="purgeClosedTabs">
@@ -63,6 +57,11 @@
         <p>
           <label for="showBadgeCount" class="checkbox">Show # of closed tabs in url bar
             <input type="checkbox" id="showBadgeCount" class="span1" name="showBadgeCount">
+            </label>
+        </p>
+        <p>
+          <label for="enableSync" class="checkbox">Sync settings between Chrome browsers
+            <input type="checkbox" id="enableSync" class="span1" name="enableSync">
             </label>
         </p>
       </fieldset>
@@ -101,9 +100,9 @@
       <table id="corralTable" class="table-condensed table-striped table table-bordered">
         <thead>
         <tr>
-          <th class="narrowColumn" style="width: 20px;"></th>
+          <th class="narrowColumn"></th>
           <th>Title</th>
-          <th>Closed</th>
+          <th class="closedColumn">Closed</th>
         </tr>
         </thead>
         <!--
@@ -124,7 +123,7 @@
           <th class="narrowColumn"><img src="img/lock.png"/></th>
           <th class="narrowColumn"></th>
           <th>Tab</th>
-          <th class="countdownColumn">Closing in</th>
+          <th class="countdownColumn">Expires in</th>
         </tr>
         </thead>
         <!-- Class is a total kludge to keep popup=lock working -->

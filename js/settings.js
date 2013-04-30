@@ -172,10 +172,6 @@ TW.settings.setshowBadgeCount = function(value) {
  * @see TW.settings.set
  */
 TW.settings.setwhitelist = function(value) {
-  // It should be an array, but JS is stupid: http://javascript.crockford.com/remedial.html
-  if (typeof(value) != 'object') {
-    throw new Error('Whitelist should be an array, ' + typeof(value) + ' given');
-  }
-
   TW.settings.setValue('whitelist', value);
+  TW.TabManager.rescheduleAllTabs();
 }

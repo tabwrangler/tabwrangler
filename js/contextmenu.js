@@ -23,9 +23,7 @@ TW.contextMenuHandler = {
     };
 
     var corralTabAction = function(onClickData, selectedTab) {
-      TW.TabManager.closedTabs.saveTabs([selectedTab]);
-      // Close it in Chrome.
-      chrome.tabs.remove(selectedTab.id);
+      TW.TabManager.wrangleAndClose(selectedTab.id);
     };
 
     var lockTab = {
@@ -50,7 +48,7 @@ TW.contextMenuHandler = {
     this.lockDomainId = chrome.contextMenus.create(lockDomain);
     chrome.contextMenus.create(corralTab);
   },
-  
+
   updateContextMenus: function(tabId) {
     self = this;
     // Little bit of a kludge, would be nice to be DRY here but this was simpler.

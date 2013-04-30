@@ -144,11 +144,9 @@ TW.TabManager.getTabsToSchedule = function(tabs) {
     return [];
   } else {
 
-    /* Do not schedule any tabs that are active or locked.
-     * @todo: whitelisted tabs also shouldn't be scheduled.
-     */
+    /* Do not schedule any tabs that are active, locked, or whitelisted. */
     var canSchedule = _.reject(tabs, function(tab) {
-      return tab.active || TW.TabManager.isLocked(tab.id);
+      return tab.active || TW.TabManager.isLocked(tab.id) || TW.TabManager.isWhitelisted(tab.url);
     });
 
     /* Sort tabs by time so that the older tabs are closed before newer ones. */

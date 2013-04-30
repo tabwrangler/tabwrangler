@@ -161,7 +161,8 @@ TW.activeTab.buildTabLockTable = function (tabs) {
 
   for (var i = 0; i < tabNum; i++) {
 
-    var tabIsLocked = TW.TabManager.isLocked(tabs[i].id) || TW.TabManager.isWhitelisted(tabs[i].url);
+    var tabIsLocked = TW.TabManager.isLocked(tabs[i].id);
+    var tabIsWhitelisted = TW.TabManager.isWhitelisted(tabs[i].url);
 
     // Create a new row.
     var $tr = $('<tr></tr>');
@@ -172,7 +173,8 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     .attr('type', 'checkbox')
     .attr('id', "cb" + tabs[i].id)
     .attr('value', tabs[i].id)
-    .attr('checked', tabIsLocked)
+    .attr('checked', tabIsLocked || tabIsWhitelisted)
+    .attr('disabled', tabIsWhitelisted)
     .click(function () {
       if (this.checked) {
         self.saveLock(parseInt(this.value));
@@ -199,7 +201,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     // Page title.
     $tr.append($('<td><span class="tabTitle">' + tabs[i].title.shorten(70) + '</span><br/><span class="tabUrl">' + tabs[i].url.shorten(70) + '</td>'));
 
-    if (!tabIsLocked) {
+    if (!tabIsLocked && !tabIsWhitelisted) {
       var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
 
       var lastModified = TW.TabManager.openTabs[tabs[i].id].time;

@@ -255,6 +255,7 @@ TW.TabManager.closedTabs.init = function() {
   } else {
     chrome.storage.local.get({ savedTabs: [] }, function(items) {
       TW.TabManager.closedTabs.tabs = items['savedTabs'];
+      TW.TabManager.updateClosedCount();
     });
   }
 };

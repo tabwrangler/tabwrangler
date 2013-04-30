@@ -8,7 +8,6 @@ TW.optionsTab = {};
  *  Optionally used to limit jQueries
  */
 TW.optionsTab.init = function(context) {
-  $('#saveOptionsBtn', context).click(TW.optionsTab.saveOption);
 
   function onBlurInput() {
     var key = this.id;
@@ -453,29 +452,12 @@ TW.pauseButton.play = function() {
 }
 
 $(document).ready(function() {
+
+  // Initialize the pause button and all tabs.
   TW.pauseButton.init();
+  TW.corralTab.init();
+  TW.activeTab.init();
+  TW.optionsTab.init();
 
   $('a[href="#tabCorral"]').tab('show');
-  // Seems we need to force this since corral is the default.
-  TW.corralTab.init();
-
-  $('#checkTimes').click(function() {
-    //@todo: make that button work on lock tab.
-  });
-
-  $('a[data-toggle="tab"]').on('show', function (e) {
-    var tabId = event.target.hash;
-    switch (tabId) {
-      case '#tabOptions':
-        TW.optionsTab.init($('div#tabOptions'));
-        break;
-      case '#tabActive':
-        TW.activeTab.init($('div#tabActive'));
-        break;
-
-      case '#tabCorral':
-        TW.corralTab.init($('div#tabCorral'));
-        break;
-    }
-  });
 });

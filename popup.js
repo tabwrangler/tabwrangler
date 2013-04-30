@@ -14,7 +14,7 @@ TW.optionsTab.init = function(context) {
     var key = this.id;
     TW.optionsTab.saveOption(key, $(this).val());
   }
-  
+
   function onChangeCheckBox() {
     var key = this.id;
     if ($(this).attr('checked')) {
@@ -23,7 +23,7 @@ TW.optionsTab.init = function(context) {
       TW.optionsTab.saveOption(key, false);
     }
   }
-  
+
   $('#minutesInactive').keyup(_.debounce(onBlurInput, 200));
   $('#minTabs').keyup(_.debounce(onBlurInput, 200));
   $('#purgeClosedTabs').change(onChangeCheckBox);
@@ -43,8 +43,8 @@ TW.optionsTab.saveOption = function (key, value) {
   } catch (err) {
     errors.push(err);
   }
-  
-  
+
+
   $('#status').removeClass();
   $('#status').css('visibility', 'visible');
   $('#status').css('opacity', '100');
@@ -72,7 +72,7 @@ TW.optionsTab.loadOptions = function () {
   if (TW.settings.get('showBadgeCount') != false) {
     $('#showBadgeCount').attr('checked', true);
   }
-  
+
 
   $('#whitelist').addOption = function(key, val) {
     this.append(
@@ -145,7 +145,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
   var tabNum = tabs.length;
   var $tbody = $('#activeTabs tbody');
   $tbody.html('');
-  
+
   function secondsToMinutes(seconds) {
     if (seconds > 0) {
       var s = seconds % 60;
@@ -155,9 +155,9 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       return "0:00";
     }
   }
-      
+
   for (var i = 0; i < tabNum; i++) {
-    
+
     var tabIsLocked = TW.TabManager.isLocked(tabs[i].id) || TW.TabManager.isWhitelisted(tabs[i].url);
 
     // Create a new row.
@@ -202,11 +202,11 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       var lastModified = TW.TabManager.openTabs[tabs[i].id].time;
       var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
       if (TW.TabManager.paused) {
-        $timer = $('<td class="time-left">paused</td>');  
+        $timer = $('<td class="time-left">paused</td>');
       } else {
         $timer = $('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>');
       }
-      
+
       $timer.data('countdown', timeLeft);
       $tr.append($timer);
     } else {
@@ -215,7 +215,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     // Append the row.
     $tbody.append($tr);
   }
-  
+
   updateCountdown = function() {
       $('.time-left').each(function() {
         var t = null;
@@ -229,7 +229,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
         }
       });
     }
-    
+
     setInterval(updateCountdown, 1000);
 
   return true;
@@ -239,7 +239,7 @@ TW.corralTab = {};
 
 TW.corralTab.init = function(context) {
   var self = this;
-  
+
   // Setup interface elements
   $('#autocloseMessage').hide();
   $('.clearCorralMessage').hide();
@@ -259,24 +259,24 @@ TW.corralTab.init = function(context) {
     TW.corralTab.init();
     return;
   });
-  
+
   if(location.search !== "?foo") {
     location.search = "?foo";
     throw new Error;  // load everything on the next page;
     // stop execution on this page
   }
-  
+
   $('.corral-search').keyup(_.debounce(
   function() {
     var keyword = $(this).val();
     TW.TabManager.searchTabs(self.buildTable, [TW.TabManager.filters.keyword(keyword)]);
   }, 200));
-  
+
   $('.corral-search').delay(1000).focus();
 }
 
 TW.corralTab.buildTable = function(closedTabs) {
-   
+
   /**
    * @todo: add this back in
    *
@@ -288,11 +288,11 @@ TW.corralTab.buildTable = function(closedTabs) {
    chrome.tabs.create({'url':'chrome://newtab/'});
    }
    */
-  
+
   // Clear out the table.
   var $tbody = $('#corralTable tbody');
-  $tbody.html('');  
-  
+  $tbody.html('');
+
   var now = new Date().getTime();
   separations = []
   separations.push([now - (1000 * 60 * 30), 'in the last 1/2 hour']);
@@ -300,7 +300,7 @@ TW.corralTab.buildTable = function(closedTabs) {
   separations.push([now - (1000 * 60 * 60 * 2),'in the last 2 hours']);
   separations.push([now - (1000 * 60 * 60 * 24),'in the last day']);
   separations.push([0, 'more than a day ago']);
-  
+
   function getGroup(time) {
     var limit, text, i;
     for (i=0; i < separations.length; i++) {
@@ -311,7 +311,7 @@ TW.corralTab.buildTable = function(closedTabs) {
       }
     }
   }
-  
+
   function createGroupRow(timeGroup, $tbody) {
     var $tr = $('<tr class="info"></tr>');
     $button = $('<button class="btn btn-mini btn-primary" style="float:right;">restore all</button>').click(function() {
@@ -323,7 +323,7 @@ TW.corralTab.buildTable = function(closedTabs) {
     $tr.append($td);
     $tbody.append($tr);
   }
-  
+
   function createTabRow(tab, group, $tbody) {
     // Create a new row.
     var $tr = $('<tr></tr>').attr('data-group', group);
@@ -367,34 +367,34 @@ TW.corralTab.buildTable = function(closedTabs) {
     // Url - not sure if we want this.
     // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
     // time ago.
-    $tr.append('<td>' + $.timeago(tab.closedAt.getTime()) + '</td>');
+    $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
     $tbody.append($tr);
   }
-  
-  /** 
+
+  /**
     * Testing code to make fake tags
-    
+
     closedTabs = [];
     for (var i=0; i<20; i++) {
       now = new Date().getTime();
       x = Math.pow(2, i);
       closedTabs.push({closedAt: now-1000*1*x, title: 'foo'});
     }
-  
+
   */
- 
+
   var currentGroup = '';
   for ( var i = 0; i < closedTabs.length; i++) {
     var tab = closedTabs[i];
-    
+
     timeGroup = getGroup(tab.closedAt);
     if (timeGroup != currentGroup) {
       createGroupRow(timeGroup, $tbody);
       currentGroup = timeGroup;
     }
-    
+
     createTabRow(tab, currentGroup, $tbody);
-    
+
   }
 }
 

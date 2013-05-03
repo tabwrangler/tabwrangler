@@ -324,7 +324,7 @@ TW.TabManager.matchWithWhitelist = function(url) {
 }
 
 TW.TabManager.isWhitelisted = function(url) {
-  return this.matchWithWhitelist(url).result;
+  return this.matchWithWhitelist(url).success;
 }
 
 TW.TabManager.isLocked = function(tabId) {

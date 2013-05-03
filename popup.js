@@ -153,8 +153,9 @@ TW.activeTab.buildTabLockTable = function (tabs) {
   }
       
   for (var i = 0; i < tabNum; i++) {
-    
-    var tabIsLocked = tabs[i].pinned || TW.TabManager.isWhitelisted(tabs[i].url) || lockedIds.indexOf(tabs[i].id) != -1;
+    var tabIsPinned = tabs[i].pinned;
+    var tabWhitelistMatch = TW.TabManager.matchWithWhitelist(tabs[i].url);
+    var tabIsLocked = tabIsPinned || tabWhitelistMatch.success || lockedIds.indexOf(tabs[i].id) != -1;
 
     // Create a new row.
     var $tr = $('<tr></tr>');
@@ -166,6 +167,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     .attr('id', "cb" + tabs[i].id)
     .attr('value', tabs[i].id)
     .attr('checked', tabIsLocked)
+    .attr('disabled', tabIsPinned || tabWhitelistMatch.success)
     .click(function () {
       if (this.checked) {
         self.saveLock(parseInt(this.value));
@@ -206,7 +208,14 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       $timer.data('countdown', timeLeft);
       $tr.append($timer);
     } else {
-      $tr.append($('<td></td>'));
+      var reason = 'Locked';
+      if (tabIsPinned) {
+          reason = 'Pinned';
+      } else if (tabWhitelistMatch.success) {
+          reason = 'Auto-Lock: ' + tabWhitelistMatch.match;
+      }
+
+      $tr.append($('<td class="lock-reason">' + reason + '</td>'));
     }
     // Append the row.
     $tbody.append($tr);

@@ -313,14 +313,18 @@ TW.TabManager.closedTabs.clear = function() {
   chrome.storage.local.remove('savedTabs');
 };
 
-TW.TabManager.isWhitelisted = function(url) {
+TW.TabManager.matchWithWhitelist = function(url) {
   var whitelist = TW.settings.get("whitelist");
   for (var i=0; i < whitelist.length; i++) {
     if (url.indexOf(whitelist[i]) != -1) {
-      return true;
+      return { success : true, match: whitelist[i] };
     }
   }
-  return false;
+  return { success : false };
+}
+
+TW.TabManager.isWhitelisted = function(url) {
+  return this.matchWithWhitelist(url).result;
 }
 
 TW.TabManager.isLocked = function(tabId) {

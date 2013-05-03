@@ -60,5 +60,6 @@ legend {
   clear:both;
 }
 
-
-
+.lock-reason {
+  color:#9ca097;
+}

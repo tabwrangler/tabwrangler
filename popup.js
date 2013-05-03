@@ -93,9 +93,7 @@ TW.optionsTab.loadOptions = function () {
     return /\S/.test(pattern);
   }
 
-  // need to handle both keydown for immediate effect and 
-  // change for sane triggering from code
-  $wlInput.on('keydown change', function() {
+  $wlInput.on('input', function() {
     if (isValid($wlInput.val())) {
       $wlAdd.removeAttr('disabled');
     }
@@ -111,7 +109,7 @@ TW.optionsTab.loadOptions = function () {
       return;
     }
     whitelist.push(value);
-    $wlInput.val('').change().focus();
+    $wlInput.val('').trigger('input').focus();
     TW.optionsTab.saveOption('whitelist', whitelist);
     TW.optionsTab.buildWLTable(whitelist);
     return false;

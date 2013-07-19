@@ -85,9 +85,31 @@ TW.optionsTab.loadOptions = function () {
   var whitelist = TW.settings.get('whitelist');
   TW.optionsTab.buildWLTable(whitelist);
 
-  $('#addToWL').click(function() {
-    whitelist.push($('#wl-add').val());
-    $('#wl-add').val('');
+  var $wlInput = $('#wl-add');
+  var $wlAdd = $('#addToWL');
+  var isValid = function(pattern) {
+    // some other choices such as '/' also do not make sense
+    // not sure if they should be blocked as well
+    return /\S/.test(pattern);
+  }
+
+  $wlInput.on('input', function() {
+    if (isValid($wlInput.val())) {
+      $wlAdd.removeAttr('disabled');
+    }
+    else {
+      $wlAdd.attr('disabled', 'disabled');
+    }
+  });
+
+  $wlAdd.click(function() {
+    var value = $wlInput.val();
+    // just in case
+    if (!isValid(value)) {
+      return;
+    }
+    whitelist.push(value);
+    $wlInput.val('').trigger('input').focus();
     TW.optionsTab.saveOption('whitelist', whitelist);
     TW.optionsTab.buildWLTable(whitelist);
     return false;

@@ -97,7 +97,7 @@ function startup() {
   TW.Updater.run();
   TW.TabManager.closedTabs.init();
   
-  if (TW.settings.get('purgeClosedTabs') != false) {
+  if (TW.settings.get('purgeClosedTabs') !== false) {
     TW.TabManager.closedTabs.clear();
   }
   TW.settings.set('lockedIds', new Array());

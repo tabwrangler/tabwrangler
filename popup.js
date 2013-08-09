@@ -85,9 +85,31 @@ TW.optionsTab.loadOptions = function () {
   var whitelist = TW.settings.get('whitelist');
   TW.optionsTab.buildWLTable(whitelist);
 
-  $('#addToWL').click(function() {
-    whitelist.push($('#wl-add').val());
-    $('#wl-add').val('');
+  var $wlInput = $('#wl-add');
+  var $wlAdd = $('#addToWL');
+  var isValid = function(pattern) {
+    // some other choices such as '/' also do not make sense
+    // not sure if they should be blocked as well
+    return /\S/.test(pattern);
+  }
+
+  $wlInput.on('input', function() {
+    if (isValid($wlInput.val())) {
+      $wlAdd.removeAttr('disabled');
+    }
+    else {
+      $wlAdd.attr('disabled', 'disabled');
+    }
+  });
+
+  $wlAdd.click(function() {
+    var value = $wlInput.val();
+    // just in case
+    if (!isValid(value)) {
+      return;
+    }
+    whitelist.push(value);
+    $wlInput.val('').trigger('input').focus();
     TW.optionsTab.saveOption('whitelist', whitelist);
     TW.optionsTab.buildWLTable(whitelist);
     return false;
@@ -331,7 +353,9 @@ TW.corralTab.buildTable = function(closedTabs) {
   
   function createTabRow(tab, group, $tbody) {
     // Create a new row.
-    var $tr = $('<tr></tr>').attr('data-group', group);
+    var $tr = $('<tr></tr>')
+      .attr('data-group', group)
+      .attr('data-tabid', tab.id);
 
     // Image cell.
     var $img_td = $('<td></td>');
@@ -341,9 +365,26 @@ TW.corralTab.buildTable = function(closedTabs) {
       .attr('class', 'favicon')
       .attr('src', tab.favIconUrl)
       $img_td.append($img_icon);
+      $img_td.append($('<i class="icon-remove" style="display:none"></i>'))
     } else {
       $img_td.text('-');
     }
+
+    $img_td.on('mouseover', function() {
+      $('img', $(this)).hide();
+      $('.icon-remove', $(this)).show();
+    });
+
+    $img_td.on('mouseout', function() {
+      $('img', $(this)).show();
+      $('.icon-remove', $(this)).hide();
+    });
+
+
+    $img_td.click(function() {
+      TW.TabManager.closedTabs.removeTab($(this).parent().data('tabid'));
+      $(this).parent().remove();
+    });
 
     $tr.append($img_td);
 
@@ -358,16 +399,17 @@ TW.corralTab.buildTable = function(closedTabs) {
     //      a_title.href = urls[i];
     //    }
 
-    $link = $('<a target="_blank" data-tabid="' + tab.id + '" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
+    $link = $('<a target="_blank" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
 
     // Create a new tab when clicked in the background
     // Remove from the closedTabs list.
     $link.click(function() {
       chrome.tabs.create({active:false, url: $(this).attr('href')});
-      TW.TabManager.closedTabs.removeTab($(this).data('tabid'));
+      TW.TabManager.closedTabs.removeTab($(this).parent().parent().data('tabid'));
       $(this).parent().parent().remove();
       return false;
     });
+
     $tr.append($('<td></td/>').append($link));
     // Url - not sure if we want this.
     // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));

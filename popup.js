@@ -176,8 +176,8 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       
   for (var i = 0; i < tabNum; i++) {
     var tabIsPinned = tabs[i].pinned;
-    var tabWhitelistMatch = TW.TabManager.matchWithWhitelist(tabs[i].url);
-    var tabIsLocked = tabIsPinned || tabWhitelistMatch.success || lockedIds.indexOf(tabs[i].id) != -1;
+    var tabWhitelistMatch = TW.TabManager.getWhitelistMatch(tabs[i].url);
+    var tabIsLocked = tabIsPinned || tabWhitelistMatch || lockedIds.indexOf(tabs[i].id) != -1;
 
     // Create a new row.
     var $tr = $('<tr></tr>');
@@ -189,7 +189,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     .attr('id', "cb" + tabs[i].id)
     .attr('value', tabs[i].id)
     .attr('checked', tabIsLocked)
-    .attr('disabled', tabIsPinned || tabWhitelistMatch.success)
+    .attr('disabled', tabIsPinned || tabWhitelistMatch)
     .click(function () {
       if (this.checked) {
         self.saveLock(parseInt(this.value));
@@ -233,11 +233,13 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       var reason = 'Locked';
       if (tabIsPinned) {
           reason = 'Pinned';
-      } else if (tabWhitelistMatch.success) {
-          reason = 'Auto-Lock: ' + tabWhitelistMatch.match;
+      } else if (tabWhitelistMatch) {
+          reason = $('<a href="#" title="' + tabWhitelistMatch + '">Auto-Lock</a>').click(function() {
+            $('a[href="#tabOptions"]').tab('show');
+          });
       }
 
-      $tr.append($('<td class="lock-reason">' + reason + '</td>'));
+      $tr.append($('<td class="lock-reason"></td>').append(reason));
     }
     // Append the row.
     $tbody.append($tr);
@@ -494,7 +496,7 @@ $(document).ready(function() {
   });
 
   $('a[data-toggle="tab"]').on('show', function (e) {
-    var tabId = event.target.hash;
+    var tabId = e.target.hash;
     switch (tabId) {
       case '#tabOptions':
         TW.optionsTab.init($('div#tabOptions'));

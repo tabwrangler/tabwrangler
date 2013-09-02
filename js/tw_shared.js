@@ -313,19 +313,19 @@ TW.TabManager.closedTabs.clear = function() {
   chrome.storage.local.remove('savedTabs');
 };
 
-TW.TabManager.matchWithWhitelist = function(url) {
+TW.TabManager.getWhitelistMatch = function(url) {
   var whitelist = TW.settings.get("whitelist");
   for (var i=0; i < whitelist.length; i++) {
     if (url.indexOf(whitelist[i]) != -1) {
-      return { success : true, match: whitelist[i] };
+      return whitelist[i];
     }
   }
-  return { success : false };
-}
+  return false;
+};
 
 TW.TabManager.isWhitelisted = function(url) {
-  return this.matchWithWhitelist(url).success;
-}
+  return this.getWhitelistMatch(url) !== false;
+};
 
 TW.TabManager.isLocked = function(tabId) {
   var lockedIds = TW.settings.get("lockedIds");

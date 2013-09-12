@@ -109,9 +109,6 @@ var onNewTab = function(tab) {
 };
 
 startup = function() {
-  alert('fuck this');
-  console.log('fuuuuuu');
-  console.log('startup');
   settings.init();
   updater.run();
   tabmanager.closedTabs.init();
@@ -144,8 +141,6 @@ startup = function() {
   // Create the "lock tab" context menu:
   menus.createContextMenus();
 };
-
-window.onload = startup;
 
 });
 window.onload = startup;

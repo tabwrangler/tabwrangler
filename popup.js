@@ -1,26 +1,37 @@
-var TW = chrome.extension.getBackgroundPage().TW;
+require([
+], function() {
+  console.log(_);
 
-TW.optionsTab = {};
+var TW = chrome.extension.getBackgroundPage().TW;
+console.log(TW);
+
+// Unpack TW.
+var tabmanager = TW.tabmanager;
+var settings = TW.settings;
+console.log(settings);
+
+Tabs = {};
+Tabs.optionsTab = {};
 
 /**
  * Initialization for options tab.
  * @param context
  *  Optionally used to limit jQueries
  */
-TW.optionsTab.init = function(context) {
-  $('#saveOptionsBtn', context).click(TW.optionsTab.saveOption);
+Tabs.optionsTab.init = function(context) {
+  $('#saveOptionsBtn', context).click(Tabs.optionsTab.saveOption);
 
   function onBlurInput() {
     var key = this.id;
-    TW.optionsTab.saveOption(key, $(this).val());
+    Tabs.optionsTab.saveOption(key, $(this).val());
   }
   
   function onChangeCheckBox() {
     var key = this.id;
     if ($(this).attr('checked')) {
-      TW.optionsTab.saveOption(key, $(this).val());
+      Tabs.optionsTab.saveOption(key, $(this).val());
     } else {
-      TW.optionsTab.saveOption(key, false);
+      Tabs.optionsTab.saveOption(key, false);
     }
   }
   
@@ -29,17 +40,17 @@ TW.optionsTab.init = function(context) {
   $('#purgeClosedTabs').change(onChangeCheckBox);
   $('#showBadgeCount').change(onChangeCheckBox);
 
-  TW.optionsTab.loadOptions();
-}
+  Tabs.optionsTab.loadOptions();
+};
 
 
-TW.optionsTab.saveOption = function (key, value) {
+Tabs.optionsTab.saveOption = function (key, value) {
 
-  var errors = new Array();
+  var errors = [];
   $('#status').html();
 
   try {
-    TW.settings.set(key, value);
+    settings.set(key, value);
   } catch (err) {
     errors.push(err);
   }
@@ -49,7 +60,7 @@ TW.optionsTab.saveOption = function (key, value) {
   $('#status').css('visibility', 'visible');
   $('#status').css('opacity', '100');
 
-  if (errors.length == 0) {
+  if (errors.length === 0) {
     $('#status').html('Saving...');
     $('#status').addClass('alert-success').addClass('alert');
     $('#status').delay(50).animate({opacity:0});
@@ -61,29 +72,29 @@ TW.optionsTab.saveOption = function (key, value) {
     $('#status').append($errorList).addClass('alert-error').addClass('alert');
   }
   return false;
-}
+};
 
-TW.optionsTab.loadOptions = function () {
-  $('#minutesInactive').val(TW.settings.get('minutesInactive'));
-  $('#minTabs').val(TW.settings.get('minTabs'));
-  if (TW.settings.get('purgeClosedTabs') != false) {
+Tabs.optionsTab.loadOptions = function () {
+  $('#minutesInactive').val(settings.get('minutesInactive'));
+  $('#minTabs').val(settings.get('minTabs'));
+  if (settings.get('purgeClosedTabs') !== false) {
     $('#purgeClosedTabs').attr('checked', true);
   }
-  if (TW.settings.get('showBadgeCount') != false) {
+  if (settings.get('showBadgeCount') !== false) {
     $('#showBadgeCount').attr('checked', true);
   }
   
 
   $('#whitelist').addOption = function(key, val) {
-    this.append(
-    $('<option />')
-    .value(val)
-    .text(key)
-  );
-  }
+      this.append(
+      $('<option />')
+      .value(val)
+      .text(key)
+    );
+  };
 
-  var whitelist = TW.settings.get('whitelist');
-  TW.optionsTab.buildWLTable(whitelist);
+  var whitelist = settings.get('whitelist');
+  Tabs.optionsTab.buildWLTable(whitelist);
 
   var $wlInput = $('#wl-add');
   var $wlAdd = $('#addToWL');
@@ -91,7 +102,7 @@ TW.optionsTab.loadOptions = function () {
     // some other choices such as '/' also do not make sense
     // not sure if they should be blocked as well
     return /\S/.test(pattern);
-  }
+  };
 
   $wlInput.on('input', function() {
     if (isValid($wlInput.val())) {
@@ -110,14 +121,13 @@ TW.optionsTab.loadOptions = function () {
     }
     whitelist.push(value);
     $wlInput.val('').trigger('input').focus();
-    TW.optionsTab.saveOption('whitelist', whitelist);
-    TW.optionsTab.buildWLTable(whitelist);
+    Tabs.optionsTab.saveOption('whitelist', whitelist);
+    Tabs.optionsTab.buildWLTable(whitelist);
     return false;
   });
+};
 
-}
-
-TW.optionsTab.buildWLTable = function(whitelist) {
+Tabs.optionsTab.buildWLTable = function(whitelist) {
   var $wlTable = $('table#whitelist tbody');
   $wlTable.html('');
   for (var i=0; i < whitelist.length; i++) {
@@ -126,8 +136,8 @@ TW.optionsTab.buildWLTable = function(whitelist) {
     $deleteLink = $('<a class="deleteLink" href="#">Remove</a>')
     .click(function() {
       whitelist.remove(whitelist.indexOf($(this).data('pattern')));
-      TW.optionsTab.saveOption('whitelist', whitelist);
-      TW.optionsTab.buildWLTable(whitelist);
+      Tabs.optionsTab.saveOption('whitelist', whitelist);
+      Tabs.optionsTab.buildWLTable(whitelist);
     })
     .data('pattern', whitelist[i]);
 
@@ -135,38 +145,38 @@ TW.optionsTab.buildWLTable = function(whitelist) {
     $tr.append($('<td></td>').append($deleteLink));
     $wlTable.append($tr);
   }
-}
+};
 
 // Active Tab
 // @todo: rename this to lock tab, that's what it's for.;
-TW.activeTab = {};
+Tabs.activeTab = {};
 
-TW.activeTab.init = function(context) {
+Tabs.activeTab.init = function(context) {
   this.context = context;
-  chrome.tabs.getAllInWindow(null, function(tabs) { TW.activeTab.buildTabLockTable(tabs);});
-}
+  chrome.tabs.getAllInWindow(null, function(tabs) { Tabs.activeTab.buildTabLockTable(tabs);});
+};
 
-TW.activeTab.saveLock = function(tabId) {
-  TW.TabManager.lockTab(tabId);
-}
+Tabs.activeTab.saveLock = function(tabId) {
+  tabmanager.lockTab(tabId);
+};
 
-TW.activeTab.removeLock = function(tabId) {
-  TW.TabManager.unlockTab();
-}
+Tabs.activeTab.removeLock = function(tabId) {
+  tabmanager.unlockTab();
+};
 
 
 /**
  * @param tabs
  * @return {Boolean}
  */
-TW.activeTab.buildTabLockTable = function (tabs) {
+Tabs.activeTab.buildTabLockTable = function (tabs) {
   var self = this;
 
   var tabNum = tabs.length;
   var $tbody = $('#activeTabs tbody');
   $tbody.html('');
 
-  var lockedIds = TW.settings.get("lockedIds");
+  var lockedIds = settings.get("lockedIds");
   
   function secondsToMinutes(seconds) {
     var s = seconds % 60;
@@ -176,7 +186,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       
   for (var i = 0; i < tabNum; i++) {
     var tabIsPinned = tabs[i].pinned;
-    var tabWhitelistMatch = TW.TabManager.getWhitelistMatch(tabs[i].url);
+    var tabWhitelistMatch = tabmanager.getWhitelistMatch(tabs[i].url);
     var tabIsLocked = tabIsPinned || tabWhitelistMatch || lockedIds.indexOf(tabs[i].id) != -1;
 
     // Create a new row.
@@ -217,11 +227,11 @@ TW.activeTab.buildTabLockTable = function (tabs) {
     $tr.append($('<td><span class="tabTitle">' + tabs[i].title.shorten(70) + '</span><br/><span class="tabUrl">' + tabs[i].url.shorten(70) + '</td>'));
 
     if (!tabIsLocked) {
-      var cutOff = new Date().getTime() - TW.settings.get('stayOpen');
+      var cutOff = new Date().getTime() - settings.get('stayOpen');
 
-      var lastModified = TW.TabManager.tabTimes[tabs[i].id];
+      var lastModified = tabmanager.tabTimes[tabs[i].id];
       var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
-      if (TW.settings.get('paused')) {
+      if (settings.get('paused')) {
         $timer = $('<td class="time-left">paused</td>');  
       } else {
         $timer = $('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>');
@@ -249,7 +259,7 @@ TW.activeTab.buildTabLockTable = function (tabs) {
       $('.time-left').each(function() {
         var t = null;
         var myElem = $(this);
-        if (TW.settings.get('paused')) {
+        if (settings.get('paused')) {
           myElem.html('paused');
         } else {
           t = myElem.data('countdown') - 1;
@@ -264,16 +274,16 @@ TW.activeTab.buildTabLockTable = function (tabs) {
   return true;
 }
 
-TW.corralTab = {};
+Tabs.corralTab = {};
 
-TW.corralTab.init = function(context) {
+Tabs.corralTab.init = function(context) {
   var self = this;
   
   // Setup interface elements
   $('#autocloseMessage').hide();
   $('.clearCorralMessage').hide();
   // @todo: use context to select table.
-  TW.TabManager.searchTabs(function(closedTabs) {
+  tabmanager.searchTabs(function(closedTabs) {
     if ( closedTabs.length == 0 ) {
       // If we have no saved closed tabs, show the help text
       $('#autocloseMessage').show();
@@ -283,9 +293,9 @@ TW.corralTab.init = function(context) {
     return self.buildTable(closedTabs);
   });
   $('.clearCorralLink').click(function() {
-    TW.TabManager.closedTabs.clear();
-    TW.TabManager.updateClosedCount();
-    TW.corralTab.init();
+    tabmanager.closedTabs.clear();
+    tabmanager.updateClosedCount();
+    Tabs.corralTab.init();
     return;
   });
   
@@ -298,13 +308,13 @@ TW.corralTab.init = function(context) {
   $('.corral-search').keyup(_.debounce(
   function() {
     var keyword = $(this).val();
-    TW.TabManager.searchTabs(self.buildTable, [TW.TabManager.filters.keyword(keyword)]);
+    tabmanager.searchTabs(self.buildTable, [tabmanager.filters.keyword(keyword)]);
   }, 200));
   
   $('.corral-search').delay(1000).focus();
-}
+};
 
-TW.corralTab.buildTable = function(closedTabs) {
+Tabs.corralTab.buildTable = function(closedTabs) {
    
   /**
    * @todo: add this back in
@@ -320,7 +330,7 @@ TW.corralTab.buildTable = function(closedTabs) {
   
   // Clear out the table.
   var $tbody = $('#corralTable tbody');
-  $tbody.html('');  
+  $tbody.html('');
   
   var now = new Date().getTime();
   separations = []
@@ -333,8 +343,8 @@ TW.corralTab.buildTable = function(closedTabs) {
   function getGroup(time) {
     var limit, text, i;
     for (i=0; i < separations.length; i++) {
-      limit = separations[i][0]
-      text = separations[i][1]
+      limit = separations[i][0];
+      text = separations[i][1];
       if (limit < time) {
         return text;
       }
@@ -361,13 +371,13 @@ TW.corralTab.buildTable = function(closedTabs) {
 
     // Image cell.
     var $img_td = $('<td></td>');
-    if (tab.favIconUrl != null && tab.favIconUrl != undefined && tab.favIconUrl.length > 0) {
+    if (tab.favIconUrl !== null && tab.favIconUrl !== undefined && tab.favIconUrl.length > 0) {
       // We have an image to show.
       var $img_icon = $('<img />')
       .attr('class', 'favicon')
-      .attr('src', tab.favIconUrl)
+      .attr('src', tab.favIconUrl);
       $img_td.append($img_icon);
-      $img_td.append($('<i class="icon-remove" style="display:none"></i>'))
+      $img_td.append($('<i class="icon-remove" style="display:none"></i>'));
     } else {
       $img_td.text('-');
     }
@@ -384,7 +394,7 @@ TW.corralTab.buildTable = function(closedTabs) {
 
 
     $img_td.click(function() {
-      TW.TabManager.closedTabs.removeTab($(this).parent().data('tabid'));
+      tabmanager.closedTabs.removeTab($(this).parent().data('tabid'));
       $(this).parent().remove();
     });
 
@@ -407,7 +417,7 @@ TW.corralTab.buildTable = function(closedTabs) {
     // Remove from the closedTabs list.
     $link.click(function() {
       chrome.tabs.create({active:false, url: $(this).attr('href')});
-      TW.TabManager.closedTabs.removeTab($(this).parent().parent().data('tabid'));
+      tabmanager.closedTabs.removeTab($(this).parent().parent().data('tabid'));
       $(this).parent().parent().remove();
       return false;
     });
@@ -445,17 +455,18 @@ TW.corralTab.buildTable = function(closedTabs) {
     createTabRow(tab, currentGroup, $tbody);
     
   }
-}
+};
 
-TW.corralTab.filterByKeyword = function() {
+Tabs.corralTab.filterByKeyword = function() {
   var keyword = $(this).val();
-}
+};
 
-TW.pauseButton = {};
 
-TW.pauseButton.init = function() {
+PauseButton = {};
+
+PauseButton.init = function() {
   var self = this;
-  if (TW.settings.get('paused') == true) {
+  if (settings.get('paused') === true) {
     this.pause();
   } else {
     this.play();
@@ -463,33 +474,34 @@ TW.pauseButton.init = function() {
   this.elem = $('a#pauseButton');
 
   this.elem.click(function() {
-    if (TW.settings.get('paused') == true) {
+    if (settings.get('paused') === true) {
       self.play();
-      TW.settings.set('paused', false);
+      settings.set('paused', false);
     } else {
       self.pause();
-      TW.settings.set('paused', true);
+      settings.set('paused', true);
     }
   });
-}
-TW.pauseButton.pause = function() {
+};
+
+PauseButton.pause = function() {
   chrome.browserAction.setIcon({'path': 'img/icon-paused.png'});
   $('.unpaused-state', this.elem).hide();
   $('.paused-state', this.elem).show();
-}
+};
 
-TW.pauseButton.play = function() {
+PauseButton.play = function() {
   chrome.browserAction.setIcon({'path': 'img/icon.png'});
   $('.paused-state',this.elem).hide();
   $('.unpaused-state', this.elem).show();
-}
+};
 
 $(document).ready(function() {
-  TW.pauseButton.init();
+  PauseButton.init();
 
   $('a[href="#tabCorral"]').tab('show');
   // Seems we need to force this since corral is the default.
-  TW.corralTab.init();
+  Tabs.corralTab.init();
 
   $('#checkTimes').click(function() {
     //@todo: make that button work on lock tab.
@@ -499,15 +511,16 @@ $(document).ready(function() {
     var tabId = e.target.hash;
     switch (tabId) {
       case '#tabOptions':
-        TW.optionsTab.init($('div#tabOptions'));
+        Tabs.optionsTab.init($('div#tabOptions'));
         break;
       case '#tabActive':
-        TW.activeTab.init($('div#tabActive'));
+        Tabs.activeTab.init($('div#tabActive'));
         break;
 
       case '#tabCorral':
-        TW.corralTab.init($('div#tabCorral'));
+        Tabs.corralTab.init($('div#tabCorral'));
         break;
     }
   });
+});
 });

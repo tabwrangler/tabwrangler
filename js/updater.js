@@ -1,7 +1,9 @@
+define(function(require) {
+
 /**
  * Handles updates between versions of the extension.
  */
-TW.Updater = {
+Updater = {
   updates: {},
   firstInstall: function() {
     var notification = window.webkitNotifications.createNotification(
@@ -14,6 +16,7 @@ TW.Updater = {
   },
   //@todo: refactor this into a couple functions
   run: function() {
+    console.log('running updater');
     var self = this;
     chrome.storage.sync.get('version', function(items) {
       // Whatever is set in chrome.storage (if anything)
@@ -79,7 +82,7 @@ TW.Updater = {
 
 // These are also run for users with no currentVersion set.
 // This update is for the 1.x -> 2.x users
-TW.Updater.updates[2.1] = {
+Updater.updates[2.1] = {
   fx: function() {
     var map = {
       'minutes_inactive' : 'minutesInactive',
@@ -108,7 +111,7 @@ TW.Updater.updates[2.1] = {
   }
 }
 
-TW.Updater.updates[2.2] = {
+Updater.updates[2.2] = {
   fx: function() {
     // Move localStorage to chrome.storage.sync
     var items = {}
@@ -145,7 +148,7 @@ TW.Updater.updates[2.2] = {
   }
 }
 
-TW.Updater.updates[2.3] = {
+Updater.updates[2.3] = {
   fx: function() {
     
   },
@@ -169,7 +172,7 @@ TW.Updater.updates[2.3] = {
   }
 }
 
-TW.Updater.updates[2.4] = {
+Updater.updates[2.4] = {
   fx: function() {
     
   },
@@ -193,7 +196,7 @@ TW.Updater.updates[2.4] = {
   }
 }
 
-TW.Updater.updates[2.5] = {
+Updater.updates[2.5] = {
   fx: function() {
     
   },
@@ -216,7 +219,7 @@ TW.Updater.updates[2.5] = {
   }
 }
 
-TW.Updater.updates[2.6] = {
+Updater.updates[2.6] = {
   fx: function() {
     
   },
@@ -238,7 +241,7 @@ TW.Updater.updates[2.6] = {
   }
 };
 
-TW.Updater.updates[2.8] = {
+Updater.updates[2.8] = {
   fx: function() {
     
   },
@@ -262,7 +265,7 @@ TW.Updater.updates[2.8] = {
   }
 };
 
-TW.Updater.updates[2.9] = {
+Updater.updates[2.9] = {
   fx: function() {
     
   },
@@ -283,3 +286,7 @@ TW.Updater.updates[2.9] = {
     notification.show();
   }  
 }
+
+return Updater;
+
+});

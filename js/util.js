@@ -1,9 +1,10 @@
+
 var TW = TW || {};
 TW.util = TW.util || {};
 // Utility stuff:
 TW.util.getDomain = function(url) {
   return url.match(/[^:]+:\/\/([^\/]+)\//)[1];
-}
+};
 
 
 String.prototype.shorten = function(length) {
@@ -11,7 +12,7 @@ String.prototype.shorten = function(length) {
     return this.substring(0, length) + "...";
   }
   return this;
-}
+};
 
 // Array Remove - By John Resig (MIT Licensed)
 Array.prototype.remove = function(from, to) {

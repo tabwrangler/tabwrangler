@@ -1,6 +1,6 @@
 
 
-define(function(require, exports, module) {
+define(['tabmanager'], function(tabmanager) {
 
   /**
    * @type {Object}
@@ -62,8 +62,8 @@ define(function(require, exports, module) {
       throw Error("Minutes Inactive must be greater than 0 and less than 720");
     }
     // Reset the tabTimes since we changed the setting
-    TW.TabManager.tabTimes = {};
-    chrome.tabs.query({windowType: 'normal'}, TW.TabManager.initTabs);
+    tabmanager.tabTimes = {};
+    chrome.tabs.query({windowType: 'normal'}, tabmanager.initTabs);
 
     Settings.setValue('minutesInactive', value);
   };
@@ -76,6 +76,18 @@ define(function(require, exports, module) {
   Settings.setminTabs = function(value) {
     if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 0 || parseInt(value, 10) > 30 ){
       throw Error("Minimum tabs must be a number between 0 and 30");
+    }
+    Settings.setValue('minTabs', value);
+  };
+
+  /**
+   *
+   * @param value
+   * @see Settings.set
+   */
+  Settings.setmaxTabs = function(value) {
+    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 1 || parseInt(value, 10) > 500 ){
+      throw Error("Max tabs must be a number between 1 and 500. Setting this too high can cause performance issues");
     }
     Settings.setValue('minTabs', value);
   };
@@ -113,7 +125,7 @@ define(function(require, exports, module) {
       // so they will not be closed.
       chrome.tabs.query({
       windowType: 'normal'
-    }, TW.TabManager.initTabs);
+    }, tabmanager.initTabs);
     }
     Settings.setValue('paused', value);
   };

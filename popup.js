@@ -37,6 +37,7 @@ Tabs.optionsTab.init = function(context) {
   
   $('#minutesInactive').keyup(_.debounce(onBlurInput, 200));
   $('#minTabs').keyup(_.debounce(onBlurInput, 200));
+  $('#maxTabs').keyup(_.debounce(onBlurInput, 200));
   $('#purgeClosedTabs').change(onChangeCheckBox);
   $('#showBadgeCount').change(onChangeCheckBox);
 
@@ -77,6 +78,7 @@ Tabs.optionsTab.saveOption = function (key, value) {
 Tabs.optionsTab.loadOptions = function () {
   $('#minutesInactive').val(settings.get('minutesInactive'));
   $('#minTabs').val(settings.get('minTabs'));
+  $('#maxTabs').val(settings.get('maxTabs'));
   if (settings.get('purgeClosedTabs') !== false) {
     $('#purgeClosedTabs').attr('checked', true);
   }

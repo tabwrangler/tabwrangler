@@ -1,4 +1,5 @@
-require(['settings', 'tabmanager'], function(settings, tabmanager) {
+define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) {
+  console.log(util);
   /**
    * Creates and updates context menus.
    */
@@ -11,7 +12,7 @@ require(['settings', 'tabmanager'], function(settings, tabmanager) {
 
       var lockDomainAction = function(onClickData, selectedTab) {
         whitelist = settings.get('whitelist');
-        domain = TW.util.getDomain(selectedTab.url);
+        domain = util.getDomain(selectedTab.url);
         whitelist.push(domain);
         settings.set('whitelist', whitelist);
       };
@@ -50,7 +51,7 @@ require(['settings', 'tabmanager'], function(settings, tabmanager) {
       // Little bit of a kludge, would be nice to be DRY here but this was simpler.
       // Sets the title again for each page.
       chrome.tabs.get(tabId, function(tab) {
-        var currentDomain = TW.util.getDomain(tab.url);
+        var currentDomain = util.getDomain(tab.url);
         chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
       });
       chrome.contextMenus.update(this.lockTabId, {'checked': tabmanager.isLocked(tabId)});

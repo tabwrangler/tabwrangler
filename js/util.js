@@ -1,11 +1,11 @@
 
-var TW = TW || {};
-TW.util = TW.util || {};
-// Utility stuff:
-TW.util.getDomain = function(url) {
-  return url.match(/[^:]+:\/\/([^\/]+)\//)[1];
-};
-
+define("util", function() {
+  return {
+    getDomain: function(url) {
+      return url.match(/[^:]+:\/\/([^\/]+)\//)[1];
+    }
+  };
+});
 
 String.prototype.shorten = function(length) {
   if ( this.length > (length + 3) ) {

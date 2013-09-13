@@ -1,6 +1,6 @@
-var TW = {};
-var startup;
 // Declare this global namespace so it can be used from popup.js
+// @see startup();
+var TW = {};
 
 require([
   'settings',
@@ -108,7 +108,7 @@ var onNewTab = function(tab) {
   tabmanager.updateLastAccessed(tab.id);
 };
 
-startup = function() {
+var startup = function() {
   settings.init();
   updater.run();
   tabmanager.closedTabs.init();
@@ -116,7 +116,6 @@ startup = function() {
   TW.settings = settings;
   TW.updater = updater;
   TW.tabmanager = tabmanager;
-  console.log(TW);
 
   if (settings.get('purgeClosedTabs') !== false) {
     tabmanager.closedTabs.clear();
@@ -142,5 +141,6 @@ startup = function() {
   menus.createContextMenus();
 };
 
+startup();
 });
-window.onload = startup;
+

@@ -48,7 +48,7 @@ TabManager.getOlderThen = function(time) {
   var ret = Array();
   for (var i in this.tabTimes) {
     if (this.tabTimes.hasOwnProperty(i)) {
-      if (time === null || this.tabTimes[i] < time) {
+      if (!time || this.tabTimes[i] < time) {
         ret.push(parseInt(i, 10));
       }
     }

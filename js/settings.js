@@ -89,7 +89,7 @@ define(['tabmanager'], function(tabmanager) {
     if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 1 || parseInt(value, 10) > 500 ){
       throw Error("Max tabs must be a number between 1 and 500. Setting this too high can cause performance issues");
     }
-    Settings.setValue('minTabs', value);
+    Settings.setValue('maxTabs', value);
   };
 
   /**

@@ -287,6 +287,28 @@ Updater.updates[2.9] = {
   }  
 }
 
+Updater.updates[3.0] = {
+  fx: function() {
+    
+  },
+
+  finished: function() {
+
+    var updateTxt = ''
+    + '<strong>Updates</strong>'
+    + '<ul>'
+    + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
+    + '<li> Added ability to remove tabs from Corral. <span class="label label-success">Feature</span></li>'
+    + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
+    + '</ul>';
+
+    var notification = window.webkitNotifications.createHTMLNotification(
+      'notification.html?title=Version 2.9&message=' + updateTxt
+    );
+    notification.show();
+  }  
+}
+
 return Updater;
 
 });

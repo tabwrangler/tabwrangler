@@ -10,28 +10,47 @@ var tabmanager = TW.tabmanager;
 var settings = TW.settings;
 console.log(settings);
 
-Tabs = {};
-Tabs.optionsTab = {};
+Popup = {};
+Popup.Util = {};
+Popup.Util.buildFaviconCol = function(url) {
+  
+   // Image cell.
+  var $faviconCol = $('<td class="faviconCol"></td>');
+  var $faviconColContent = $('<span class="faviconContent"></span>');
+  $faviconCol.append($faviconColContent);
+  if (url !== null && url !== undefined) {
+    // We have an image to show.
+    var $favicon = $('<img />')
+    .attr('class', 'favicon')
+    .attr('src', url);
+    $faviconColContent.append($favicon);
+  } else {
+    $faviconColContent.text('-');
+  }
+  return $faviconCol;
+};
 
+
+Popup.optionsTab = {};
 /**
  * Initialization for options tab.
  * @param context
  *  Optionally used to limit jQueries
  */
-Tabs.optionsTab.init = function(context) {
-  $('#saveOptionsBtn', context).click(Tabs.optionsTab.saveOption);
+Popup.optionsTab.init = function(context) {
+  $('#saveOptionsBtn', context).click(Popup.optionsTab.saveOption);
 
   function onBlurInput() {
     var key = this.id;
-    Tabs.optionsTab.saveOption(key, $(this).val());
+    Popup.optionsTab.saveOption(key, $(this).val());
   }
   
   function onChangeCheckBox() {
     var key = this.id;
     if ($(this).attr('checked')) {
-      Tabs.optionsTab.saveOption(key, $(this).val());
+      Popup.optionsTab.saveOption(key, $(this).val());
     } else {
-      Tabs.optionsTab.saveOption(key, false);
+      Popup.optionsTab.saveOption(key, false);
     }
   }
   
@@ -41,11 +60,11 @@ Tabs.optionsTab.init = function(context) {
   $('#purgeClosedTabs').change(onChangeCheckBox);
   $('#showBadgeCount').change(onChangeCheckBox);
 
-  Tabs.optionsTab.loadOptions();
+  Popup.optionsTab.loadOptions();
 };
 
 
-Tabs.optionsTab.saveOption = function (key, value) {
+Popup.optionsTab.saveOption = function (key, value) {
 
   var errors = [];
   $('#status').html();
@@ -75,7 +94,7 @@ Tabs.optionsTab.saveOption = function (key, value) {
   return false;
 };
 
-Tabs.optionsTab.loadOptions = function () {
+Popup.optionsTab.loadOptions = function () {
   $('#minutesInactive').val(settings.get('minutesInactive'));
   $('#minTabs').val(settings.get('minTabs'));
   $('#maxTabs').val(settings.get('maxTabs'));
@@ -96,7 +115,7 @@ Tabs.optionsTab.loadOptions = function () {
   };
 
   var whitelist = settings.get('whitelist');
-  Tabs.optionsTab.buildWLTable(whitelist);
+  Popup.optionsTab.buildWLTable(whitelist);
 
   var $wlInput = $('#wl-add');
   var $wlAdd = $('#addToWL');
@@ -123,13 +142,13 @@ Tabs.optionsTab.loadOptions = function () {
     }
     whitelist.push(value);
     $wlInput.val('').trigger('input').focus();
-    Tabs.optionsTab.saveOption('whitelist', whitelist);
-    Tabs.optionsTab.buildWLTable(whitelist);
+    Popup.optionsTab.saveOption('whitelist', whitelist);
+    Popup.optionsTab.buildWLTable(whitelist);
     return false;
   });
 };
 
-Tabs.optionsTab.buildWLTable = function(whitelist) {
+Popup.optionsTab.buildWLTable = function(whitelist) {
   var $wlTable = $('table#whitelist tbody');
   $wlTable.html('');
   for (var i=0; i < whitelist.length; i++) {
@@ -138,8 +157,8 @@ Tabs.optionsTab.buildWLTable = function(whitelist) {
     $deleteLink = $('<a class="deleteLink" href="#">Remove</a>')
     .click(function() {
       whitelist.remove(whitelist.indexOf($(this).data('pattern')));
-      Tabs.optionsTab.saveOption('whitelist', whitelist);
-      Tabs.optionsTab.buildWLTable(whitelist);
+      Popup.optionsTab.saveOption('whitelist', whitelist);
+      Popup.optionsTab.buildWLTable(whitelist);
     })
     .data('pattern', whitelist[i]);
 
@@ -151,18 +170,18 @@ Tabs.optionsTab.buildWLTable = function(whitelist) {
 
 // Active Tab
 // @todo: rename this to lock tab, that's what it's for.;
-Tabs.activeTab = {};
+Popup.activeTab = {};
 
-Tabs.activeTab.init = function(context) {
+Popup.activeTab.init = function(context) {
   this.context = context;
-  chrome.tabs.getAllInWindow(null, function(tabs) { Tabs.activeTab.buildTabLockTable(tabs);});
+  chrome.tabs.getAllInWindow(null, function(tabs) { Popup.activeTab.buildTabLockTable(tabs);});
 };
 
-Tabs.activeTab.saveLock = function(tabId) {
+Popup.activeTab.saveLock = function(tabId) {
   tabmanager.lockTab(tabId);
 };
 
-Tabs.activeTab.removeLock = function(tabId) {
+Popup.activeTab.removeLock = function(tabId) {
   tabmanager.unlockTab();
 };
 
@@ -171,7 +190,7 @@ Tabs.activeTab.removeLock = function(tabId) {
  * @param tabs
  * @return {Boolean}
  */
-Tabs.activeTab.buildTabLockTable = function (tabs) {
+Popup.activeTab.buildTabLockTable = function (tabs) {
   var self = this;
 
   var tabNum = tabs.length;
@@ -211,19 +230,8 @@ Tabs.activeTab.buildTabLockTable = function (tabs) {
     });
     $tr.append($('<td></td>').append($lock_box));
 
-    // Image cell.
-    var $img_td = $('<td></td>');
-    if (tabs[i].favIconUrl != null && tabs[i].favIconUrl != undefined && tabs[i].favIconUrl.length > 0) {
-      // We have an image to show.
-      var $img_icon = $('<img />')
-      .attr('class', 'favicon')
-      .attr('src', tabs[i].favIconUrl)
-      $img_td.append($img_icon);
-    } else {
-      $img_td.text('-');
-    }
-
-    $tr.append($img_td);
+    var $faviconCol = Popup.Util.buildFaviconCol(tabs[i].favIconUrl);
+    $tr.append($faviconCol);
 
     // Page title.
     $tr.append($('<td><span class="tabTitle">' + tabs[i].title.shorten(70) + '</span><br/><span class="tabUrl">' + tabs[i].url.shorten(70) + '</td>'));
@@ -276,9 +284,9 @@ Tabs.activeTab.buildTabLockTable = function (tabs) {
   return true;
 }
 
-Tabs.corralTab = {};
+Popup.corralTab = {};
 
-Tabs.corralTab.init = function(context) {
+Popup.corralTab.init = function(context) {
   var self = this;
   
   // Setup interface elements
@@ -297,7 +305,7 @@ Tabs.corralTab.init = function(context) {
   $('.clearCorralLink').click(function() {
     tabmanager.closedTabs.clear();
     tabmanager.updateClosedCount();
-    Tabs.corralTab.init();
+    Popup.corralTab.init();
     return;
   });
   
@@ -316,7 +324,7 @@ Tabs.corralTab.init = function(context) {
   $('.corral-search').delay(1000).focus();
 };
 
-Tabs.corralTab.buildTable = function(closedTabs) {
+Popup.corralTab.buildTable = function(closedTabs) {
    
   /**
    * @todo: add this back in
@@ -360,7 +368,7 @@ Tabs.corralTab.buildTable = function(closedTabs) {
         $('a', this).click();
       });
     });
-    $td = $('<td colspan=3 style="padding-left:20px"> closed ' + timeGroup + '</td>').append($button);
+    $td = $('<td colspan=3 class="timeGroupRow"> closed ' + timeGroup + '</td>').append($button);
     $tr.append($td);
     $tbody.append($tr);
   }
@@ -370,37 +378,26 @@ Tabs.corralTab.buildTable = function(closedTabs) {
     var $tr = $('<tr></tr>')
       .attr('data-group', group)
       .attr('data-tabid', tab.id);
+   
+    var $faviconCol = Popup.Util.buildFaviconCol(tab.favIconUrl);
+    $faviconCol.append($('<i class="icon-remove" style="display:none"></i>'));
 
-    // Image cell.
-    var $img_td = $('<td></td>');
-    if (tab.favIconUrl !== null && tab.favIconUrl !== undefined && tab.favIconUrl.length > 0) {
-      // We have an image to show.
-      var $img_icon = $('<img />')
-      .attr('class', 'favicon')
-      .attr('src', tab.favIconUrl);
-      $img_td.append($img_icon);
-      $img_td.append($('<i class="icon-remove" style="display:none"></i>'));
-    } else {
-      $img_td.text('-');
-    }
-
-    $img_td.on('mouseover', function() {
-      $('img', $(this)).hide();
+    $faviconCol.on('mouseover', function() {
+      $('.faviconContent', $(this)).hide();
       $('.icon-remove', $(this)).show();
     });
 
-    $img_td.on('mouseout', function() {
-      $('img', $(this)).show();
+    $faviconCol.on('mouseout', function() {
+      $('.faviconContent', $(this)).show();
       $('.icon-remove', $(this)).hide();
     });
 
-
-    $img_td.click(function() {
+    $faviconCol.click(function() {
       tabmanager.closedTabs.removeTab($(this).parent().data('tabid'));
       $(this).parent().remove();
     });
 
-    $tr.append($img_td);
+    $tr.append($faviconCol);
 
     // Page title.
 
@@ -459,7 +456,7 @@ Tabs.corralTab.buildTable = function(closedTabs) {
   }
 };
 
-Tabs.corralTab.filterByKeyword = function() {
+Popup.corralTab.filterByKeyword = function() {
   var keyword = $(this).val();
 };
 
@@ -503,7 +500,7 @@ $(document).ready(function() {
 
   $('a[href="#tabCorral"]').tab('show');
   // Seems we need to force this since corral is the default.
-  Tabs.corralTab.init();
+  Popup.corralTab.init();
 
   $('#checkTimes').click(function() {
     //@todo: make that button work on lock tab.
@@ -513,14 +510,14 @@ $(document).ready(function() {
     var tabId = e.target.hash;
     switch (tabId) {
       case '#tabOptions':
-        Tabs.optionsTab.init($('div#tabOptions'));
+        Popup.optionsTab.init($('div#tabOptions'));
         break;
       case '#tabActive':
-        Tabs.activeTab.init($('div#tabActive'));
+        Popup.activeTab.init($('div#tabActive'));
         break;
 
       case '#tabCorral':
-        Tabs.corralTab.init($('div#tabCorral'));
+        Popup.corralTab.init($('div#tabCorral'));
         break;
     }
   });

@@ -299,11 +299,14 @@ Updater.updates[3.0] = {
     + '<ul>'
     + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
     + '<li> Added ability to remove tabs from Corral. <span class="label label-success">Feature</span></li>'
+    + '<li> Pinned tabs don\'t count towards minimum tabs <span class="label label-success">Feature</span></li>'
+    + '<li> Usability improvements on auto-lock page  <span class="label label-success">Feature</span></li>'
+    + '<li> Opening more than minimum tabs, does not cause an auto-close.  <span class="label label-error">Bug</span></li>'
     + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
     + '</ul>';
 
     var notification = window.webkitNotifications.createHTMLNotification(
-      'notification.html?title=Version 2.9&message=' + updateTxt
+      'notification.html?title=Version 3.0&message=' + updateTxt
     );
     notification.show();
   }  

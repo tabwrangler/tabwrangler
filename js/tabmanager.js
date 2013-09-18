@@ -65,6 +65,19 @@ TabManager.getAll = function() {
   return TabManager.getOlderThen();
 };
 
+/**
+ * Returns tabs which are not pinned or locked.
+ */
+TabManager.getNonPinnedTabs = function() {
+  var tabs = TabManager.getOlderThen();
+  for (var i in tabs) {
+    if (tabs[i].pinned) {
+      delete(tabs[i]);
+    }
+  }
+  return tabs;
+};
+
 TabManager.closedTabs = {
   tabs: []
 };

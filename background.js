@@ -44,7 +44,7 @@ var checkToClose = function(cutOff) {
 
   var toCut = tabmanager.getOlderThen(cutOff);
   var tabsToSave = [];
-  var allTabs = tabmanager.getAll();
+  var allTabs = tabmanager.getNonPinnedTabs();
 
   // If cutting will reduce us below 5 tabs, only remove the first N to get to 5.
   if ((allTabs.length - minTabs) >= 0) {

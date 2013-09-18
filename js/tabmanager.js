@@ -40,6 +40,7 @@ TabManager.removeTab = function(tabId) {
 };
 
 /**
+ * Returns tab times (hash of tabId : lastAccess)
  * @param time
  *  If null, returns all.
  * @return {Array}
@@ -58,7 +59,7 @@ TabManager.getOlderThen = function(time) {
 };
 
 /**
- * Wrapper function to get all tabs regardless of time inactive
+ * Wrapper function to get all tab times regardless of time inactive
  * @return {Array}
  */
 TabManager.getAll = function() {
@@ -68,14 +69,13 @@ TabManager.getAll = function() {
 /**
  * Returns tabs which are not pinned or locked.
  */
-TabManager.getNonPinnedTabs = function() {
+TabManager.getNonPinnedTabs = function(cb) {
   var tabs = TabManager.getOlderThen();
-  for (var i in tabs) {
-    if (tabs[i].pinned) {
+  chrome.tabs.get(tabs, function(tab) {
+    if (tab.pinned) {
       delete(tabs[i]);
     }
-  }
-  return tabs;
+  });
 };
 
 TabManager.closedTabs = {

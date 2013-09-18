@@ -16,7 +16,7 @@ define(['tabmanager'], function(tabmanager) {
       purgeClosedTabs: false, // Save closed tabs in between browser sessions.
       showBadgeCount: true, // Save closed tabs in between browser sessions.
       lockedIds: [],  // An array of tabids which have been explicitly locked by the user.
-      whitelist: [], // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
+      whitelist: ["chrome://*"], // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
       paused: false, // If TabWrangler is paused (won't count down)
     },
     // Gets all settings from sync and stores them locally.

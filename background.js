@@ -16,79 +16,65 @@ require([
  */
 var checkToClose = function(cutOff) {
   var i;
-
-  if (settings.get('paused') === true) {
-    return;
-  }
   cutOff = cutOff || new Date().getTime() - settings.get('stayOpen');
   var minTabs = settings.get('minTabs');
   // Tabs which have been locked via the checkbox.
   var lockedIds = settings.get("lockedIds");
+  var toCut = tabmanager.getOlderThen(cutOff);
+  var tabsToSave = [];
+
+
+  if (settings.get('paused') === true) {
+    return;
+  }
 
   // Update the selected one to make sure it doesn't get closed.
   chrome.tabs.getSelected(null, tabmanager.updateLastAccessed);
 
-  /**
-   * Idlechecker stuff, needs to be refactored
-   *
 
-  var sleepTime = TW.idleChecker.timeSinceLastRun(now) - settings.checkInterval * 1.1;
-  // sleepTime is the time elapsed between runs.  This is probably time when the computer was asleep.
-
-  if (sleepTime < 0) {
-    sleepTime = 0;
-  }
-  TW.idleChecker.logRun(now);
-
-  */
-
-  var toCut = tabmanager.getOlderThen(cutOff);
-  var tabsToSave = [];
-  var allTabs = tabmanager.getNonPinnedTabs();
-
-  // If cutting will reduce us below 5 tabs, only remove the first N to get to 5.
-  if ((allTabs.length - minTabs) >= 0) {
-    toCut = toCut.splice(0, allTabs.length - minTabs);
-  } else {
-    // We have less than minTab tabs, abort.
-    // Also, let's reset the last accessed time of our current tabs so they
-    // don't get closed when we add a new one.
-    for (i = 0; i < allTabs.length; i++) {
-      tabmanager.updateLastAccessed(allTabs[i]);
-    }
-    return;
-  }
-
-  if (toCut.length === 0) {
-    return;
-  }
-
-  var closeTab = function(tab) {
-    if (true === tab.pinned) {
-        return;
+  chrome.tabs.query({pinned: false}, function(tabs) {
+    var tabsToCut = _.filter(tabs, function(t) {return toCut.indexOf(t.id) != -1;});
+    if ((tabs.length - minTabs) <= 0) {
+      // We have less than minTab tabs, abort.
+      // Also, let's reset the last accessed time of our current tabs so they
+      // don't get closed when we add a new one.
+      for (i = 0; i < tabs.length; i++) {
+        tabmanager.updateLastAccessed(tabs[i].id);
       }
-      if (tabmanager.isWhitelisted(tab.url)) {
-        return;
-      }
-      
-      tabmanager.closedTabs.saveTabs([tab]);
-      // Close it in Chrome.
-      chrome.tabs.remove(tab.id);
-  };
-
-  for (i=0; i < toCut.length; i++) {
-    var tabIdToCut = toCut[i];
-    // @todo: move to tabmanager.
-    if (lockedIds.indexOf(tabIdToCut) != -1) {
-      // Update its time so it gets checked less frequently.
-      // Would also be smart to just never add it.
-      // @todo: fix that.
-      tabmanager.updateLastAccessed(tabIdToCut);
-      continue;
+      return;
     }
 
-    chrome.tabs.get(tabIdToCut, closeTab);
-  }
+    // If cutting will reduce us below 5 tabs, only remove the first N to get to 5.
+    tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
+
+    if (tabsToCut.length === 0) {
+      return;
+    }
+
+    for (i=0; i < tabsToCut.length; i++) {
+      if (lockedIds.indexOf(tabsToCut[i].id) != -1) {
+        // Update its time so it gets checked less frequently.
+        // Would also be smart to just never add it.
+        // @todo: fix that.
+        tabmanager.updateLastAccessed(tabsToCut[i].id);
+        continue;
+      }
+      closeTab(tabsToCut[i]);
+    }
+  });
+};
+
+var closeTab = function(tab) {
+  if (true === tab.pinned) {
+      return;
+    }
+    if (tabmanager.isWhitelisted(tab.url)) {
+      return;
+    }
+    
+    tabmanager.closedTabs.saveTabs([tab]);
+    // Close it in Chrome.
+    chrome.tabs.remove(tab.id);
 };
 
 var onNewTab = function(tab) {

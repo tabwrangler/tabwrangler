@@ -80,20 +80,52 @@ Updater = {
   }
 };
 
-Updater.getNotification = function(message, items) {
-  message = message || "Tab Wrangler Updates";
+Updater.getNotification = function(title, items) {
+  title = title || "Tab Wrangler Updates";
   items = items || [];
   return {
       type: "list",
-      title: "Tab Wrangler",
-      message: message,
+      title: title,
+      message: "Tab wrangler updates",
       iconUrl: "img/icon128.png",
       items: [],
-      buttons: [
-        {iconUrl: 'img/star.png', title: "Review Tab Wrangler"},
-        {iconUrl: 'img/notes.png', title: "See all release notes / be a tester"}
-      ],
+      buttons: [],
     };
+};
+
+Updater.addCommonButtons = function(notification) {
+  notification.buttons.push({iconUrl: 'img/star.png', title: "Review Tab Wrangler"});
+  notification.buttons.push({iconUrl: 'img/notes.png', title: "See all release notes / be a tester"});
+};
+
+Updater.notificationIdPrefix = "updater-";
+
+Updater.commonButtonHandler = function(id, buttonIdx) {
+  // If an updater is creating a notification it should
+  // do so by prefixing the Id with updater--.
+  // This is a little hacky, so there is a helper function
+  // which launches the notification with this.
+  if(id.indexOf(Updater.notificationIdPrefix) === 0) {
+    if (buttonIdx === 0) {
+      // Reviewing TabWrangler
+      // Launch the Chrome store page
+      chrome.tabs.create({url: 'https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews', active: true});
+    }
+
+    if (buttonIdx === 1) {
+      chrome.tabs.create({url: 'http://www.jacobsingh.name/tabwrangler/release-notes', active: true});
+    }
+  }
+};
+
+Updater.launchNotification = function(id, notification, addButtons) {
+  var cb = function(){};
+  addButtons = typeof(addButtons) == 'undefined' ? false : true;
+  if (addButtons) {
+    this.addCommonButtons(notification);
+    chrome.notifications.onButtonClicked.addListener(this.commonButtonHandler);
+  }
+  chrome.notifications.create(this.notificationIdPrefix + id, notification, cb);
 };
 
 // These are also run for users with no currentVersion set.
@@ -109,7 +141,7 @@ Updater.updates[2.1] = {
       'closed_tab_actions': null,
       'locked_ids' : 'lockedIds',
       'popup_view' : null
-    }
+    };
 
     var oldValue;
 
@@ -125,12 +157,12 @@ Updater.updates[2.1] = {
       }
     }
   }
-}
+};
 
 Updater.updates[2.2] = {
   fx: function() {
     // Move localStorage to chrome.storage.sync
-    var items = {}
+    var items = {};
     var val;
     for(var i in localStorage) {
       val = String(localStorage[i]);
@@ -162,7 +194,7 @@ Updater.updates[2.2] = {
     );
     notification.show();
   }
-}
+};
 
 Updater.updates[2.3] = {
   fx: function() {
@@ -174,7 +206,7 @@ Updater.updates[2.3] = {
     var updateTxt = ''
     + '<strong>Minor release:</strong>'
     + '<ul>'
-  + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
+    + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
     + '<li> Fixes version requirement for (Chrome 20+ required) <span class="label label-error">Bug</span></li>'
     + '<li> Adds a search box to Tab Corral <span class="label label-success">Feature</span></li>'
     + '<li> Various consmetic improvements <span class="label label-success">Feature</span></li>'
@@ -312,24 +344,13 @@ Updater.updates[3.0] = {
   },
 
   finished: function() {
-
-    var updateTxt = ''
-    + '<strong>Updates</strong>'
-    + '<ul>'
-    + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
-    + '<li> Added ability to remove tabs from Corral. <span class="label label-success">Feature</span></li>'
-    + '<li> Pinned tabs don\'t count towards minimum tabs <span class="label label-success">Feature</span></li>'
-    + '<li> Usability improvements on auto-lock page  <span class="label label-success">Feature</span></li>'
-    + '<li> Opening more than minimum tabs, does not cause an auto-close.  <span class="label label-error">Bug</span></li>'
-    + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
-    + '</ul>';
-
+    
     var notification = Updater.getNotification("Tab Wrangler 3.0 updates");
-    notification.items.push({title: "New", message: "Added ability to remove tabs from Corral"});
-    notification.items.push({title: "New", message: "Pinned tabs don\'t count towards minimum tabs"});
-    notification.items.push({title: "New", message: "Usability improvements on auto-lock page"});
-    notification.items.push({title: "Fix", message: "Opening more than minimum tabs, does not cause an auto-close."});
-    chrome.notifications.create('3.0Update', notification, function(a) {console.log(a)});
+    notification.items.push({title: "New", message: "Remove tabs from Corral"});
+    notification.items.push({title: "New", message: "Pinned tabs not counted"});
+    notification.items.push({title: "New", message: "Auto-lock page UX"});
+    notification.items.push({title: "Fix", message: "No auto-close when > minTabs."});
+    Updater.launchNotification("3.0", notification, true);
   }  
 }
 

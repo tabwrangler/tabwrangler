@@ -78,7 +78,23 @@ Updater = {
       }
     }
   }
-}
+};
+
+Updater.getNotification = function(message, items) {
+  message = message || "Tab Wrangler Updates";
+  items = items || [];
+  return {
+      type: "list",
+      title: "Tab Wrangler",
+      message: message,
+      iconUrl: "img/icon128.png",
+      items: [],
+      buttons: [
+        {iconUrl: 'img/star.png', title: "Review Tab Wrangler"},
+        {iconUrl: 'img/notes.png', title: "See all release notes / be a tester"}
+      ],
+    };
+};
 
 // These are also run for users with no currentVersion set.
 // This update is for the 1.x -> 2.x users
@@ -272,6 +288,8 @@ Updater.updates[2.9] = {
 
   finished: function() {
 
+
+
     var updateTxt = ''
     + '<strong>Updates</strong>'
     + '<ul>'
@@ -284,6 +302,7 @@ Updater.updates[2.9] = {
       'notification.html?title=Version 2.9&message=' + updateTxt
     );
     notification.show();
+    
   }  
 }
 
@@ -305,10 +324,12 @@ Updater.updates[3.0] = {
     + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
     + '</ul>';
 
-    var notification = window.webkitNotifications.createHTMLNotification(
-      'notification.html?title=Version 3.0&message=' + updateTxt
-    );
-    notification.show();
+    var notification = Updater.getNotification("Tab Wrangler 3.0 updates");
+    notification.items.push({title: "New", message: "Added ability to remove tabs from Corral"});
+    notification.items.push({title: "New", message: "Pinned tabs don\'t count towards minimum tabs"});
+    notification.items.push({title: "New", message: "Usability improvements on auto-lock page"});
+    notification.items.push({title: "Fix", message: "Opening more than minimum tabs, does not cause an auto-close."});
+    chrome.notifications.create('3.0Update', notification, function(a) {console.log(a)});
   }  
 }
 

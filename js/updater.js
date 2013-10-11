@@ -30,7 +30,6 @@ Updater = {
       if (typeof items['version'] != 'undefined') {
         currentVersion = items['version'];
       }
-      
 
       if (!currentVersion) {
         // Hardcoded here to make the code simpler.
@@ -45,6 +44,7 @@ Updater = {
           currentVersion = 2.1;
         }
       }
+      console.log("Updating from " + currentVersion + " to " + manifestVersion);
       self.runUpdates(currentVersion, manifestVersion);
     }); 
   },

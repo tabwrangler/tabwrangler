@@ -7,7 +7,7 @@
   "options_page":"popup.html",
   "version": "3.0",
   "description": "Automatically closes inactive tabs and makes it easy to get them back", 
-  "minimum_chrome_version": "20",
+  "minimum_chrome_version": "28",
   "icons": {
       "128": "img/icon128.png",
       "48": "img/icon48.png",

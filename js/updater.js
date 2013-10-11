@@ -338,13 +338,13 @@ Updater.updates[2.9] = {
   }  
 }
 
-Updater.updates[3.0] = {
+Updater.updates[3.1] = {
   fx: function() {
     
   },
 
   finished: function() {
-    
+
     var notification = Updater.getNotification("Tab Wrangler 3.0 updates");
     notification.items.push({title: "New", message: "Remove tabs from Corral"});
     notification.items.push({title: "New", message: "Pinned tabs not counted"});

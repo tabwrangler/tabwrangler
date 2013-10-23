@@ -51,8 +51,13 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
       // Little bit of a kludge, would be nice to be DRY here but this was simpler.
       // Sets the title again for each page.
       chrome.tabs.get(tabId, function(tab) {
-        var currentDomain = util.getDomain(tab.url);
-        chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
+        try {
+          var currentDomain = util.getDomain(tab.url);
+          chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
+        } catch (e) {
+          console.log(tab, "Error in updating menu");
+          throw e;
+        }
       });
       chrome.contextMenus.update(this.lockTabId, {'checked': tabmanager.isLocked(tabId)});
     }

@@ -345,12 +345,13 @@ Updater.updates[3.1] = {
 
   finished: function() {
 
-    var notification = Updater.getNotification("Tab Wrangler 3.0 updates");
+    var notification = Updater.getNotification("Tab Wrangler 3.1 updates");
     notification.items.push({title: "New", message: "Remove tabs from Corral"});
     notification.items.push({title: "New", message: "Pinned tabs not counted"});
     notification.items.push({title: "New", message: "Auto-lock page UX"});
     notification.items.push({title: "Fix", message: "No auto-close when > minTabs."});
-    Updater.launchNotification("3.0", notification, true);
+    notification.items.push({title: "Fix", message: "Fixed display issue with timer after pause"});
+    Updater.launchNotification("3.1", notification, true);
   }  
 }
 

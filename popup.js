@@ -30,6 +30,12 @@ Popup.Util.buildFaviconCol = function(url) {
   return $faviconCol;
 };
 
+Popup.Util.secondsToMinutes =  function (seconds) {
+  var s = seconds % 60;
+  s = s > 10 ? String(s) : "0" + String(s);
+  return String(Math.floor(seconds / 60)) + ":" + s;
+};
+
 
 Popup.optionsTab = {};
 /**
@@ -198,20 +204,17 @@ Popup.activeTab.buildTabLockTable = function (tabs) {
   $tbody.html('');
 
   var lockedIds = settings.get("lockedIds");
-  
-  function secondsToMinutes(seconds) {
-    var s = seconds % 60;
-    s = s > 10 ? String(s) : "0" + String(s);
-    return String(Math.floor(seconds / 60)) + ":" + s;
-  }
       
   for (var i = 0; i < tabNum; i++) {
+    console.log('wtf');
     var tabIsPinned = tabs[i].pinned;
     var tabWhitelistMatch = tabmanager.getWhitelistMatch(tabs[i].url);
     var tabIsLocked = tabIsPinned || tabWhitelistMatch || lockedIds.indexOf(tabs[i].id) != -1;
 
     // Create a new row.
     var $tr = $('<tr></tr>');
+    $tr.attr('data-tabid', tabs[i].id);
+    
 
     // Checkbox to lock it.
     //@todo: put the handler in its own function
@@ -237,17 +240,7 @@ Popup.activeTab.buildTabLockTable = function (tabs) {
     $tr.append($('<td><span class="tabTitle">' + tabs[i].title.shorten(70) + '</span><br/><span class="tabUrl">' + tabs[i].url.shorten(70) + '</td>'));
 
     if (!tabIsLocked) {
-      var cutOff = new Date().getTime() - settings.get('stayOpen');
-
-      var lastModified = tabmanager.tabTimes[tabs[i].id];
-      var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
-      if (settings.get('paused')) {
-        $timer = $('<td class="time-left">paused</td>');  
-      } else {
-        $timer = $('<td class="time-left">' + secondsToMinutes(timeLeft) + '</td>');
-      }
-      
-      $timer.data('countdown', timeLeft);
+      $timer = $('<td class="time-left"></td>');
       $tr.append($timer);
     } else {
       var reason = 'Locked';
@@ -264,25 +257,29 @@ Popup.activeTab.buildTabLockTable = function (tabs) {
     // Append the row.
     $tbody.append($tr);
   }
-  
-  updateCountdown = function() {
-      $('.time-left').each(function() {
-        var t = null;
-        var myElem = $(this);
-        if (settings.get('paused')) {
-          myElem.html('paused');
-        } else {
-          t = myElem.data('countdown') - 1;
-          myElem.html(secondsToMinutes(t));
-          myElem.data('countdown', t);
-        }
-      });
-    }
-    
-    setInterval(updateCountdown, 1000);
+
+  Popup.activeTab.updateCountdown();
+  setInterval(Popup.activeTab.updateCountdown, 1000);
 
   return true;
-}
+};
+
+Popup.activeTab.updateCountdown = function() {
+  var self = this;
+  $('.time-left').each(function() {
+    var t = null;
+    var myElem = $(this);
+    var tabId = myElem.parent().data('tabid');
+    if (settings.get('paused')) {
+      myElem.html('paused');
+    } else {
+      var lastModified = tabmanager.tabTimes[tabId];
+      var cutOff = new Date().getTime() - settings.get('stayOpen');
+      var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
+      myElem.html(Popup.Util.secondsToMinutes(timeLeft));
+    }
+  });
+};
 
 Popup.corralTab = {};
 

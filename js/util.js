@@ -3,7 +3,7 @@ define("util", function() {
   return {
     getDomain: function(url) {
       return url.match(/[^:]+:\/\/([^\/]+)\//)[1];
-    }
+    },
   };
 });
 

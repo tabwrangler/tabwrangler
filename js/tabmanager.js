@@ -119,7 +119,9 @@ TabManager.closedTabs.init = function() {
 };
 
 TabManager.closedTabs.removeTab = function(tabId) {
-  return TabManager.closedTabs.tabs.splice(TabManager.closedTabs.findPositionById(tabId), 1);
+  var output = TabManager.closedTabs.tabs.splice(TabManager.closedTabs.findPositionById(tabId), 1);
+  TabManager.closedTabs.save();
+  return output;
 };
 
 // @todo: move to filter system for consistency
@@ -129,6 +131,11 @@ TabManager.closedTabs.findPositionById = function(id) {
       return i;
     }
   }
+};
+
+TabManager.closedTabs.save = function() {
+  // persists this.tabs to local storage
+  chrome.storage.local.set({savedTabs: this.tabs});
 };
 
 TabManager.closedTabs.saveTabs = function(tabs) {
@@ -144,7 +151,7 @@ TabManager.closedTabs.saveTabs = function(tabs) {
   if ((this.tabs.length - maxTabs) > 0) {
     this.tabs = this.tabs.splice(0, maxTabs);
   }
-  chrome.storage.local.set({savedTabs: this.tabs});
+  TabManager.closedTabs.save();
 };
 
 TabManager.closedTabs.clear = function() {

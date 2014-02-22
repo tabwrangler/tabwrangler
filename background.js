@@ -31,36 +31,41 @@ var checkToClose = function(cutOff) {
   // Update the selected one to make sure it doesn't get closed.
   chrome.tabs.getSelected(null, tabmanager.updateLastAccessed);
 
-
-  chrome.tabs.query({pinned: false}, function(tabs) {
-    var tabsToCut = _.filter(tabs, function(t) {return toCut.indexOf(t.id) != -1;});
-    if ((tabs.length - minTabs) <= 0) {
-      // We have less than minTab tabs, abort.
-      // Also, let's reset the last accessed time of our current tabs so they
-      // don't get closed when we add a new one.
-      for (i = 0; i < tabs.length; i++) {
-        tabmanager.updateLastAccessed(tabs[i].id);
+  chrome.windows.getAll({populate:true}, function(windows) {
+    var tabs = []; // Array of tabs, populated for each window.
+    _.each(windows, function(myWindow) {
+      tabs = myWindow.tabs;
+      // Filter out the pinned tabs
+      tabs = _.filter(tabs, function(tab) {return tab.pinned === false;});
+      var tabsToCut = _.filter(tabs, function(t) {return toCut.indexOf(t.id) != -1;});
+      if ((tabs.length - minTabs) <= 0) {
+        // We have less than minTab tabs, abort.
+        // Also, let's reset the last accessed time of our current tabs so they
+        // don't get closed when we add a new one.
+        for (i = 0; i < tabs.length; i++) {
+          tabmanager.updateLastAccessed(tabs[i].id);
+        }
+        return;
       }
-      return;
-    }
 
-    // If cutting will reduce us below 5 tabs, only remove the first N to get to 5.
-    tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
+      // If cutting will reduce us below 5 tabs, only remove the first N to get to 5.
+      tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
 
-    if (tabsToCut.length === 0) {
-      return;
-    }
-
-    for (i=0; i < tabsToCut.length; i++) {
-      if (lockedIds.indexOf(tabsToCut[i].id) != -1) {
-        // Update its time so it gets checked less frequently.
-        // Would also be smart to just never add it.
-        // @todo: fix that.
-        tabmanager.updateLastAccessed(tabsToCut[i].id);
-        continue;
+      if (tabsToCut.length === 0) {
+        return;
       }
-      closeTab(tabsToCut[i]);
-    }
+
+      for (i=0; i < tabsToCut.length; i++) {
+        if (lockedIds.indexOf(tabsToCut[i].id) != -1) {
+          // Update its time so it gets checked less frequently.
+          // Would also be smart to just never add it.
+          // @todo: fix that.
+          tabmanager.updateLastAccessed(tabsToCut[i].id);
+          continue;
+        }
+        closeTab(tabsToCut[i]);
+      }
+    });
   });
 };
 

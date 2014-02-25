@@ -1,44 +1,56 @@
 define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) {
-  console.log(util);
   /**
-   * Creates and updates context menus.
+   * Creates and updates context menus and page action menus.
    */
   ContextMenuHandler = {
     lockActionId: null,
-    createContextMenus: function () {
-      var lockTabAction = function(onClickData, selectedTab) {
-        tabmanager.lockTab(selectedTab.id);
-      };
 
-      var lockDomainAction = function(onClickData, selectedTab) {
+    getPageActionButtons: function() {
+      return {
+        'lockTab': "Never close this tab",
+        'lockDomain': "Never close anything on this domain",
+        'corralTab': 'Close tab and save URL immediately',
+      };
+    },
+
+    handlePageAction: function (actionId, currentTab) {
+      ContextMenuHandler.pageSpecificActions[actionId]({}, currentTab);
+    },
+
+    pageSpecificActions: {
+      lockTab: function(onClickData, selectedTab) {
+        tabmanager.lockTab(selectedTab.id);
+      },
+      lockDomain: function(onClickData, selectedTab) {
         whitelist = settings.get('whitelist');
         domain = util.getDomain(selectedTab.url);
         whitelist.push(domain);
         settings.set('whitelist', whitelist);
-      };
-
-      var corralTabAction = function(onClickData, selectedTab) {
+      },
+      corralTab: function(onClickData, selectedTab) {
         tabmanager.closedTabs.saveTabs([selectedTab]);
         // Close it in Chrome.
         chrome.tabs.remove(selectedTab.id);
-      };
+      }
+    },
 
+    createContextMenus: function () {
       var lockTab = {
         'type': 'checkbox',
         'title': "Never close this tab",
-        'onclick': lockTabAction
+        'onclick': this.pageSpecificActions['lockTab']
       };
 
       var lockDomain = {
         'type': 'checkbox',
         'title': "Never close anything on this domain",
-        'onclick': lockDomainAction
+        'onclick': this.pageSpecificActions['lockDomain']
       };
 
       var corralTab = {
         'type': 'normal',
         'title': "Close tab and save URL immediately",
-        'onclick': corralTabAction
+        'onclick': this.pageSpecificActions['corralTab']
       };
 
       this.lockTabId = chrome.contextMenus.create(lockTab);
@@ -50,6 +62,7 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
       self = this;
       // Little bit of a kludge, would be nice to be DRY here but this was simpler.
       // Sets the title again for each page.
+      chrome.pageAction.show(tabId);
       chrome.tabs.get(tabId, function(tab) {
         try {
           var currentDomain = util.getDomain(tab.url);

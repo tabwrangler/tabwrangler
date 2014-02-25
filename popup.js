@@ -1,14 +1,11 @@
 require([
 ], function() {
-  console.log(_);
 
 var TW = chrome.extension.getBackgroundPage().TW;
-console.log(TW);
 
 // Unpack TW.
 var tabmanager = TW.tabmanager;
 var settings = TW.settings;
-console.log(settings);
 
 Popup = {};
 Popup.Util = {};

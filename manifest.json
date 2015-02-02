@@ -19,15 +19,17 @@
     "default_popup":"popup.html"
   },
 
-  "page_action": {
+  /*"page_action": {
     "default_icon": {                    // optional
       "19": "img/icon48.png",           // optional
       "38": "img/icon48.png"            // optional
     },
-    "default_title": "Tab Wrangler",      // optional; shown in tooltip
+    "default_title": "Tab Wrangler"      // optional; shown in tooltip
   },
+*/
   "web_accessible_resources": [
-    "img/icon48.png"
+    "img/icon48.png",
+    "img/1px.png"
   ],
   "permissions": [ "tabs", "notifications", "storage", "contextMenus" ]
 }

@@ -18,12 +18,15 @@ Popup.Util.buildFaviconCol = function(url) {
   if (url !== null && url !== undefined) {
     // We have an image to show.
     var $favicon = $('<img />')
-    .attr('class', 'favicon')
-    .attr('src', url);
+    .addClass('lazy')
+    .addClass('favicon')
+    .attr('src', 'img/1px.png')
+    .attr('data-src', url);
     $faviconColContent.append($favicon);
   } else {
     $faviconColContent.text('-');
   }
+
   return $faviconCol;
 };
 
@@ -515,5 +518,7 @@ $(document).ready(function() {
         break;
     }
   });
+
+  $('.lazy').jail();
 });
 });

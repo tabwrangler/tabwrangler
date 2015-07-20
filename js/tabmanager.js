@@ -23,7 +23,7 @@ TabManager.updateLastAccessed = function (tabId) {
   if (typeof tabId == "object") {
     tabId = tabId.id;
   }
-  
+
   if (typeof tabId != 'number') {
     console.log('Error: ' + tabId.toString() + ' is not an number', tabId);
     return;
@@ -138,6 +138,11 @@ TabManager.closedTabs.save = function() {
   chrome.storage.local.set({savedTabs: this.tabs});
 };
 
+TabManager.closedTabs.removeDuplicates = function() {
+  // removes duplicate tabs (by URL), keeps youngest
+  this.tabs = _.uniq(this.tabs, false, function(t) { return t.url } );
+};
+
 TabManager.closedTabs.saveTabs = function(tabs) {
   var maxTabs = TW.settings.get('maxTabs');
   for (var i=0; i < tabs.length; i++) {
@@ -151,6 +156,7 @@ TabManager.closedTabs.saveTabs = function(tabs) {
   if ((this.tabs.length - maxTabs) > 0) {
     this.tabs = this.tabs.splice(0, maxTabs);
   }
+  TabManager.closedTabs.removeDuplicates();
   TabManager.closedTabs.save();
 };
 

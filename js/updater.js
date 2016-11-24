@@ -6,13 +6,14 @@ define(function(require) {
 Updater = {
   updates: {},
   firstInstall: function() {
-    var notification = window.webkitNotifications.createNotification(
-      'img/icon48.png',                      // The image.
-      'Tab Wrangler is installed',
-      'Tab wrangler is now auto-closing tabs after ' + TW.settings.get('minutesInactive') + ' minutes. \n\
-  To change this setting, click on the new icon on your URL bar.'
-      );
-    notification.show();
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: 'img/icon48.png',
+      title: 'Tab Wrangler is installed',
+      message: 'Tab wrangler is now auto-closing tabs after ' +
+          `${TW.settings.get('minutesInactive')} minutes. \n` +
+          'To change this setting, click on the new icon on your URL bar.'
+    });
   },
   //@todo: refactor this into a couple functions
   run: function() {

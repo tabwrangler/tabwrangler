@@ -88,7 +88,7 @@ TabManager.closedTabs = {
 TabManager.searchTabs = function (cb, filters) {
   var tabs = TabManager.closedTabs.tabs;
   if (filters) {
-    for (i = 0; i < filters.length; i++) {
+    for (var i = 0; i < filters.length; i++) {
       tabs = _.filter(tabs, filters[i]);
     }
   }

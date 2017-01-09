@@ -459,54 +459,68 @@ require([
     var keyword = $(this).val();
   };
 
-  // class PauseButton extends React.Component {
-  //   constructor() {
-  //     this.state = {
-  //       paused: settings.get('paused'),
-  //     };
-  //   }
+  class PauseButton extends React.PureComponent {
+    constructor() {
+      super();
 
-  //   render() {
+      this.state = {
+        paused: settings.get('paused'),
+      };
 
-  //   }
-  // }
-
-  var PauseButton = {};
-
-  PauseButton.init = function() {
-    var self = this;
-    if (settings.get('paused') === true) {
-      this.pause();
-    } else {
-      this.play();
+      this.pause = this.pause.bind(this);
+      this.play = this.play.bind(this);
     }
-    this.elem = $('a#pauseButton');
 
-    this.elem.click(function() {
-      if (settings.get('paused') === true) {
-        self.play();
-        settings.set('paused', false);
-      } else {
-        self.pause();
-        settings.set('paused', true);
-      }
-    });
-  };
+    pause() {
+      chrome.browserAction.setIcon({'path': 'img/icon-paused.png'});
+      settings.set('paused', true);
+      this.setState({paused: true});
+    }
 
-  PauseButton.pause = function() {
-    chrome.browserAction.setIcon({'path': 'img/icon-paused.png'});
-    $('.unpaused-state', this.elem).hide();
-    $('.paused-state', this.elem).show();
-  };
+    play() {
+      chrome.browserAction.setIcon({'path': 'img/icon.png'});
+      settings.set('paused', false);
+      this.setState({paused: false});
+    }
 
-  PauseButton.play = function() {
-    chrome.browserAction.setIcon({'path': 'img/icon.png'});
-    $('.paused-state',this.elem).hide();
-    $('.unpaused-state', this.elem).show();
-  };
+    render() {
+      const action = this.state.paused
+        ? this.play
+        : this.pause;
+
+      const content = this.state.paused
+        ? <span><i className="icon-play"></i> Play</span>
+        : <span><i className="icon-pause"></i> Pause</span>;
+
+      return (
+        <button className="btn btn-mini" onClick={action}>
+          {content}
+        </button>
+      );
+    }
+  }
+
+  class NavButtons extends React.PureComponent {
+    render() {
+      return (
+        <div>
+          <PauseButton />{' '}
+          <a
+            className="btn btn-mini"
+            href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"
+            target="_blank">
+            <i className="icon-star"></i> Review Tab Wrangler
+          </a>
+        </div>
+      );
+    }
+  }
 
   $(document).ready(function() {
-    PauseButton.init();
+    ReactDOM.render(
+      <NavButtons />,
+      document.getElementById('nav-buttons')
+    );
 
     $('a[href="#tabCorral"]').tab('show');
     // Seems we need to force this since corral is the default.

@@ -16,15 +16,17 @@ gulp.task('cp-lib', function() {
 });
 
 gulp.task('js', function() {
+  var presets = ['es2015', 'react'];
+
   gulp.src('app/*.js')
     .pipe(babel({
-      presets: ['es2015'],
+      presets: presets,
     }))
     .pipe(gulp.dest('dist'));
 
   gulp.src('app/js/*.js')
     .pipe(babel({
-      presets: ['es2015'],
+      presets: presets,
     }))
     .pipe(gulp.dest('dist/js'));
 });

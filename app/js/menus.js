@@ -1,8 +1,10 @@
+'use strict';
+
 define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) {
   /**
    * Creates and updates context menus and page action menus.
    */
-  ContextMenuHandler = {
+  var ContextMenuHandler = {
     lockActionId: null,
 
     getPageActionButtons: function() {
@@ -57,7 +59,7 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
       this.lockDomainId = chrome.contextMenus.create(lockDomain);
       chrome.contextMenus.create(corralTab);
     },
-    
+
     updateContextMenus: function(tabId) {
       self = this;
       // Little bit of a kludge, would be nice to be DRY here but this was simpler.
@@ -75,5 +77,6 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
       chrome.contextMenus.update(this.lockTabId, {'checked': tabmanager.isLocked(tabId)});
     }
   };
+
   return ContextMenuHandler;
 });

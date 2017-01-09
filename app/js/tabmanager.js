@@ -1,9 +1,12 @@
+'use strict';
+
 define(function(require, exports, modules) {
+
 /**
  * Stores the tabs in a separate variable to log Last Accessed time.
  * @type {Object}
  */
-TabManager = {
+var TabManager = {
   tabTimes: {}, // An array of tabId => timestamp
   closedTabs: []
 };

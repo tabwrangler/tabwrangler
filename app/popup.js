@@ -1,3 +1,5 @@
+'use strict';
+
 require([
 ], function() {
 
@@ -7,10 +9,10 @@ var TW = chrome.extension.getBackgroundPage().TW;
 var tabmanager = TW.tabmanager;
 var settings = TW.settings;
 
-Popup = {};
+var Popup = {};
 Popup.Util = {};
 Popup.Util.buildFaviconCol = function(url) {
-  
+
    // Image cell.
   var $faviconCol = $('<td class="faviconCol"></td>');
   var $faviconColContent = $('<span class="faviconContent"></span>');
@@ -20,7 +22,7 @@ Popup.Util.buildFaviconCol = function(url) {
     var $favicon = $('<img />')
     .addClass('lazy')
     .addClass('favicon')
-    .attr('src', 'img/1px.png')
+    .attr('src', 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')
     .attr('data-src', url);
     $faviconColContent.append($favicon);
   } else {
@@ -50,7 +52,7 @@ Popup.optionsTab.init = function(context) {
     var key = this.id;
     Popup.optionsTab.saveOption(key, $(this).val());
   }
-  
+
   function onChangeCheckBox() {
     var key = this.id;
     if ($(this).attr('checked')) {
@@ -59,7 +61,7 @@ Popup.optionsTab.init = function(context) {
       Popup.optionsTab.saveOption(key, false);
     }
   }
-  
+
   $('#minutesInactive').keyup(_.debounce(onBlurInput, 200));
   $('#minTabs').keyup(_.debounce(onBlurInput, 200));
   $('#maxTabs').keyup(_.debounce(onBlurInput, 200));
@@ -80,8 +82,8 @@ Popup.optionsTab.saveOption = function (key, value) {
   } catch (err) {
     errors.push(err);
   }
-  
-  
+
+
   $('#status').removeClass();
   $('#status').css('visibility', 'visible');
   $('#status').css('opacity', '100');
@@ -110,7 +112,7 @@ Popup.optionsTab.loadOptions = function () {
   if (settings.get('showBadgeCount') !== false) {
     $('#showBadgeCount').attr('checked', true);
   }
-  
+
 
   $('#whitelist').addOption = function(key, val) {
       this.append(
@@ -204,7 +206,7 @@ Popup.activeTab.buildTabLockTable = function (tabs) {
   $tbody.html('');
 
   var lockedIds = settings.get("lockedIds");
-      
+
   for (var i = 0; i < tabNum; i++) {
     console.log('wtf');
     var tabIsPinned = tabs[i].pinned;
@@ -214,7 +216,7 @@ Popup.activeTab.buildTabLockTable = function (tabs) {
     // Create a new row.
     var $tr = $('<tr></tr>');
     $tr.attr('data-tabid', tabs[i].id);
-    
+
 
     // Checkbox to lock it.
     //@todo: put the handler in its own function
@@ -285,7 +287,7 @@ Popup.corralTab = {};
 
 Popup.corralTab.init = function(context) {
   var self = this;
-  
+
   // Setup interface elements
   $('#autocloseMessage').hide();
   $('.clearCorralMessage').hide();
@@ -305,24 +307,24 @@ Popup.corralTab.init = function(context) {
     Popup.corralTab.init();
     return;
   });
-  
+
   if(location.search !== "?foo") {
     location.search = "?foo";
     throw new Error;  // load everything on the next page;
     // stop execution on this page
   }
-  
+
   $('.corral-search').keyup(_.debounce(
   function() {
     var keyword = $(this).val();
     tabmanager.searchTabs(self.buildTable, [tabmanager.filters.keyword(keyword)]);
   }, 200));
-  
+
   $('.corral-search').delay(1000).focus();
 };
 
 Popup.corralTab.buildTable = function(closedTabs) {
-   
+
   /**
    * @todo: add this back in
    *
@@ -334,19 +336,19 @@ Popup.corralTab.buildTable = function(closedTabs) {
    chrome.tabs.create({'url':'chrome://newtab/'});
    }
    */
-  
+
   // Clear out the table.
   var $tbody = $('#corralTable tbody');
   $tbody.html('');
-  
+
   var now = new Date().getTime();
-  separations = []
+  var separations = []
   separations.push([now - (1000 * 60 * 30), 'in the last 1/2 hour']);
   separations.push([now - (1000 * 60 * 60), 'in the last hour']);
   separations.push([now - (1000 * 60 * 60 * 2),'in the last 2 hours']);
   separations.push([now - (1000 * 60 * 60 * 24),'in the last day']);
   separations.push([0, 'more than a day ago']);
-  
+
   function getGroup(time) {
     var limit, text, i;
     for (i=0; i < separations.length; i++) {
@@ -357,25 +359,25 @@ Popup.corralTab.buildTable = function(closedTabs) {
       }
     }
   }
-  
+
   function createGroupRow(timeGroup, $tbody) {
     var $tr = $('<tr class="info"></tr>');
-    $button = $('<button class="btn btn-mini btn-primary" style="float:right;">restore all</button>').click(function() {
+    var $button = $('<button class="btn btn-mini btn-primary" style="float:right;">restore all</button>').click(function() {
       $('tr[data-group="' + timeGroup + '"]').each(function() {
         $('a', this).click();
       });
     });
-    $td = $('<td colspan=3 class="timeGroupRow"> closed ' + timeGroup + '</td>').append($button);
+    var $td = $('<td colspan=3 class="timeGroupRow"> closed ' + timeGroup + '</td>').append($button);
     $tr.append($td);
     $tbody.append($tr);
   }
-  
+
   function createTabRow(tab, group, $tbody) {
     // Create a new row.
     var $tr = $('<tr></tr>')
       .attr('data-group', group)
       .attr('data-tabid', tab.id);
-   
+
     var $faviconCol = Popup.Util.buildFaviconCol(tab.favIconUrl);
     $faviconCol.append($('<i class="icon-remove" style="display:none"></i>'));
 
@@ -407,7 +409,7 @@ Popup.corralTab.buildTable = function(closedTabs) {
     //      a_title.href = urls[i];
     //    }
 
-    $link = $('<a target="_blank" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
+    var $link = $('<a target="_blank" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
 
     // Create a new tab when clicked in the background
     // Remove from the closedTabs list.
@@ -425,31 +427,31 @@ Popup.corralTab.buildTable = function(closedTabs) {
     $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
     $tbody.append($tr);
   }
-  
-  /** 
+
+  /**
     * Testing code to make fake tags
-    
+
     closedTabs = [];
     for (var i=0; i<20; i++) {
       now = new Date().getTime();
       x = Math.pow(2, i);
       closedTabs.push({closedAt: now-1000*1*x, title: 'foo'});
     }
-  
+
   */
- 
+
   var currentGroup = '';
   for ( var i = 0; i < closedTabs.length; i++) {
     var tab = closedTabs[i];
-    
-    timeGroup = getGroup(tab.closedAt);
+
+    var timeGroup = getGroup(tab.closedAt);
     if (timeGroup != currentGroup) {
       createGroupRow(timeGroup, $tbody);
       currentGroup = timeGroup;
     }
-    
+
     createTabRow(tab, currentGroup, $tbody);
-    
+
   }
 };
 
@@ -458,7 +460,7 @@ Popup.corralTab.filterByKeyword = function() {
 };
 
 
-PauseButton = {};
+var PauseButton = {};
 
 PauseButton.init = function() {
   var self = this;

@@ -1,6 +1,8 @@
+'use strict';
+
 // Declare this global namespace so it can be used from popup.js
 // @see startup();
-var TW = {};
+var TW = window.TW = {};
 
 require([
   'settings',
@@ -76,7 +78,7 @@ var closeTab = function(tab) {
     if (tabmanager.isWhitelisted(tab.url)) {
       return;
     }
-    
+
     tabmanager.closedTabs.saveTabs([tab]);
     // Close it in Chrome.
     chrome.tabs.remove(tab.id);
@@ -112,7 +114,7 @@ var startup = function() {
     tabmanager.closedTabs.clear();
   }
   settings.set('lockedIds', []);
-  
+
 
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({
@@ -127,11 +129,10 @@ var startup = function() {
     });
   window.setInterval(checkToClose, settings.get('checkInterval'));
   window.setInterval(tabmanager.updateClosedCount, settings.get('badgeCounterInterval'));
-  
+
   // Create the "lock tab" context menu:
   menus.createContextMenus();
 };
 
 startup();
 });
-

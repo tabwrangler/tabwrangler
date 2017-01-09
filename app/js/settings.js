@@ -1,12 +1,11 @@
-
+'use strict';
 
 define(['tabmanager'], function(tabmanager) {
 
   /**
    * @type {Object}
    */
-  Settings = {
-    ititialized: false,
+  var Settings = {
     defaults: {
       checkInterval: 5000, // How often we check for old tabs.
       badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
@@ -36,7 +35,6 @@ define(['tabmanager'], function(tabmanager) {
           }
         }
       });
-      ititialized = true;
     },
     cache: {}
   };
@@ -114,7 +112,7 @@ define(['tabmanager'], function(tabmanager) {
     if (typeof(value) != 'object') {
       throw new Error('Whitelist should be an array, ' + typeof(value) + ' given');
     }
-    
+
     Settings.setValue('whitelist', value);
   };
 

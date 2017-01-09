@@ -1,3 +1,4 @@
+'use strict';
 
 define("util", function() {
   return {
@@ -21,7 +22,7 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
-Stack = (function(){
+window.Stack = (function() {
     /**
      * Subclassed JavaScript 1.5 Array for every browser.
      * @author      Andrea Giammarchi

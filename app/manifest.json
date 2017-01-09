@@ -4,9 +4,9 @@
   },
   "manifest_version": 2,
   "name": "Tab Wrangler",
-  "options_page":"popup.html",
-  "version": "3.1",
-  "description": "Automatically closes inactive tabs and makes it easy to get them back", 
+  "options_page": "popup.html",
+  "version": "3.1.0",
+  "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "minimum_chrome_version": "28",
   "icons": {
       "128": "img/icon128.png",
@@ -16,17 +16,8 @@
   "browser_action": {
     "default_title": "Tab Wrangler",
     "default_icon": "img/icon.png",
-    "default_popup":"popup.html"
+    "default_popup": "popup.html"
   },
-
-  /*"page_action": {
-    "default_icon": {                    // optional
-      "19": "img/icon48.png",           // optional
-      "38": "img/icon48.png"            // optional
-    },
-    "default_title": "Tab Wrangler"      // optional; shown in tooltip
-  },
-*/
   "web_accessible_resources": [
     "img/icon48.png",
     "img/1px.png"

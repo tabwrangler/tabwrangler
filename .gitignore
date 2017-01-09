@@ -1,4 +1,6 @@
 *.js~
 *.html~
 *.json~
-dist/*
+
+dist/
+node_modules/

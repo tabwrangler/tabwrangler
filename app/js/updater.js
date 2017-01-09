@@ -1,9 +1,11 @@
+'use strict';
+
 define(function(require) {
 
 /**
  * Handles updates between versions of the extension.
  */
-Updater = {
+var Updater = {
   updates: {},
   firstInstall: function() {
     var notification = window.webkitNotifications.createNotification(
@@ -25,7 +27,7 @@ Updater = {
       // The version from the manifest file
       var manifestVersion = parseFloat(chrome.app.getDetails().version);
 
-      // If items[version] is undefined, the app has either not been installed, 
+      // If items[version] is undefined, the app has either not been installed,
       // or it is an upgrade from when we were not storing the version.
       if (typeof items['version'] != 'undefined') {
         currentVersion = items['version'];
@@ -46,7 +48,7 @@ Updater = {
       }
       console.log("Updating from " + currentVersion + " to " + manifestVersion);
       self.runUpdates(currentVersion, manifestVersion);
-    }); 
+    });
   },
   runUpdates: function(currentVersion, manifestVersion) {
     var self = this;
@@ -198,7 +200,7 @@ Updater.updates[2.2] = {
 
 Updater.updates[2.3] = {
   fx: function() {
-    
+
   },
 
   finished: function() {
@@ -210,7 +212,7 @@ Updater.updates[2.3] = {
     + '<li> Fixes version requirement for (Chrome 20+ required) <span class="label label-error">Bug</span></li>'
     + '<li> Adds a search box to Tab Corral <span class="label label-success">Feature</span></li>'
     + '<li> Various consmetic improvements <span class="label label-success">Feature</span></li>'
-    
+
     + '</ul>';
 
     var notification = window.webkitNotifications.createHTMLNotification(
@@ -222,7 +224,7 @@ Updater.updates[2.3] = {
 
 Updater.updates[2.4] = {
   fx: function() {
-    
+
   },
 
   finished: function() {
@@ -246,7 +248,7 @@ Updater.updates[2.4] = {
 
 Updater.updates[2.5] = {
   fx: function() {
-    
+
   },
 
   finished: function() {
@@ -269,7 +271,7 @@ Updater.updates[2.5] = {
 
 Updater.updates[2.6] = {
   fx: function() {
-    
+
   },
 
   finished: function() {
@@ -291,7 +293,7 @@ Updater.updates[2.6] = {
 
 Updater.updates[2.8] = {
   fx: function() {
-    
+
   },
 
   finished: function() {
@@ -315,7 +317,7 @@ Updater.updates[2.8] = {
 
 Updater.updates[2.9] = {
   fx: function() {
-    
+
   },
 
   finished: function() {
@@ -334,13 +336,13 @@ Updater.updates[2.9] = {
       'notification.html?title=Version 2.9&message=' + updateTxt
     );
     notification.show();
-    
-  }  
+
+  }
 }
 
 Updater.updates[3.1] = {
   fx: function() {
-    
+
   },
 
   finished: function() {
@@ -352,7 +354,7 @@ Updater.updates[3.1] = {
     notification.items.push({title: "Fix", message: "No auto-close when > minTabs."});
     notification.items.push({title: "Fix", message: "Fixed display issue with timer after pause"});
     Updater.launchNotification("3.1", notification, true);
-  }  
+  }
 }
 
 return Updater;

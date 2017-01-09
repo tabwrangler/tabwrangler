@@ -530,10 +530,6 @@ require([
   // Seems we need to force this since corral is the default.
   Popup.corralTab.init();
 
-  $('#checkTimes').click(function() {
-    //@todo: make that button work on lock tab.
-  });
-
   $('a[data-toggle="tab"]').on('show', function (e) {
     var tabId = e.target.hash;
     switch (tabId) {
@@ -543,7 +539,6 @@ require([
       case '#tabActive':
         Popup.activeTab.init($('div#tabActive'));
         break;
-
       case '#tabCorral':
         Popup.corralTab.init($('div#tabCorral'));
         break;

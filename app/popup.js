@@ -1,9 +1,15 @@
 'use strict';
 
 require([
+  'bootstrap',
+  'bootstrap-tab',
+  'jquery',
+  'jquery-timeago',
   'react',
-  'react-dom'
-], function(React, ReactDOM) {
+  'react-dom',
+  'underscore',
+  'util'
+], function(Bootstrap, BootstrapTabs, $, timeago, React, ReactDOM, _, util) {
 
   var TW = chrome.extension.getBackgroundPage().TW;
 
@@ -428,15 +434,14 @@ require([
 
     /**
       * Testing code to make fake tags
+      */
 
-      closedTabs = [];
-      for (var i=0; i<20; i++) {
-        now = new Date().getTime();
-        x = Math.pow(2, i);
-        closedTabs.push({closedAt: now-1000*1*x, title: 'foo'});
-      }
-
-    */
+      // closedTabs = [];
+      // for (var i=0; i<20; i++) {
+      //   now = new Date().getTime();
+      //   var x = Math.pow(2, i);
+      //   closedTabs.push({closedAt: now-1000*1*x, title: 'foo'});
+      // }
 
     var currentGroup = '';
     for ( var i = 0; i < closedTabs.length; i++) {
@@ -521,27 +526,127 @@ require([
     }
   }
 
-  ReactDOM.render(
-    <Header />,
-    document.getElementById('header')
-  );
+  class PopupContent extends React.PureComponent {
+    render() {
+      return (
+        <div>
+          <Header />
+          <div className="tab-content container-fluid">
+            <div className="tab-pane" id="tabOptions">
+              <form>
+                <fieldset>
+                  <legend>Settings</legend>
+                  <p>
+                    <label for="minutesInactive">Close inactive tabs after:</label>
+                    <input type="text" id="minutesInactive" className="span1" name="minutesInactive" /> minutes.
+                  </p>
+                  <p>
+                    <label for="minTabs">Don't auto-close if I only have</label>
+                    <input type="text" id="minTabs" className="span1" name="minTabs" /> tabs open (does not include pinned or locked tabs).
+                  </p>
+                  <p>
+                    <label for="showBadgeCount">Remember up to</label>
+                    <input type="text" id="maxTabs" className="span1" name="maxTabs" /> closed tabs.
+                  </p>
+                  <p>
+                    <label for="purgeClosedTabs" className="checkbox">Clear closed tabs list on quit
+                      <input type="checkbox" id="purgeClosedTabs" className="span1" name="purgeClosedTabs" />
+                    </label>
+                  </p>
+                  <p>
+                    <label for="showBadgeCount" className="checkbox">Show # of closed tabs in url bar
+                      <input type="checkbox" id="showBadgeCount" className="span1" name="showBadgeCount" />
+                    </label>
+                  </p>
+                </fieldset>
 
-  $('a[href="#tabCorral"]').tab('show');
-  // Seems we need to force this since corral is the default.
-  Popup.corralTab.init();
+                <div id="status" className="alert alert-success" style={{visibility: 'hidden'}}></div>
 
-  $('a[data-toggle="tab"]').on('show', function (e) {
-    var tabId = e.target.hash;
-    switch (tabId) {
-      case '#tabOptions':
-        Popup.optionsTab.init($('div#tabOptions'));
-        break;
-      case '#tabActive':
-        Popup.activeTab.init($('div#tabActive'));
-        break;
-      case '#tabCorral':
-        Popup.corralTab.init($('div#tabCorral'));
-        break;
+                <fieldset>
+                  <legend>Auto-Lock</legend>
+                  <label for="wl-add">tabs with urls "like":</label>
+                  <input type="text" id="wl-add" />
+                  <button className="btn-mini add-on" id="addToWL" disabled>Add</button>
+
+                  <table className="table table-bordered table-striped" id="whitelist">
+                    <thead>
+                      <th>Url pattern</th>
+                      <th></th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                  <span className="help-block">
+                    Example: <i>cnn</i> would match every page on cnn.com and any URL with cnn anywhere in url.
+                  </span>
+                </fieldset>
+              </form>
+            </div>
+
+            <div className="tab-pane active" id="tabCorral">
+              <form className="form-search">
+                <input name="search" type="search" className="span8 corral-search search-query" placeholder="search" />
+              </form>
+
+              <table id="corralTable" className="table-condensed table-striped table table-bordered">
+                <thead>
+                  <tr>
+                    <th className="narrowColumn" style={{width: '20px'}}><i className="icon-remove"></i></th>
+                    <th>Title</th>
+                    <th>Closed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+
+              <div id="autocloseMessage" className="alert alert-info">If tabs are closed automatically, they will be stored here</div>
+              <div className="clearCorralMessage alert alert-info"><a className="clearCorralLink" href="#">Clear list</a></div>
+            </div>
+
+            <div className="tab-pane" id="tabActive">
+              <div className="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
+              <table id="activeTabs" className="table-striped table table-bordered">
+                <thead>
+                  <tr>
+                    <th className="narrowColumn"><img src="img/lock.png"/></th>
+                    <th className="narrowColumn"></th>
+                    <th>Tab</th>
+                    <th className="countdownColumn">Closing in</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
     }
-  });
+  }
+
+  ReactDOM.render(
+    <PopupContent />,
+    document.getElementById('popup'),
+    () => {
+      $('a[href="#tabCorral"]').tab('show');
+      // Seems we need to force this since corral is the default.
+      Popup.corralTab.init();
+
+      $('a[data-toggle="tab"]').on('show', function (e) {
+        var tabId = e.target.hash;
+        switch (tabId) {
+          case '#tabOptions':
+            Popup.optionsTab.init($('div#tabOptions'));
+            break;
+          case '#tabActive':
+            Popup.activeTab.init($('div#tabActive'));
+            break;
+          case '#tabCorral':
+            Popup.corralTab.init($('div#tabCorral'));
+            break;
+        }
+      });
+    }
+  );
 });

@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 const babel = require('gulp-babel');
 
+// Copy all files except for *.js ones
 gulp.task('cp', function() {
   gulp.src([
       'app/**/!(*.js)',
@@ -10,11 +11,13 @@ gulp.task('cp', function() {
     .pipe(gulp.dest('dist'));
 });
 
+// Copy the entire lib/ directory; it's vendor, 3rd party stuff
 gulp.task('cp-lib', function() {
   gulp.src('app/lib/**')
     .pipe(gulp.dest('dist/lib'));
 });
 
+// Compile app JS with babel
 gulp.task('js', function() {
   var presets = ['es2015', 'react'];
 

@@ -22,10 +22,8 @@ require([
     if (url !== null && url !== undefined) {
       // We have an image to show.
       var $favicon = $('<img />')
-      .addClass('lazy')
-      .addClass('favicon')
-      .attr('src', 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')
-      .attr('data-src', url);
+        .addClass('favicon')
+        .attr('src', url);
       $faviconColContent.append($favicon);
     } else {
       $faviconColContent.text('-');
@@ -500,52 +498,55 @@ require([
     }
   }
 
-  class NavButtons extends React.PureComponent {
+  class Header extends React.PureComponent {
     render() {
       return (
         <div>
-          <PauseButton />{' '}
-          <a
-            className="btn btn-mini"
-            href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"
-            target="_blank">
-            <i className="icon-star"></i> Review Tab Wrangler
-          </a>
+          <div className="pull-right nav-buttons">
+            <PauseButton />{' '}
+            <a
+              className="btn btn-mini"
+              href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"
+              target="_blank">
+              <i className="icon-star"></i> Review Tab Wrangler
+            </a>
+          </div>
+          <ul className="nav nav-tabs">
+            <li><a href="#tabCorral" target="#tabCorral" data-toggle="tab">Tab Corral</a></li>
+            <li><a href="#tabActive" target="#tabActive" data-toggle="tab">Tab Lock</a></li>
+            <li><a href="#tabOptions" target="#tabOptions" data-toggle="tab">Options</a></li>
+          </ul>
         </div>
       );
     }
   }
 
-  $(document).ready(function() {
-    ReactDOM.render(
-      <NavButtons />,
-      document.getElementById('nav-buttons')
-    );
+  ReactDOM.render(
+    <Header />,
+    document.getElementById('header')
+  );
 
-    $('a[href="#tabCorral"]').tab('show');
-    // Seems we need to force this since corral is the default.
-    Popup.corralTab.init();
+  $('a[href="#tabCorral"]').tab('show');
+  // Seems we need to force this since corral is the default.
+  Popup.corralTab.init();
 
-    $('#checkTimes').click(function() {
-      //@todo: make that button work on lock tab.
-    });
+  $('#checkTimes').click(function() {
+    //@todo: make that button work on lock tab.
+  });
 
-    $('a[data-toggle="tab"]').on('show', function (e) {
-      var tabId = e.target.hash;
-      switch (tabId) {
-        case '#tabOptions':
-          Popup.optionsTab.init($('div#tabOptions'));
-          break;
-        case '#tabActive':
-          Popup.activeTab.init($('div#tabActive'));
-          break;
+  $('a[data-toggle="tab"]').on('show', function (e) {
+    var tabId = e.target.hash;
+    switch (tabId) {
+      case '#tabOptions':
+        Popup.optionsTab.init($('div#tabOptions'));
+        break;
+      case '#tabActive':
+        Popup.activeTab.init($('div#tabActive'));
+        break;
 
-        case '#tabCorral':
-          Popup.corralTab.init($('div#tabCorral'));
-          break;
-      }
-    });
-
-    $('.lazy').jail();
+      case '#tabCorral':
+        Popup.corralTab.init($('div#tabCorral'));
+        break;
+    }
   });
 });

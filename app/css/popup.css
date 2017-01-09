@@ -10,7 +10,7 @@ body {
   margin: 0px;
 }
 
-.table td{
+.table td {
   font-size: 11px;
 }
 
@@ -52,4 +52,11 @@ td.timeGroupRow {
 
 td.faviconCol {
   text-align: center;
+}
+
+/**
+ * Re-reset for stylesheet added to Chrome extension popups
+ */
+table {
+  font-size: 14px;
 }

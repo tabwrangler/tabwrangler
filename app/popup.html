@@ -8,29 +8,16 @@
   <script src="lib/underscore.js"></script>
   <script src="lib/jquery.min.js"></script>
   <script src="lib/jquery.timeago.js"></script>
-  <script src="lib/jail.min.js"></script>
   <script src="lib/bootstrap/js/bootstrap.min.js"></script>
   <script src="lib/bootstrap/js/bootstrap-tab.js"></script>
-
 
   <script src="lib/require.js"></script>
   <script src="app.build.js"></script>
   <script src="js/util.js"></script>
-
-  <!--
-    Popup related functionality.
-  -->
-  <script src="popup.js"></script>
 </head>
 
 <body>
-  <div class="pull-right nav-buttons" id="nav-buttons">
-  </div>
-  <ul class="nav nav-tabs">
-    <li><a href="#tabCorral" target="#tabCorral" data-toggle="tab">Tab Corral</a></li>
-    <li><a href="#tabActive" target="#tabActive" data-toggle="tab">Tab Lock</a></li>
-    <li><a href="#tabOptions" target="#tabOptions" data-toggle="tab">Options</a></li>
-  </ul>
+  <div id="header"></div>
 
   <div class="tab-content">
     <div class="tab-pane" id="tabOptions">
@@ -131,5 +118,6 @@
         </table>
       </div>
     </div>
+  <script src="popup.js"></script>
 </body>
 </html>

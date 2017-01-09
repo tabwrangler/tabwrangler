@@ -29,7 +29,9 @@ require([
       // We have an image to show.
       var $favicon = $('<img />')
         .addClass('favicon')
-        .attr('src', url);
+        .attr('height', 16)
+        .attr('src', url)
+        .attr('width', 16);
       $faviconColContent.append($favicon);
     } else {
       $faviconColContent.text('-');
@@ -316,7 +318,23 @@ require([
   class ClosedTabRow extends React.PureComponent {
     constructor() {
       super();
+
+      this.state = {
+        active: false,
+      };
+
+      this.handleMouseEnter = this.handleMouseEnter.bind(this);
+      this.handleMouseLeave = this.handleMouseLeave.bind(this);
       this.openTab = this.openTab.bind(this);
+      this.removeTabFromList = this.removeTabFromList.bind(this);
+    }
+
+    handleMouseEnter() {
+      this.setState({active: true});
+    }
+
+    handleMouseLeave() {
+      this.setState({active: false});
     }
 
     openTab(event) {
@@ -325,12 +343,32 @@ require([
       this.props.onOpenTab(tab.id, tab.url);
     }
 
+    removeTabFromList(event) {
+      this.props.onRemoveTabFromList(this.props.tab.id);
+    }
+
     render() {
       const {tab} = this.props;
 
+      let favicon;
+      if (this.state.active) {
+        favicon = (
+          <i
+            className="btn-remove icon-remove"
+            onClick={this.removeTabFromList}
+            title="Remove tab from list"
+          />
+        );
+      } else {
+        favicon = (tab.favIconUrl == null)
+          ? '-'
+          : <img className="favicon" height="16" src={tab.favIconUrl} width="16" />;
+      }
+
       return (
-        <tr>
-          <td>
+        <tr onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+          <td className="faviconCol">
+            {favicon}
           </td>
           <td>
             <a target="_blank" href={tab.url} onClick={this.openTab}>
@@ -355,6 +393,7 @@ require([
       };
 
       this.clearList = this.clearList.bind(this);
+      this.handleRemoveTabFromList = this.handleRemoveTabFromList.bind(this);
       this.handleRestoreAllFromGroup = this.handleRestoreAllFromGroup.bind(this);
       this.openTab = this.openTab.bind(this);
       this.setClosedTabs = this.setClosedTabs.bind(this);
@@ -362,8 +401,6 @@ require([
     }
 
     componentDidMount() {
-      this._corralSearch.focus();
-
       // TODO: This is assumed to be synchronous. If it becomes async, this state needs to be
       // hoisted so this component does not need to track whether it's mounted.
       tabmanager.searchTabs(this.setClosedTabs);
@@ -375,6 +412,12 @@ require([
       this.setState({
         closedTabGroups: [],
       });
+    }
+
+    handleRemoveTabFromList(tabId) {
+      tabmanager.closedTabs.removeTab(tabId);
+      tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
+      this.forceUpdate();
     }
 
     handleRestoreAllFromGroup(groupTitle) {
@@ -460,6 +503,7 @@ require([
             <ClosedTabRow
               key={`ctr-${tab.id}`}
               onOpenTab={this.openTab}
+              onRemoveTabFromList={this.handleRemoveTabFromList}
               tab={tab}
             />
           );
@@ -491,7 +535,7 @@ require([
           <table id="corralTable" className="table-condensed table-striped table table-bordered">
             <thead>
               <tr>
-                <th className="narrowColumn" style={{width: '20px'}}><i className="icon-remove"></i></th>
+                <th className="faviconCol"><i className="icon-remove"></i></th>
                 <th>Title</th>
                 <th>Closed</th>
               </tr>
@@ -506,146 +550,6 @@ require([
       );
     }
   }
-
-  Popup.corralTab = {};
-
-  Popup.corralTab.init = function(context) {
-    if(location.search !== "?foo") {
-      location.search = "?foo";
-      throw new Error;  // load everything on the next page;
-      // stop execution on this page
-    }
-  };
-
-  Popup.corralTab.buildTable = function(closedTabs) {
-
-    /**
-     * @todo: add this back in
-     *
-     * function openExtTab() {
-     chrome.tabs.create({'url':'chrome://extensions/'});
-     }
-
-     function openNewTab() {
-     chrome.tabs.create({'url':'chrome://newtab/'});
-     }
-     */
-
-    // Clear out the table.
-    // var $tbody = $('#corralTable tbody');
-    // $tbody.html('');
-
-    // var now = new Date().getTime();
-    // var separations = []
-    // separations.push([now - (1000 * 60 * 30), 'in the last 1/2 hour']);
-    // separations.push([now - (1000 * 60 * 60), 'in the last hour']);
-    // separations.push([now - (1000 * 60 * 60 * 2),'in the last 2 hours']);
-    // separations.push([now - (1000 * 60 * 60 * 24),'in the last day']);
-    // separations.push([0, 'more than a day ago']);
-
-    // function getGroup(time) {
-    //   var limit, text, i;
-    //   for (var i = 0; i < separations.length; i++) {
-    //     limit = separations[i][0];
-    //     text = separations[i][1];
-    //     if (limit < time) {
-    //       return text;
-    //     }
-    //   }
-    // }
-
-    // function createGroupRow(timeGroup, $tbody) {
-    //   var $tr = $('<tr class="info"></tr>');
-    //   var $button = $('<button class="btn btn-mini btn-primary" style="float:right;">restore all</button>').click(function() {
-    //     $('tr[data-group="' + timeGroup + '"]').each(function() {
-    //       $('a', this).click();
-    //     });
-    //   });
-    //   var $td = $('<td colspan=3 class="timeGroupRow"> closed ' + timeGroup + '</td>').append($button);
-    //   $tr.append($td);
-    //   $tbody.append($tr);
-    // }
-
-    function createTabRow(tab, group, $tbody) {
-      // Create a new row.
-      var $tr = $('<tr></tr>')
-        .attr('data-group', group)
-        .attr('data-tabid', tab.id);
-
-      var $faviconCol = Popup.Util.buildFaviconCol(tab.favIconUrl);
-      $faviconCol.append($('<i class="icon-remove" style="display:none"></i>'));
-
-      $faviconCol.on('mouseover', function() {
-        $('.faviconContent', $(this)).hide();
-        $('.icon-remove', $(this)).show();
-      });
-
-      $faviconCol.on('mouseout', function() {
-        $('.faviconContent', $(this)).show();
-        $('.icon-remove', $(this)).hide();
-      });
-
-      $faviconCol.click(function() {
-        tabmanager.closedTabs.removeTab($(this).parent().data('tabid'));
-        $(this).parent().remove();
-      });
-
-      $tr.append($faviconCol);
-
-      // Page title.
-
-      // @todo: Add this logic back in:
-      //    if ( urls[i] == "chrome://newtab/") {
-      //      a_title.href = "javascript:openNewTab();";
-      //    } else  if ( urls[i] == "chrome://extensions/") {
-      //      a_title.href = "javascript:openExtTab();";
-      //    } else {
-      //      a_title.href = urls[i];
-      //    }
-
-      // var $link = $('<a target="_blank" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
-
-      // Create a new tab when clicked in the background
-      // Remove from the closedTabs list.
-      // $link.click(function() {
-      //   chrome.tabs.create({active:false, url: $(this).attr('href')});
-      //   tabmanager.closedTabs.removeTab($(this).parent().parent().data('tabid'));
-      //   $(this).parent().parent().remove();
-      //   return false;
-      // });
-
-      // $tr.append($('<td></td>').append($link));
-      // Url - not sure if we want this.
-      // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
-      // time ago.
-      // $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
-      // $tbody.append($tr);
-    }
-
-    /**
-      * Testing code to make fake tags
-      */
-
-      // closedTabs = [];
-      // for (var i=0; i<20; i++) {
-      //   now = new Date().getTime();
-      //   var x = Math.pow(2, i);
-      //   closedTabs.push({closedAt: now-1000*1*x, title: 'foo'});
-      // }
-
-    var currentGroup = '';
-    for ( var i = 0; i < closedTabs.length; i++) {
-      var tab = closedTabs[i];
-
-      var timeGroup = getGroup(tab.closedAt);
-      if (timeGroup != currentGroup) {
-        createGroupRow(timeGroup, $tbody);
-        currentGroup = timeGroup;
-      }
-
-      createTabRow(tab, currentGroup, $tbody);
-    }
-  };
 
   class PauseButton extends React.PureComponent {
     constructor() {
@@ -796,8 +700,6 @@ require([
     document.getElementById('popup'),
     () => {
       $('a[href="#tabCorral"]').tab('show');
-      // Seems we need to force this since corral is the default.
-      Popup.corralTab.init();
 
       $('a[data-toggle="tab"]').on('show', function (e) {
         var tabId = e.target.hash;
@@ -807,9 +709,6 @@ require([
             break;
           case '#tabActive':
             Popup.activeTab.init($('div#tabActive'));
-            break;
-          case '#tabCorral':
-            Popup.corralTab.init($('div#tabCorral'));
             break;
         }
       });

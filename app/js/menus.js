@@ -24,8 +24,8 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
         tabmanager.lockTab(selectedTab.id);
       },
       lockDomain: function(onClickData, selectedTab) {
-        whitelist = settings.get('whitelist');
-        domain = util.getDomain(selectedTab.url);
+        const whitelist = settings.get('whitelist');
+        const domain = util.getDomain(selectedTab.url);
         whitelist.push(domain);
         settings.set('whitelist', whitelist);
       },

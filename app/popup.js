@@ -287,6 +287,33 @@ require([
     });
   };
 
+  class CorralTab extends React.PureComponent {
+    render() {
+      return (
+        <div className="tab-pane active" id="tabCorral">
+          <form className="form-search">
+            <input name="search" type="search" className="span8 corral-search search-query" placeholder="search" />
+          </form>
+
+          <table id="corralTable" className="table-condensed table-striped table table-bordered">
+            <thead>
+              <tr>
+                <th className="narrowColumn" style={{width: '20px'}}><i className="icon-remove"></i></th>
+                <th>Title</th>
+                <th>Closed</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+
+          <div id="autocloseMessage" className="alert alert-info">If tabs are closed automatically, they will be stored here</div>
+          <div className="clearCorralMessage alert alert-info"><a className="clearCorralLink" href="#">Clear list</a></div>
+        </div>
+      );
+    }
+  }
+
   Popup.corralTab = {};
 
   Popup.corralTab.init = function(context) {
@@ -583,26 +610,7 @@ require([
               </form>
             </div>
 
-            <div className="tab-pane active" id="tabCorral">
-              <form className="form-search">
-                <input name="search" type="search" className="span8 corral-search search-query" placeholder="search" />
-              </form>
-
-              <table id="corralTable" className="table-condensed table-striped table table-bordered">
-                <thead>
-                  <tr>
-                    <th className="narrowColumn" style={{width: '20px'}}><i className="icon-remove"></i></th>
-                    <th>Title</th>
-                    <th>Closed</th>
-                  </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-
-              <div id="autocloseMessage" className="alert alert-info">If tabs are closed automatically, they will be stored here</div>
-              <div className="clearCorralMessage alert alert-info"><a className="clearCorralLink" href="#">Clear list</a></div>
-            </div>
+            <CorralTab />
 
             <div className="tab-pane" id="tabActive">
               <div className="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>

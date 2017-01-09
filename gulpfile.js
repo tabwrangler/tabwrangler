@@ -36,15 +36,24 @@ gulp.task('js', function() {
     .pipe(gulp.dest('dist/js'));
 });
 
-// Watch and re-compile when in development. Changes are batched every 500ms since switching between
-// code and browser takes at least that long, save a few saves.
+// Batch every 500ms since switching between code and browser takes at least that long, save a few
+// saves.
+const WATCH_OPTIONS = {timeout: 500};
+
+// Watch and re-compile when in development.
 gulp.task('watch', function() {
+  watch('app/**/!(*.js)', batch(WATCH_OPTIONS, function(events, done) {
+    gulp.start('cp', done);
+  }));
+
   watch([
     'app/*.js',
     'app/js/*.js',
-  ], batch({timeout: 500}, function(events, done) {
+  ], batch(WATCH_OPTIONS, function(events, done) {
     gulp.start('js', done);
   }));
+
+  gulp.start('default');
 });
 
 gulp.task('default', ['cp', 'cp-lib', 'js']);

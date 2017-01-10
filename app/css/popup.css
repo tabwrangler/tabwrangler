@@ -11,14 +11,6 @@ body {
   margin-bottom: 2px;
 }
 
-#tabActive table {
-  table-layout: fixed;
-}
-
-.countdownColumn {
-  width: 60px;
-}
-
 .nav-buttons {
   margin: 7px;
 }
@@ -45,6 +37,10 @@ td.timeGroupRow {
 .table .faviconCol {
   text-align: center;
   width: 21px;
+}
+
+.table .text-center {
+  text-align: center;
 }
 
 /**

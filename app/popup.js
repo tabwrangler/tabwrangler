@@ -57,7 +57,7 @@ require([
           // });
         }
 
-        lockStatusElement = <td className="muted">{reason}</td>;
+        lockStatusElement = <td className="text-center muted">{reason}</td>;
       } else {
         let timeLeftContent;
         if (settings.get('paused')) {
@@ -69,12 +69,12 @@ require([
           timeLeftContent = secondsToMinutes(timeLeft);
         }
 
-        lockStatusElement = <td className="time-left">{timeLeftContent}</td>;
+        lockStatusElement = <td className="text-center">{timeLeftContent}</td>;
       }
 
       return (
         <tr>
-          <td className="narrowColumn">
+          <td className="text-center">
             <input
               checked={tabIsLocked}
               disabled={tab.pinned || tabWhitelistMatch}
@@ -82,8 +82,14 @@ require([
               type="checkbox"
             />
           </td>
-          <td className="narrowColumn">
-            <img alt="" height="16" src={tab.favIconUrl} width="16" />
+          <td className="text-center">
+            <img
+              alt=""
+              height="16"
+              src={tab.favIconUrl}
+              style={{height: '16px', 'max-width': 'none'}}
+              width="16"
+            />
           </td>
           <td>
             <strong className="tabTitle">{truncateString(tab.title, 70)}</strong>
@@ -135,12 +141,12 @@ require([
           <table id="activeTabs" className="table table-condensed table-striped table-bordered">
             <thead>
               <tr>
-                <th className="narrowColumn">
+                <th className="text-center">
                   <i className="icon icon-lock" title="Lock/Unlock"></i>
                 </th>
-                <th className="narrowColumn"></th>
-                <th>Tab</th>
-                <th className="countdownColumn">
+                <th></th>
+                <th style={{width: '100%'}}>Tab</th>
+                <th className="text-center">
                   <i className="icon icon-time" title="Closing in..."></i>
                 </th>
               </tr>
@@ -149,6 +155,7 @@ require([
               {this.state.tabs.map(tab =>
                 <OpenTabRow
                   isLocked={lockedIds.indexOf(tab.id) !== -1}
+                  key={tab.id}
                   onLockTab={this.handleLockTab}
                   onUnlockTab={this.handleUnlockTab}
                   tab={tab}
@@ -246,7 +253,8 @@ require([
       this.forceUpdate();
     }
 
-    handleAddPatternClick = () => {
+    handleAddPatternSubmit = (event) => {
+      event.preventDefault();
       const {newPattern} = this.state;
 
       if (!isValidPattern(newPattern)) {
@@ -284,6 +292,7 @@ require([
                   id="minutesInactive"
                   min="1"
                   name="minutesInactive"
+                  title="Must be a number greater than 0 and less than 720"
                   type="number"
                 /> minutes.
               </p>
@@ -293,8 +302,9 @@ require([
                   className="span1"
                   defaultValue={settings.get('minTabs')}
                   id="minTabs"
-                  min="0"
+                  min="1"
                   name="minTabs"
+                  title="Must be a number greater than 1"
                   type="number"
                 /> tabs open (does not include pinned or locked tabs).
               </p>
@@ -306,13 +316,13 @@ require([
                   id="maxTabs"
                   min="0"
                   name="maxTabs"
+                  title="Must be a number greater than or equal to 0"
                   type="number"
                 /> closed tabs.
               </p>
               <p>
                 <label className="checkbox">Clear closed tabs list on quit
                   <input
-                    className="span1"
                     defaultChecked={settings.get('purgeClosedTabs')}
                     id="purgeClosedTabs"
                     name="purgeClosedTabs"
@@ -323,7 +333,6 @@ require([
               <p>
                 <label className="checkbox">Show # of closed tabs in url bar
                   <input
-                    className="span1"
                     defaultChecked={settings.get('showBadgeCount')}
                     id="showBadgeCount"
                     name="showBadgeCount"
@@ -332,9 +341,11 @@ require([
                 </label>
               </p>
             </fieldset>
+          </form>
 
-            <div id="status" className="alert alert-success" style={{visibility: 'hidden'}}></div>
+          <div id="status" className="alert alert-success" style={{visibility: 'hidden'}}></div>
 
+          <form onSubmit={this.handleAddPatternSubmit}>
             <fieldset>
               <legend>Auto-Lock</legend>
               <label htmlFor="wl-add">tabs with urls "like":</label>
@@ -349,30 +360,31 @@ require([
                   className="btn"
                   disabled={!isValidPattern(this.state.newPattern)}
                   id="addToWL"
-                  onClick={this.handleAddPatternClick}>
+                  type="submit">
                   Add
                 </button>
               </div>
 
               <table
-                className="table table-bordered table-striped"
+                className="table table-bordered table-condensed table-striped"
                 id="whitelist"
                 style={{marginTop: '20px'}}>
                 <thead>
-                  <th>URL Pattern</th>
-                  <th></th>
+                  <tr>
+                    <th style={{width: '100%'}}>URL Pattern</th>
+                    <th></th>
+                  </tr>
                 </thead>
                 <tbody>
                   {whitelist.map(pattern =>
-                    <tr>
+                    <tr key={pattern}>
                       <td>{pattern}</td>
                       <td>
-                        <a
-                          className="deleteLink"
-                          href="#"
+                        <button
+                          className="btn btn-mini deleteLink"
                           onClick={this.handleClickRemovePattern.bind(this, pattern)}>
                           Remove
-                        </a>
+                        </button>
                       </td>
                     </tr>
                   )}

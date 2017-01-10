@@ -17,34 +17,6 @@ require([
   var settings = TW.settings;
 
   var Popup = {};
-  Popup.Util = {};
-  Popup.Util.buildFaviconCol = function(url) {
-
-     // Image cell.
-    var $faviconCol = $('<td class="faviconCol"></td>');
-    var $faviconColContent = $('<span class="faviconContent"></span>');
-    $faviconCol.append($faviconColContent);
-    if (url !== null && url !== undefined) {
-      // We have an image to show.
-      var $favicon = $('<img />')
-        .addClass('favicon')
-        .attr('height', 16)
-        .attr('src', url)
-        .attr('width', 16);
-      $faviconColContent.append($favicon);
-    } else {
-      $faviconColContent.text('-');
-    }
-
-    return $faviconCol;
-  };
-
-  Popup.Util.secondsToMinutes =  function (seconds) {
-    var s = seconds % 60;
-    s = s > 10 ? String(s) : "0" + String(s);
-    return String(Math.floor(seconds / 60)) + ":" + s;
-  };
-
 
   Popup.optionsTab = {};
   /**
@@ -183,6 +155,19 @@ require([
     }
   };
 
+  function secondsToMinutes(seconds) {
+    var s = seconds % 60;
+    s = s > 10 ? String(s) : "0" + String(s);
+    return String(Math.floor(seconds / 60)) + ":" + s;
+  }
+
+  function truncateString(str, length) {
+    if (str.length > (length + 3) ) {
+      return str.substring(0, length) + "...";
+    }
+    return str;
+  };
+
   class OpenTabRow extends React.Component {
     handleLockedOnChange = (event) => {
       const {tab} = this.props;
@@ -219,7 +204,7 @@ require([
           const lastModified = tabmanager.tabTimes[tab.id];
           const cutOff = new Date().getTime() - settings.get('stayOpen');
           const timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
-          timeLeftContent = Popup.Util.secondsToMinutes(timeLeft);
+          timeLeftContent = secondsToMinutes(timeLeft);
         }
 
         lockStatusElement = <td className="time-left">{timeLeftContent}</td>;
@@ -239,9 +224,9 @@ require([
             <img height="16" src={tab.favIconUrl} width="16" />
           </td>
           <td>
-            <strong className="tabTitle">{tab.title.shorten(70)}</strong>
+            <strong className="tabTitle">{truncateString(tab.title, 70)}</strong>
             <br />
-            <span className="tabUrl">{tab.url.shorten(70)}</span>
+            <span className="tabUrl">{truncateString(tab.url, 70)}</span>
           </td>
           {lockStatusElement}
         </tr>
@@ -444,7 +429,7 @@ require([
           </td>
           <td>
             <a target="_blank" href={tab.url} onClick={this.openTab}>
-              {tab.title.shorten(70)}
+              {truncateString(tab.title, 70)}
             </a>
           </td>
           <td>

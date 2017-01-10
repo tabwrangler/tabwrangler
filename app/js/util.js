@@ -8,13 +8,6 @@ define("util", function() {
   };
 });
 
-String.prototype.shorten = function(length) {
-  if ( this.length > (length + 3) ) {
-    return this.substring(0, length) + "...";
-  }
-  return this;
-};
-
 // Array Remove - By John Resig (MIT Licensed)
 Array.prototype.remove = function(from, to) {
   var rest = this.slice((to || from) + 1 || this.length);

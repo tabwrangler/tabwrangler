@@ -9,7 +9,6 @@ require.config({
         // is using jQuery 1.9.0 located at
         // js/lib/jquery-1.9.0.js, relative to
         // the HTML page.
-        bootstrap: '../lib/bootstrap/js/bootstrap.min',
         jquery: '../lib/jquery.min',
         'jquery-timeago': '../lib/jquery.timeago',
         react: '../lib/react.min',
@@ -17,7 +16,6 @@ require.config({
         underscore: '../lib/underscore-min'
     },
     shim: {
-        bootstrap: ['jquery'],
         'jquery-timeago': ['jquery']
     }
 });

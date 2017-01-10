@@ -23,10 +23,6 @@ body {
   margin: 7px;
 }
 
-.lock-reason {
-  color: #9ca097;
-}
-
 .btn-remove {
   cursor: pointer;
   margin-top: 0;
@@ -41,7 +37,8 @@ td.timeGroupRow {
   vertical-align: sub;
 }
 
-.narrowColumn {
+.table .narrowColumn {
+  text-align: center;
   width: 20px;
 }
 

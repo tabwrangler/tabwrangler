@@ -1,14 +1,13 @@
 'use strict';
 
 require([
-  'bootstrap',
   'jquery',
   'jquery-timeago',
   'react',
   'react-dom',
   'underscore',
   'util'
-], function(Bootstrap, $, timeago, React, ReactDOM, _, util) {
+], function($, timeago, React, ReactDOM, _, util) {
 
   const TW = chrome.extension.getBackgroundPage().TW;
 
@@ -58,7 +57,7 @@ require([
           // });
         }
 
-        lockStatusElement = <td className="lock-reason">{reason}</td>;
+        lockStatusElement = <td className="muted">{reason}</td>;
       } else {
         let timeLeftContent;
         if (settings.get('paused')) {
@@ -75,7 +74,7 @@ require([
 
       return (
         <tr>
-          <td>
+          <td className="narrowColumn">
             <input
               checked={tabIsLocked}
               disabled={tab.pinned || tabWhitelistMatch}
@@ -83,8 +82,8 @@ require([
               type="checkbox"
             />
           </td>
-          <td>
-            <img height="16" src={tab.favIconUrl} width="16" />
+          <td className="narrowColumn">
+            <img alt="" height="16" src={tab.favIconUrl} width="16" />
           </td>
           <td>
             <strong className="tabTitle">{truncateString(tab.title, 70)}</strong>
@@ -133,10 +132,12 @@ require([
       return (
         <div className="tab-pane active" id="tabActive">
           <div className="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
-          <table id="activeTabs" className="table-striped table table-bordered">
+          <table id="activeTabs" className="table table-condensed table-striped table-bordered">
             <thead>
               <tr>
-                <th className="narrowColumn"><i className="icon icon-lock"></i></th>
+                <th className="narrowColumn">
+                  <i className="icon icon-lock" title="Lock/Unlock"></i>
+                </th>
                 <th className="narrowColumn"></th>
                 <th>Tab</th>
                 <th className="countdownColumn">
@@ -276,7 +277,7 @@ require([
             <fieldset>
               <legend>Settings</legend>
               <p>
-                <label for="minutesInactive">Close inactive tabs after:</label>
+                <label htmlFor="minutesInactive">Close inactive tabs after:</label>
                 <input
                   className="span1"
                   defaultValue={settings.get('minutesInactive')}
@@ -287,7 +288,7 @@ require([
                 /> minutes.
               </p>
               <p>
-                <label for="minTabs">Don't auto-close if I only have</label>
+                <label htmlFor="minTabs">Don't auto-close if I only have</label>
                 <input
                   className="span1"
                   defaultValue={settings.get('minTabs')}
@@ -298,7 +299,7 @@ require([
                 /> tabs open (does not include pinned or locked tabs).
               </p>
               <p>
-                <label for="showBadgeCount">Remember up to</label>
+                <label htmlFor="maxTabs">Remember up to</label>
                 <input
                   className="span1"
                   defaultValue={settings.get('maxTabs')}
@@ -309,7 +310,7 @@ require([
                 /> closed tabs.
               </p>
               <p>
-                <label for="purgeClosedTabs" className="checkbox">Clear closed tabs list on quit
+                <label className="checkbox">Clear closed tabs list on quit
                   <input
                     className="span1"
                     defaultChecked={settings.get('purgeClosedTabs')}
@@ -320,7 +321,7 @@ require([
                 </label>
               </p>
               <p>
-                <label for="showBadgeCount" className="checkbox">Show # of closed tabs in url bar
+                <label className="checkbox">Show # of closed tabs in url bar
                   <input
                     className="span1"
                     defaultChecked={settings.get('showBadgeCount')}
@@ -336,7 +337,7 @@ require([
 
             <fieldset>
               <legend>Auto-Lock</legend>
-              <label for="wl-add">tabs with urls "like":</label>
+              <label htmlFor="wl-add">tabs with urls "like":</label>
               <div className="input-append">
                 <input
                   id="wl-add"

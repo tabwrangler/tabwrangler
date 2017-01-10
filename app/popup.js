@@ -51,7 +51,7 @@ require([
         if (tab.pinned) {
           reason = 'Pinned';
         } else if (tabWhitelistMatch) {
-          reason = <abbr title={`Matches '${tabWhitelistMatch}'`}>Whitelisted</abbr>
+          reason = <abbr title={`Matches '${tabWhitelistMatch}'`}>Auto-Locked</abbr>;
         }
 
         lockStatusElement = <td className="text-center muted">{reason}</td>;

@@ -10,11 +10,13 @@ require([
   'util'
 ], function(Bootstrap, $, timeago, React, ReactDOM, _, util) {
 
-  var TW = chrome.extension.getBackgroundPage().TW;
+  const TW = chrome.extension.getBackgroundPage().TW;
 
   // Unpack TW.
-  var tabmanager = TW.tabmanager;
-  var settings = TW.settings;
+  const {
+    settings,
+    tabmanager,
+  } = TW;
 
   function secondsToMinutes(seconds) {
     var s = seconds % 60;
@@ -134,10 +136,12 @@ require([
           <table id="activeTabs" className="table-striped table table-bordered">
             <thead>
               <tr>
-                <th className="narrowColumn"><img height="16" src="img/lock.png" width="16" /></th>
+                <th className="narrowColumn"><i className="icon icon-lock"></i></th>
                 <th className="narrowColumn"></th>
                 <th>Tab</th>
-                <th className="countdownColumn">Closing in</th>
+                <th className="countdownColumn">
+                  <i className="icon icon-time" title="Closing in..."></i>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -156,7 +160,7 @@ require([
     }
   }
 
-    var Popup = {};
+  var Popup = {};
 
   Popup.optionsTab = {};
   /**
@@ -181,13 +185,11 @@ require([
       }
     }
 
-    $('#minutesInactive').keyup(_.debounce(onBlurInput, 200));
-    $('#minTabs').keyup(_.debounce(onBlurInput, 200));
-    $('#maxTabs').keyup(_.debounce(onBlurInput, 200));
+    $('#minutesInactive').change(_.debounce(onBlurInput, 150));
+    $('#minTabs').change(_.debounce(onBlurInput, 150));
+    $('#maxTabs').change(_.debounce(onBlurInput, 150));
     $('#purgeClosedTabs').change(onChangeCheckBox);
     $('#showBadgeCount').change(onChangeCheckBox);
-
-    Popup.optionsTab.loadOptions();
   };
 
   Popup.optionsTab.saveOption = function (key, value) {
@@ -216,18 +218,6 @@ require([
       $('#status').append($errorList).addClass('alert-error').addClass('alert');
     }
     return false;
-  };
-
-  Popup.optionsTab.loadOptions = function () {
-    $('#minutesInactive').val(settings.get('minutesInactive'));
-    $('#minTabs').val(settings.get('minTabs'));
-    $('#maxTabs').val(settings.get('maxTabs'));
-    if (settings.get('purgeClosedTabs') !== false) {
-      $('#purgeClosedTabs').attr('checked', true);
-    }
-    if (settings.get('showBadgeCount') !== false) {
-      $('#showBadgeCount').attr('checked', true);
-    }
   };
 
   function isValidPattern(pattern) {
@@ -287,24 +277,57 @@ require([
               <legend>Settings</legend>
               <p>
                 <label for="minutesInactive">Close inactive tabs after:</label>
-                <input type="text" id="minutesInactive" className="span1" name="minutesInactive" /> minutes.
+                <input
+                  className="span1"
+                  defaultValue={settings.get('minutesInactive')}
+                  id="minutesInactive"
+                  min="1"
+                  name="minutesInactive"
+                  type="number"
+                /> minutes.
               </p>
               <p>
                 <label for="minTabs">Don't auto-close if I only have</label>
-                <input type="text" id="minTabs" className="span1" name="minTabs" /> tabs open (does not include pinned or locked tabs).
+                <input
+                  className="span1"
+                  defaultValue={settings.get('minTabs')}
+                  id="minTabs"
+                  min="0"
+                  name="minTabs"
+                  type="number"
+                /> tabs open (does not include pinned or locked tabs).
               </p>
               <p>
                 <label for="showBadgeCount">Remember up to</label>
-                <input type="text" id="maxTabs" className="span1" name="maxTabs" /> closed tabs.
+                <input
+                  className="span1"
+                  defaultValue={settings.get('maxTabs')}
+                  id="maxTabs"
+                  min="0"
+                  name="maxTabs"
+                  type="number"
+                /> closed tabs.
               </p>
               <p>
                 <label for="purgeClosedTabs" className="checkbox">Clear closed tabs list on quit
-                  <input type="checkbox" id="purgeClosedTabs" className="span1" name="purgeClosedTabs" />
+                  <input
+                    className="span1"
+                    defaultChecked={settings.get('purgeClosedTabs')}
+                    id="purgeClosedTabs"
+                    name="purgeClosedTabs"
+                    type="checkbox"
+                  />
                 </label>
               </p>
               <p>
                 <label for="showBadgeCount" className="checkbox">Show # of closed tabs in url bar
-                  <input type="checkbox" id="showBadgeCount" className="span1" name="showBadgeCount" />
+                  <input
+                    className="span1"
+                    defaultChecked={settings.get('showBadgeCount')}
+                    id="showBadgeCount"
+                    name="showBadgeCount"
+                    type="checkbox"
+                  />
                 </label>
               </p>
             </fieldset>
@@ -374,9 +397,9 @@ require([
         <tr className="info">
           <td colSpan="3" className="timeGroupRow">
             <button
-              className="btn btn-mini btn-primary pull-right"
+              className="btn btn-mini pull-right"
               onClick={this.handleClickRestoreAll}>
-              restore all
+              Restore all
             </button>
             closed {this.props.title}
           </td>

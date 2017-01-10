@@ -51,10 +51,7 @@ require([
         if (tab.pinned) {
           reason = 'Pinned';
         } else if (tabWhitelistMatch) {
-          reason = <a href="#" title={tabWhitelistMatch}>Auto-Lock</a>
-          // reason = $('<a href="#" title="' + tabWhitelistMatch + '">Auto-Lock</a>').click(function() {
-          //   $('a[href="#tabOptions"]').tab('show');
-          // });
+          reason = <abbr title={`Matches '${tabWhitelistMatch}'`}>Whitelisted</abbr>
         }
 
         lockStatusElement = <td className="text-center muted">{reason}</td>;

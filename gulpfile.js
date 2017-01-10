@@ -19,20 +19,17 @@ gulp.task('cp-lib', function() {
     .pipe(gulp.dest('dist/lib'));
 });
 
+const BABEL_PLUGINS = ['transform-class-properties'];
+const BABEL_PRESETS = ['es2015', 'react'];
+
 // Compile app JS with babel
 gulp.task('js', function() {
-  const presets = ['es2015', 'react'];
-
   gulp.src('app/*.js')
-    .pipe(babel({
-      presets: presets,
-    }))
+    .pipe(babel({plugins: BABEL_PLUGINS, presets: BABEL_PRESETS}))
     .pipe(gulp.dest('dist'));
 
   gulp.src('app/js/*.js')
-    .pipe(babel({
-      presets: presets,
-    }))
+    .pipe(babel({plugins: BABEL_PLUGINS, presets: BABEL_PRESETS}))
     .pipe(gulp.dest('dist/js'));
 });
 

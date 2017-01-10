@@ -290,14 +290,9 @@ require([
   };
 
   class ClosedTabGroupHeader extends React.PureComponent {
-    constructor(props) {
-      super(props);
-      this.handleClickRestoreAll = this.handleClickRestoreAll.bind(this);
-    }
-
-    handleClickRestoreAll() {
+    handleClickRestoreAll = () => {
       this.props.onRestoreAll(this.props.title);
-    }
+    };
 
     render() {
       return (
@@ -322,30 +317,25 @@ require([
       this.state = {
         active: false,
       };
-
-      this.handleMouseEnter = this.handleMouseEnter.bind(this);
-      this.handleMouseLeave = this.handleMouseLeave.bind(this);
-      this.openTab = this.openTab.bind(this);
-      this.removeTabFromList = this.removeTabFromList.bind(this);
     }
 
-    handleMouseEnter() {
+    handleMouseEnter = () => {
       this.setState({active: true});
-    }
+    };
 
-    handleMouseLeave() {
+    handleMouseLeave = () => {
       this.setState({active: false});
-    }
+    };
 
-    openTab(event) {
+    openTab = (event) => {
       const {tab} = this.props;
       event.preventDefault();
       this.props.onOpenTab(tab.id, tab.url);
-    }
+    };
 
-    removeTabFromList(event) {
+    removeTabFromList = (event) => {
       this.props.onRemoveTabFromList(this.props.tab.id);
-    }
+    };
 
     render() {
       const {tab} = this.props;
@@ -391,13 +381,6 @@ require([
         closedTabGroups: [],
         filter: '',
       };
-
-      this.clearList = this.clearList.bind(this);
-      this.handleRemoveTabFromList = this.handleRemoveTabFromList.bind(this);
-      this.handleRestoreAllFromGroup = this.handleRestoreAllFromGroup.bind(this);
-      this.openTab = this.openTab.bind(this);
-      this.setClosedTabs = this.setClosedTabs.bind(this);
-      this.setFilter = this.setFilter.bind(this);
     }
 
     componentDidMount() {
@@ -406,21 +389,21 @@ require([
       tabmanager.searchTabs(this.setClosedTabs);
     }
 
-    clearList() {
+    clearList = () => {
       tabmanager.closedTabs.clear();
       tabmanager.updateClosedCount();
       this.setState({
         closedTabGroups: [],
       });
-    }
+    };
 
-    handleRemoveTabFromList(tabId) {
+    handleRemoveTabFromList = (tabId) => {
       tabmanager.closedTabs.removeTab(tabId);
       tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
       this.forceUpdate();
-    }
+    };
 
-    handleRestoreAllFromGroup(groupTitle) {
+    handleRestoreAllFromGroup = (groupTitle) => {
       const group = _.findWhere(this.state.closedTabGroups, {title: groupTitle});
       group.tabs.forEach(tab => {
         chrome.tabs.create({active: false, url: tab.url});
@@ -428,16 +411,16 @@ require([
       });
       tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
       this.forceUpdate();
-    }
+    };
 
-    openTab(tabId, url) {
+    openTab = (tabId, url) => {
       chrome.tabs.create({active: false, url});
       tabmanager.closedTabs.removeTab(tabId);
       tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
       this.forceUpdate();
-    }
+    };
 
-    setClosedTabs(closedTabs) {
+    setClosedTabs = (closedTabs) => {
       const now = new Date().getTime();
       const separations = []
       separations.push([now - (1000 * 60 * 30), 'in the last 1/2 hour']);
@@ -479,13 +462,13 @@ require([
       }
 
       this.setState({closedTabGroups});
-    }
+    };
 
-    setFilter(event) {
+    setFilter = (event) => {
       const filter = event.target.value;
       this.setState({filter});
       tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(filter)]);
-    }
+    };
 
     render() {
       const tableRows = [];
@@ -558,22 +541,19 @@ require([
       this.state = {
         paused: settings.get('paused'),
       };
-
-      this.pause = this.pause.bind(this);
-      this.play = this.play.bind(this);
     }
 
-    pause() {
+    pause = () => {
       chrome.browserAction.setIcon({'path': 'img/icon-paused.png'});
       settings.set('paused', true);
       this.setState({paused: true});
-    }
+    };
 
-    play() {
+    play = () => {
       chrome.browserAction.setIcon({'path': 'img/icon.png'});
       settings.set('paused', false);
       this.setState({paused: false});
-    }
+    };
 
     render() {
       const action = this.state.paused

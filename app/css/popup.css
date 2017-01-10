@@ -41,6 +41,10 @@ td.timeGroupRow {
   vertical-align: sub;
 }
 
+.narrowColumn {
+  width: 20px;
+}
+
 .table .faviconCol {
   text-align: center;
   width: 21px;

@@ -1,11 +1,7 @@
 'use strict';
 
-define("util", function() {
-  return {
-    getDomain: function(url) {
-      return url.match(/[^:]+:\/\/([^\/]+)\//)[1];
-    },
-  };
+define('util', function() {
+  return {};
 });
 
 // Array Remove - By John Resig (MIT Licensed)

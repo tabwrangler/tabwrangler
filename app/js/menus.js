@@ -1,6 +1,10 @@
 'use strict';
 
 define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) {
+  function getDomain(url) {
+    return url.match(/[^:]+:\/\/([^\/]+)\//)[1];
+  }
+
   /**
    * Creates and updates context menus and page action menus.
    */
@@ -25,7 +29,7 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
       },
       lockDomain: function(onClickData, selectedTab) {
         const whitelist = settings.get('whitelist');
-        const domain = util.getDomain(selectedTab.url);
+        const domain = getDomain(selectedTab.url);
         whitelist.push(domain);
         settings.set('whitelist', whitelist);
       },
@@ -67,10 +71,10 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
       chrome.pageAction.show(tabId);
       chrome.tabs.get(tabId, function(tab) {
         try {
-          var currentDomain = util.getDomain(tab.url);
+          var currentDomain = getDomain(tab.url);
           chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
         } catch (e) {
-          console.log(tab, "Error in updating menu");
+          console.log(tab, 'Error in updating menu');
           throw e;
         }
       });

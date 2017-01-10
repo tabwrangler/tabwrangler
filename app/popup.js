@@ -16,145 +16,6 @@ require([
   var tabmanager = TW.tabmanager;
   var settings = TW.settings;
 
-  var Popup = {};
-
-  Popup.optionsTab = {};
-  /**
-   * Initialization for options tab.
-   * @param context
-   *  Optionally used to limit jQueries
-   */
-  Popup.optionsTab.init = function(context) {
-    $('#saveOptionsBtn', context).click(Popup.optionsTab.saveOption);
-
-    function onBlurInput() {
-      var key = this.id;
-      Popup.optionsTab.saveOption(key, $(this).val());
-    }
-
-    function onChangeCheckBox() {
-      var key = this.id;
-      if ($(this).attr('checked')) {
-        Popup.optionsTab.saveOption(key, $(this).val());
-      } else {
-        Popup.optionsTab.saveOption(key, false);
-      }
-    }
-
-    $('#minutesInactive').keyup(_.debounce(onBlurInput, 200));
-    $('#minTabs').keyup(_.debounce(onBlurInput, 200));
-    $('#maxTabs').keyup(_.debounce(onBlurInput, 200));
-    $('#purgeClosedTabs').change(onChangeCheckBox);
-    $('#showBadgeCount').change(onChangeCheckBox);
-
-    Popup.optionsTab.loadOptions();
-  };
-
-
-  Popup.optionsTab.saveOption = function (key, value) {
-
-    var errors = [];
-    $('#status').html();
-
-    try {
-      settings.set(key, value);
-    } catch (err) {
-      errors.push(err);
-    }
-
-
-    $('#status').removeClass();
-    $('#status').css('visibility', 'visible');
-    $('#status').css('opacity', '100');
-
-    if (errors.length === 0) {
-      $('#status').html('Saving...');
-      $('#status').addClass('alert-success').addClass('alert');
-      $('#status').delay(50).animate({opacity:0});
-    } else {
-      var $errorList = $('<ul></ul>');
-      for (var i=0; i< errors.length; i++) {
-        $errorList.append('<li>' + errors[i].message + '</li>');
-      }
-      $('#status').append($errorList).addClass('alert-error').addClass('alert');
-    }
-    return false;
-  };
-
-  Popup.optionsTab.loadOptions = function () {
-    $('#minutesInactive').val(settings.get('minutesInactive'));
-    $('#minTabs').val(settings.get('minTabs'));
-    $('#maxTabs').val(settings.get('maxTabs'));
-    if (settings.get('purgeClosedTabs') !== false) {
-      $('#purgeClosedTabs').attr('checked', true);
-    }
-    if (settings.get('showBadgeCount') !== false) {
-      $('#showBadgeCount').attr('checked', true);
-    }
-
-
-    $('#whitelist').addOption = function(key, val) {
-        this.append(
-        $('<option />')
-        .value(val)
-        .text(key)
-      );
-    };
-
-    var whitelist = settings.get('whitelist');
-    Popup.optionsTab.buildWLTable(whitelist);
-
-    var $wlInput = $('#wl-add');
-    var $wlAdd = $('#addToWL');
-    var isValid = function(pattern) {
-      // some other choices such as '/' also do not make sense
-      // not sure if they should be blocked as well
-      return /\S/.test(pattern);
-    };
-
-    $wlInput.on('input', function() {
-      if (isValid($wlInput.val())) {
-        $wlAdd.removeAttr('disabled');
-      }
-      else {
-        $wlAdd.attr('disabled', 'disabled');
-      }
-    });
-
-    $wlAdd.click(function() {
-      var value = $wlInput.val();
-      // just in case
-      if (!isValid(value)) {
-        return;
-      }
-      whitelist.push(value);
-      $wlInput.val('').trigger('input').focus();
-      Popup.optionsTab.saveOption('whitelist', whitelist);
-      Popup.optionsTab.buildWLTable(whitelist);
-      return false;
-    });
-  };
-
-  Popup.optionsTab.buildWLTable = function(whitelist) {
-    var $wlTable = $('table#whitelist tbody');
-    $wlTable.html('');
-    for (var i=0; i < whitelist.length; i++) {
-      var $tr = $('<tr></tr>');
-      var $urlTd = $('<td></td>').text(whitelist[i]);
-      var $deleteLink = $('<a class="deleteLink" href="#">Remove</a>')
-        .click(function() {
-          whitelist.remove(whitelist.indexOf($(this).data('pattern')));
-          Popup.optionsTab.saveOption('whitelist', whitelist);
-          Popup.optionsTab.buildWLTable(whitelist);
-        })
-        .data('pattern', whitelist[i]);
-
-      $tr.append($urlTd);
-      $tr.append($('<td></td>').append($deleteLink));
-      $wlTable.append($tr);
-    }
-  };
-
   function secondsToMinutes(seconds) {
     var s = seconds % 60;
     s = s > 10 ? String(s) : "0" + String(s);
@@ -295,12 +156,130 @@ require([
     }
   }
 
-  class OptionsTab extends React.PureComponent {
+    var Popup = {};
+
+  Popup.optionsTab = {};
+  /**
+   * Initialization for options tab.
+   * @param context
+   *  Optionally used to limit jQueries
+   */
+  Popup.optionsTab.init = function(context) {
+    $('#saveOptionsBtn', context).click(Popup.optionsTab.saveOption);
+
+    function onBlurInput() {
+      var key = this.id;
+      Popup.optionsTab.saveOption(key, $(this).val());
+    }
+
+    function onChangeCheckBox() {
+      var key = this.id;
+      if ($(this).attr('checked')) {
+        Popup.optionsTab.saveOption(key, $(this).val());
+      } else {
+        Popup.optionsTab.saveOption(key, false);
+      }
+    }
+
+    $('#minutesInactive').keyup(_.debounce(onBlurInput, 200));
+    $('#minTabs').keyup(_.debounce(onBlurInput, 200));
+    $('#maxTabs').keyup(_.debounce(onBlurInput, 200));
+    $('#purgeClosedTabs').change(onChangeCheckBox);
+    $('#showBadgeCount').change(onChangeCheckBox);
+
+    Popup.optionsTab.loadOptions();
+  };
+
+  Popup.optionsTab.saveOption = function (key, value) {
+    var errors = [];
+    $('#status').html();
+
+    try {
+      settings.set(key, value);
+    } catch (err) {
+      errors.push(err);
+    }
+
+    $('#status').removeClass();
+    $('#status').css('visibility', 'visible');
+    $('#status').css('opacity', '100');
+
+    if (errors.length === 0) {
+      $('#status').html('Saving...');
+      $('#status').addClass('alert-success').addClass('alert');
+      $('#status').delay(50).animate({opacity:0});
+    } else {
+      var $errorList = $('<ul></ul>');
+      for (var i=0; i< errors.length; i++) {
+        $errorList.append('<li>' + errors[i].message + '</li>');
+      }
+      $('#status').append($errorList).addClass('alert-error').addClass('alert');
+    }
+    return false;
+  };
+
+  Popup.optionsTab.loadOptions = function () {
+    $('#minutesInactive').val(settings.get('minutesInactive'));
+    $('#minTabs').val(settings.get('minTabs'));
+    $('#maxTabs').val(settings.get('maxTabs'));
+    if (settings.get('purgeClosedTabs') !== false) {
+      $('#purgeClosedTabs').attr('checked', true);
+    }
+    if (settings.get('showBadgeCount') !== false) {
+      $('#showBadgeCount').attr('checked', true);
+    }
+  };
+
+  function isValidPattern(pattern) {
+    // some other choices such as '/' also do not make sense
+    // not sure if they should be blocked as well
+    return pattern != null && pattern.length > 0 && /\S/.test(pattern);
+  }
+
+  class OptionsTab extends React.Component {
+    constructor() {
+      super();
+      this.state = {
+        newPattern: '',
+      };
+    }
+
     componentDidMount() {
       Popup.optionsTab.init($('div#tabOptions'));
     }
 
+    handleClickRemovePattern(pattern) {
+      const whitelist = settings.get('whitelist');
+      whitelist.remove(whitelist.indexOf(pattern));
+      Popup.optionsTab.saveOption('whitelist', whitelist);
+      this.forceUpdate();
+    }
+
+    handleAddPatternClick = () => {
+      const {newPattern} = this.state;
+
+      if (!isValidPattern(newPattern)) {
+        return;
+      }
+
+      const whitelist = settings.get('whitelist');
+
+      // Only add the pattern again if it's new, not yet in the whitelist.
+      if (whitelist.indexOf(newPattern) === -1) {
+        whitelist.push(newPattern);
+        Popup.optionsTab.saveOption('whitelist', whitelist);
+      }
+
+      this.setState({newPattern: ''});
+    };
+
+    handleNewPatternChange = (event) => {
+      this.setState({newPattern: event.target.value});
+    };
+
     render() {
+      const whitelist = settings.get('whitelist');
+
       return (
         <div className="tab-pane active" id="tabOptions">
           <form>
@@ -335,15 +314,44 @@ require([
             <fieldset>
               <legend>Auto-Lock</legend>
               <label for="wl-add">tabs with urls "like":</label>
-              <input type="text" id="wl-add" />
-              <button className="btn-mini add-on" id="addToWL" disabled>Add</button>
+              <div className="input-append">
+                <input
+                  id="wl-add"
+                  onChange={this.handleNewPatternChange}
+                  type="text"
+                  value={this.state.newPattern}
+                />
+                <button
+                  className="btn"
+                  disabled={!isValidPattern(this.state.newPattern)}
+                  id="addToWL"
+                  onClick={this.handleAddPatternClick}>
+                  Add
+                </button>
+              </div>
 
-              <table className="table table-bordered table-striped" id="whitelist">
+              <table
+                className="table table-bordered table-striped"
+                id="whitelist"
+                style={{marginTop: '20px'}}>
                 <thead>
-                  <th>Url pattern</th>
+                  <th>URL Pattern</th>
                   <th></th>
                 </thead>
                 <tbody>
+                  {whitelist.map(pattern =>
+                    <tr>
+                      <td>{pattern}</td>
+                      <td>
+                        <a
+                          className="deleteLink"
+                          href="#"
+                          onClick={this.handleClickRemovePattern.bind(this, pattern)}>
+                          Remove
+                        </a>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
               <span className="help-block">
@@ -587,7 +595,6 @@ require([
               name="search"
               onChange={this.setFilter}
               placeholder="search"
-              ref={(_corralSearch) => { this._corralSearch = _corralSearch; }}
               type="search"
               value={this.state.filter}
             />

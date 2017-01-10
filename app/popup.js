@@ -570,7 +570,14 @@ require([
             If tabs are closed automatically, they will be stored here
           </div>
         )
-        : <button className="btn btn-small" onClick={this.clearList}>Clear list</button>;
+        : (
+          <button
+            className="btn btn-small"
+            onClick={this.clearList}
+            style={{marginBottom: '20px'}}>
+            Clear list
+          </button>
+        );
 
       return (
         <div className="tab-pane active" id="tabCorral">

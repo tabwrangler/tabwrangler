@@ -171,34 +171,6 @@ require([
   var Popup = {};
 
   Popup.optionsTab = {};
-  /**
-   * Initialization for options tab.
-   * @param context
-   *  Optionally used to limit jQueries
-   */
-  Popup.optionsTab.init = function(context) {
-    $('#saveOptionsBtn', context).click(Popup.optionsTab.saveOption);
-
-    function onBlurInput() {
-      var key = this.id;
-      Popup.optionsTab.saveOption(key, $(this).val());
-    }
-
-    function onChangeCheckBox() {
-      var key = this.id;
-      if ($(this).attr('checked')) {
-        Popup.optionsTab.saveOption(key, $(this).val());
-      } else {
-        Popup.optionsTab.saveOption(key, false);
-      }
-    }
-
-    $('#minutesInactive').change(_.debounce(onBlurInput, 150));
-    $('#minTabs').change(_.debounce(onBlurInput, 150));
-    $('#maxTabs').change(_.debounce(onBlurInput, 150));
-    $('#purgeClosedTabs').change(onChangeCheckBox);
-    $('#showBadgeCount').change(onChangeCheckBox);
-  };
 
   Popup.optionsTab.saveOption = function (key, value) {
     var errors = [];
@@ -240,10 +212,15 @@ require([
       this.state = {
         newPattern: '',
       };
-    }
 
-    componentDidMount() {
-      Popup.optionsTab.init($('div#tabOptions'));
+      const debounced = _.debounce(this.handleSettingsChange, 150);
+      this.debouncedHandleSettingsChange = event => {
+        // Prevent React's [Event Pool][1] from nulling the event.
+        //
+        // [1]: https://facebook.github.io/react/docs/events.html#event-pooling
+        event.persist();
+        debounced(event);
+      };
     }
 
     handleClickRemovePattern(pattern) {
@@ -276,6 +253,15 @@ require([
       this.setState({newPattern: event.target.value});
     };
 
+    handleSettingsChange = (event) => {
+      debugger
+      if (event.target.type === 'checkbox') {
+        Popup.optionsTab.saveOption(event.target.id, !!event.target.checked);
+      } else {
+        Popup.optionsTab.saveOption(event.target.id, event.target.value);
+      }
+    };
+
     render() {
       const whitelist = settings.get('whitelist');
 
@@ -292,6 +278,7 @@ require([
                   id="minutesInactive"
                   min="1"
                   name="minutesInactive"
+                  onChange={this.debouncedHandleSettingsChange}
                   title="Must be a number greater than 0 and less than 720"
                   type="number"
                 /> minutes.
@@ -304,6 +291,7 @@ require([
                   id="minTabs"
                   min="1"
                   name="minTabs"
+                  onChange={this.debouncedHandleSettingsChange}
                   title="Must be a number greater than 1"
                   type="number"
                 /> tabs open (does not include pinned or locked tabs).
@@ -316,6 +304,7 @@ require([
                   id="maxTabs"
                   min="0"
                   name="maxTabs"
+                  onChange={this.debouncedHandleSettingsChange}
                   title="Must be a number greater than or equal to 0"
                   type="number"
                 /> closed tabs.
@@ -326,6 +315,7 @@ require([
                     defaultChecked={settings.get('purgeClosedTabs')}
                     id="purgeClosedTabs"
                     name="purgeClosedTabs"
+                    onChange={this.handleSettingsChange}
                     type="checkbox"
                   />
                 </label>
@@ -336,6 +326,7 @@ require([
                     defaultChecked={settings.get('showBadgeCount')}
                     id="showBadgeCount"
                     name="showBadgeCount"
+                    onChange={this.handleSettingsChange}
                     type="checkbox"
                   />
                 </label>

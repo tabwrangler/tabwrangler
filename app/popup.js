@@ -199,7 +199,7 @@ require([
       } else {
         let timeLeftContent;
         if (settings.get('paused')) {
-          timeLeftContent = 'paused';
+          timeLeftContent = 'Paused';
         } else {
           const lastModified = tabmanager.tabTimes[tab.id];
           const cutOff = new Date().getTime() - settings.get('stayOpen');
@@ -457,7 +457,11 @@ require([
     }
 
     clearList = () => {
-      tabmanager.closedTabs.clear();
+      this.state.closedTabGroups.forEach(closedTabGroup => {
+        closedTabGroup.tabs.forEach(tab => {
+          tabmanager.closedTabs.removeTab(tab.id);
+        });
+      });
       tabmanager.updateClosedCount();
       this.setState({
         closedTabGroups: [],
@@ -561,12 +565,12 @@ require([
       });
 
       const messageElement = this.state.closedTabGroups.length === 0
-        ? <div id="autocloseMessage" className="alert alert-info">If tabs are closed automatically, they will be stored here</div>
-        : (
-          <div className="clearCorralMessage alert alert-info">
-            <a className="clearCorralLink" href="#" onClick={this.clearList}>Clear list</a>
+        ? (
+          <div id="autocloseMessage" className="alert alert-info">
+            If tabs are closed automatically, they will be stored here
           </div>
-        );
+        )
+        : <button className="btn btn-small" onClick={this.clearList}>Clear list</button>;
 
       return (
         <div className="tab-pane active" id="tabCorral">

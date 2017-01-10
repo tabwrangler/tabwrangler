@@ -673,7 +673,7 @@ require([
         : this.pause;
 
       const content = this.state.paused
-        ? <span><i className="icon-play"></i> Play</span>
+        ? <span><i className="icon-play"></i> Resume</span>
         : <span><i className="icon-pause"></i> Pause</span>;
 
       return (

@@ -10,7 +10,6 @@ require.config({
         // js/lib/jquery-1.9.0.js, relative to
         // the HTML page.
         bootstrap: '../lib/bootstrap/js/bootstrap.min',
-        'bootstrap-tab': '../lib/bootstrap/js/bootstrap-tab',
         jquery: '../lib/jquery.min',
         'jquery-timeago': '../lib/jquery.timeago',
         react: '../lib/react.min',
@@ -19,7 +18,6 @@ require.config({
     },
     shim: {
         bootstrap: ['jquery'],
-        'bootstrap-tab': ['bootstrap'],
         'jquery-timeago': ['jquery']
     }
 });

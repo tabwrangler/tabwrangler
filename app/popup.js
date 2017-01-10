@@ -2,14 +2,13 @@
 
 require([
   'bootstrap',
-  'bootstrap-tab',
   'jquery',
   'jquery-timeago',
   'react',
   'react-dom',
   'underscore',
   'util'
-], function(Bootstrap, BootstrapTabs, $, timeago, React, ReactDOM, _, util) {
+], function(Bootstrap, $, timeago, React, ReactDOM, _, util) {
 
   var TW = chrome.extension.getBackgroundPage().TW;
 
@@ -184,110 +183,193 @@ require([
     }
   };
 
-  // Active Tab
-  // @todo: rename this to lock tab, that's what it's for.;
-  Popup.activeTab = {};
-
-  Popup.activeTab.init = function(context) {
-    this.context = context;
-    chrome.tabs.getAllInWindow(null, function(tabs) { Popup.activeTab.buildTabLockTable(tabs);});
-  };
-
-  Popup.activeTab.saveLock = function(tabId) {
-    tabmanager.lockTab(tabId);
-  };
-
-  Popup.activeTab.removeLock = function(tabId) {
-    tabmanager.unlockTab();
-  };
-
-
-  /**
-   * @param tabs
-   * @return {Boolean}
-   */
-  Popup.activeTab.buildTabLockTable = function (tabs) {
-    var self = this;
-
-    var tabNum = tabs.length;
-    var $tbody = $('#activeTabs tbody');
-    $tbody.html('');
-
-    var lockedIds = settings.get("lockedIds");
-
-    for (var i = 0; i < tabNum; i++) {
-      var tabIsPinned = tabs[i].pinned;
-      var tabWhitelistMatch = tabmanager.getWhitelistMatch(tabs[i].url);
-      var tabIsLocked = tabIsPinned || tabWhitelistMatch || lockedIds.indexOf(tabs[i].id) != -1;
-
-      // Create a new row.
-      var $tr = $('<tr></tr>');
-      $tr.attr('data-tabid', tabs[i].id);
-
-      // Checkbox to lock it.
-      //@todo: put the handler in its own function
-      var $lock_box = $('<input />')
-      .attr('type', 'checkbox')
-      .attr('id', "cb" + tabs[i].id)
-      .attr('value', tabs[i].id)
-      .attr('checked', tabIsLocked)
-      .attr('disabled', tabIsPinned || tabWhitelistMatch)
-      .click(function () {
-        if (this.checked) {
-          self.saveLock(parseInt(this.value));
-        } else {
-          self.removeLock(parseInt(this.value));
-        }
-      });
-      $tr.append($('<td></td>').append($lock_box));
-
-      var $faviconCol = Popup.Util.buildFaviconCol(tabs[i].favIconUrl);
-      $tr.append($faviconCol);
-
-      // Page title.
-      $tr.append($('<td><span class="tabTitle">' + tabs[i].title.shorten(70) + '</span><br/><span class="tabUrl">' + tabs[i].url.shorten(70) + '</td>'));
-
-      if (!tabIsLocked) {
-        var $timer = $('<td class="time-left"></td>');
-        $tr.append($timer);
+  class OpenTabRow extends React.Component {
+    handleLockedOnChange = (event) => {
+      const {tab} = this.props;
+      if (event.target.checked) {
+        this.props.onLockTab(tab.id);
       } else {
-        var reason = 'Locked';
-        if (tabIsPinned) {
-            reason = 'Pinned';
+        this.props.onUnlockTab(tab.id)
+      }
+    };
+
+    render() {
+      const {tab} = this.props;
+      const tabWhitelistMatch = tabmanager.getWhitelistMatch(tab.url);
+      const tabIsLocked = tab.pinned || tabWhitelistMatch || this.props.isLocked;
+
+      let lockStatusElement;
+      if (tabIsLocked) {
+        let reason = 'Locked';
+        if (tab.pinned) {
+          reason = 'Pinned';
         } else if (tabWhitelistMatch) {
-            reason = $('<a href="#" title="' + tabWhitelistMatch + '">Auto-Lock</a>').click(function() {
-              $('a[href="#tabOptions"]').tab('show');
-            });
+          reason = <a href="#" title={tabWhitelistMatch}>Auto-Lock</a>
+          // reason = $('<a href="#" title="' + tabWhitelistMatch + '">Auto-Lock</a>').click(function() {
+          //   $('a[href="#tabOptions"]').tab('show');
+          // });
         }
 
-        $tr.append($('<td class="lock-reason"></td>').append(reason));
+        lockStatusElement = <td className="lock-reason">{reason}</td>;
+      } else {
+        let timeLeftContent;
+        if (settings.get('paused')) {
+          timeLeftContent = 'paused';
+        } else {
+          const lastModified = tabmanager.tabTimes[tab.id];
+          const cutOff = new Date().getTime() - settings.get('stayOpen');
+          const timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
+          timeLeftContent = Popup.Util.secondsToMinutes(timeLeft);
+        }
+
+        lockStatusElement = <td className="time-left">{timeLeftContent}</td>;
       }
-      // Append the row.
-      $tbody.append($tr);
+
+      return (
+        <tr>
+          <td>
+            <input
+              checked={tabIsLocked}
+              disabled={tab.pinned || tabWhitelistMatch}
+              onChange={this.handleLockedOnChange}
+              type="checkbox"
+            />
+          </td>
+          <td>
+            <img height="16" src={tab.favIconUrl} width="16" />
+          </td>
+          <td>
+            <strong className="tabTitle">{tab.title.shorten(70)}</strong>
+            <br />
+            <span className="tabUrl">{tab.url.shorten(70)}</span>
+          </td>
+          {lockStatusElement}
+        </tr>
+      );
+    }
+  }
+
+  class LockTab extends React.PureComponent {
+    constructor() {
+      super();
+      this.state = {
+        tabs: [],
+      };
     }
 
-    Popup.activeTab.updateCountdown();
-    setInterval(Popup.activeTab.updateCountdown, 1000);
+    componentWillMount() {
+      this._timeLeftInterval = window.setInterval(this.forceUpdate.bind(this), 1000);
 
-    return true;
-  };
+      // TODO: THIS WILL BREAK. This is some async stuff inside a synchronous call. Fix this, move
+      // the state into a higher component.
+      chrome.tabs.query({}, tabs => { this.setState({tabs}); })
+    }
 
-  Popup.activeTab.updateCountdown = function() {
-    var self = this;
-    $('.time-left').each(function() {
-      var t = null;
-      var myElem = $(this);
-      var tabId = myElem.parent().data('tabid');
-      if (settings.get('paused')) {
-        myElem.html('paused');
-      } else {
-        var lastModified = tabmanager.tabTimes[tabId];
-        var cutOff = new Date().getTime() - settings.get('stayOpen');
-        var timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
-        myElem.html(Popup.Util.secondsToMinutes(timeLeft));
-      }
-    });
-  };
+    componentWillUnmount() {
+      window.clearInterval(this._timeLeftInterval);
+    }
+
+    handleLockTab = (tabId) => {
+      tabmanager.lockTab(tabId);
+      this.forceUpdate();
+    };
+
+    handleUnlockTab = (tabId) => {
+      tabmanager.unlockTab(tabId);
+      this.forceUpdate();
+    };
+
+    render() {
+      const lockedIds = settings.get('lockedIds');
+
+      return (
+        <div className="tab-pane active" id="tabActive">
+          <div className="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
+          <table id="activeTabs" className="table-striped table table-bordered">
+            <thead>
+              <tr>
+                <th className="narrowColumn"><img height="16" src="img/lock.png" width="16" /></th>
+                <th className="narrowColumn"></th>
+                <th>Tab</th>
+                <th className="countdownColumn">Closing in</th>
+              </tr>
+            </thead>
+            <tbody>
+              {this.state.tabs.map(tab =>
+                <OpenTabRow
+                  isLocked={lockedIds.indexOf(tab.id) !== -1}
+                  onLockTab={this.handleLockTab}
+                  onUnlockTab={this.handleUnlockTab}
+                  tab={tab}
+                />
+              )}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+  }
+
+  class OptionsTab extends React.PureComponent {
+    componentDidMount() {
+      Popup.optionsTab.init($('div#tabOptions'));
+    }
+
+    render() {
+      return (
+        <div className="tab-pane active" id="tabOptions">
+          <form>
+            <fieldset>
+              <legend>Settings</legend>
+              <p>
+                <label for="minutesInactive">Close inactive tabs after:</label>
+                <input type="text" id="minutesInactive" className="span1" name="minutesInactive" /> minutes.
+              </p>
+              <p>
+                <label for="minTabs">Don't auto-close if I only have</label>
+                <input type="text" id="minTabs" className="span1" name="minTabs" /> tabs open (does not include pinned or locked tabs).
+              </p>
+              <p>
+                <label for="showBadgeCount">Remember up to</label>
+                <input type="text" id="maxTabs" className="span1" name="maxTabs" /> closed tabs.
+              </p>
+              <p>
+                <label for="purgeClosedTabs" className="checkbox">Clear closed tabs list on quit
+                  <input type="checkbox" id="purgeClosedTabs" className="span1" name="purgeClosedTabs" />
+                </label>
+              </p>
+              <p>
+                <label for="showBadgeCount" className="checkbox">Show # of closed tabs in url bar
+                  <input type="checkbox" id="showBadgeCount" className="span1" name="showBadgeCount" />
+                </label>
+              </p>
+            </fieldset>
+
+            <div id="status" className="alert alert-success" style={{visibility: 'hidden'}}></div>
+
+            <fieldset>
+              <legend>Auto-Lock</legend>
+              <label for="wl-add">tabs with urls "like":</label>
+              <input type="text" id="wl-add" />
+              <button className="btn-mini add-on" id="addToWL" disabled>Add</button>
+
+              <table className="table table-bordered table-striped" id="whitelist">
+                <thead>
+                  <th>Url pattern</th>
+                  <th></th>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+              <span className="help-block">
+                Example: <i>cnn</i> would match every page on cnn.com and any URL with cnn anywhere in url.
+              </span>
+            </fieldset>
+          </form>
+        </div>
+      );
+    }
+  }
 
   class ClosedTabGroupHeader extends React.PureComponent {
     handleClickRestoreAll = () => {
@@ -544,13 +626,13 @@ require([
     }
 
     pause = () => {
-      chrome.browserAction.setIcon({'path': 'img/icon-paused.png'});
+      chrome.browserAction.setIcon({path: 'img/icon-paused.png'});
       settings.set('paused', true);
       this.setState({paused: true});
     };
 
     play = () => {
-      chrome.browserAction.setIcon({'path': 'img/icon.png'});
+      chrome.browserAction.setIcon({path: 'img/icon.png'});
       settings.set('paused', false);
       this.setState({paused: false});
     };
@@ -572,7 +654,22 @@ require([
     }
   }
 
-  class Header extends React.PureComponent {
+  class NavBar extends React.PureComponent {
+    handleClickCorralTab = (event) => {
+      event.preventDefault();
+      this.props.onClickTab('corral');
+    };
+
+    handleClickLockTab = (event) => {
+      event.preventDefault();
+      this.props.onClickTab('lock');
+    };
+
+    handleClickOptionsTab = (event) => {
+      event.preventDefault();
+      this.props.onClickTab('options');
+    };
+
     render() {
       return (
         <div>
@@ -586,9 +683,15 @@ require([
             </a>
           </div>
           <ul className="nav nav-tabs">
-            <li><a href="#tabCorral" target="#tabCorral" data-toggle="tab">Tab Corral</a></li>
-            <li><a href="#tabActive" target="#tabActive" data-toggle="tab">Tab Lock</a></li>
-            <li><a href="#tabOptions" target="#tabOptions" data-toggle="tab">Options</a></li>
+            <li className={this.props.activeTabId === 'corral' ? 'active' : null}>
+              <a href="#" onClick={this.handleClickCorralTab}>Tab Corral</a>
+            </li>
+            <li className={this.props.activeTabId === 'lock' ? 'active' : null}>
+              <a href="#" onClick={this.handleClickLockTab}>Tab Lock</a>
+            </li>
+            <li className={this.props.activeTabId === 'options' ? 'active' : null}>
+              <a href="#" onClick={this.handleClickOptionsTab}>Options</a>
+            </li>
           </ul>
         </div>
       );
@@ -596,79 +699,36 @@ require([
   }
 
   class PopupContent extends React.PureComponent {
+    constructor() {
+      super();
+      this.state = {
+        activeTabId: 'corral',
+      };
+    }
+
+    handleClickTab = (tabId) => {
+      this.setState({activeTabId: tabId});
+    };
+
     render() {
+      let activeTab;
+      switch (this.state.activeTabId) {
+        case 'corral':
+          activeTab = <CorralTab />;
+          break;
+        case 'lock':
+          activeTab = <LockTab />;
+          break;
+        case 'options':
+          activeTab = <OptionsTab />;
+          break;
+      }
+
       return (
         <div>
-          <Header />
+          <NavBar activeTabId={this.state.activeTabId} onClickTab={this.handleClickTab} />
           <div className="tab-content container-fluid">
-            <div className="tab-pane" id="tabOptions">
-              <form>
-                <fieldset>
-                  <legend>Settings</legend>
-                  <p>
-                    <label for="minutesInactive">Close inactive tabs after:</label>
-                    <input type="text" id="minutesInactive" className="span1" name="minutesInactive" /> minutes.
-                  </p>
-                  <p>
-                    <label for="minTabs">Don't auto-close if I only have</label>
-                    <input type="text" id="minTabs" className="span1" name="minTabs" /> tabs open (does not include pinned or locked tabs).
-                  </p>
-                  <p>
-                    <label for="showBadgeCount">Remember up to</label>
-                    <input type="text" id="maxTabs" className="span1" name="maxTabs" /> closed tabs.
-                  </p>
-                  <p>
-                    <label for="purgeClosedTabs" className="checkbox">Clear closed tabs list on quit
-                      <input type="checkbox" id="purgeClosedTabs" className="span1" name="purgeClosedTabs" />
-                    </label>
-                  </p>
-                  <p>
-                    <label for="showBadgeCount" className="checkbox">Show # of closed tabs in url bar
-                      <input type="checkbox" id="showBadgeCount" className="span1" name="showBadgeCount" />
-                    </label>
-                  </p>
-                </fieldset>
-
-                <div id="status" className="alert alert-success" style={{visibility: 'hidden'}}></div>
-
-                <fieldset>
-                  <legend>Auto-Lock</legend>
-                  <label for="wl-add">tabs with urls "like":</label>
-                  <input type="text" id="wl-add" />
-                  <button className="btn-mini add-on" id="addToWL" disabled>Add</button>
-
-                  <table className="table table-bordered table-striped" id="whitelist">
-                    <thead>
-                      <th>Url pattern</th>
-                      <th></th>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                  </table>
-                  <span className="help-block">
-                    Example: <i>cnn</i> would match every page on cnn.com and any URL with cnn anywhere in url.
-                  </span>
-                </fieldset>
-              </form>
-            </div>
-
-            <CorralTab />
-
-            <div className="tab-pane" id="tabActive">
-              <div className="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
-              <table id="activeTabs" className="table-striped table table-bordered">
-                <thead>
-                  <tr>
-                    <th className="narrowColumn"><img src="img/lock.png"/></th>
-                    <th className="narrowColumn"></th>
-                    <th>Tab</th>
-                    <th className="countdownColumn">Closing in</th>
-                  </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </div>
+            {activeTab}
           </div>
         </div>
       );
@@ -677,21 +737,6 @@ require([
 
   ReactDOM.render(
     <PopupContent />,
-    document.getElementById('popup'),
-    () => {
-      $('a[href="#tabCorral"]').tab('show');
-
-      $('a[data-toggle="tab"]').on('show', function (e) {
-        var tabId = e.target.hash;
-        switch (tabId) {
-          case '#tabOptions':
-            Popup.optionsTab.init($('div#tabOptions'));
-            break;
-          case '#tabActive':
-            Popup.activeTab.init($('div#tabActive'));
-            break;
-        }
-      });
-    }
+    document.getElementById('popup')
   );
 });

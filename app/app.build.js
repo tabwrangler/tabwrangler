@@ -10,7 +10,7 @@ require.config({
         // js/lib/jquery-1.9.0.js, relative to
         // the HTML page.
         jquery: '../lib/jquery.min',
-        react: '../lib/react.min',
+        react: '../lib/react-with-addons.min',
         'react-dom': '../lib/react-dom.min',
         timeago: '../lib/timeago.min',
         underscore: '../lib/underscore-min'

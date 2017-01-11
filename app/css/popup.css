@@ -49,3 +49,15 @@ td.timeGroupRow {
 table {
   font-size: 14px;
 }
+
+/**
+ * Alert animations for ReactCSSTransitionGroup
+ */
+.alert-leave {
+  opacity: 1;
+}
+
+.alert-leave.alert-leave-active {
+  opacity: 0.01;
+  transition: opacity 400ms ease-in;
+}

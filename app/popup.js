@@ -1,13 +1,13 @@
 'use strict';
 
 require([
-  'jquery',
   'react',
   'react-dom',
   'timeago',
   'underscore',
   'util'
-], function($, React, ReactDOM, timeago, _, util) {
+], function(React, ReactDOM, timeago, _, util) {
+  const ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
   const TW = chrome.extension.getBackgroundPage().TW;
 
   // Unpack TW.
@@ -46,11 +46,13 @@ require([
 
       let lockStatusElement;
       if (tabIsLocked) {
-        let reason = 'Locked';
+        let reason;
         if (tab.pinned) {
           reason = 'Pinned';
         } else if (tabWhitelistMatch) {
           reason = <abbr title={`Matches '${tabWhitelistMatch}'`}>Auto-Locked</abbr>;
+        } else {
+          reason = 'Locked';
         }
 
         lockStatusElement = <td className="text-center muted">{reason}</td>;
@@ -83,7 +85,7 @@ require([
               alt=""
               height="16"
               src={tab.favIconUrl}
-              style={{height: '16px', 'max-width': 'none'}}
+              style={{height: '16px', maxWidth: 'none'}}
               width="16"
             />
           </td>
@@ -164,38 +166,6 @@ require([
     }
   }
 
-  var Popup = {};
-
-  Popup.optionsTab = {};
-
-  Popup.optionsTab.saveOption = function (key, value) {
-    var errors = [];
-    $('#status').html();
-
-    try {
-      settings.set(key, value);
-    } catch (err) {
-      errors.push(err);
-    }
-
-    $('#status').removeClass();
-    $('#status').css('visibility', 'visible');
-    $('#status').css('opacity', '100');
-
-    if (errors.length === 0) {
-      $('#status').html('Saving...');
-      $('#status').addClass('alert-success').addClass('alert');
-      $('#status').delay(50).animate({opacity:0});
-    } else {
-      var $errorList = $('<ul></ul>');
-      for (var i=0; i< errors.length; i++) {
-        $errorList.append('<li>' + errors[i].message + '</li>');
-      }
-      $('#status').append($errorList).addClass('alert-error').addClass('alert');
-    }
-    return false;
-  };
-
   function isValidPattern(pattern) {
     // some other choices such as '/' also do not make sense
     // not sure if they should be blocked as well
@@ -206,7 +176,9 @@ require([
     constructor() {
       super();
       this.state = {
+        errors: [],
         newPattern: '',
+        saveAlertVisible: false,
       };
 
       const debounced = _.debounce(this.handleSettingsChange, 150);
@@ -219,10 +191,16 @@ require([
       };
     }
 
+    componentWillUnmount() {
+      if (this.saveAlertTimeout != null) {
+        window.clearTimeout(this.saveAlertTimeout);
+      }
+    }
+
     handleClickRemovePattern(pattern) {
       const whitelist = settings.get('whitelist');
       whitelist.remove(whitelist.indexOf(pattern));
-      Popup.optionsTab.saveOption('whitelist', whitelist);
+      this.saveOption('whitelist', whitelist);
       this.forceUpdate();
     }
 
@@ -239,7 +217,7 @@ require([
       // Only add the pattern again if it's new, not yet in the whitelist.
       if (whitelist.indexOf(newPattern) === -1) {
         whitelist.push(newPattern);
-        Popup.optionsTab.saveOption('whitelist', whitelist);
+        this.saveOption('whitelist', whitelist);
       }
 
       this.setState({newPattern: ''});
@@ -250,16 +228,53 @@ require([
     };
 
     handleSettingsChange = (event) => {
-      debugger
       if (event.target.type === 'checkbox') {
-        Popup.optionsTab.saveOption(event.target.id, !!event.target.checked);
+        this.saveOption(event.target.id, !!event.target.checked);
       } else {
-        Popup.optionsTab.saveOption(event.target.id, event.target.value);
+        this.saveOption(event.target.id, event.target.value);
       }
     };
 
+    saveOption(key, value) {
+      if (this.saveAlertTimeout != null) {
+        window.clearTimeout(this.saveAlertTimeout);
+      }
+
+      try {
+        settings.set(key, value);
+        this.setState({
+          errors: [],
+          saveAlertVisible: true,
+        });
+        this.saveAlertTimeout = window.setTimeout(() => {
+          this.setState({saveAlertVisible: false});
+        }, 400);
+      } catch (err) {
+        this.state.errors.push(err);
+        this.forceUpdate();
+      }
+    }
+
     render() {
       const whitelist = settings.get('whitelist');
+
+      let errorAlert;
+      let saveAlert;
+      if (this.state.errors.length === 0) {
+        if (this.state.saveAlertVisible) {
+          saveAlert = [<div className="alert alert-success" key="alert">Saving...</div>];
+        }
+      } else {
+        errorAlert = (
+          <div className="alert alert-error">
+            <ul style={{'margin-bottom': 0}}>
+              {this.state.errors.map((error, i) =>
+                <li key={i}>{error.message}</li>
+              )}
+            </ul>
+          </div>
+        );
+      }
 
       return (
         <div className="tab-pane active">
@@ -330,7 +345,16 @@ require([
             </fieldset>
           </form>
 
-          <div id="status" className="alert alert-success" style={{visibility: 'hidden'}}></div>
+          {(this.state.errors.length === 0)
+            ? (
+              <ReactCSSTransitionGroup
+                transitionEnter={false}
+                transitionLeaveTimeout={400}
+                transitionName="alert">
+                {saveAlert}
+              </ReactCSSTransitionGroup>
+            )
+            : errorAlert}
 
           <form onSubmit={this.handleAddPatternSubmit}>
             <fieldset>

@@ -2,13 +2,12 @@
 
 require([
   'jquery',
-  'jquery-timeago',
   'react',
   'react-dom',
+  'timeago',
   'underscore',
   'util'
-], function($, timeago, React, ReactDOM, _, util) {
-
+], function($, React, ReactDOM, timeago, _, util) {
   const TW = chrome.extension.getBackgroundPage().TW;
 
   // Unpack TW.
@@ -133,7 +132,7 @@ require([
       const lockedIds = settings.get('lockedIds');
 
       return (
-        <div className="tab-pane active" id="tabActive">
+        <div className="tab-pane active">
           <div className="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
           <table id="activeTabs" className="table table-condensed table-striped table-bordered">
             <thead>
@@ -263,7 +262,7 @@ require([
       const whitelist = settings.get('whitelist');
 
       return (
-        <div className="tab-pane active" id="tabOptions">
+        <div className="tab-pane active">
           <form>
             <fieldset>
               <legend>Settings</legend>
@@ -454,19 +453,16 @@ require([
           : <img className="favicon" height="16" src={tab.favIconUrl} width="16" />;
       }
 
+      const timeagoInstance = timeago();
       return (
         <tr onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
-          <td className="faviconCol">
-            {favicon}
-          </td>
+          <td className="faviconCol">{favicon}</td>
           <td>
             <a target="_blank" href={tab.url} onClick={this.openTab}>
               {truncateString(tab.title, 70)}
             </a>
           </td>
-          <td>
-            {$.timeago(tab.closedAt)}
-          </td>
+          <td>{timeagoInstance.format(tab.closedAt)}</td>
         </tr>
       );
     }
@@ -612,10 +608,10 @@ require([
         );
 
       return (
-        <div className="tab-pane active" id="tabCorral">
+        <div className="tab-pane active">
           <form className="form-search">
             <input
-              className="span8 corral-search search-query"
+              className="span8 search-query"
               name="search"
               onChange={this.setFilter}
               placeholder="search"

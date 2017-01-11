@@ -10,12 +10,14 @@ require.config({
         // js/lib/jquery-1.9.0.js, relative to
         // the HTML page.
         jquery: '../lib/jquery.min',
-        'jquery-timeago': '../lib/jquery.timeago',
         react: '../lib/react.min',
         'react-dom': '../lib/react-dom.min',
+        timeago: '../lib/timeago.min',
         underscore: '../lib/underscore-min'
     },
     shim: {
-        'jquery-timeago': ['jquery']
+        timeago: {
+            exports: 'timeago'
+        }
     }
 });

@@ -1,4 +1,3 @@
-const babel = require('gulp-babel');
 const batch = require('gulp-batch');
 const gulp = require('gulp');
 const watch = require('gulp-watch');

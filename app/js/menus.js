@@ -2,7 +2,6 @@
 
 import settings from './settings';
 import tabmanager from './tabmanager';
-import util from './util';
 
 function getDomain(url) {
   return url.match(/[^:]+:\/\/([^\/]+)\//)[1];

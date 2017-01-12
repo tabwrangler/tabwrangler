@@ -5,7 +5,6 @@ import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import ReactDOM from 'react-dom';
 import timeago from 'timeago.js';
-import util from './js/util';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
@@ -198,7 +197,7 @@ class OptionsTab extends React.Component {
 
   handleClickRemovePattern(pattern) {
     const whitelist = settings.get('whitelist');
-    whitelist.remove(whitelist.indexOf(pattern));
+    whitelist.splice(whitelist.indexOf(pattern), 1);
     this.saveOption('whitelist', whitelist);
     this.forceUpdate();
   }

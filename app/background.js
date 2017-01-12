@@ -4,7 +4,6 @@ import _ from 'underscore';
 import menus from './js/menus';
 import settings from './js/settings';
 import tabmanager from './js/tabmanager';
-import util from './js/util';
 import updater from './js/updater';
 
 // Declare this global namespace so it can be used from popup.js

@@ -5,19 +5,17 @@
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "main": "app/background.js",
   "scripts": {
-    "build": "gulp",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "gulp"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ssorallen/tabwrangler.git"
+    "url": "git+https://github.com/jacobSingh/tabwrangler.git"
   },
-  "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ssorallen/tabwrangler/issues"
+    "url": "https://github.com/jacobSingh/tabwrangler/issues"
   },
-  "homepage": "https://github.com/ssorallen/tabwrangler#readme",
+  "homepage": "https://github.com/jacobSingh/tabwrangler#readme",
   "devDependencies": {
     "babel-core": "^6.21.0",
     "babel-loader": "^6.2.10",
@@ -30,7 +28,6 @@
     "webpack": "^1.14.0"
   },
   "dependencies": {
-    "jquery": "^3.1.1",
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.4.2",
     "react-dom": "^15.4.2",

@@ -1,9 +1,9 @@
 {
   "name": "tabwrangler",
   "private": true,
-  "version": "3.1.0",
-  "description": "Auto-closes tabs which you haven't used in awhile.",
-  "main": "app/app.build.js",
+  "version": "4.0.0",
+  "description": "Automatically closes inactive tabs and makes it easy to get them back",
+  "main": "app/background.js",
   "scripts": {
     "build": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,12 +19,23 @@
   },
   "homepage": "https://github.com/ssorallen/tabwrangler#readme",
   "devDependencies": {
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
     "babel-plugin-transform-class-properties": "^6.19.0",
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-react": "^6.16.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-batch": "^1.0.5",
-    "gulp-watch": "^4.3.11"
+    "gulp-watch": "^4.3.11",
+    "webpack": "^1.14.0"
+  },
+  "dependencies": {
+    "jquery": "^3.1.1",
+    "react": "^15.4.2",
+    "react-addons-css-transition-group": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "timeago.js": "^2.0.4",
+    "underscore": "^1.8.3"
   }
 }

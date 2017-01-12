@@ -1,6 +1,8 @@
 'use strict';
 
-var TW = chrome.extension.getBackgroundPage().TW;
+import $ from 'jquery';
+
+const TW = chrome.extension.getBackgroundPage().TW;
 
 $(document).ready(function() {
   var urlParams = {};

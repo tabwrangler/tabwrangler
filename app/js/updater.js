@@ -1,11 +1,9 @@
 'use strict';
 
-define(function(require) {
-
 /**
  * Handles updates between versions of the extension.
  */
-var Updater = {
+const Updater = {
   updates: {},
   firstInstall: function() {
     var notification = window.webkitNotifications.createNotification(
@@ -32,6 +30,8 @@ var Updater = {
       if (typeof items['version'] != 'undefined') {
         currentVersion = items['version'];
       }
+
+      currentVersion = 1;
 
       if (!currentVersion) {
         // Hardcoded here to make the code simpler.
@@ -321,26 +321,22 @@ Updater.updates[2.9] = {
   },
 
   finished: function() {
-
-
-
     var updateTxt = ''
-    + '<strong>Updates</strong>'
-    + '<ul>'
-    + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
-    + '<li> Tabs were getting cleared at quit, even when setting was on. <span class="label label-error">Bug</span></li>'
-    + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
-    + '</ul>';
+      + '<strong>Updates</strong>'
+      + '<ul>'
+      + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
+      + '<li> Tabs were getting cleared at quit, even when setting was on. <span class="label label-error">Bug</span></li>'
+      + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
+      + '</ul>';
 
     var notification = window.webkitNotifications.createHTMLNotification(
       'notification.html?title=Version 2.9&message=' + updateTxt
     );
     notification.show();
-
   }
 }
 
-Updater.updates[3.1] = {
+Updater.updates[4.0] = {
   fx: function() {
 
   },
@@ -357,6 +353,4 @@ Updater.updates[3.1] = {
   }
 }
 
-return Updater;
-
-});
+export default Updater;

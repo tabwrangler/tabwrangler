@@ -18,11 +18,10 @@ var checkToClose = function(cutOff) {
   var i;
   cutOff = cutOff || new Date().getTime() - settings.get('stayOpen');
   var minTabs = settings.get('minTabs');
+
   // Tabs which have been locked via the checkbox.
   var lockedIds = settings.get("lockedIds");
   var toCut = tabmanager.getOlderThen(cutOff);
-  var tabsToSave = [];
-
 
   if (settings.get('paused') === true) {
     return;

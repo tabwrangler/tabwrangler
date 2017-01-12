@@ -6,13 +6,14 @@
 const Updater = {
   updates: {},
   firstInstall: function() {
-    var notification = window.webkitNotifications.createNotification(
-      'img/icon48.png',                      // The image.
-      'Tab Wrangler is installed',
-      'Tab wrangler is now auto-closing tabs after ' + TW.settings.get('minutesInactive') + ' minutes. \n\
-  To change this setting, click on the new icon on your URL bar.'
-      );
-    notification.show();
+    chrome.notifications.create({
+      iconUrl: 'img/icon48.png',
+      message:
+`Tab wrangler is now auto-closing tabs after ${TW.settings.get('minutesInactive')} minutes. \
+To change this setting, click on the new icon on your URL bar.`,
+      title: 'Tab Wrangler is installed',
+      type: 'basic',
+    });
   },
   //@todo: refactor this into a couple functions
   run: function() {
@@ -52,7 +53,6 @@ const Updater = {
   },
   runUpdates: function(currentVersion, manifestVersion) {
     var self = this;
-
     if (!currentVersion) {
       chrome.storage.sync.set({
         'version': manifestVersion
@@ -90,7 +90,7 @@ Updater.getNotification = function(title, items) {
       type: "list",
       title: title,
       message: "Tab wrangler updates",
-      iconUrl: "img/icon128.png",
+      iconUrl: "img/icon48.png",
       items: [],
       buttons: [],
     };

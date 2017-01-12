@@ -4,7 +4,6 @@ const path = require('path');
 module.exports = {
   entry: {
     background: './app/background.js',
-    pageaction: './app/pageaction.js',
     popup: './app/popup.js'
   },
   module: {

@@ -14,18 +14,6 @@ function getDomain(url) {
 export default {
   lockActionId: null,
 
-  getPageActionButtons: function() {
-    return {
-      'lockTab': "Never close this tab",
-      'lockDomain': "Never close anything on this domain",
-      'corralTab': 'Close tab and save URL immediately',
-    };
-  },
-
-  handlePageAction: function (actionId, currentTab) {
-    ContextMenuHandler.pageSpecificActions[actionId]({}, currentTab);
-  },
-
   pageSpecificActions: {
     lockTab: function(onClickData, selectedTab) {
       tabmanager.lockTab(selectedTab.id);

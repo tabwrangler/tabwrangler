@@ -239,7 +239,7 @@ class OptionsTab extends React.Component {
       window.clearTimeout(this.saveAlertTimeout);
     }
 
-    // try {
+    try {
       settings.set(key, value);
       this.setState({
         errors: [],
@@ -248,11 +248,11 @@ class OptionsTab extends React.Component {
       this.saveAlertTimeout = window.setTimeout(() => {
         this.setState({saveAlertVisible: false});
       }, 400);
-    // }
-    // catch (err) {
-    //   this.state.errors.push(err);
-    //   this.forceUpdate();
-    // }
+    }
+    catch (err) {
+      this.state.errors.push(err);
+      this.forceUpdate();
+    }
   }
 
   render() {

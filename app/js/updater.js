@@ -32,8 +32,6 @@ To change this setting, click on the new icon on your URL bar.`,
         currentVersion = items['version'];
       }
 
-      currentVersion = 1;
-
       if (!currentVersion) {
         // Hardcoded here to make the code simpler.
         // This is the first update for users upgrading from when we didn't store

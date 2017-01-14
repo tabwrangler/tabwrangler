@@ -24,6 +24,21 @@ Auto-closes tabs which you haven't used in awhile.
   * Set the # of minutes to wait before closing an inactive tab.
   * Set the ideal # of tabs to have in your browser.
 
+## Developing
+
+1. Install all dependencies
+
+        npm install
+2. Build and output the contents to `dist/`
+
+        gulp
+3. Open the Extensions page in Chrome via *Window > Extensions*
+4. Click "Load unpacked extension..." and select the `dist/` directory created in Step 2
+
+To watch changes and re-compile automatically when developing, use the `watch` task:
+
+    gulp watch
+
 ## Todo:
 
 * Pause the auto-close behavior if the browser has been idle

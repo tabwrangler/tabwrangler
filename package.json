@@ -24,6 +24,7 @@
     "babel-preset-react": "^6.16.0",
     "gulp": "^3.9.1",
     "gulp-batch": "^1.0.5",
+    "gulp-util": "^3.0.8",
     "gulp-watch": "^4.3.11",
     "webpack": "^1.14.0"
   },

@@ -4,7 +4,6 @@
   },
   "manifest_version": 2,
   "name": "Tab Wrangler",
-  "options_page": "popup.html",
   "version": "4.0.0",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "minimum_chrome_version": "28",
@@ -17,6 +16,10 @@
     "default_title": "Tab Wrangler",
     "default_icon": "img/icon.png",
     "default_popup": "popup.html"
+  },
+  "options_page": "popup.html",
+  "options_ui": {
+    "page": "popup.html"
   },
   "web_accessible_resources": [
     "img/icon48.png"

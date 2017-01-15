@@ -1,5 +1,7 @@
 'use strict';
 
+/* global chrome */
+
 import settings from './settings';
 import tabmanager from './tabmanager';
 
@@ -55,7 +57,7 @@ export default {
   },
 
   updateContextMenus: function(tabId) {
-    self = this;
+    const self = this;
     // Little bit of a kludge, would be nice to be DRY here but this was simpler.
     // Sets the title again for each page.
     chrome.tabs.get(tabId, function(tab) {

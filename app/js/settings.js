@@ -1,5 +1,7 @@
 'use strict';
 
+/* global chrome */
+
 import tabmanager from './tabmanager';
 
 /**
@@ -133,7 +135,7 @@ Settings.setpaused = function(value) {
  *  Callback function after value is received.
  * @return {*}
  */
-Settings.get = function(key, fx) {
+Settings.get = function(key) {
   if (typeof this[key] == 'function') {
     return this[key]();
   }

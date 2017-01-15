@@ -1,5 +1,7 @@
 'use strict';
 
+/* global chrome */
+
 import _ from 'underscore';
 import menus from './js/menus';
 import settings from './js/settings';

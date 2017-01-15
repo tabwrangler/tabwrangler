@@ -1,5 +1,7 @@
 'use strict';
 
+/* global chrome, TW */
+
 import _ from 'underscore';
 
 /**
@@ -67,18 +69,6 @@ TabManager.getOlderThen = function(time) {
  */
 TabManager.getAll = function() {
   return TabManager.getOlderThen();
-};
-
-/**
- * Returns tabs which are not pinned or locked.
- */
-TabManager.getNonPinnedTabs = function(cb) {
-  var tabs = TabManager.getOlderThen();
-  chrome.tabs.get(tabs, function(tab) {
-    if (tab.pinned) {
-      delete(tabs[i]);
-    }
-  });
 };
 
 TabManager.closedTabs = {

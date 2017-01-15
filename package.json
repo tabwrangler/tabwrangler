@@ -18,12 +18,16 @@
   "homepage": "https://github.com/jacobSingh/tabwrangler#readme",
   "devDependencies": {
     "babel-core": "^6.21.0",
+    "babel-eslint": "^7.1.1",
     "babel-loader": "^6.2.10",
     "babel-plugin-transform-class-properties": "^6.19.0",
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-react": "^6.16.0",
+    "eslint": "^3.13.1",
+    "eslint-plugin-react": "^6.9.0",
     "gulp": "^3.9.1",
     "gulp-batch": "^1.0.5",
+    "gulp-eslint": "^3.0.1",
     "gulp-util": "^3.0.8",
     "gulp-watch": "^4.3.11",
     "webpack": "^1.14.0"

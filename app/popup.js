@@ -1,5 +1,7 @@
 'use strict';
 
+/* global chrome */
+
 import _ from 'underscore';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
@@ -25,7 +27,7 @@ function truncateString(str, length) {
     return str.substring(0, length) + "...";
   }
   return str;
-};
+}
 
 class OpenTabRow extends React.Component {
   handleLockedOnChange = (event) => {
@@ -453,7 +455,7 @@ class ClosedTabRow extends React.PureComponent {
     this.props.onOpenTab(tab.id, tab.url);
   };
 
-  removeTabFromList = (event) => {
+  removeTabFromList = () => {
     this.props.onRemoveTabFromList(this.props.tab.id);
   };
 

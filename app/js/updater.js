@@ -1,5 +1,7 @@
 'use strict';
 
+/* global chrome, TW */
+
 /**
  * Handles updates between versions of the extension.
  */
@@ -86,10 +88,10 @@ Updater.getNotification = function(title, items) {
   items = items || [];
   return {
       type: "list",
-      title: title,
+      title,
       message: "Tab wrangler updates",
       iconUrl: "img/icon48.png",
-      items: [],
+      items,
       buttons: [],
     };
 };

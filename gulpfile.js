@@ -22,10 +22,17 @@ gulp.task('cp-lib', function() {
     .pipe(gulp.dest('dist/lib'));
 });
 
+function webpackLog(stats) {
+  gutil.log('[webpack]', stats.toString({
+    chunks: false, // Limit chunk information output; it's slow and not too useful
+    colors: true
+  }));
+}
+
 gulp.task('webpack', function(done) {
-  webpack(webpackConfig).run(function(err, stats) {
-    if (err) throw new gutil.PluginError("webpack", err);
-    gutil.log("[webpack]", stats.toString({colors: true}));
+  webpack(Object.assign({}, {minimize: true, optimize: true}, webpackConfig), function(err, stats) {
+    if (err) throw new gutil.PluginError('webpack', err);
+    webpackLog(stats);
     done();
   });
 });
@@ -34,10 +41,7 @@ gulp.task('webpack:watch', function(done) {
   let firstRun = true;
   webpack(Object.assign({}, {watch: true}, webpackConfig), function(err, stats) {
     if (err) throw new gutil.PluginError('webpack', err);
-    gutil.log('[webpack]', stats.toString({
-      chunks: false, // Limit chunk information output; it's slow and not too useful
-      colors: true
-    }));
+    webpackLog(stats);
 
     // Call Gulp's `done` callback only once per watch. Calling it more than once is an error.
     if (firstRun) {

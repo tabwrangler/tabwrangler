@@ -38,10 +38,9 @@ Auto-closes tabs which you haven't used in awhile.
 
 ### Building for Release
 
-When preparing to release the extension, set the `NODE_ENV` to production. JavaScript will be
-compressed and minified.
+1. Compress and minify JavaScript by setting `NODE_ENV` to 'production'
 
-1. `NODE_ENV=production gulp`
+        `NODE_ENV=production gulp`
 
 ## Todo:
 

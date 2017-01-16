@@ -71,12 +71,15 @@ gulp.task('webpack:watch', function(done) {
 // saves.
 const WATCH_OPTIONS = {timeout: 250};
 
-// Watch and re-compile when in development.
+// Watch and re-compile / re-lint when in development.
 gulp.task('watch', function() {
   watch('app/**/!(*.js)', batch(WATCH_OPTIONS, function(events, done) {
     gulp.start('cp', done);
   }));
-  gulp.start(['cp', 'cp-lib', 'webpack:watch']);
+  watch('app/**/*.js', batch(WATCH_OPTIONS, function(events, done) {
+    gulp.start('lint', done);
+  }));
+  gulp.start(['cp', 'cp-lib', 'lint', 'webpack:watch']);
 });
 
 gulp.task('default', ['cp', 'cp-lib', 'lint', 'webpack']);

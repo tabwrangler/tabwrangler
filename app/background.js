@@ -117,7 +117,7 @@ const startup = function() {
 
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({
-    windowType: 'normal'
+    windowType: 'normal',
   }, tabmanager.initTabs);
   chrome.tabs.onCreated.addListener(onNewTab);
   chrome.tabs.onUpdated.addListener(tabmanager.updateLastAccessed);

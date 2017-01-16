@@ -29,26 +29,26 @@ export default {
       tabmanager.closedTabs.saveTabs([selectedTab]);
       // Close it in Chrome.
       chrome.tabs.remove(selectedTab.id);
-    }
+    },
   },
 
   createContextMenus: function () {
     const lockTab = {
       'type': 'checkbox',
       'title': "Never close this tab",
-      'onclick': this.pageSpecificActions['lockTab']
+      'onclick': this.pageSpecificActions['lockTab'],
     };
 
     const lockDomain = {
       'type': 'checkbox',
       'title': "Never close anything on this domain",
-      'onclick': this.pageSpecificActions['lockDomain']
+      'onclick': this.pageSpecificActions['lockDomain'],
     };
 
     const corralTab = {
       'type': 'normal',
       'title': "Close tab and save URL immediately",
-      'onclick': this.pageSpecificActions['corralTab']
+      'onclick': this.pageSpecificActions['corralTab'],
     };
 
     this.lockTabId = chrome.contextMenus.create(lockTab);
@@ -70,5 +70,5 @@ export default {
       }
     });
     chrome.contextMenus.update(this.lockTabId, {'checked': tabmanager.isLocked(tabId)});
-  }
+  },
 };

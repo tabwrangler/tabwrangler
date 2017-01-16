@@ -55,7 +55,7 @@ To change this setting, click on the new icon on your URL bar.`,
     const self = this;
     if (!currentVersion) {
       chrome.storage.sync.set({
-        'version': manifestVersion
+        'version': manifestVersion,
       },function() {
         self.firstInstall();
       });
@@ -70,7 +70,7 @@ To change this setting, click on the new icon on your URL bar.`,
           if (i == manifestVersion) {
             // Post 2.0 updates.
             chrome.storage.sync.set({
-              'version': manifestVersion
+              'version': manifestVersion,
             },function() {
               if (typeof self.updates[i].finished == 'function') {
                 self.updates[i].finished();
@@ -80,7 +80,7 @@ To change this setting, click on the new icon on your URL bar.`,
         }
       }
     }
-  }
+  },
 };
 
 Updater.getNotification = function(title, items) {
@@ -143,7 +143,7 @@ Updater.updates[2.1] = {
       'closed_tab_icons' : null,
       'closed_tab_actions': null,
       'locked_ids' : 'lockedIds',
-      'popup_view' : null
+      'popup_view' : null,
     };
 
     let oldValue;
@@ -159,7 +159,7 @@ Updater.updates[2.1] = {
         }
       }
     }
-  }
+  },
 };
 
 Updater.updates[2.2] = {
@@ -232,7 +232,7 @@ Updater.updates[3.1] = {
     notification.items.push({title: "Fix", message: "No auto-close when > minTabs."});
     notification.items.push({title: "Fix", message: "Fixed display issue with timer after pause"});
     Updater.launchNotification("3.1", notification, true);
-  }
+  },
 }
 
 export default Updater;

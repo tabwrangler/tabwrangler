@@ -38,7 +38,7 @@ const Settings = {
       }
     });
   },
-  cache: {}
+  cache: {},
 };
 
 /**
@@ -122,7 +122,7 @@ Settings.setpaused = function(value) {
     // The user has just unpaused, immediately set all tabs to the current time
     // so they will not be closed.
     chrome.tabs.query({
-    windowType: 'normal'
+    windowType: 'normal',
   }, tabmanager.initTabs);
   }
   Settings.setValue('paused', value);

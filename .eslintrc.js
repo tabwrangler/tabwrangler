@@ -15,6 +15,7 @@ module.exports = {
     'react',
   ],
   rules: {
+    'comma-dangle': [1, 'always-multiline'],
     'no-console': 0,
     'no-var': 1,
     'prefer-const': 1,

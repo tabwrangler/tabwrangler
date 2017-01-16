@@ -10,7 +10,7 @@ import _ from 'underscore';
  */
 const TabManager = {
   tabTimes: {}, // An array of tabId => timestamp
-  closedTabs: []
+  closedTabs: [],
 };
 
 TabManager.initTabs = function (tabs) {
@@ -72,7 +72,7 @@ TabManager.getAll = function() {
 };
 
 TabManager.closedTabs = {
-  tabs: []
+  tabs: [],
 };
 
 TabManager.searchTabs = function (cb, filters) {

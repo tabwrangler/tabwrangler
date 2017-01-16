@@ -15,10 +15,15 @@ module.exports = {
     'react',
   ],
   rules: {
+    // Rules included in ESLint
     'comma-dangle': [1, 'always-multiline'],
     'no-console': 0,
+    'no-multi-spaces': 1,
+    'no-unused-expressions': 1,
     'no-var': 1,
     'prefer-const': 1,
+
+    // React rules from eslint-plugin-react
     'react/jsx-uses-vars': 1,
   },
 };

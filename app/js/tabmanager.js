@@ -8,7 +8,7 @@ import _ from 'underscore';
  * Stores the tabs in a separate variable to log Last Accessed time.
  * @type {Object}
  */
-let TabManager = {
+const TabManager = {
   tabTimes: {}, // An array of tabId => timestamp
   closedTabs: []
 };
@@ -51,8 +51,8 @@ TabManager.removeTab = function(tabId) {
  * @return {Array}
  */
 TabManager.getOlderThen = function(time) {
-  let ret = Array();
-  for (let i in this.tabTimes) {
+  const ret = Array();
+  for (const i in this.tabTimes) {
     if (this.tabTimes.hasOwnProperty(i)) {
       if (!time || this.tabTimes[i] < time) {
         ret.push(parseInt(i, 10));
@@ -90,7 +90,7 @@ TabManager.filters = {};
 // Matches either the title or URL containing "keyword"
 TabManager.filters.keyword = function(keyword) {
   return function(tab) {
-    let test = new RegExp(keyword, 'i');
+    const test = new RegExp(keyword, 'i');
     return test.exec(tab.title) || test.exec(tab.url);
   };
 };
@@ -103,7 +103,7 @@ TabManager.filters.exactUrl = function(url) {
 };
 
 TabManager.closedTabs.init = function() {
-  let self = this;
+  const self = this;
   chrome.storage.local.get('savedTabs', function(items) {
     if (typeof items['savedTabs'] != 'undefined') {
       self.tabs = items['savedTabs'];
@@ -112,7 +112,7 @@ TabManager.closedTabs.init = function() {
 };
 
 TabManager.closedTabs.removeTab = function(tabId) {
-  let output = TabManager.closedTabs.tabs.splice(TabManager.closedTabs.findPositionById(tabId), 1);
+  const output = TabManager.closedTabs.tabs.splice(TabManager.closedTabs.findPositionById(tabId), 1);
   TabManager.closedTabs.save();
   return output;
 };
@@ -132,7 +132,7 @@ TabManager.closedTabs.save = function() {
 };
 
 TabManager.closedTabs.saveTabs = function(tabs) {
-  let maxTabs = TW.settings.get('maxTabs');
+  const maxTabs = TW.settings.get('maxTabs');
   for (let i = 0; i < tabs.length; i++) {
     if (tabs[i] === null) {
       console.log('Weird bug, backtrace this...');
@@ -154,7 +154,7 @@ TabManager.closedTabs.clear = function() {
 };
 
 TabManager.getWhitelistMatch = function(url) {
-  let whitelist = TW.settings.get("whitelist");
+  const whitelist = TW.settings.get("whitelist");
   for (let i=0; i < whitelist.length; i++) {
     if (url.indexOf(whitelist[i]) != -1) {
       return whitelist[i];
@@ -168,7 +168,7 @@ TabManager.isWhitelisted = function(url) {
 };
 
 TabManager.isLocked = function(tabId) {
-  let lockedIds = TW.settings.get("lockedIds");
+  const lockedIds = TW.settings.get("lockedIds");
   if (lockedIds.indexOf(tabId) != -1) {
     return true;
   }
@@ -176,7 +176,7 @@ TabManager.isLocked = function(tabId) {
 };
 
 TabManager.lockTab = function(tabId) {
-  let lockedIds = TW.settings.get("lockedIds");
+  const lockedIds = TW.settings.get("lockedIds");
 
   if (tabId > 0 && lockedIds.indexOf(tabId) == -1) {
     lockedIds.push(tabId);
@@ -185,7 +185,7 @@ TabManager.lockTab = function(tabId) {
 };
 
 TabManager.unlockTab = function(tabId) {
-  let lockedIds = TW.settings.get("lockedIds");
+  const lockedIds = TW.settings.get("lockedIds");
   if (lockedIds.indexOf(tabId) > -1) {
     lockedIds.splice(lockedIds.indexOf(tabId), 1);
   }

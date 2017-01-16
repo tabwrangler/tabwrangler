@@ -565,8 +565,8 @@ class CorralTab extends React.Component {
     const closedTabGroups = [];
     let currentGroup;
     for (let i = 0; i < closedTabs.length; i++) {
-      let tab = closedTabs[i];
-      let timeGroup = getGroup(tab.closedAt);
+      const tab = closedTabs[i];
+      const timeGroup = getGroup(tab.closedAt);
 
       if (timeGroup !== currentGroup) {
         currentGroup = _.findWhere(closedTabGroups, {title: timeGroup});

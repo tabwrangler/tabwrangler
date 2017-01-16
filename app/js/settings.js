@@ -22,16 +22,16 @@ const Settings = {
   },
   // Gets all settings from sync and stores them locally.
   init: function() {
-    let self = this;
-    let keys = [];
-    for (let i in this.defaults) {
+    const self = this;
+    const keys = [];
+    for (const i in this.defaults) {
       if (this.defaults.hasOwnProperty(i)) {
         this.cache[i] = this.defaults[i];
         keys.push(i);
       }
     }
     chrome.storage.sync.get(keys, function(items) {
-      for (let i in items) {
+      for (const i in items) {
         if (items.hasOwnProperty(i)) {
           self.cache[i] = items[i];
         }
@@ -143,7 +143,7 @@ Settings.get = function(key) {
 };
 
 Settings.setValue = function (key, value, fx) {
-  let items = {};
+  const items = {};
   this.cache[key] = value;
   items[key] = value;
   chrome.storage.sync.set(items, fx);

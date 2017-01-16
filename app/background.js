@@ -16,14 +16,14 @@ const TW = window.TW = {};
  * @todo: refactor into "get the ones to close" and "close 'em"
  * So it can be tested.
  */
-let checkToClose = function(cutOff) {
+const checkToClose = function(cutOff) {
   let i;
   cutOff = cutOff || new Date().getTime() - settings.get('stayOpen');
-  let minTabs = settings.get('minTabs');
+  const minTabs = settings.get('minTabs');
 
   // Tabs which have been locked via the checkbox.
-  let lockedIds = settings.get("lockedIds");
-  let toCut = tabmanager.getOlderThen(cutOff);
+  const lockedIds = settings.get("lockedIds");
+  const toCut = tabmanager.getOlderThen(cutOff);
 
   if (settings.get('paused') === true) {
     return;
@@ -70,7 +70,7 @@ let checkToClose = function(cutOff) {
   });
 };
 
-let closeTab = function(tab) {
+const closeTab = function(tab) {
   if (true === tab.pinned) {
       return;
     }
@@ -83,7 +83,7 @@ let closeTab = function(tab) {
     chrome.tabs.remove(tab.id);
 };
 
-let onNewTab = function(tab) {
+const onNewTab = function(tab) {
   // Check if it exists in corral already
   // The 2nd argument is an array of filters, we add one filter
   // which checks for an exact URL match.  If we match throw the old
@@ -100,7 +100,7 @@ let onNewTab = function(tab) {
   tabmanager.updateLastAccessed(tab.id);
 };
 
-let startup = function() {
+const startup = function() {
   settings.init();
   updater.run();
   tabmanager.closedTabs.init();

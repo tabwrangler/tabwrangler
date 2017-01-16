@@ -17,7 +17,7 @@ const {
 } = TW;
 
 function secondsToMinutes(seconds) {
-  var s = seconds % 60;
+  let s = seconds % 60;
   s = s > 10 ? String(s) : "0" + String(s);
   return String(Math.floor(seconds / 60)) + ":" + s;
 }
@@ -565,8 +565,8 @@ class CorralTab extends React.Component {
     const closedTabGroups = [];
     let currentGroup;
     for (let i = 0; i < closedTabs.length; i++) {
-      var tab = closedTabs[i];
-      var timeGroup = getGroup(tab.closedAt);
+      let tab = closedTabs[i];
+      let timeGroup = getGroup(tab.closedAt);
 
       if (timeGroup !== currentGroup) {
         currentGroup = _.findWhere(closedTabGroups, {title: timeGroup});

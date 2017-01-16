@@ -8,13 +8,13 @@ import _ from 'underscore';
  * Stores the tabs in a separate variable to log Last Accessed time.
  * @type {Object}
  */
-var TabManager = {
+let TabManager = {
   tabTimes: {}, // An array of tabId => timestamp
   closedTabs: []
 };
 
 TabManager.initTabs = function (tabs) {
-  for (var i=0; i < tabs.length; i++) {
+  for (let i=0; i < tabs.length; i++) {
     TabManager.updateLastAccessed(tabs[i]);
   }
 };
@@ -51,8 +51,8 @@ TabManager.removeTab = function(tabId) {
  * @return {Array}
  */
 TabManager.getOlderThen = function(time) {
-  var ret = Array();
-  for (var i in this.tabTimes) {
+  let ret = Array();
+  for (let i in this.tabTimes) {
     if (this.tabTimes.hasOwnProperty(i)) {
       if (!time || this.tabTimes[i] < time) {
         ret.push(parseInt(i, 10));
@@ -76,9 +76,9 @@ TabManager.closedTabs = {
 };
 
 TabManager.searchTabs = function (cb, filters) {
-  var tabs = TabManager.closedTabs.tabs;
+  let tabs = TabManager.closedTabs.tabs;
   if (filters) {
-    for (var i = 0; i < filters.length; i++) {
+    for (let i = 0; i < filters.length; i++) {
       tabs = _.filter(tabs, filters[i]);
     }
   }
@@ -90,7 +90,7 @@ TabManager.filters = {};
 // Matches either the title or URL containing "keyword"
 TabManager.filters.keyword = function(keyword) {
   return function(tab) {
-    var test = new RegExp(keyword, 'i');
+    let test = new RegExp(keyword, 'i');
     return test.exec(tab.title) || test.exec(tab.url);
   };
 };
@@ -103,7 +103,7 @@ TabManager.filters.exactUrl = function(url) {
 };
 
 TabManager.closedTabs.init = function() {
-  var self = this;
+  let self = this;
   chrome.storage.local.get('savedTabs', function(items) {
     if (typeof items['savedTabs'] != 'undefined') {
       self.tabs = items['savedTabs'];
@@ -112,14 +112,14 @@ TabManager.closedTabs.init = function() {
 };
 
 TabManager.closedTabs.removeTab = function(tabId) {
-  var output = TabManager.closedTabs.tabs.splice(TabManager.closedTabs.findPositionById(tabId), 1);
+  let output = TabManager.closedTabs.tabs.splice(TabManager.closedTabs.findPositionById(tabId), 1);
   TabManager.closedTabs.save();
   return output;
 };
 
 // @todo: move to filter system for consistency
 TabManager.closedTabs.findPositionById = function(id) {
-  for (var i = 0; i < this.tabs.length; i++) {
+  for (let i = 0; i < this.tabs.length; i++) {
     if(this.tabs[i].id == id) {
       return i;
     }
@@ -132,8 +132,8 @@ TabManager.closedTabs.save = function() {
 };
 
 TabManager.closedTabs.saveTabs = function(tabs) {
-  var maxTabs = TW.settings.get('maxTabs');
-  for (var i = 0; i < tabs.length; i++) {
+  let maxTabs = TW.settings.get('maxTabs');
+  for (let i = 0; i < tabs.length; i++) {
     if (tabs[i] === null) {
       console.log('Weird bug, backtrace this...');
     }
@@ -154,8 +154,8 @@ TabManager.closedTabs.clear = function() {
 };
 
 TabManager.getWhitelistMatch = function(url) {
-  var whitelist = TW.settings.get("whitelist");
-  for (var i=0; i < whitelist.length; i++) {
+  let whitelist = TW.settings.get("whitelist");
+  for (let i=0; i < whitelist.length; i++) {
     if (url.indexOf(whitelist[i]) != -1) {
       return whitelist[i];
     }
@@ -168,7 +168,7 @@ TabManager.isWhitelisted = function(url) {
 };
 
 TabManager.isLocked = function(tabId) {
-  var lockedIds = TW.settings.get("lockedIds");
+  let lockedIds = TW.settings.get("lockedIds");
   if (lockedIds.indexOf(tabId) != -1) {
     return true;
   }
@@ -176,7 +176,7 @@ TabManager.isLocked = function(tabId) {
 };
 
 TabManager.lockTab = function(tabId) {
-  var lockedIds = TW.settings.get("lockedIds");
+  let lockedIds = TW.settings.get("lockedIds");
 
   if (tabId > 0 && lockedIds.indexOf(tabId) == -1) {
     lockedIds.push(tabId);
@@ -185,7 +185,7 @@ TabManager.lockTab = function(tabId) {
 };
 
 TabManager.unlockTab = function(tabId) {
-  var lockedIds = TW.settings.get("lockedIds");
+  let lockedIds = TW.settings.get("lockedIds");
   if (lockedIds.indexOf(tabId) > -1) {
     lockedIds.splice(lockedIds.indexOf(tabId), 1);
   }
@@ -196,7 +196,7 @@ TabManager.updateClosedCount = function() {
   if (TW.settings.get('showBadgeCount') === false) {
     return;
   }
-  var storedTabs = TabManager.closedTabs.tabs.length;
+  let storedTabs = TabManager.closedTabs.tabs.length;
   if (storedTabs === 0) {
     storedTabs = '';
   }

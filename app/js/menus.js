@@ -33,19 +33,19 @@ export default {
   },
 
   createContextMenus: function () {
-    var lockTab = {
+    let lockTab = {
       'type': 'checkbox',
       'title': "Never close this tab",
       'onclick': this.pageSpecificActions['lockTab']
     };
 
-    var lockDomain = {
+    let lockDomain = {
       'type': 'checkbox',
       'title': "Never close anything on this domain",
       'onclick': this.pageSpecificActions['lockDomain']
     };
 
-    var corralTab = {
+    let corralTab = {
       'type': 'normal',
       'title': "Close tab and save URL immediately",
       'onclick': this.pageSpecificActions['corralTab']
@@ -62,7 +62,7 @@ export default {
     // Sets the title again for each page.
     chrome.tabs.get(tabId, function(tab) {
       try {
-        var currentDomain = getDomain(tab.url);
+        let currentDomain = getDomain(tab.url);
         chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
       } catch (e) {
         console.log(tab, 'Error in updating menu');

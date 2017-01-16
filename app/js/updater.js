@@ -20,13 +20,13 @@ To change this setting, click on the new icon on your URL bar.`,
   //@todo: refactor this into a couple functions
   run: function() {
     console.log('running updater');
-    var self = this;
+    let self = this;
     chrome.storage.sync.get('version', function(items) {
       // Whatever is set in chrome.storage (if anything)
-      var currentVersion;
+      let currentVersion;
 
       // The version from the manifest file
-      var manifestVersion = parseFloat(chrome.app.getDetails().version);
+      let manifestVersion = parseFloat(chrome.app.getDetails().version);
 
       // If items[version] is undefined, the app has either not been installed,
       // or it is an upgrade from when we were not storing the version.
@@ -52,7 +52,7 @@ To change this setting, click on the new icon on your URL bar.`,
     });
   },
   runUpdates: function(currentVersion, manifestVersion) {
-    var self = this;
+    let self = this;
     if (!currentVersion) {
       chrome.storage.sync.set({
         'version': manifestVersion
@@ -60,7 +60,7 @@ To change this setting, click on the new icon on your URL bar.`,
         self.firstInstall();
       });
     } else if (currentVersion < manifestVersion) {
-      for (var i in this.updates) {
+      for (let i in this.updates) {
         if (this.updates.hasOwnProperty(i)) {
           if (i > currentVersion) {
             this.updates[i].fx();
@@ -122,7 +122,7 @@ Updater.commonButtonHandler = function(id, buttonIdx) {
 };
 
 Updater.launchNotification = function(id, notification, addButtons) {
-  var cb = function(){};
+  let cb = function(){};
   addButtons = typeof(addButtons) == 'undefined' ? false : true;
   if (addButtons) {
     this.addCommonButtons(notification);
@@ -135,7 +135,7 @@ Updater.launchNotification = function(id, notification, addButtons) {
 // This update is for the 1.x -> 2.x users
 Updater.updates[2.1] = {
   fx: function() {
-    var map = {
+    let map = {
       'minutes_inactive' : 'minutesInactive',
       'closed_tab_ids' : null,
       'closed_tab_titles': null,
@@ -146,9 +146,9 @@ Updater.updates[2.1] = {
       'popup_view' : null
     };
 
-    var oldValue;
+    let oldValue;
 
-    for (var i in map) {
+    for (let i in map) {
       if (map.hasOwnProperty(i)) {
         oldValue = localStorage[i];
         if (oldValue) {
@@ -165,9 +165,9 @@ Updater.updates[2.1] = {
 Updater.updates[2.2] = {
   fx: function() {
     // Move localStorage to chrome.storage.sync
-    var items = {};
-    var val;
-    for(var i in localStorage) {
+    let items = {};
+    let val;
+    for(let i in localStorage) {
       val = String(localStorage[i]);
       try {
         items[i] = JSON.parse(val);
@@ -225,7 +225,7 @@ Updater.updates[3.1] = {
 
   finished: function() {
 
-    var notification = Updater.getNotification("Tab Wrangler 3.1 updates");
+    let notification = Updater.getNotification("Tab Wrangler 3.1 updates");
     notification.items.push({title: "New", message: "Remove tabs from Corral"});
     notification.items.push({title: "New", message: "Pinned tabs not counted"});
     notification.items.push({title: "New", message: "Auto-lock page UX"});

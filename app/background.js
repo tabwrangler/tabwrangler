@@ -16,14 +16,14 @@ const TW = window.TW = {};
  * @todo: refactor into "get the ones to close" and "close 'em"
  * So it can be tested.
  */
-var checkToClose = function(cutOff) {
-  var i;
+let checkToClose = function(cutOff) {
+  let i;
   cutOff = cutOff || new Date().getTime() - settings.get('stayOpen');
-  var minTabs = settings.get('minTabs');
+  let minTabs = settings.get('minTabs');
 
   // Tabs which have been locked via the checkbox.
-  var lockedIds = settings.get("lockedIds");
-  var toCut = tabmanager.getOlderThen(cutOff);
+  let lockedIds = settings.get("lockedIds");
+  let toCut = tabmanager.getOlderThen(cutOff);
 
   if (settings.get('paused') === true) {
     return;
@@ -33,12 +33,12 @@ var checkToClose = function(cutOff) {
   chrome.tabs.getSelected(null, tabmanager.updateLastAccessed);
 
   chrome.windows.getAll({populate:true}, function(windows) {
-    var tabs = []; // Array of tabs, populated for each window.
+    let tabs = []; // Array of tabs, populated for each window.
     _.each(windows, function(myWindow) {
       tabs = myWindow.tabs;
       // Filter out the pinned tabs
       tabs = _.filter(tabs, function(tab) {return tab.pinned === false;});
-      var tabsToCut = _.filter(tabs, function(t) {return toCut.indexOf(t.id) != -1;});
+      let tabsToCut = _.filter(tabs, function(t) {return toCut.indexOf(t.id) != -1;});
       if ((tabs.length - minTabs) <= 0) {
         // We have less than minTab tabs, abort.
         // Also, let's reset the last accessed time of our current tabs so they
@@ -70,7 +70,7 @@ var checkToClose = function(cutOff) {
   });
 };
 
-var closeTab = function(tab) {
+let closeTab = function(tab) {
   if (true === tab.pinned) {
       return;
     }
@@ -83,7 +83,7 @@ var closeTab = function(tab) {
     chrome.tabs.remove(tab.id);
 };
 
-var onNewTab = function(tab) {
+let onNewTab = function(tab) {
   // Check if it exists in corral already
   // The 2nd argument is an array of filters, we add one filter
   // which checks for an exact URL match.  If we match throw the old
@@ -100,7 +100,7 @@ var onNewTab = function(tab) {
   tabmanager.updateLastAccessed(tab.id);
 };
 
-var startup = function() {
+let startup = function() {
   settings.init();
   updater.run();
   tabmanager.closedTabs.init();

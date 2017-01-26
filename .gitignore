@@ -1,6 +1,2 @@
-*.js~
-*.html~
-*.json~
-
 dist/
 node_modules/

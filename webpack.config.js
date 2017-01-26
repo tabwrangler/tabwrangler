@@ -3,26 +3,6 @@
 const path = require('path');
 const webpack = require('webpack');
 
-const NODE_ENV = process.env.NODE_ENV;
-const plugins = [
-  new webpack.optimize.CommonsChunkPlugin('commons.chunk.js'),
-  new webpack.DefinePlugin({
-    'process.env': {
-      'NODE_ENV': JSON.stringify(NODE_ENV),
-    },
-  }),
-];
-if (NODE_ENV === 'production') {
-  plugins.push(
-    // Compress and minify JavaScript in production environment.
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false,
-      },
-    })
-  );
-}
-
 module.exports = {
   entry: {
     background: './app/background.js',
@@ -45,5 +25,7 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     filename: '[name].entry.js',
   },
-  plugins,
+  plugins: [
+    new webpack.optimize.CommonsChunkPlugin('commons.chunk.js'),
+  ],
 };

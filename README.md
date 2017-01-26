@@ -38,9 +38,9 @@ Auto-closes tabs which you haven't used in awhile.
 
 ### Building for Release
 
-1. Compress and minify JavaScript by setting `NODE_ENV` to 'production'
+1. Create a .zip to upload to the Chrome Store with the `release` task
 
-        NODE_ENV=production gulp
+        gulp release
 
 ## Todo:
 

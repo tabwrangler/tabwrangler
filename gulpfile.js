@@ -99,6 +99,7 @@ gulp.task('webpack:watch', function(done) {
 const WATCH_OPTIONS = {timeout: 250};
 
 // Watch and re-compile / re-lint when in development.
+// eslint-disable-next-line no-unused-vars
 gulp.task('watch', function(done) {
   watch('app/**/!(*.js)', batch(WATCH_OPTIONS, function(events, done) {
     gulp.start('cp', done);
@@ -110,7 +111,7 @@ gulp.task('watch', function(done) {
 });
 
 gulp.task('release', function(done) {
-  runSequence('clean', 'webpack:production', function() {
+  runSequence('clean', 'cp', 'cp-lib', 'lint', 'webpack:production', function() {
     // create a file to stream archive data to.
     const output = fs.createWriteStream(`${__dirname}/tabwrangler-${packageJson.version}.zip`);
     const archive = archiver('zip', {

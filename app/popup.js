@@ -3,6 +3,7 @@
 /* global chrome */
 
 import _ from 'underscore';
+import LazyImage from './js/LazyImage';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import ReactDOM from 'react-dom';
@@ -81,7 +82,7 @@ class OpenTabRow extends React.Component {
           />
         </td>
         <td className="text-center">
-          <img
+          <LazyImage
             alt=""
             height="16"
             src={tab.favIconUrl}
@@ -474,7 +475,7 @@ class ClosedTabRow extends React.PureComponent {
     } else {
       favicon = (tab.favIconUrl == null)
         ? '-'
-        : <img className="favicon" height="16" src={tab.favIconUrl} width="16" />;
+        : <LazyImage alt="" className="favicon" height="16" src={tab.favIconUrl} width="16" />;
     }
 
     const timeagoInstance = timeago();

@@ -114,9 +114,7 @@ gulp.task('release', function(done) {
   runSequence('clean', 'cp', 'cp-lib', 'lint', 'webpack:production', function() {
     // create a file to stream archive data to.
     const output = fs.createWriteStream(`${__dirname}/tabwrangler-${packageJson.version}.zip`);
-    const archive = archiver('zip', {
-        store: true, // Sets the compression method to STORE.
-    });
+    const archive = archiver('zip');
 
     // listen for all archive data to be written
     output.on('close', function() {

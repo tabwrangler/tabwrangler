@@ -20,7 +20,7 @@ const Settings = {
     purgeClosedTabs: false, // Save closed tabs in between browser sessions.
     showBadgeCount: true, // Save closed tabs in between browser sessions.
     lockedIds: [],  // An array of tabids which have been explicitly locked by the user.
-    whitelist: ["chrome://*"], // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
+    whitelist: ['chrome://*'], // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
     paused: false, // If TabWrangler is paused (won't count down)
   },
 
@@ -69,8 +69,8 @@ const Settings = {
    */
   set(key: string, value: mixed) {
     // Magic setter functions are set{fieldname}
-    if (typeof this["set" + key] == 'function') {
-      return this["set" + key](value);
+    if (typeof this['set' + key] == 'function') {
+      return this['set' + key](value);
     }
     Settings.setValue(key, value);
   },
@@ -82,7 +82,7 @@ const Settings = {
    */
   setmaxTabs(value: string) {
     if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 1 || parseInt(value, 10) > 500 ){
-      throw Error("Max tabs must be a number between 1 and 500. Setting this too high can cause performance issues");
+      throw Error('Max tabs must be a number between 1 and 500. Setting this too high can cause performance issues');
     }
     Settings.setValue('maxTabs', value);
   },
@@ -94,7 +94,7 @@ const Settings = {
    */
   setminTabs(value: string) {
     if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 0 || parseInt(value, 10) > 30 ){
-      throw Error("Minimum tabs must be a number between 0 and 30");
+      throw Error('Minimum tabs must be a number between 0 and 30');
     }
     Settings.setValue('minTabs', value);
   },
@@ -106,7 +106,7 @@ const Settings = {
    */
   setminutesInactive(value: string) {
     if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 0 || parseInt(value, 10) > 720 ){
-      throw Error("Minutes Inactive must be greater than 0 and less than 720");
+      throw Error('Minutes Inactive must be greater than 0 and less than 720');
     }
     // Reset the tabTimes since we changed the setting
     tabmanager.tabTimes = {};
@@ -135,7 +135,7 @@ const Settings = {
   setshowBadgeCount(value: boolean) {
     if (value === false) {
       // Clear out the current badge setting
-      chrome.browserAction.setBadgeText({text: ""});
+      chrome.browserAction.setBadgeText({text: ''});
     }
     Settings.setValue('showBadgeCount', value);
   },

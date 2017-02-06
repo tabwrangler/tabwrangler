@@ -25,7 +25,7 @@ TabManager.initTabs = function (tabs) {
  *  Tab ID or Tab object.
  */
 TabManager.updateLastAccessed = function (tabId) {
-  if (typeof tabId == "object") {
+  if (typeof tabId == 'object') {
     tabId = tabId.id;
   }
 
@@ -154,7 +154,7 @@ TabManager.closedTabs.clear = function() {
 };
 
 TabManager.getWhitelistMatch = function(url) {
-  const whitelist = TW.settings.get("whitelist");
+  const whitelist = TW.settings.get('whitelist');
   for (let i=0; i < whitelist.length; i++) {
     if (url.indexOf(whitelist[i]) != -1) {
       return whitelist[i];
@@ -168,7 +168,7 @@ TabManager.isWhitelisted = function(url) {
 };
 
 TabManager.isLocked = function(tabId) {
-  const lockedIds = TW.settings.get("lockedIds");
+  const lockedIds = TW.settings.get('lockedIds');
   if (lockedIds.indexOf(tabId) != -1) {
     return true;
   }
@@ -176,7 +176,7 @@ TabManager.isLocked = function(tabId) {
 };
 
 TabManager.lockTab = function(tabId) {
-  const lockedIds = TW.settings.get("lockedIds");
+  const lockedIds = TW.settings.get('lockedIds');
 
   if (tabId > 0 && lockedIds.indexOf(tabId) == -1) {
     lockedIds.push(tabId);
@@ -185,7 +185,7 @@ TabManager.lockTab = function(tabId) {
 };
 
 TabManager.unlockTab = function(tabId) {
-  const lockedIds = TW.settings.get("lockedIds");
+  const lockedIds = TW.settings.get('lockedIds');
   if (lockedIds.indexOf(tabId) > -1) {
     lockedIds.splice(lockedIds.indexOf(tabId), 1);
   }

@@ -19,13 +19,13 @@ const {
 
 function secondsToMinutes(seconds) {
   let s = seconds % 60;
-  s = s > 10 ? String(s) : "0" + String(s);
-  return String(Math.floor(seconds / 60)) + ":" + s;
+  s = s > 10 ? String(s) : '0' + String(s);
+  return String(Math.floor(seconds / 60)) + ':' + s;
 }
 
 function truncateString(str, length) {
   if (str.length > (length + 3) ) {
-    return str.substring(0, length) + "...";
+    return str.substring(0, length) + '...';
   }
   return str;
 }

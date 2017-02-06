@@ -35,19 +35,19 @@ export default {
   createContextMenus: function () {
     const lockTab = {
       'type': 'checkbox',
-      'title': "Never close this tab",
+      'title': 'Never close this tab',
       'onclick': this.pageSpecificActions['lockTab'],
     };
 
     const lockDomain = {
       'type': 'checkbox',
-      'title': "Never close anything on this domain",
+      'title': 'Never close anything on this domain',
       'onclick': this.pageSpecificActions['lockDomain'],
     };
 
     const corralTab = {
       'type': 'normal',
-      'title': "Close tab and save URL immediately",
+      'title': 'Close tab and save URL immediately',
       'onclick': this.pageSpecificActions['corralTab'],
     };
 

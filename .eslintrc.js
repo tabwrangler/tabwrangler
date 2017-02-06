@@ -23,6 +23,7 @@ module.exports = {
     'no-unused-expressions': 1,
     'no-var': 1,
     'prefer-const': 1,
+    'quotes': [1, 'single', {'avoidEscape': true}],
 
     // React rules from eslint-plugin-react
     'react/jsx-uses-vars': 1,

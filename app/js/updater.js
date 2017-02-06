@@ -47,7 +47,7 @@ To change this setting, click on the new icon on your URL bar.`,
           currentVersion = 2.1;
         }
       }
-      console.log("Updating from " + currentVersion + " to " + manifestVersion);
+      console.log('Updating from ' + currentVersion + ' to ' + manifestVersion);
       self.runUpdates(currentVersion, manifestVersion);
     });
   },
@@ -84,24 +84,24 @@ To change this setting, click on the new icon on your URL bar.`,
 };
 
 Updater.getNotification = function(title, items) {
-  title = title || "Tab Wrangler Updates";
+  title = title || 'Tab Wrangler Updates';
   items = items || [];
   return {
-      type: "list",
+      type: 'list',
       title,
-      message: "Tab wrangler updates",
-      iconUrl: "img/icon48.png",
+      message: 'Tab wrangler updates',
+      iconUrl: 'img/icon48.png',
       items,
       buttons: [],
     };
 };
 
 Updater.addCommonButtons = function(notification) {
-  notification.buttons.push({iconUrl: 'img/star.png', title: "Review Tab Wrangler"});
-  notification.buttons.push({iconUrl: 'img/notes.png', title: "See all release notes / be a tester"});
+  notification.buttons.push({iconUrl: 'img/star.png', title: 'Review Tab Wrangler'});
+  notification.buttons.push({iconUrl: 'img/notes.png', title: 'See all release notes / be a tester'});
 };
 
-Updater.notificationIdPrefix = "updater-";
+Updater.notificationIdPrefix = 'updater-';
 
 Updater.commonButtonHandler = function(id, buttonIdx) {
   // If an updater is creating a notification it should
@@ -225,13 +225,13 @@ Updater.updates[3.1] = {
 
   finished: function() {
 
-    const notification = Updater.getNotification("Tab Wrangler 3.1 updates");
-    notification.items.push({title: "New", message: "Remove tabs from Corral"});
-    notification.items.push({title: "New", message: "Pinned tabs not counted"});
-    notification.items.push({title: "New", message: "Auto-lock page UX"});
-    notification.items.push({title: "Fix", message: "No auto-close when > minTabs."});
-    notification.items.push({title: "Fix", message: "Fixed display issue with timer after pause"});
-    Updater.launchNotification("3.1", notification, true);
+    const notification = Updater.getNotification('Tab Wrangler 3.1 updates');
+    notification.items.push({title: 'New', message: 'Remove tabs from Corral'});
+    notification.items.push({title: 'New', message: 'Pinned tabs not counted'});
+    notification.items.push({title: 'New', message: 'Auto-lock page UX'});
+    notification.items.push({title: 'Fix', message: 'No auto-close when > minTabs.'});
+    notification.items.push({title: 'Fix', message: 'Fixed display issue with timer after pause'});
+    Updater.launchNotification('3.1', notification, true);
   },
 }
 

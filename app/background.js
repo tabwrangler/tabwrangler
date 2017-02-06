@@ -22,7 +22,7 @@ const checkToClose = function(cutOff) {
   const minTabs = settings.get('minTabs');
 
   // Tabs which have been locked via the checkbox.
-  const lockedIds = settings.get("lockedIds");
+  const lockedIds = settings.get('lockedIds');
   const toCut = tabmanager.getOlderThen(cutOff);
 
   if (settings.get('paused') === true) {

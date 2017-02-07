@@ -1,0 +1,63 @@
+body {
+  min-height: 300px;
+  width: 700px;
+}
+
+.table td {
+  font-size: 11px;
+}
+
+#status {
+  margin-bottom: 2px;
+}
+
+.nav-buttons {
+  margin: 7px;
+}
+
+.btn-remove {
+  cursor: pointer;
+  margin-top: 0;
+}
+
+td.timeGroupRow {
+  padding-left: 35px;
+}
+
+.favicon {
+  /* Vertically align in <td /> */
+  vertical-align: sub;
+}
+
+.table .narrowColumn {
+  text-align: center;
+  width: 20px;
+}
+
+.table .faviconCol {
+  text-align: center;
+  width: 21px;
+}
+
+.table .text-center {
+  text-align: center;
+}
+
+/**
+ * Re-reset for stylesheet added to Chrome extension popups
+ */
+table {
+  font-size: 14px;
+}
+
+/**
+ * Alert animations for ReactCSSTransitionGroup
+ */
+.alert-leave {
+  opacity: 1;
+}
+
+.alert-leave.alert-leave-active {
+  opacity: 0.01;
+  transition: opacity 400ms ease-in;
+}

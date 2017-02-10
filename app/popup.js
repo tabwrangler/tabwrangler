@@ -702,6 +702,11 @@ class PauseButton extends React.PureComponent {
 }
 
 class NavBar extends React.PureComponent {
+  handleClickAboutTab = (event) => {
+    event.preventDefault();
+    this.props.onClickTab('about');
+  };
+
   handleClickCorralTab = (event) => {
     event.preventDefault();
     this.props.onClickTab('corral');
@@ -731,18 +736,46 @@ class NavBar extends React.PureComponent {
         </div>
         <ul className="nav nav-tabs">
           <li className={this.props.activeTabId === 'corral' ? 'active' : null}>
-            <a href="#" onClick={this.handleClickCorralTab}>Tab Corral</a>
+            <a href="#corral" onClick={this.handleClickCorralTab}>Tab Corral</a>
           </li>
           <li className={this.props.activeTabId === 'lock' ? 'active' : null}>
-            <a href="#" onClick={this.handleClickLockTab}>Tab Lock</a>
+            <a href="#lock" onClick={this.handleClickLockTab}>Tab Lock</a>
           </li>
           <li className={this.props.activeTabId === 'options' ? 'active' : null}>
-            <a href="#" onClick={this.handleClickOptionsTab}>Options</a>
+            <a href="#options" onClick={this.handleClickOptionsTab}>Options</a>
+          </li>
+          <li className={this.props.activeTabId === 'about' ? 'active' : null}>
+            <a href="#about" onClick={this.handleClickAboutTab}>About</a>
           </li>
         </ul>
       </div>
     );
   }
+}
+
+function AboutTab() {
+  return (
+    <div className="tab-pane active">
+      <p>TabWrangler v{chrome.app.getDetails().version}</p>
+      <ul>
+        <li>
+          <a href="https://github.com/jacobSingh/tabwrangler/releases" target="_blank">
+            Change Log
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/jacobSingh/tabwrangler/issues" target="_blank">
+            Support
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/jacobSingh/tabwrangler" target="_blank">
+            Source Code (MIT)
+          </a>
+        </li>
+      </ul>
+    </div>
+  );
 }
 
 class PopupContent extends React.PureComponent {
@@ -760,6 +793,9 @@ class PopupContent extends React.PureComponent {
   render() {
     let activeTab;
     switch (this.state.activeTabId) {
+      case 'about':
+        activeTab = <AboutTab />;
+        break;
       case 'corral':
         activeTab = <CorralTab />;
         break;

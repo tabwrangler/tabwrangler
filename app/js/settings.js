@@ -105,8 +105,8 @@ const Settings = {
    * @see Settings.set
    */
   setminutesInactive(value: string) {
-    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 0 || parseInt(value, 10) > 720 ){
-      throw Error('Minutes Inactive must be greater than 0 and less than 720');
+    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 0 || parseInt(value, 10) > 7200 ){
+      throw Error('Minutes Inactive must be greater than 0 and less than 7200');
     }
     // Reset the tabTimes since we changed the setting
     tabmanager.tabTimes = {};

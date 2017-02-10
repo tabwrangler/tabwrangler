@@ -289,10 +289,11 @@ class OptionsTab extends React.Component {
                 className="span1"
                 defaultValue={settings.get('minutesInactive')}
                 id="minutesInactive"
+                max="7200"
                 min="1"
                 name="minutesInactive"
                 onChange={this.debouncedHandleSettingsChange}
-                title="Must be a number greater than 0 and less than 720"
+                title="Must be a number greater than 0 and less than 7200"
                 type="number"
               /> minutes.
             </p>

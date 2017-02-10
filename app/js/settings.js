@@ -93,7 +93,7 @@ const Settings = {
    * @see Settings.set
    */
   setminTabs(value: string) {
-    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 0 || parseInt(value, 10) > 30 ){
+    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0 || parseInt(value, 10) > 30 ){
       throw Error('Minimum tabs must be a number between 0 and 30');
     }
     Settings.setValue('minTabs', value);

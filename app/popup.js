@@ -302,10 +302,10 @@ class OptionsTab extends React.Component {
                 className="span1"
                 defaultValue={settings.get('minTabs')}
                 id="minTabs"
-                min="1"
+                min="0"
                 name="minTabs"
                 onChange={this.debouncedHandleSettingsChange}
-                title="Must be a number greater than 1"
+                title="Must be a number greater than or equal to 0"
                 type="number"
               /> tabs open (does not include pinned or locked tabs).
             </p>

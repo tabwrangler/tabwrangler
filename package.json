@@ -1,7 +1,7 @@
 {
   "name": "tabwrangler",
   "private": true,
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "main": "app/background.js",
   "scripts": {

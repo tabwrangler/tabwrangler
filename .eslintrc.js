@@ -18,18 +18,19 @@ module.exports = {
   ],
   rules: {
     // Rules included in ESLint
-    'comma-dangle': [1, 'always-multiline'],
+    'comma-dangle': [2, 'always-multiline'],
     'no-console': 0,
-    'no-multi-spaces': 1,
-    'no-unused-expressions': 1,
-    'no-var': 1,
-    'prefer-const': 1,
-    'quotes': [1, 'single', {'avoidEscape': true}],
+    'no-multi-spaces': 2,
+    'no-unused-expressions': 2,
+    'no-var': 2,
+    'object-shorthand': 2,
+    'prefer-const': 2,
+    'quotes': [2, 'single', {'avoidEscape': true}],
 
     // Flow rules from eslint-plugin-flowtype
-    'flowtype/define-flow-type': 1,
+    'flowtype/define-flow-type': 2,
 
     // React rules from eslint-plugin-react
-    'react/jsx-uses-vars': 1,
+    'react/jsx-uses-vars': 2,
   },
 };

@@ -7,7 +7,7 @@
  */
 const Updater = {
   updates: {},
-  firstInstall: function() {
+  firstInstall() {
     chrome.notifications.create({
       iconUrl: 'img/icon48.png',
       message:
@@ -18,7 +18,7 @@ To change this setting, click on the new icon on your URL bar.`,
     });
   },
   //@todo: refactor this into a couple functions
-  run: function() {
+  run() {
     console.log('running updater');
     const self = this;
     chrome.storage.sync.get('version', function(items) {
@@ -51,7 +51,7 @@ To change this setting, click on the new icon on your URL bar.`,
       self.runUpdates(currentVersion, manifestVersion);
     });
   },
-  runUpdates: function(currentVersion, manifestVersion) {
+  runUpdates(currentVersion, manifestVersion) {
     const self = this;
     if (!currentVersion) {
       chrome.storage.sync.set({
@@ -134,7 +134,7 @@ Updater.launchNotification = function(id, notification, addButtons) {
 // These are also run for users with no currentVersion set.
 // This update is for the 1.x -> 2.x users
 Updater.updates[2.1] = {
-  fx: function() {
+  fx() {
     const map = {
       'minutes_inactive' : 'minutesInactive',
       'closed_tab_ids' : null,
@@ -163,7 +163,7 @@ Updater.updates[2.1] = {
 };
 
 Updater.updates[2.2] = {
-  fx: function() {
+  fx() {
     // Move localStorage to chrome.storage.sync
     const items = {};
     let val;
@@ -183,47 +183,47 @@ Updater.updates[2.2] = {
 };
 
 Updater.updates[2.3] = {
-  fx: function() {
+  fx() {
 
   },
 }
 
 Updater.updates[2.4] = {
-  fx: function() {
+  fx() {
 
   },
 }
 
 Updater.updates[2.5] = {
-  fx: function() {
+  fx() {
 
   },
 }
 
 Updater.updates[2.6] = {
-  fx: function() {
+  fx() {
 
   },
 };
 
 Updater.updates[2.8] = {
-  fx: function() {
+  fx() {
 
   },
 };
 
 Updater.updates[2.9] = {
-  fx: function() {
+  fx() {
 
   },
 }
 
 Updater.updates[3.1] = {
-  fx: function() {
+  fx() {
 
   },
 
-  finished: function() {
+  finished() {
 
     const notification = Updater.getNotification('Tab Wrangler 3.1 updates');
     notification.items.push({title: 'New', message: 'Remove tabs from Corral'});

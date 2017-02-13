@@ -16,23 +16,23 @@ export default {
   lockActionId: null,
 
   pageSpecificActions: {
-    lockTab: function(onClickData, selectedTab) {
+    lockTab(onClickData, selectedTab) {
       tabmanager.lockTab(selectedTab.id);
     },
-    lockDomain: function(onClickData, selectedTab) {
+    lockDomain(onClickData, selectedTab) {
       const whitelist = settings.get('whitelist');
       const domain = getDomain(selectedTab.url);
       whitelist.push(domain);
       settings.set('whitelist', whitelist);
     },
-    corralTab: function(onClickData, selectedTab) {
+    corralTab(onClickData, selectedTab) {
       tabmanager.closedTabs.saveTabs([selectedTab]);
       // Close it in Chrome.
       chrome.tabs.remove(selectedTab.id);
     },
   },
 
-  createContextMenus: function () {
+  createContextMenus () {
     const lockTab = {
       'type': 'checkbox',
       'title': 'Never close this tab',
@@ -56,7 +56,7 @@ export default {
     chrome.contextMenus.create(corralTab);
   },
 
-  updateContextMenus: function(tabId) {
+  updateContextMenus(tabId) {
     const self = this;
     // Little bit of a kludge, would be nice to be DRY here but this was simpler.
     // Sets the title again for each page.

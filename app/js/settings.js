@@ -25,7 +25,7 @@ const Settings = {
   },
 
   // Gets all settings from sync and stores them locally.
-  init: function() {
+  init() {
     const self = this;
     const keys = [];
     for (const i in this.defaults) {

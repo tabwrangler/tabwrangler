@@ -12,16 +12,16 @@ const Settings = {
   cache: {},
 
   defaults: {
-    checkInterval: 5000, // How often we check for old tabs.
     badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
-    minutesInactive: 20, // How many minutes before we consider a tab "stale" and ready to close.
+    checkInterval: 5000, // How often we check for old tabs.
+    lockedIds: [],  // An array of tabids which have been explicitly locked by the user.
+    maxTabs: 100, // Just to keep memory / UI in check. No UI for this.
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
-    maxTabs: 100, // Just to keep memory / UI in check.  No UI for this.
+    minutesInactive: 20, // How many minutes before we consider a tab "stale" and ready to close.
+    paused: false, // If TabWrangler is paused (won't count down)
     purgeClosedTabs: false, // Save closed tabs in between browser sessions.
     showBadgeCount: true, // Save closed tabs in between browser sessions.
-    lockedIds: [],  // An array of tabids which have been explicitly locked by the user.
     whitelist: ['chrome://*'], // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
-    paused: false, // If TabWrangler is paused (won't count down)
   },
 
   // Gets all settings from sync and stores them locally.

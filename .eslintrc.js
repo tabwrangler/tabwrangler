@@ -13,6 +13,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: [
+    'flowtype',
     'react',
   ],
   rules: {
@@ -24,6 +25,9 @@ module.exports = {
     'no-var': 1,
     'prefer-const': 1,
     'quotes': [1, 'single', {'avoidEscape': true}],
+
+    // Flow rules from eslint-plugin-flowtype
+    'flowtype/define-flow-type': 1,
 
     // React rules from eslint-plugin-react
     'react/jsx-uses-vars': 1,

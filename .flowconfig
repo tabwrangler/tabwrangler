@@ -3,6 +3,7 @@
 [include]
 
 [libs]
+./app/background.js.flow
 node_modules/flow-interfaces-chrome/interfaces/
 
 [options]

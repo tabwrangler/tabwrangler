@@ -1,0 +1,11 @@
+import type settings from './js/settings';
+import type tabmanager from './js/tabmanager';
+import type updater from './js/updater';
+
+type TabWrangler = {
+  settings: settings,
+  tabmanager: tabmanager,
+  updater: updater,
+};
+
+declare var TW: TabWrangler;

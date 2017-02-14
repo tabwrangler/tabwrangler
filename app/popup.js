@@ -504,9 +504,20 @@ class CorralTab extends React.Component {
   }
 
   componentDidMount() {
+    // Focus the search input so it's simple to type immediately. This must be done after the popup
+    // is available, which is roughly 150ms after the popup is opened (determined empirically). Use
+    // 250ms to ensure this always works.
+    this._searchRefFocusTimeout = setTimeout(() => {
+      this._searchRef.focus();
+    }, 350);
+
     // TODO: This is assumed to be synchronous. If it becomes async, this state needs to be
     // hoisted so this component does not need to track whether it's mounted.
     tabmanager.searchTabs(this.setClosedTabs);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this._searchRefFocusTimeout);
   }
 
   clearList = () => {

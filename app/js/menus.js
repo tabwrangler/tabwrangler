@@ -26,9 +26,7 @@ export default {
       settings.set('whitelist', whitelist);
     },
     corralTab(onClickData, selectedTab) {
-      tabmanager.closedTabs.saveTabs([selectedTab]);
-      // Close it in Chrome.
-      chrome.tabs.remove(selectedTab.id);
+      tabmanager.closedTabs.corralTabs([selectedTab]);
     },
   },
 

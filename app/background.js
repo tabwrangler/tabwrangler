@@ -72,15 +72,14 @@ const checkToClose = function(cutOff) {
 
 const closeTab = function(tab) {
   if (true === tab.pinned) {
-      return;
-    }
-    if (tabmanager.isWhitelisted(tab.url)) {
-      return;
-    }
+    return;
+  }
 
-    tabmanager.closedTabs.saveTabs([tab]);
-    // Close it in Chrome.
-    chrome.tabs.remove(tab.id);
+  if (tabmanager.isWhitelisted(tab.url)) {
+    return;
+  }
+
+  tabmanager.closedTabs.corralTabs([tab]);
 };
 
 const onNewTab = function(tab) {

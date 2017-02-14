@@ -38,6 +38,27 @@ const TabManager = {
       }
     },
 
+    corralTabs(tabs: Array<Object>) {
+      const maxTabs = TW.settings.get('maxTabs');
+      for (let i = 0; i < tabs.length; i++) {
+        if (tabs[i] === null) {
+          console.log('Weird bug, backtrace this...');
+        }
+
+        tabs[i].closedAt = new Date().getTime();
+        this.tabs.unshift(tabs[i]);
+
+        // Close it in Chrome.
+        chrome.tabs.remove(tabs[i].id);
+      }
+
+      if ((this.tabs.length - maxTabs) > 0) {
+        this.tabs = this.tabs.splice(0, maxTabs);
+      }
+
+      TabManager.closedTabs.save();
+    },
+
     removeTab(tabId: number) {
       const tabIndex = TabManager.closedTabs.findPositionById(tabId);
       if (tabIndex == null) return;
@@ -50,23 +71,6 @@ const TabManager = {
     save() {
       // persists this.tabs to local storage
       chrome.storage.local.set({savedTabs: this.tabs});
-    },
-
-    saveTabs(tabs: Array<Object>) {
-      const maxTabs = TW.settings.get('maxTabs');
-      for (let i = 0; i < tabs.length; i++) {
-        if (tabs[i] === null) {
-          console.log('Weird bug, backtrace this...');
-        }
-        tabs[i].closedAt = new Date().getTime();
-        this.tabs.unshift(tabs[i]);
-      }
-
-      if ((this.tabs.length - maxTabs) > 0) {
-        this.tabs = this.tabs.splice(0, maxTabs);
-      }
-
-      TabManager.closedTabs.save();
     },
   },
 

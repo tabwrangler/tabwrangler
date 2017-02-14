@@ -44,7 +44,7 @@ const Settings = {
   },
 
   /**
-   * Either calls a getter function or retunrs directly from storage.
+   * Either calls a getter function or returns directly from storage.
    * @param key
    * @param fx
    *  Callback function after value is received.

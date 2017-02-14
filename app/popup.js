@@ -454,7 +454,7 @@ class ClosedTabRow extends React.PureComponent {
   openTab = (event) => {
     const {tab} = this.props;
     event.preventDefault();
-    this.props.onOpenTab(tab.id, tab.url);
+    this.props.onOpenTab(tab);
   };
 
   removeTabFromList = () => {
@@ -540,17 +540,13 @@ class CorralTab extends React.Component {
 
   handleRestoreAllFromGroup = (groupTitle) => {
     const group = _.findWhere(this.state.closedTabGroups, {title: groupTitle});
-    group.tabs.forEach(tab => {
-      chrome.tabs.create({active: false, url: tab.url});
-      tabmanager.closedTabs.removeTab(tab.id);
-    });
+    tabmanager.closedTabs.unwrangleTabs(group.tabs);
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
     this.forceUpdate();
   };
 
-  openTab = (tabId, url) => {
-    chrome.tabs.create({active: false, url});
-    tabmanager.closedTabs.removeTab(tabId);
+  openTab = (tab) => {
+    tabmanager.closedTabs.unwrangleTabs([tab]);
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
     this.forceUpdate();
   };
@@ -643,18 +639,31 @@ class CorralTab extends React.Component {
         </button>
       );
 
+    const totalTabsRemoved = settings.get('totalTabsRemoved');
+    const percentClosed = totalTabsRemoved === 0
+      ? 0
+      : Math.trunc(settings.get('totalTabsWrangled') / settings.get('totalTabsRemoved') * 100);
+
     return (
       <div className="tab-pane active">
-        <form className="form-search">
-          <input
-            className="span8 search-query"
-            name="search"
-            onChange={this.setFilter}
-            placeholder="search"
-            type="search"
-            value={this.state.filter}
-          />
-        </form>
+        <div className="row-fluid">
+          <form className="form-search span6">
+            <input
+              className="search-query input-xlarge"
+              name="search"
+              onChange={this.setFilter}
+              placeholder="search"
+              ref={_searchRef => { this._searchRef = _searchRef; }}
+              type="search"
+              value={this.state.filter}
+            />
+          </form>
+          <div className="span6" style={{lineHeight: '30px', textAlign: 'right'}}>
+            <small style={{color: '#999'}}>tabs wrangled</small>{' '}
+            {settings.get('totalTabsWrangled')} or{' '}
+            <abbr title="tabs closed by Tab Wrangler / all tabs closed">{percentClosed}%</abbr>
+          </div>
+        </div>
 
         <table id="corralTable" className="table-condensed table-striped table table-bordered">
           <thead>

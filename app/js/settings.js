@@ -14,6 +14,7 @@ const Settings = {
   defaults: {
     badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
     checkInterval: 5000, // How often we check for old tabs.
+    installDate: Date.now(), // Date of installation of Tab Wrangler
     lockedIds: [],  // An array of tabids which have been explicitly locked by the user.
     maxTabs: 100, // Just to keep memory / UI in check. No UI for this.
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
@@ -21,6 +22,9 @@ const Settings = {
     paused: false, // If TabWrangler is paused (won't count down)
     purgeClosedTabs: false, // Save closed tabs in between browser sessions.
     showBadgeCount: true, // Save closed tabs in between browser sessions.
+    totalTabsRemoved: 0, // Number of tabs closed by any means since install
+    totalTabsUnwrangled: 0, // Number of tabs unwrangled (re-opened from the tab corral) since install
+    totalTabsWrangled: 0, // Number of tabs wrangled since install
     whitelist: ['chrome://*'], // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
   },
 
@@ -116,7 +120,6 @@ const Settings = {
   },
 
   setpaused(value: boolean) {
-    console.log(value);
     if (value === false) {
       // The user has just unpaused, immediately set all tabs to the current time
       // so they will not be closed.

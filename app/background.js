@@ -79,7 +79,7 @@ const closeTab = function(tab) {
     return;
   }
 
-  tabmanager.closedTabs.corralTabs([tab]);
+  tabmanager.closedTabs.wrangleTabs([tab]);
 };
 
 const onNewTab = function(tab) {

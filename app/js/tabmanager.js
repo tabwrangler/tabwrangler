@@ -38,27 +38,6 @@ const TabManager = {
       }
     },
 
-    corralTabs(tabs: Array<Object>) {
-      const maxTabs = TW.settings.get('maxTabs');
-      for (let i = 0; i < tabs.length; i++) {
-        if (tabs[i] === null) {
-          console.log('Weird bug, backtrace this...');
-        }
-
-        tabs[i].closedAt = new Date().getTime();
-        this.tabs.unshift(tabs[i]);
-
-        // Close it in Chrome.
-        chrome.tabs.remove(tabs[i].id);
-      }
-
-      if ((this.tabs.length - maxTabs) > 0) {
-        this.tabs = this.tabs.splice(0, maxTabs);
-      }
-
-      TabManager.closedTabs.save();
-    },
-
     removeTab(tabId: number) {
       const tabIndex = TabManager.closedTabs.findPositionById(tabId);
       if (tabIndex == null) return;
@@ -71,6 +50,47 @@ const TabManager = {
     save() {
       // persists this.tabs to local storage
       chrome.storage.local.set({savedTabs: this.tabs});
+    },
+
+    unwrangleTabs(tabs: Array<Object>) {
+      const installDate = TW.settings.get('installDate');
+      let countableTabsUnwrangled = 0;
+      tabs.forEach(tab => {
+        chrome.tabs.create({active: false, url: tab.url});
+        this.removeTab(tab.id);
+
+        // Count only those tabs closed after install date because users who upgrade will not have
+        // an accurate count of all tabs closed. The updaters' install dates will be the date of
+        // the upgrade, after which point TW will keep an accurate count of closed tabs.
+        if (tab.closedAt >= installDate) countableTabsUnwrangled++;
+      });
+
+      const totalTabsUnwrangled = TW.settings.get('totalTabsUnwrangled');
+      TW.settings.set('totalTabsUnwrangled', totalTabsUnwrangled + countableTabsUnwrangled);
+    },
+
+    wrangleTabs(tabs: Array<Object>) {
+      const maxTabs = TW.settings.get('maxTabs');
+      let totalTabsWrangled = TW.settings.get('totalTabsWrangled');
+      for (let i = 0; i < tabs.length; i++) {
+        if (tabs[i] === null) {
+          console.log('Weird bug, backtrace this...');
+        }
+
+        tabs[i].closedAt = new Date().getTime();
+        this.tabs.unshift(tabs[i]);
+        totalTabsWrangled += 1;
+
+        // Close it in Chrome.
+        chrome.tabs.remove(tabs[i].id);
+      }
+
+      if ((this.tabs.length - maxTabs) > 0) {
+        this.tabs = this.tabs.splice(0, maxTabs);
+      }
+
+      TW.settings.set('totalTabsWrangled', totalTabsWrangled);
+      TabManager.closedTabs.save();
     },
   },
 
@@ -160,6 +180,8 @@ const TabManager = {
    * @param tabId
    */
   removeTab(tabId: number) {
+    const totalTabsRemoved = TW.settings.get('totalTabsRemoved');
+    TW.settings.set('totalTabsRemoved', totalTabsRemoved + 1);
     delete TabManager.tabTimes[tabId];
   },
 

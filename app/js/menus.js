@@ -26,7 +26,7 @@ export default {
       settings.set('whitelist', whitelist);
     },
     corralTab(onClickData, selectedTab) {
-      tabmanager.closedTabs.corralTabs([selectedTab]);
+      tabmanager.closedTabs.wrangleTabs([selectedTab]);
     },
   },
 

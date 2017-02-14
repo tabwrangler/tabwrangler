@@ -25,6 +25,7 @@ td.timeGroupRow {
 }
 
 .favicon {
+  height: 16px;
   /* Vertically align in <td /> */
   vertical-align: sub;
 }

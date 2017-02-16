@@ -25,7 +25,7 @@ const Settings = {
     totalTabsRemoved: 0, // Number of tabs closed by any means since install
     totalTabsUnwrangled: 0, // Number of tabs unwrangled (re-opened from the tab corral) since install
     totalTabsWrangled: 0, // Number of tabs wrangled since install
-    whitelist: ['chrome://*'], // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
+    whitelist: ['chrome://'], // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
   },
 
   // Gets all settings from sync and stores them locally.

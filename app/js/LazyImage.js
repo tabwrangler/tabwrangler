@@ -61,9 +61,6 @@ export default class LazyImage extends React.PureComponent {
     if (pendingLazyImages.has(this)) {
       pendingLazyImages.delete(this);
     }
-    if (loadedSrcs.has(this.props.src)) {
-      loadedSrcs.delete(this.props.src);
-    }
   }
 
   checkShouldLoad() {

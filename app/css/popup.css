@@ -54,6 +54,7 @@ table {
 /**
  * Alert animations for ReactCSSTransitionGroup
  */
+
 .alert-leave {
   opacity: 1;
 }
@@ -61,4 +62,32 @@ table {
 .alert-leave.alert-leave-active {
   opacity: 0.01;
   transition: opacity 400ms ease-in;
+}
+
+/**
+ * Transitions for fading out LazyImage placeholders and fading in the images.
+ */
+
+.lazy-image-enter {
+  opacity: 0.01;
+}
+
+.lazy-image-enter.lazy-image-enter-active {
+  opacity: 1;
+  transition: opacity 250ms ease-in;
+}
+
+/**
+ * Position the placeholder absolutely when starting to leave so the `<img>` is in the page flow to
+ * maintain the height of the container and so this gray fades out on top of the `<img>`.
+ */
+.lazy-image-leave {
+  margin-left: -16px;
+  opacity: 1;
+  position: absolute;
+}
+
+.lazy-image-leave.lazy-image-leave-active {
+  opacity: 0.01;
+  transition: opacity 250ms ease-in;
 }

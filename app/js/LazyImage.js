@@ -2,6 +2,7 @@
 
 import _ from 'underscore';
 import React from 'react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 // Whether `LazyImage` instances should check to load their images immediately. This will be true
 // only after a period of time that allows the popup to show quickly.
@@ -82,18 +83,28 @@ export default class LazyImage extends React.PureComponent {
   }
 
   render() {
-    if (this.props.src != null && this.state.loaded) {
-      return <img {...this.props} />;
-    } else {
-      const style = Object.assign({}, this.props.style, {
-        background: '#ccc',
-        borderRadius: `${this.props.height / 2}px`,
-        display: 'inline-block',
-        height: `${this.props.height}px`,
-        verticalAlign: 'sub',
-        width: `${this.props.width}px`,
-      });
-      return <div ref={placeholder => { this._placeholder = placeholder; }} style={style} />;
-    }
+    return (
+      <ReactCSSTransitionGroup
+        transitionEnterTimeout={250}
+        transitionLeaveTimeout={250}
+        transitionName="lazy-image">
+        {(this.props.src != null && this.state.loaded) ?
+          <img key="img" {...this.props} /> :
+          <div
+            key="placeholder"
+            ref={placeholder => { this._placeholder = placeholder; }}
+            style={Object.assign({}, this.props.style, {
+              background: '#ccc',
+              borderRadius: `${this.props.height / 2}px`,
+              display: 'inline-block',
+              height: `${this.props.height}px`,
+              marginTop: '1px',
+              verticalAlign: 'sub',
+              width: `${this.props.width}px`,
+            })}
+          />
+        }
+      </ReactCSSTransitionGroup>
+    );
   }
 }

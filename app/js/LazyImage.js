@@ -3,16 +3,30 @@
 import _ from 'underscore';
 import React from 'react';
 
+// Whether `LazyImage` instances should check to load their images immediately. This will be true
+// only after a period of time that allows the popup to show quickly.
+let checkShoudLoadOnMount = false;
+
 const loadedSrcs = new Set();
 const pendingLazyImages = new Set();
 
-// Check whether to load images on scroll events but throttle the check to once every 150ms because
-// scroll events are numerous.
-window.addEventListener('scroll', _.throttle(function() {
+function checkShouldLoadLazyImages() {
   for (const lazyImage of pendingLazyImages) {
     lazyImage.checkShouldLoad();
   }
-}, 150));
+}
+
+// Begin the loading process a full second after initial execution to allow the popup to open
+// before loading images. If images begin to load too soon after the popup opens, Chrome waits for
+// them to fully load before showing the popup.
+setTimeout(function() {
+  checkShouldLoadLazyImages();
+  checkShoudLoadOnMount = true;
+
+  // Check whether to load images on scroll events but throttle the check to once every 150ms
+  // because scroll events are numerous.
+  window.addEventListener('scroll', _.throttle(checkShouldLoadLazyImages, 150));
+}, 1000);
 
 type Props = {
   height: number,
@@ -21,15 +35,13 @@ type Props = {
   width: number,
 };
 
-const BASE64_PLACEHOLDER_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAFElEQVR42mN8+J8BL2AcVTCSFAAAxogeERIcrasAAAAASUVORK5CYII=';
-
 export default class LazyImage extends React.PureComponent {
   props: Props;
   state: {
     loaded: boolean,
   };
 
-  _img: ?HTMLElement;
+  _placeholder: ?HTMLElement;
 
   constructor(props: Props) {
     super(props);
@@ -39,9 +51,9 @@ export default class LazyImage extends React.PureComponent {
   }
 
   componentDidMount() {
-    if (!this.props.loaded) {
+    if (!this.state.loaded) {
       pendingLazyImages.add(this);
-      this.checkShouldLoad();
+      if (checkShoudLoadOnMount) this.checkShouldLoad();
     }
   }
 
@@ -55,14 +67,14 @@ export default class LazyImage extends React.PureComponent {
   }
 
   checkShouldLoad() {
-    if (!this._img) return;
+    if (!this._placeholder) return;
 
-    const rect = this._img.getBoundingClientRect();
+    const rect = this._placeholder.getBoundingClientRect();
     const isInViewport = (
       rect.top >= 0 &&
       rect.left >= 0 &&
-      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+      rect.bottom <= window.innerHeight &&
+      rect.right <= window.innerWidth
     );
 
     if (isInViewport) {
@@ -73,14 +85,18 @@ export default class LazyImage extends React.PureComponent {
   }
 
   render() {
-    const props = this.state.loaded
-      ? this.props
-      // If the image has not yet been visible in the viewport, use a base64-encoded image as its
-      // placeholder and round its radius to make a pleasant, gray circle.
-      : Object.assign({}, this.props, {
-          src: BASE64_PLACEHOLDER_SRC,
-          style: Object.assign({}, this.props.style, {borderRadius: `${this.props.height / 2}px`}),
-        });
-    return <img ref={img => {this._img = img; }} {...props} />;
+    if (this.state.loaded) {
+      return <img {...this.props} />;
+    } else {
+      const style = Object.assign({}, this.props.style, {
+        background: '#ccc',
+        borderRadius: `${this.props.height / 2}px`,
+        display: 'inline-block',
+        height: `${this.props.height}px`,
+        verticalAlign: 'sub',
+        width: `${this.props.width}px`,
+      });
+      return <div ref={placeholder => { this._placeholder = placeholder; }} style={style} />;
+    }
   }
 }

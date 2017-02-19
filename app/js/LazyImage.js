@@ -30,7 +30,7 @@ setTimeout(function() {
 
 type Props = {
   height: number,
-  src: string,
+  src: ?string,
   style?: {[key: string]: any},
   width: number,
 };
@@ -46,7 +46,7 @@ export default class LazyImage extends React.PureComponent {
   constructor(props: Props) {
     super(props);
     this.state = {
-      loaded: loadedSrcs.has(this.props.src),
+      loaded: this.props.src == null || loadedSrcs.has(this.props.src),
     };
   }
 
@@ -82,7 +82,7 @@ export default class LazyImage extends React.PureComponent {
   }
 
   render() {
-    if (this.state.loaded) {
+    if (this.props.src != null && this.state.loaded) {
       return <img {...this.props} />;
     } else {
       const style = Object.assign({}, this.props.style, {

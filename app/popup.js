@@ -24,13 +24,19 @@ function secondsToMinutes(seconds) {
 }
 
 function truncateString(str, length) {
-  if (str.length > (length + 3) ) {
-    return str.substring(0, length) + '...';
-  }
-  return str;
+  return str == null || str.length <= (length + 3) ?
+    str :
+    `${str.substring(0, length)}...`;
 }
 
 class OpenTabRow extends React.Component {
+  props: {
+    isLocked: boolean,
+    onLockTab: (tabId: string) => void,
+    onUnlockTab: (tabId: string) => void,
+    tab: chrome$Tab,
+  };
+
   handleLockedOnChange = (event) => {
     const {tab} = this.props;
     if (event.target.checked) {
@@ -64,7 +70,7 @@ class OpenTabRow extends React.Component {
       } else {
         const lastModified = tabmanager.tabTimes[tab.id];
         const cutOff = new Date().getTime() - settings.get('stayOpen');
-        const timeLeft = -1 * (Math.round((cutOff - lastModified) / 1000)).toString();
+        const timeLeft = -1 * Math.round((cutOff - lastModified) / 1000);
         timeLeftContent = secondsToMinutes(timeLeft);
       }
 
@@ -84,10 +90,10 @@ class OpenTabRow extends React.Component {
         <td className="text-center">
           <LazyImage
             alt=""
-            height="16"
+            height={16}
             src={tab.favIconUrl}
             style={{height: '16px', maxWidth: 'none'}}
-            width="16"
+            width={16}
           />
         </td>
         <td>
@@ -102,6 +108,12 @@ class OpenTabRow extends React.Component {
 }
 
 class LockTab extends React.PureComponent {
+  state: {
+    tabs: Array<chrome$Tab>,
+  };
+
+  _timeLeftInterval: ?number;
+
   constructor() {
     super();
     this.state = {
@@ -174,6 +186,15 @@ function isValidPattern(pattern) {
 }
 
 class OptionsTab extends React.Component {
+  state: {
+    errors: Array<Object>,
+    newPattern: string,
+    saveAlertVisible: boolean,
+  };
+
+  _debouncedHandleSettingsChange: (event: SyntheticEvent) => void;
+  _saveAlertTimeout: ?number;
+
   constructor() {
     super();
     this.state = {
@@ -183,7 +204,7 @@ class OptionsTab extends React.Component {
     };
 
     const debounced = _.debounce(this.handleSettingsChange, 150);
-    this.debouncedHandleSettingsChange = event => {
+    this._debouncedHandleSettingsChange = event => {
       // Prevent React's [Event Pool][1] from nulling the event.
       //
       // [1]: https://facebook.github.io/react/docs/events.html#event-pooling
@@ -193,8 +214,8 @@ class OptionsTab extends React.Component {
   }
 
   componentWillUnmount() {
-    if (this.saveAlertTimeout != null) {
-      window.clearTimeout(this.saveAlertTimeout);
+    if (this._saveAlertTimeout != null) {
+      window.clearTimeout(this._saveAlertTimeout);
     }
   }
 
@@ -237,8 +258,8 @@ class OptionsTab extends React.Component {
   };
 
   saveOption(key, value) {
-    if (this.saveAlertTimeout != null) {
-      window.clearTimeout(this.saveAlertTimeout);
+    if (this._saveAlertTimeout != null) {
+      window.clearTimeout(this._saveAlertTimeout);
     }
 
     try {
@@ -247,7 +268,7 @@ class OptionsTab extends React.Component {
         errors: [],
         saveAlertVisible: true,
       });
-      this.saveAlertTimeout = window.setTimeout(() => {
+      this._saveAlertTimeout = window.setTimeout(() => {
         this.setState({saveAlertVisible: false});
       }, 400);
     }
@@ -292,7 +313,7 @@ class OptionsTab extends React.Component {
                 max="7200"
                 min="1"
                 name="minutesInactive"
-                onChange={this.debouncedHandleSettingsChange}
+                onChange={this._debouncedHandleSettingsChange}
                 title="Must be a number greater than 0 and less than 7200"
                 type="number"
               /> minutes.
@@ -305,7 +326,7 @@ class OptionsTab extends React.Component {
                 id="minTabs"
                 min="0"
                 name="minTabs"
-                onChange={this.debouncedHandleSettingsChange}
+                onChange={this._debouncedHandleSettingsChange}
                 title="Must be a number greater than or equal to 0"
                 type="number"
               /> tabs open (does not include pinned or locked tabs).
@@ -318,7 +339,7 @@ class OptionsTab extends React.Component {
                 id="maxTabs"
                 min="0"
                 name="maxTabs"
-                onChange={this.debouncedHandleSettingsChange}
+                onChange={this._debouncedHandleSettingsChange}
                 title="Must be a number greater than or equal to 0"
                 type="number"
               /> closed tabs.
@@ -436,6 +457,10 @@ class ClosedTabGroupHeader extends React.PureComponent {
 }
 
 class ClosedTabRow extends React.PureComponent {
+  state: {
+    active: boolean,
+  };
+
   constructor() {
     super();
     this.state = {
@@ -476,7 +501,7 @@ class ClosedTabRow extends React.PureComponent {
     } else {
       favicon = (tab.favIconUrl == null)
         ? '-'
-        : <LazyImage alt="" className="favicon" height="16" src={tab.favIconUrl} width="16" />;
+        : <LazyImage alt="" className="favicon" height={16} src={tab.favIconUrl} width={16} />;
     }
 
     const timeagoInstance = timeago();
@@ -495,6 +520,17 @@ class ClosedTabRow extends React.PureComponent {
 }
 
 class CorralTab extends React.Component {
+  state: {
+    closedTabGroups: Array<{
+      tabs: Array<chrome$Tab>,
+      title: string,
+    }>,
+    filter: string,
+  };
+
+  _searchRefFocusTimeout: ?number;
+  _searchRef: ?HTMLElement;
+
   constructor() {
     super();
     this.state = {
@@ -508,7 +544,7 @@ class CorralTab extends React.Component {
     // is available, which is roughly 150ms after the popup is opened (determined empirically). Use
     // 250ms to ensure this always works.
     this._searchRefFocusTimeout = setTimeout(() => {
-      this._searchRef.focus();
+      if (this._searchRef != null) this._searchRef.focus();
     }, 350);
 
     // TODO: This is assumed to be synchronous. If it becomes async, this state needs to be
@@ -556,9 +592,8 @@ class CorralTab extends React.Component {
     const separations = []
     separations.push([now - (1000 * 60 * 30), 'in the last 1/2 hour']);
     separations.push([now - (1000 * 60 * 60), 'in the last hour']);
-    separations.push([now - (1000 * 60 * 60 * 2),'in the last 2 hours']);
-    separations.push([now - (1000 * 60 * 60 * 24),'in the last day']);
-    separations.push([0, 'more than a day ago']);
+    separations.push([now - (1000 * 60 * 60 * 2), 'in the last 2 hours']);
+    separations.push([now - (1000 * 60 * 60 * 24), 'in the last day']);
 
     function getGroup(time) {
       let limit, text;
@@ -569,6 +604,7 @@ class CorralTab extends React.Component {
           return text;
         }
       }
+      return 'more than a day ago';
     }
 
     const closedTabGroups = [];
@@ -685,6 +721,10 @@ class CorralTab extends React.Component {
 }
 
 class PauseButton extends React.PureComponent {
+  state: {
+    paused: boolean,
+  };
+
   constructor() {
     super();
     this.state = {
@@ -776,7 +816,7 @@ class NavBar extends React.PureComponent {
 function AboutTab() {
   return (
     <div className="tab-pane active">
-      <p>TabWrangler v{chrome.app.getDetails().version}</p>
+      <p>TabWrangler v{chrome.runtime.getManifest().version}</p>
       <ul>
         <li>
           <a href="https://github.com/jacobSingh/tabwrangler/releases" target="_blank">
@@ -799,6 +839,10 @@ function AboutTab() {
 }
 
 class PopupContent extends React.PureComponent {
+  state: {
+    activeTabId: string,
+  };
+
   constructor() {
     super();
     this.state = {

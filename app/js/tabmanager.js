@@ -147,7 +147,7 @@ const TabManager = {
   getWhitelistMatch(url: string) {
     const whitelist = TW.settings.get('whitelist');
     for (let i = 0; i < whitelist.length; i++) {
-      if (url.indexOf(whitelist[i]) != -1) {
+      if (url.indexOf(whitelist[i]) !== -1) {
         return whitelist[i];
       }
     }
@@ -156,7 +156,7 @@ const TabManager = {
 
   isLocked(tabId: number) {
     const lockedIds = TW.settings.get('lockedIds');
-    if (lockedIds.indexOf(tabId) != -1) {
+    if (lockedIds.indexOf(tabId) !== -1) {
       return true;
     }
     return false;
@@ -169,7 +169,7 @@ const TabManager = {
   lockTab(tabId: number) {
     const lockedIds = TW.settings.get('lockedIds');
 
-    if (tabId > 0 && lockedIds.indexOf(tabId) == -1) {
+    if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {
       lockedIds.push(tabId);
     }
     TW.settings.set('lockedIds', lockedIds);

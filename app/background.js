@@ -38,7 +38,7 @@ const checkToClose = function(cutOff) {
       tabs = myWindow.tabs;
       // Filter out the pinned tabs
       tabs = _.filter(tabs, function(tab) {return tab.pinned === false;});
-      let tabsToCut = _.filter(tabs, function(t) {return toCut.indexOf(t.id) != -1;});
+      let tabsToCut = _.filter(tabs, function(t) {return toCut.indexOf(t.id) !== -1;});
       if ((tabs.length - minTabs) <= 0) {
         // We have less than minTab tabs, abort.
         // Also, let's reset the last accessed time of our current tabs so they
@@ -57,7 +57,7 @@ const checkToClose = function(cutOff) {
       }
 
       for (i=0; i < tabsToCut.length; i++) {
-        if (lockedIds.indexOf(tabsToCut[i].id) != -1) {
+        if (lockedIds.indexOf(tabsToCut[i].id) !== -1) {
           // Update its time so it gets checked less frequently.
           // Would also be smart to just never add it.
           // @todo: fix that.

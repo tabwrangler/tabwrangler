@@ -67,7 +67,7 @@ To change this setting, click on the new icon on your URL bar.`,
           }
 
           // This is the version we are updating to.
-          if (i == manifestVersion) {
+          if (i === manifestVersion) {
             // Post 2.0 updates.
             chrome.storage.sync.set({
               'version': manifestVersion,

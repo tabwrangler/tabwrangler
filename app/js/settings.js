@@ -14,7 +14,6 @@ const Settings = {
   defaults: {
     badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
     checkInterval: 5000, // How often we check for old tabs.
-    installDate: Date.now(), // Date of installation of Tab Wrangler
     lockedIds: [],  // An array of tabids which have been explicitly locked by the user.
     maxTabs: 100, // Just to keep memory / UI in check. No UI for this.
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
@@ -22,15 +21,11 @@ const Settings = {
     paused: false, // If TabWrangler is paused (won't count down)
     purgeClosedTabs: false, // Save closed tabs in between browser sessions.
     showBadgeCount: true, // Save closed tabs in between browser sessions.
-    totalTabsRemoved: 0, // Number of tabs closed by any means since install
-    totalTabsUnwrangled: 0, // Number of tabs unwrangled (re-opened from the tab corral) since install
-    totalTabsWrangled: 0, // Number of tabs wrangled since install
     whitelist: ['chrome://'], // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
   },
 
   // Gets all settings from sync and stores them locally.
   init() {
-    const self = this;
     const keys = [];
     for (const i in this.defaults) {
       if (this.defaults.hasOwnProperty(i)) {
@@ -38,10 +33,10 @@ const Settings = {
         keys.push(i);
       }
     }
-    chrome.storage.sync.get(keys, function(items) {
+    chrome.storage.sync.get(keys, items => {
       for (const i in items) {
         if (items.hasOwnProperty(i)) {
-          self.cache[i] = items[i];
+          this.cache[i] = items[i];
         }
       }
     });
@@ -85,7 +80,7 @@ const Settings = {
    * @see Settings.set
    */
   setmaxTabs(value: string) {
-    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 1 || parseInt(value, 10) > 500 ){
+    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 1 || parseInt(value, 10) > 500 ) {
       throw Error('Max tabs must be a number between 1 and 500. Setting this too high can cause performance issues');
     }
     Settings.setValue('maxTabs', value);
@@ -97,7 +92,7 @@ const Settings = {
    * @see Settings.set
    */
   setminTabs(value: string) {
-    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0 || parseInt(value, 10) > 30 ){
+    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0 || parseInt(value, 10) > 30 ) {
       throw Error('Minimum tabs must be a number between 0 and 30');
     }
     Settings.setValue('minTabs', value);
@@ -109,7 +104,7 @@ const Settings = {
    * @see Settings.set
    */
   setminutesInactive(value: string) {
-    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 0 || parseInt(value, 10) > 7200 ){
+    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 0 || parseInt(value, 10) > 7200 ) {
       throw Error('Minutes Inactive must be greater than 0 and less than 7200');
     }
     // Reset the tabTimes since we changed the setting
@@ -144,10 +139,8 @@ const Settings = {
   },
 
   setValue(key: string, value: mixed, fx?: () => void) {
-    const items = {};
     this.cache[key] = value;
-    items[key] = value;
-    chrome.storage.sync.set(items, fx);
+    chrome.storage.sync.set({[key]: value}, fx);
   },
 
   /**

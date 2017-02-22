@@ -1,9 +1,11 @@
 import type settings from './js/settings';
+import type storageLocal from './js/storageLocal';
 import type tabmanager from './js/tabmanager';
 import type updater from './js/updater';
 
 type TabWrangler = {
   settings: settings,
+  storageLocal: storageLocal,
   tabmanager: tabmanager,
   updater: updater,
 };

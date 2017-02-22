@@ -14,6 +14,7 @@ const TW = chrome.extension.getBackgroundPage().TW;
 // Unpack TW.
 const {
   settings,
+  storageLocal,
   tabmanager,
 } = TW;
 
@@ -675,10 +676,10 @@ class CorralTab extends React.Component {
         </button>
       );
 
-    const totalTabsRemoved = settings.get('totalTabsRemoved');
+    const totalTabsRemoved = storageLocal.get('totalTabsRemoved');
     const percentClosed = totalTabsRemoved === 0
       ? 0
-      : Math.trunc(settings.get('totalTabsWrangled') / settings.get('totalTabsRemoved') * 100);
+      : Math.trunc(storageLocal.get('totalTabsWrangled') / storageLocal.get('totalTabsRemoved') * 100);
 
     return (
       <div className="tab-pane active">
@@ -696,7 +697,7 @@ class CorralTab extends React.Component {
           </form>
           <div className="span6" style={{lineHeight: '30px', textAlign: 'right'}}>
             <small style={{color: '#999'}}>tabs wrangled</small>{' '}
-            {settings.get('totalTabsWrangled')} or{' '}
+            {storageLocal.get('totalTabsWrangled')} or{' '}
             <abbr title="tabs closed by Tab Wrangler / all tabs closed">{percentClosed}%</abbr>
           </div>
         </div>

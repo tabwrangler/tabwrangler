@@ -5,6 +5,7 @@
 import _ from 'underscore';
 import menus from './js/menus';
 import settings from './js/settings';
+import storageLocal from './js/storageLocal';
 import tabmanager from './js/tabmanager';
 import updater from './js/updater';
 
@@ -101,10 +102,12 @@ const onNewTab = function(tab) {
 
 const startup = function() {
   settings.init();
+  storageLocal.init();
   updater.run();
   tabmanager.closedTabs.init();
 
   TW.settings = settings;
+  TW.storageLocal = storageLocal;
   TW.updater = updater;
   TW.tabmanager = tabmanager;
 
@@ -112,7 +115,6 @@ const startup = function() {
     tabmanager.closedTabs.clear();
   }
   settings.set('lockedIds', []);
-
 
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({

@@ -53,7 +53,7 @@ const TabManager = {
     },
 
     unwrangleTabs(tabs: Array<Object>) {
-      const installDate = TW.settings.get('installDate');
+      const installDate = TW.storageLocal.get('installDate');
       let countableTabsUnwrangled = 0;
       tabs.forEach(tab => {
         chrome.tabs.create({active: false, url: tab.url});
@@ -65,13 +65,13 @@ const TabManager = {
         if (tab.closedAt >= installDate) countableTabsUnwrangled++;
       });
 
-      const totalTabsUnwrangled = TW.settings.get('totalTabsUnwrangled');
-      TW.settings.set('totalTabsUnwrangled', totalTabsUnwrangled + countableTabsUnwrangled);
+      const totalTabsUnwrangled = TW.storageLocal.get('totalTabsUnwrangled');
+      TW.storageLocal.set('totalTabsUnwrangled', totalTabsUnwrangled + countableTabsUnwrangled);
     },
 
     wrangleTabs(tabs: Array<Object>) {
       const maxTabs = TW.settings.get('maxTabs');
-      let totalTabsWrangled = TW.settings.get('totalTabsWrangled');
+      let totalTabsWrangled = TW.storageLocal.get('totalTabsWrangled');
       for (let i = 0; i < tabs.length; i++) {
         if (tabs[i] === null) {
           console.log('Weird bug, backtrace this...');
@@ -89,7 +89,7 @@ const TabManager = {
         this.tabs = this.tabs.splice(0, maxTabs);
       }
 
-      TW.settings.set('totalTabsWrangled', totalTabsWrangled);
+      TW.storageLocal.set('totalTabsWrangled', totalTabsWrangled);
       TabManager.closedTabs.save();
     },
   },
@@ -180,8 +180,8 @@ const TabManager = {
    * @param tabId
    */
   removeTab(tabId: number) {
-    const totalTabsRemoved = TW.settings.get('totalTabsRemoved');
-    TW.settings.set('totalTabsRemoved', totalTabsRemoved + 1);
+    const totalTabsRemoved = TW.storageLocal.get('totalTabsRemoved');
+    TW.storageLocal.set('totalTabsRemoved', totalTabsRemoved + 1);
     delete TabManager.tabTimes[tabId];
   },
 

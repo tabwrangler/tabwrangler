@@ -42,6 +42,7 @@ export default class LazyImage extends React.PureComponent {
     loaded: boolean,
   };
 
+  _img: ?Image;
   _placeholder: ?HTMLElement;
 
   constructor(props: Props) {
@@ -62,10 +63,18 @@ export default class LazyImage extends React.PureComponent {
     if (pendingLazyImages.has(this)) {
       pendingLazyImages.delete(this);
     }
+
+    // Ensure the loading image does not try to call this soon-to-be-unmounted component.
+    if (this._img != null) {
+      this._img.onload = null;
+      this._img = null;
+    }
   }
 
   checkShouldLoad() {
-    if (!this._placeholder) return;
+    const {src} = this.props;
+
+    if (src == null || !this._placeholder) return;
 
     const rect = this._placeholder.getBoundingClientRect();
     const isInViewport = (
@@ -76,11 +85,18 @@ export default class LazyImage extends React.PureComponent {
     );
 
     if (isInViewport) {
-      loadedSrcs.add(this.props.src);
+      this._img = new Image();
+      this._img.onload = this.setLoaded;
+      this._img.src = src;
       pendingLazyImages.delete(this);
-      this.setState({loaded: true});
     }
   }
+
+  setLoaded = () => {
+    this._img = null;
+    loadedSrcs.add(this.props.src);
+    this.setState({loaded: true});
+  };
 
   render() {
     return (

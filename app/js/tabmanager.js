@@ -16,10 +16,10 @@ const TabManager = {
     tabs: [],
 
     init() {
-      const self = this;
-      chrome.storage.local.get('savedTabs', function(items) {
+      chrome.storage.local.get('savedTabs', items => {
         if (typeof items['savedTabs'] != 'undefined') {
-          self.tabs = items['savedTabs'];
+          this.tabs = items['savedTabs'];
+          TabManager.updateClosedCount();
         }
       });
     },
@@ -27,6 +27,7 @@ const TabManager = {
     clear() {
       this.tabs = [];
       chrome.storage.local.remove('savedTabs');
+      TabManager.updateClosedCount();
     },
 
     // @todo: move to filter system for consistency
@@ -44,6 +45,7 @@ const TabManager = {
 
       const output = TabManager.closedTabs.tabs.splice(tabIndex, 1);
       TabManager.closedTabs.save();
+      TabManager.updateClosedCount();
       return output;
     },
 
@@ -67,6 +69,7 @@ const TabManager = {
 
       const totalTabsUnwrangled = TW.storageLocal.get('totalTabsUnwrangled');
       TW.storageLocal.set('totalTabsUnwrangled', totalTabsUnwrangled + countableTabsUnwrangled);
+      TabManager.updateClosedCount();
     },
 
     wrangleTabs(tabs: Array<Object>) {
@@ -91,6 +94,7 @@ const TabManager = {
 
       TW.storageLocal.set('totalTabsWrangled', totalTabsWrangled);
       TabManager.closedTabs.save();
+      TabManager.updateClosedCount();
     },
   },
 

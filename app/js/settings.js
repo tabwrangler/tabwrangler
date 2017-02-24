@@ -12,7 +12,6 @@ const Settings = {
   cache: {},
 
   defaults: {
-    badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
     checkInterval: 5000, // How often we check for old tabs.
     lockedIds: [],  // An array of tabids which have been explicitly locked by the user.
     maxTabs: 100, // Just to keep memory / UI in check. No UI for this.

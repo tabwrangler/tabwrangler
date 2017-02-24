@@ -128,7 +128,6 @@ const startup = function() {
     tabmanager.updateLastAccessed(tabInfo['tabId']);
     });
   window.setInterval(checkToClose, settings.get('checkInterval'));
-  window.setInterval(tabmanager.updateClosedCount, settings.get('badgeCounterInterval'));
 
   // Create the "lock tab" context menu:
   menus.createContextMenus();

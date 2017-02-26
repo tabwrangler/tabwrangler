@@ -6,7 +6,7 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 // Whether `LazyImage` instances should check to load their images immediately. This will be true
 // only after a period of time that allows the popup to show quickly.
-let checkShoudLoadOnMount = false;
+let checkShouldLoadOnMount = false;
 
 const loadedSrcs = new Set();
 const pendingLazyImages = new Set();
@@ -22,7 +22,7 @@ function checkShouldLoadLazyImages() {
 // them to fully load before showing the popup.
 setTimeout(function() {
   checkShouldLoadLazyImages();
-  checkShoudLoadOnMount = true;
+  checkShouldLoadOnMount = true;
 
   // Check whether to load images on scroll events but throttle the check to once every 150ms
   // because scroll events are numerous.
@@ -55,7 +55,7 @@ export default class LazyImage extends React.PureComponent {
   componentDidMount() {
     if (!this.state.loaded) {
       pendingLazyImages.add(this);
-      if (checkShoudLoadOnMount) this.checkShouldLoad();
+      if (checkShouldLoadOnMount) this.checkShouldLoad();
     }
   }
 

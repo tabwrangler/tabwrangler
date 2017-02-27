@@ -44,6 +44,11 @@ td.timeGroupRow {
   text-align: center;
 }
 
+tr:hover .favicon-hover-hide,
+tr:not(:hover) .favicon-hover-show {
+  display: none !important;
+}
+
 /**
  * Re-reset for stylesheet added to Chrome extension popups
  */

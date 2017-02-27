@@ -30,6 +30,7 @@ setTimeout(function() {
 }, 1000);
 
 type Props = {
+  className?: string,
   height: number,
   src: ?string,
   style?: {[key: string]: any},
@@ -101,12 +102,14 @@ export default class LazyImage extends React.PureComponent {
   render() {
     return (
       <ReactCSSTransitionGroup
+        component="div"
         transitionEnterTimeout={250}
         transitionLeaveTimeout={250}
         transitionName="lazy-image">
         {(this.props.src != null && this.state.loaded) ?
           <img key="img" {...this.props} /> :
           <div
+            className={this.props.className}
             key="placeholder"
             ref={placeholder => { this._placeholder = placeholder; }}
             style={Object.assign({}, this.props.style, {
@@ -115,7 +118,6 @@ export default class LazyImage extends React.PureComponent {
               display: 'inline-block',
               height: `${this.props.height}px`,
               marginTop: '1px',
-              verticalAlign: 'sub',
               width: `${this.props.width}px`,
             })}
           />

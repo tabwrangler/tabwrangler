@@ -458,25 +458,6 @@ class ClosedTabGroupHeader extends React.PureComponent {
 }
 
 class ClosedTabRow extends React.PureComponent {
-  state: {
-    active: boolean,
-  };
-
-  constructor() {
-    super();
-    this.state = {
-      active: false,
-    };
-  }
-
-  handleMouseEnter = () => {
-    this.setState({active: true});
-  };
-
-  handleMouseLeave = () => {
-    this.setState({active: false});
-  };
-
   openTab = (event) => {
     const {tab} = this.props;
     event.preventDefault();
@@ -489,26 +470,32 @@ class ClosedTabRow extends React.PureComponent {
 
   render() {
     const {tab} = this.props;
-
-    let favicon;
-    if (this.state.active) {
-      favicon = (
-        <i
-          className="btn-remove icon-remove"
-          onClick={this.removeTabFromList}
-          title="Remove tab from list"
-        />
-      );
-    } else {
-      favicon = (tab.favIconUrl == null)
-        ? '-'
-        : <LazyImage alt="" className="favicon" height={16} src={tab.favIconUrl} width={16} />;
-    }
-
     const timeagoInstance = timeago();
+
+    // Control hiding/showing of the favicon and close button via CSS `:hover` so the browser can
+    // handle re-enabling the `:hover` state after re-rendering without requiring a new `mouseenter`
+    // event.
+    //
+    // See: https://github.com/jacobSingh/tabwrangler/issues/115
     return (
       <tr onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
-        <td className="faviconCol">{favicon}</td>
+        <td className="faviconCol">
+          <i
+            className="btn-remove icon-remove favicon-hover-show"
+            onClick={this.removeTabFromList}
+            title="Remove tab from list"
+          />
+          {tab.favIconUrl == null
+            ? <span className="favicon-hover-hide">-</span>
+            : <LazyImage
+                alt=""
+                className="favicon favicon-hover-hide"
+                height={16}
+                src={tab.favIconUrl}
+                width={16}
+              />
+          }
+        </td>
         <td>
           <a target="_blank" href={tab.url} onClick={this.openTab}>
             {truncateString(tab.title, 70)}

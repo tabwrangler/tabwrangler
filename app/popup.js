@@ -20,14 +20,12 @@ const {
 
 function secondsToMinutes(seconds) {
   let s = seconds % 60;
-  s = s >= 10 ? String(s) : '0' + String(s);
-  return String(Math.floor(seconds / 60)) + ':' + s;
+  s = s >= 10 ? String(s) : `0${String(s)}`;
+  return `${String(Math.floor(seconds / 60))}:${s}`;
 }
 
 function truncateString(str, length) {
-  return str == null || str.length <= (length + 3) ?
-    str :
-    `${str.substring(0, length)}...`;
+  return str == null || str.length <= (length + 3) ? str : `${str.substring(0, length)}...`;
 }
 
 class OpenTabRow extends React.Component {

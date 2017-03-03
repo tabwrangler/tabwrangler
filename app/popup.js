@@ -72,7 +72,11 @@ class OpenTabRow extends React.Component {
         const lastModified = tabmanager.tabTimes[tab.id];
         const cutOff = new Date().getTime() - settings.get('stayOpen');
         const timeLeft = -1 * Math.round((cutOff - lastModified) / 1000);
-        timeLeftContent = secondsToMinutes(timeLeft);
+        // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the
+        // interval to clean up this tab. It's also possible the number of tabs is not below
+        // `minTabs`, which has stopped the countdown and locked this at a negative `timeLeft` until
+        // another tab is opened to jump start the countdown again.
+        timeLeftContent = timeLeft < 0 ? '...' : secondsToMinutes(timeLeft);
       }
 
       lockStatusElement = <td className="text-center">{timeLeftContent}</td>;

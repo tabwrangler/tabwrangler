@@ -847,18 +847,18 @@ class PopupContent extends React.PureComponent {
   render() {
     let activeTab;
     switch (this.state.activeTabId) {
-      case 'about':
-        activeTab = <AboutTab />;
-        break;
-      case 'corral':
-        activeTab = <CorralTab />;
-        break;
-      case 'lock':
-        activeTab = <LockTab />;
-        break;
-      case 'options':
-        activeTab = <OptionsTab />;
-        break;
+    case 'about':
+      activeTab = <AboutTab />;
+      break;
+    case 'corral':
+      activeTab = <CorralTab />;
+      break;
+    case 'lock':
+      activeTab = <LockTab />;
+      break;
+    case 'options':
+      activeTab = <OptionsTab />;
+      break;
     }
 
     return (

@@ -20,6 +20,7 @@ module.exports = {
     // Rules included in ESLint
     'comma-dangle': [2, 'always-multiline'],
     'eqeqeq': [2, 'smart'],
+    'indent': [2, 2],
     'no-console': 0,
     'no-multi-spaces': 2,
     'no-unused-expressions': 2,

@@ -25,10 +25,10 @@ gulp.task('clean', function(done) {
 // Copy all files except for *.js ones
 gulp.task('cp', function() {
   return gulp.src([
-      'app/**/!(*.js)',
-      'MIT-LICENSE.txt',
-      'README.md',
-    ])
+    'app/**/!(*.js)',
+    'MIT-LICENSE.txt',
+    'README.md',
+  ])
     .pipe(gulp.dest(DIST_DIRECTORY));
 });
 

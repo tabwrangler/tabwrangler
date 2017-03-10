@@ -87,13 +87,13 @@ Updater.getNotification = function(title, items) {
   title = title || 'Tab Wrangler Updates';
   items = items || [];
   return {
-      type: 'list',
-      title,
-      message: 'Tab wrangler updates',
-      iconUrl: 'img/icon48.png',
-      items,
-      buttons: [],
-    };
+    type: 'list',
+    title,
+    message: 'Tab wrangler updates',
+    iconUrl: 'img/icon48.png',
+    items,
+    buttons: [],
+  };
 };
 
 Updater.addCommonButtons = function(notification) {

@@ -126,7 +126,7 @@ const startup = function() {
   chrome.tabs.onActivated.addListener(function(tabInfo) {
     menus.updateContextMenus(tabInfo['tabId']);
     tabmanager.updateLastAccessed(tabInfo['tabId']);
-    });
+  });
   window.setInterval(checkToClose, settings.get('checkInterval'));
 
   // Create the "lock tab" context menu:

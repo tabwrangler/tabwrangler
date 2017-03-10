@@ -12,16 +12,15 @@ body {
 }
 
 .nav-buttons {
-  margin: 7px;
+  margin: 9px;
 }
 
 .btn-remove {
   cursor: pointer;
+  height: 16px;
+  line-height: 16px;
   margin-top: 0;
-}
-
-td.timeGroupRow {
-  padding-left: 35px;
+  width: 16px;
 }
 
 .favicon {
@@ -47,6 +46,11 @@ td.timeGroupRow {
 tr:hover .favicon-hover-hide,
 tr:not(:hover) .favicon-hover-show {
   display: none !important;
+}
+
+.tab-pane {
+  padding-bottom: 20px;
+  padding-top: 20px;
 }
 
 /**

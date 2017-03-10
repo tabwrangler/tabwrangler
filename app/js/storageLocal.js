@@ -57,9 +57,10 @@ const storageLocal = {
   set(key: string, value: mixed) {
     // Magic setter functions are set{fieldname}
     if (typeof this['set' + key] == 'function') {
-      return this['set' + key](value);
+      this['set' + key](value);
+    } else {
+      this.setValue(key, value);
     }
-    this.setValue(key, value);
   },
 
   setValue(key: string, value: mixed, fx?: () => void) {

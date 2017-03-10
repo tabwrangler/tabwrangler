@@ -37,11 +37,12 @@ const TabManager = {
           return i;
         }
       }
+      return null;
     },
 
     removeTab(tabId: number) {
       const tabIndex = TabManager.closedTabs.findPositionById(tabId);
-      if (tabIndex == null) return;
+      if (tabIndex == null) return null;
 
       const output = TabManager.closedTabs.tabs.splice(tabIndex, 1);
       TabManager.closedTabs.save();

@@ -19,6 +19,7 @@ module.exports = {
   rules: {
     // Rules included in ESLint
     'comma-dangle': [2, 'always-multiline'],
+    'consistent-return': 2,
     'eqeqeq': [2, 'smart'],
     'indent': [2, 2],
     'no-console': 0,

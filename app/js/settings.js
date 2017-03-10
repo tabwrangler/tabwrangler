@@ -68,9 +68,10 @@ const Settings = {
   set(key: string, value: mixed) {
     // Magic setter functions are set{fieldname}
     if (typeof this['set' + key] == 'function') {
-      return this['set' + key](value);
+      this['set' + key](value);
+    } else {
+      Settings.setValue(key, value);
     }
-    Settings.setValue(key, value);
   },
 
   /**

@@ -131,6 +131,18 @@ const startup = function() {
 
   // Create the "lock tab" context menu:
   menus.createContextMenus();
+
+  chrome.commands.onCommand.addListener(command => {
+    switch (command) {
+    case 'wrangle-current-tab':
+      chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+        tabmanager.closedTabs.wrangleTabs(tabs);
+      });
+      break;
+    default:
+      break;
+    }
+  });
 };
 
 startup();

@@ -189,6 +189,10 @@ function isValidPattern(pattern) {
 }
 
 class OptionsTab extends React.Component {
+  props: {
+    commands: ?Array<chrome$Command>,
+  };
+
   state: {
     errors: Array<Object>,
     newPattern: string,
@@ -246,6 +250,12 @@ class OptionsTab extends React.Component {
     }
 
     this.setState({newPattern: ''});
+  };
+
+  _handleConfigureCommandsClick = event => {
+    // `chrome://` URLs are not linkable, but it's possible to create new tabs pointing to Chrome's
+    // configuration pages. Calling `tabs.create` will open the tab and close this popup.
+    chrome.tabs.create({url: event.target.href});
   };
 
   handleNewPatternChange = (event) => {
@@ -433,6 +443,36 @@ class OptionsTab extends React.Component {
             </span>
           </fieldset>
         </form>
+
+        <form>
+          <fieldset>
+            <legend>
+              Keyboard Shortcuts
+              <small style={{marginLeft: '10px'}}>
+                <a
+                  href="chrome://extensions/configureCommands"
+                  onClick={this._handleConfigureCommandsClick}
+                  target="_blank">
+                  Configure these shortcuts
+                </a>
+              </small>
+            </legend>
+            {this.props.commands.map(command => {
+              // This is a default command for any extension with a browser action. It can't be
+              // listened for.
+              //
+              // See https://developer.chrome.com/extensions/commands#usage
+              if (command.name === '_execute_browser_action') return null;
+              return (
+                <p>
+                  {command.shortcut == null || command.shortcut.length === 0 ?
+                    <em>No shortcut set</em> :
+                    <kbd>{command.shortcut}</kbd>}: {command.description}
+                </p>
+              );
+            })}
+          </fieldset>
+        </form>
       </div>
     );
   }
@@ -480,7 +520,7 @@ class ClosedTabRow extends React.PureComponent {
     //
     // See: https://github.com/jacobSingh/tabwrangler/issues/115
     return (
-      <tr onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+      <tr>
         <td className="faviconCol">
           <i
             className="btn-remove icon-remove favicon-hover-show"
@@ -615,7 +655,7 @@ class CorralTab extends React.Component {
         }
       }
 
-      currentGroup.tabs.push(tab)
+      if (currentGroup != null) currentGroup.tabs.push(tab)
     }
 
     this.setState({closedTabGroups});
@@ -829,18 +869,22 @@ function AboutTab() {
 }
 
 class PopupContent extends React.PureComponent {
+  props: {
+    commands: ?Array<chrome$Command>,
+  };
+
   state: {
     activeTabId: string,
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       activeTabId: 'corral',
     };
   }
 
-  handleClickTab = (tabId) => {
+  _handleClickTab = (tabId) => {
     this.setState({activeTabId: tabId});
   };
 
@@ -857,13 +901,13 @@ class PopupContent extends React.PureComponent {
       activeTab = <LockTab />;
       break;
     case 'options':
-      activeTab = <OptionsTab />;
+      activeTab = <OptionsTab commands={this.props.commands} />;
       break;
     }
 
     return (
       <div>
-        <NavBar activeTabId={this.state.activeTabId} onClickTab={this.handleClickTab} />
+        <NavBar activeTabId={this.state.activeTabId} onClickTab={this._handleClickTab} />
         <div className="tab-content container-fluid">
           {activeTab}
         </div>
@@ -872,7 +916,15 @@ class PopupContent extends React.PureComponent {
   }
 }
 
-ReactDOM.render(
-  <PopupContent />,
-  document.getElementById('popup')
-);
+function render(props) {
+  ReactDOM.render(
+    <PopupContent {...props} />,
+    document.getElementById('popup')
+  );
+}
+
+render({commands: null});
+
+chrome.commands.getAll(commands => {
+  render({commands});
+});

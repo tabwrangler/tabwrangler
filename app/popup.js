@@ -314,8 +314,7 @@ class OptionsTab extends React.Component {
 
     return (
       <div className="tab-pane active">
-        <h4 style={{marginTop: 0}}>Settings</h4>
-        <hr style={{marginTop: 0}} />
+        <h4 className="page-header" style={{marginTop: 0}}>Settings</h4>
         <form className="form-inline">
           <div className="form-group">
             <label htmlFor="minutesInactive">Close inactive tabs after:</label>
@@ -417,8 +416,7 @@ class OptionsTab extends React.Component {
           )
           : errorAlert}
 
-        <h4 style={{marginTop: '40px'}}>Auto-Lock</h4>
-        <hr style={{marginTop: 0}} />
+        <h4 className="page-header">Auto-Lock</h4>
         <form
           onSubmit={this.handleAddPatternSubmit}
           style={{marginBottom: '20px'}}>
@@ -460,8 +458,9 @@ class OptionsTab extends React.Component {
                 <td>{pattern}</td>
                 <td>
                   <button
-                    className="btn btn-default btn-xs deleteLink"
-                    onClick={this.handleClickRemovePattern.bind(this, pattern)}>
+                    className="btn btn-default btn-xs"
+                    onClick={this.handleClickRemovePattern.bind(this, pattern)}
+                    style={{marginBottom: '-4px', marginTop: '-4px'}}>
                     Remove
                   </button>
                 </td>
@@ -474,7 +473,7 @@ class OptionsTab extends React.Component {
           and any URL with cnn anywhere in url.
         </div>
 
-        <h4 style={{marginTop: '40px'}}>
+        <h4 className="page-header">
           Keyboard Shortcuts
           <small style={{marginLeft: '10px'}}>
             <a
@@ -485,7 +484,6 @@ class OptionsTab extends React.Component {
             </a>
           </small>
         </h4>
-        <hr style={{marginTop: 0}} />
         {this.props.commands.map(command => {
           // This is a default command for any extension with a browser action. It can't be
           // listened for.

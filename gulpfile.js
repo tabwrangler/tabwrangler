@@ -1,7 +1,6 @@
 /* eslint-env node */
 
 const archiver = require('archiver');
-const batch = require('gulp-batch');
 const eslint = require('gulp-eslint');
 const fs = require('fs');
 const gulp = require('gulp');
@@ -94,19 +93,16 @@ gulp.task('webpack:watch', function(done) {
   });
 });
 
-// Batch every 250ms since switching between code and browser takes at least that long, save a few
-// saves.
-const WATCH_OPTIONS = {timeout: 250};
-
 // Watch and re-compile / re-lint when in development.
 // eslint-disable-next-line no-unused-vars
 gulp.task('watch', function(done) {
-  watch('app/**/!(*.js)', batch(WATCH_OPTIONS, function(events, done) {
-    gulp.start('cp', done);
-  }));
-  watch('app/**/*.js', batch(WATCH_OPTIONS, function(events, done) {
-    gulp.start('lint', done);
-  }));
+  watch('app/**/!(*.js)', function() {
+    gulp.start('cp');
+    gulp.start('cp-lib');
+  });
+  watch('app/**/*.js', function() {
+    gulp.start('lint');
+  });
   gulp.start(['cp', 'cp-lib', 'lint', 'webpack:watch']);
 });
 

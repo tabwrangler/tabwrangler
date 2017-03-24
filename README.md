@@ -2,7 +2,7 @@
 
 Auto-closes tabs which you haven't used in awhile.
 
-## Features:
+## Features
 
 * *The Corral*: Stores tabs which have been auto-closed so you can re-open as required.
 * *Exclude list*: Provide the urls or domain names of the sites you never want auto-closed.
@@ -42,11 +42,7 @@ Auto-closes tabs which you haven't used in awhile.
 
         gulp release
 
-## Todo:
-
-* Pause the auto-close behavior if the browser has been idle
-
-## Creds:
+## Credits
 
 * Modernized by [ssorallen](https://github.com/ssorallen) in 2017.
 * Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012.

@@ -14,8 +14,8 @@ Auto-closes tabs which you haven't used in awhile.
 
 ## Usage / Installation
 
-* Install the extension
-* Click on the icon next to the URL bar.
+* Install the extension from the Chrome Web Store https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
+* Click on the icon next to the URL bar
 * Tab Corral
   * Stores tabs which have been auto-closed.
 * Tab Lock

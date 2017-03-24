@@ -102,6 +102,7 @@ export default class LazyImage extends React.PureComponent {
   render() {
     return (
       <ReactCSSTransitionGroup
+        className="lazy-image-container"
         component="div"
         transitionEnterTimeout={250}
         transitionLeaveTimeout={250}
@@ -115,7 +116,6 @@ export default class LazyImage extends React.PureComponent {
             style={Object.assign({}, this.props.style, {
               background: '#ccc',
               borderRadius: `${this.props.height / 2}px`,
-              display: 'inline-block',
               height: `${this.props.height}px`,
               width: `${this.props.width}px`,
             })}

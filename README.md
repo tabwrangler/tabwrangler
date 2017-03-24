@@ -46,4 +46,4 @@ Auto-closes tabs which you haven't used in awhile.
 
 * Modernized by [ssorallen](https://github.com/ssorallen) in 2017.
 * Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012.
-* Original extension and idea by [jacktasia](https://github.com/jacktasia/tabwrangler) in 2010.
+* Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010.

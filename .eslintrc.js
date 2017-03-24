@@ -3,7 +3,11 @@ module.exports = {
     browser: true,
     es6: true,
   },
-  extends: 'eslint:recommended',
+  extends: [
+    'eslint:recommended',
+    'plugin:flowtype/recommended',
+    'plugin:react/recommended',
+  ],
   parser: 'babel-eslint',
   parserOptions: {
     ecmaFeatures: {
@@ -29,11 +33,5 @@ module.exports = {
     'object-shorthand': 2,
     'prefer-const': 2,
     'quotes': [2, 'single', {'avoidEscape': true}],
-
-    // Flow rules from eslint-plugin-flowtype
-    'flowtype/define-flow-type': 2,
-
-    // React rules from eslint-plugin-react
-    'react/jsx-uses-vars': 2,
   },
 };

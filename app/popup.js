@@ -479,6 +479,11 @@ class OptionsTab extends React.Component {
 }
 
 class ClosedTabGroupHeader extends React.PureComponent {
+  props: {
+    onRestoreAll: (title: string) => void,
+    title: string,
+  };
+
   handleClickRestoreAll = () => {
     this.props.onRestoreAll(this.props.title);
   };
@@ -500,6 +505,12 @@ class ClosedTabGroupHeader extends React.PureComponent {
 }
 
 class ClosedTabRow extends React.PureComponent {
+  props: {
+    onOpenTab: (tab: chrome$Tab) => void,
+    onRemoveTabFromList: (tabId: number) => void,
+    tab: chrome$Tab,
+  };
+
   openTab = (event) => {
     const {tab} = this.props;
     event.preventDefault();
@@ -792,6 +803,11 @@ class PauseButton extends React.PureComponent {
 }
 
 class NavBar extends React.PureComponent {
+  props: {
+    activeTabId: string,
+    onClickTab: (tabId: string) => void,
+  };
+
   handleClickAboutTab = (event) => {
     event.preventDefault();
     this.props.onClickTab('about');

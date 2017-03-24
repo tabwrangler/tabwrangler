@@ -505,8 +505,13 @@ class OptionsTab extends React.Component {
 
 class ClosedTabGroupHeader extends React.PureComponent {
   props: {
+    onRemoveAll: (title: string) => void,
     onRestoreAll: (title: string) => void,
     title: string,
+  };
+
+  handleClickRemoveAll = () => {
+    this.props.onRemoveAll(this.props.title);
   };
 
   handleClickRestoreAll = () => {
@@ -517,12 +522,20 @@ class ClosedTabGroupHeader extends React.PureComponent {
     return (
       <tr className="info">
         <td colSpan="3">
-          <button
-            className="btn btn-default btn-xs pull-right"
-            onClick={this.handleClickRestoreAll}
-            style={{margin: '-4px 0'}}>
-            Restore all
-          </button>
+          <div className="btn-group pull-right" role="group" style={{margin: '-4px 0'}}>
+            <button
+              className="btn btn-default btn-xs"
+              onClick={this.handleClickRemoveAll}
+              title="Remove all tabs in this group">
+              Remove all
+            </button>
+            <button
+              className="btn btn-default btn-xs"
+              onClick={this.handleClickRestoreAll}
+              title="Restore all tabs in this group">
+              Restore all
+            </button>
+          </div>
           closed {this.props.title}
         </td>
       </tr>
@@ -629,10 +642,18 @@ class CorralTab extends React.Component {
         tabmanager.closedTabs.removeTab(tab.id);
       });
     });
-    tabmanager.updateClosedCount();
     this.setState({
       closedTabGroups: [],
     });
+  };
+
+  handleRemoveAllFromGroup = (groupTitle) => {
+    const group = _.findWhere(this.state.closedTabGroups, {title: groupTitle});
+    group.tabs.forEach(tab => {
+      tabmanager.closedTabs.removeTab(tab.id);
+    });
+    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
+    this.forceUpdate();
   };
 
   handleRemoveTabFromList = (tabId) => {
@@ -710,6 +731,7 @@ class CorralTab extends React.Component {
       tableRows.push(
         <ClosedTabGroupHeader
           key={`ctgh-${closedTabGroup.title}`}
+          onRemoveAll={this.handleRemoveAllFromGroup}
           onRestoreAll={this.handleRestoreAllFromGroup}
           title={closedTabGroup.title}
         />
@@ -772,7 +794,9 @@ class CorralTab extends React.Component {
         <table id="corralTable" className="table table-bordered table-condensed table-hover table-striped">
           <thead>
             <tr>
-              <th className="faviconCol"><i className="glyphicon glyphicon-remove"></i></th>
+              <th className="faviconCol">
+                <i className="glyphicon glyphicon-remove" style={{fontSize: '11px'}}></i>
+              </th>
               <th>Title</th>
               <th>Closed</th>
             </tr>

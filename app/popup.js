@@ -152,16 +152,16 @@ class LockTab extends React.PureComponent {
     return (
       <div className="tab-pane active">
         <div className="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
-        <table id="activeTabs" className="table table-condensed table-striped table-bordered">
+        <table id="activeTabs" className="table table-bordered table-condensed table-hover table-striped">
           <thead>
             <tr>
               <th className="text-center">
-                <i className="icon icon-lock" title="Lock/Unlock"></i>
+                <i className="glyphicon glyphicon-lock" title="Lock/Unlock"></i>
               </th>
               <th></th>
               <th style={{width: '100%'}}>Tab</th>
               <th className="text-center">
-                <i className="icon icon-time" title="Closing in..."></i>
+                <i className="glyphicon glyphicon-time" title="Closing in..."></i>
               </th>
             </tr>
           </thead>
@@ -302,8 +302,8 @@ class OptionsTab extends React.Component {
       }
     } else {
       errorAlert = (
-        <div className="alert alert-error">
-          <ul style={{'margin-bottom': 0}}>
+        <div className="alert alert-danger">
+          <ul>
             {this.state.errors.map((error, i) =>
               <li key={i}>{error.message}</li>
             )}
@@ -314,72 +314,95 @@ class OptionsTab extends React.Component {
 
     return (
       <div className="tab-pane active">
-        <form>
-          <fieldset>
-            <legend>Settings</legend>
-            <p>
-              <label htmlFor="minutesInactive">Close inactive tabs after:</label>
-              <input
-                className="span1"
-                defaultValue={settings.get('minutesInactive')}
-                id="minutesInactive"
-                max="7200"
-                min="1"
-                name="minutesInactive"
-                onChange={this._debouncedHandleSettingsChange}
-                title="Must be a number greater than 0 and less than 7200"
-                type="number"
-              /> minutes.
-            </p>
-            <p>
-              <label htmlFor="minTabs">Don't auto-close if I only have</label>
-              <input
-                className="span1"
-                defaultValue={settings.get('minTabs')}
-                id="minTabs"
-                min="0"
-                name="minTabs"
-                onChange={this._debouncedHandleSettingsChange}
-                title="Must be a number greater than or equal to 0"
-                type="number"
-              /> tabs open (does not include pinned or locked tabs).
-            </p>
-            <p>
-              <label htmlFor="maxTabs">Remember up to</label>
-              <input
-                className="span1"
-                defaultValue={settings.get('maxTabs')}
-                id="maxTabs"
-                min="0"
-                name="maxTabs"
-                onChange={this._debouncedHandleSettingsChange}
-                title="Must be a number greater than or equal to 0"
-                type="number"
-              /> closed tabs.
-            </p>
-            <p>
-              <label className="checkbox">Clear closed tabs list on quit
+        <h4 className="page-header" style={{marginTop: 0}}>Settings</h4>
+        <form className="form-inline">
+          <div className="form-group">
+            <label htmlFor="minutesInactive">Close inactive tabs after:</label>
+            <div className="row">
+              <div className="col-xs-2">
                 <input
-                  defaultChecked={settings.get('purgeClosedTabs')}
-                  id="purgeClosedTabs"
-                  name="purgeClosedTabs"
-                  onChange={this.handleSettingsChange}
-                  type="checkbox"
+                  className="form-control"
+                  defaultValue={settings.get('minutesInactive')}
+                  id="minutesInactive"
+                  max="7200"
+                  min="1"
+                  name="minutesInactive"
+                  onChange={this._debouncedHandleSettingsChange}
+                  title="Must be a number greater than 0 and less than 7200"
+                  type="number"
                 />
-              </label>
-            </p>
-            <p>
-              <label className="checkbox">Show # of closed tabs in url bar
+              </div>
+              <div className="col-xs-10">
+                <p className="form-control-static">minutes</p>
+              </div>
+            </div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="minTabs">Don't auto-close if I only have:</label>
+            <div className="row">
+              <div className="col-xs-2">
                 <input
-                  defaultChecked={settings.get('showBadgeCount')}
-                  id="showBadgeCount"
-                  name="showBadgeCount"
-                  onChange={this.handleSettingsChange}
-                  type="checkbox"
+                  className="form-control"
+                  defaultValue={settings.get('minTabs')}
+                  id="minTabs"
+                  min="0"
+                  name="minTabs"
+                  onChange={this._debouncedHandleSettingsChange}
+                  title="Must be a number greater than or equal to 0"
+                  type="number"
                 />
-              </label>
-            </p>
-          </fieldset>
+              </div>
+              <div className="col-xs-10">
+                <p className="form-control-static">
+                  tabs open (does not include pinned or locked tabs).
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="maxTabs">Remember up to</label>
+            <div className="row">
+              <div className="col-xs-2">
+                <input
+                  className="form-control"
+                  defaultValue={settings.get('maxTabs')}
+                  id="maxTabs"
+                  min="0"
+                  name="maxTabs"
+                  onChange={this._debouncedHandleSettingsChange}
+                  title="Must be a number greater than or equal to 0"
+                  type="number"
+                />
+              </div>
+              <div className="col-xs-10">
+                <p className="form-control-static">closed tabs.</p>
+              </div>
+            </div>
+          </div>
+          <div className="checkbox">
+            <label>
+              <input
+                defaultChecked={settings.get('purgeClosedTabs')}
+                id="purgeClosedTabs"
+                name="purgeClosedTabs"
+                onChange={this.handleSettingsChange}
+                type="checkbox"
+              />
+              Clear closed tabs list on quit
+            </label>
+          </div>
+          <div className="checkbox">
+            <label>
+              <input
+                defaultChecked={settings.get('showBadgeCount')}
+                id="showBadgeCount"
+                name="showBadgeCount"
+                onChange={this.handleSettingsChange}
+                type="checkbox"
+              />
+              Show # of closed tabs in url bar
+            </label>
+          </div>
         </form>
 
         {(this.state.errors.length === 0)
@@ -393,86 +416,88 @@ class OptionsTab extends React.Component {
           )
           : errorAlert}
 
-        <form onSubmit={this.handleAddPatternSubmit}>
-          <fieldset>
-            <legend>Auto-Lock</legend>
-            <label htmlFor="wl-add">tabs with urls "like":</label>
-            <div className="input-append">
-              <input
-                id="wl-add"
-                onChange={this.handleNewPatternChange}
-                type="text"
-                value={this.state.newPattern}
-              />
-              <button
-                className="btn"
-                disabled={!isValidPattern(this.state.newPattern)}
-                id="addToWL"
-                type="submit">
-                Add
-              </button>
+        <h4 className="page-header">Auto-Lock</h4>
+        <form
+          onSubmit={this.handleAddPatternSubmit}
+          style={{marginBottom: '20px'}}>
+          <label htmlFor="wl-add">Tabs with urls "like":</label>
+          <div className="row">
+            <div className="col-xs-5">
+              <div className="input-group">
+                <input
+                  className="form-control"
+                  id="wl-add"
+                  onChange={this.handleNewPatternChange}
+                  type="text"
+                  value={this.state.newPattern}
+                />
+                <span className="input-group-btn">
+                  <button
+                    className="btn btn-default"
+                    disabled={!isValidPattern(this.state.newPattern)}
+                    id="addToWL"
+                    type="submit">
+                    Add
+                  </button>
+                </span>
+              </div>
             </div>
-
-            <table
-              className="table table-bordered table-condensed table-striped"
-              id="whitelist"
-              style={{marginTop: '20px'}}>
-              <thead>
-                <tr>
-                  <th style={{width: '100%'}}>URL Pattern</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {whitelist.map(pattern =>
-                  <tr key={pattern}>
-                    <td>{pattern}</td>
-                    <td>
-                      <button
-                        className="btn btn-mini deleteLink"
-                        onClick={this.handleClickRemovePattern.bind(this, pattern)}>
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            <span className="help-block">
-              Example: <i>cnn</i> would match every page on cnn.com and any URL with cnn anywhere in url.
-            </span>
-          </fieldset>
+          </div>
         </form>
 
-        <form>
-          <fieldset>
-            <legend>
-              Keyboard Shortcuts
-              <small style={{marginLeft: '10px'}}>
-                <a
-                  href="chrome://extensions/configureCommands"
-                  onClick={this._handleConfigureCommandsClick}
-                  target="_blank">
-                  Configure these shortcuts
-                </a>
-              </small>
-            </legend>
-            {this.props.commands.map(command => {
-              // This is a default command for any extension with a browser action. It can't be
-              // listened for.
-              //
-              // See https://developer.chrome.com/extensions/commands#usage
-              if (command.name === '_execute_browser_action') return null;
-              return (
-                <p>
-                  {command.shortcut == null || command.shortcut.length === 0 ?
-                    <em>No shortcut set</em> :
-                    <kbd>{command.shortcut}</kbd>}: {command.description}
-                </p>
-              );
-            })}
-          </fieldset>
-        </form>
+        <table className="table table-bordered table-condensed table-hover table-striped">
+          <thead>
+            <tr>
+              <th style={{width: '100%'}}>URL Pattern</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {whitelist.map(pattern =>
+              <tr key={pattern}>
+                <td>{pattern}</td>
+                <td>
+                  <button
+                    className="btn btn-default btn-xs"
+                    onClick={this.handleClickRemovePattern.bind(this, pattern)}
+                    style={{marginBottom: '-4px', marginTop: '-4px'}}>
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        <div className="alert alert-info">
+          <strong>Example:</strong> <i>cnn</i> would match every page on cnn.com
+          and any URL with cnn anywhere in url.
+        </div>
+
+        <h4 className="page-header">
+          Keyboard Shortcuts
+          <small style={{marginLeft: '10px'}}>
+            <a
+              href="chrome://extensions/configureCommands"
+              onClick={this._handleConfigureCommandsClick}
+              target="_blank">
+              Configure these shortcuts
+            </a>
+          </small>
+        </h4>
+        {this.props.commands.map(command => {
+          // This is a default command for any extension with a browser action. It can't be
+          // listened for.
+          //
+          // See https://developer.chrome.com/extensions/commands#usage
+          if (command.name === '_execute_browser_action') return null;
+          return (
+            <p>
+              {command.shortcut == null || command.shortcut.length === 0 ?
+                <em>No shortcut set</em> :
+                <kbd>{command.shortcut}</kbd>}: {command.description}
+            </p>
+          );
+        })}
       </div>
     );
   }
@@ -491,10 +516,11 @@ class ClosedTabGroupHeader extends React.PureComponent {
   render() {
     return (
       <tr className="info">
-        <td colSpan="3" className="timeGroupRow">
+        <td colSpan="3">
           <button
-            className="btn btn-mini pull-right"
-            onClick={this.handleClickRestoreAll}>
+            className="btn btn-default btn-xs pull-right"
+            onClick={this.handleClickRestoreAll}
+            style={{margin: '-4px 0'}}>
             Restore all
           </button>
           closed {this.props.title}
@@ -534,7 +560,7 @@ class ClosedTabRow extends React.PureComponent {
       <tr>
         <td className="faviconCol">
           <i
-            className="btn-remove icon-remove favicon-hover-show"
+            className="btn-remove glyphicon glyphicon-remove favicon-hover-show"
             onClick={this.removeTabFromList}
             title="Remove tab from list"
           />
@@ -709,9 +735,8 @@ class CorralTab extends React.Component {
       )
       : (
         <button
-          className="btn btn-small"
-          onClick={this.clearList}
-          style={{marginBottom: '20px'}}>
+          className="btn btn-default btn-sm"
+          onClick={this.clearList}>
           Clear list
         </button>
       );
@@ -723,29 +748,31 @@ class CorralTab extends React.Component {
 
     return (
       <div className="tab-pane active">
-        <div className="row-fluid">
-          <form className="form-search span6">
-            <input
-              className="search-query input-xlarge"
-              name="search"
-              onChange={this.setFilter}
-              placeholder="search"
-              ref={_searchRef => { this._searchRef = _searchRef; }}
-              type="search"
-              value={this.state.filter}
-            />
+        <div className="row">
+          <form className="form-search col-xs-6">
+            <div className="form-group">
+              <input
+                className="form-control"
+                name="search"
+                onChange={this.setFilter}
+                placeholder="Search tabs..."
+                ref={_searchRef => { this._searchRef = _searchRef; }}
+                type="search"
+                value={this.state.filter}
+              />
+            </div>
           </form>
-          <div className="span6" style={{lineHeight: '30px', textAlign: 'right'}}>
+          <div className="col-xs-6" style={{lineHeight: '30px', textAlign: 'right'}}>
             <small style={{color: '#999'}}>tabs wrangled</small>{' '}
             {storageLocal.get('totalTabsWrangled')} or{' '}
             <abbr title="tabs closed by Tab Wrangler / all tabs closed">{percentClosed}%</abbr>
           </div>
         </div>
 
-        <table id="corralTable" className="table-condensed table-striped table table-bordered">
+        <table id="corralTable" className="table table-bordered table-condensed table-hover table-striped">
           <thead>
             <tr>
-              <th className="faviconCol"><i className="icon-remove"></i></th>
+              <th className="faviconCol"><i className="glyphicon glyphicon-remove"></i></th>
               <th>Title</th>
               <th>Closed</th>
             </tr>
@@ -791,11 +818,11 @@ class PauseButton extends React.PureComponent {
       : this.pause;
 
     const content = this.state.paused
-      ? <span><i className="icon-play"></i> Resume</span>
-      : <span><i className="icon-pause"></i> Pause</span>;
+      ? <span><i className="glyphicon glyphicon-play"></i> Resume</span>
+      : <span><i className="glyphicon glyphicon-pause"></i> Pause</span>;
 
     return (
-      <button className="btn btn-mini" onClick={action}>
+      <button className="btn btn-default btn-xs" onClick={action}>
         {content}
       </button>
     );
@@ -834,10 +861,10 @@ class NavBar extends React.PureComponent {
         <div className="pull-right nav-buttons">
           <PauseButton />{' '}
           <a
-            className="btn btn-mini"
+            className="btn btn-default btn-xs"
             href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"
             target="_blank">
-            <i className="icon-star"></i> Review Tab Wrangler
+            <i className="glyphicon glyphicon-star"></i> Review Tab Wrangler
           </a>
         </div>
         <ul className="nav nav-tabs">
@@ -924,7 +951,7 @@ class PopupContent extends React.PureComponent {
     return (
       <div>
         <NavBar activeTabId={this.state.activeTabId} onClickTab={this._handleClickTab} />
-        <div className="tab-content container-fluid">
+        <div className="tab-content container">
           {activeTab}
         </div>
       </div>

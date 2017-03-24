@@ -7,27 +7,17 @@ body {
   font-size: 11px;
 }
 
-#status {
-  margin-bottom: 2px;
-}
-
 .nav-buttons {
-  margin: 7px;
+  margin: 9px;
 }
 
 .btn-remove {
   cursor: pointer;
-  margin-top: 0;
-}
-
-td.timeGroupRow {
-  padding-left: 35px;
-}
-
-.favicon {
   height: 16px;
-  /* Vertically align in <td /> */
-  vertical-align: sub;
+  line-height: 16px;
+  margin-top: 0;
+  vertical-align: middle;
+  width: 16px;
 }
 
 .table .narrowColumn {
@@ -40,20 +30,14 @@ td.timeGroupRow {
   width: 21px;
 }
 
-.table .text-center {
-  text-align: center;
-}
-
 tr:hover .favicon-hover-hide,
 tr:not(:hover) .favicon-hover-show {
   display: none !important;
 }
 
-/**
- * Re-reset for stylesheet added to Chrome extension popups
- */
-table {
-  font-size: 14px;
+.tab-pane {
+  padding-bottom: 20px;
+  padding-top: 20px;
 }
 
 /**
@@ -73,6 +57,10 @@ table {
  * Transitions for fading out LazyImage placeholders and fading in the images.
  */
 
+.lazy-image-container {
+  position: relative;
+}
+
 .lazy-image-enter {
   opacity: 0.01;
 }
@@ -87,9 +75,9 @@ table {
  * maintain the height of the container and so this gray fades out on top of the `<img>`.
  */
 .lazy-image-leave {
-  margin-left: -16px;
   opacity: 1;
   position: absolute;
+  top: 0;
 }
 
 .lazy-image-leave.lazy-image-leave-active {

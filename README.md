@@ -14,16 +14,17 @@ Auto-closes tabs which you haven't used in awhile.
 
 ## Usage / Installation
 
-* Install the extension from the Chrome Web Store https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
-* Click on the icon next to the URL bar
-* Tab Corral
-  * Stores tabs which have been auto-closed.
-* Tab Lock
-  * Selectively lock tabs which you want to stay open
-* Options
-  * Whitelist certain URLs to never be closed.
-  * Set the # of minutes to wait before closing an inactive tab.
-  * Set the ideal # of tabs to have in your browser.
+1. Install the extension from the Chrome Web Store https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
+2. Click on the icon next to the URL bar
+    * Tab Corral
+      * Stores tabs which have been auto-closed.
+    * Tab Lock
+      * Selectively lock tabs which you want to stay open
+    * Options
+      * Whitelist certain URLs to never be closed.
+      * Set the # of minutes to wait before closing an inactive tab.
+      * Set the ideal # of tabs to have in your browser.
+      * Configure keyboard shortcuts
 
 ## Developing
 

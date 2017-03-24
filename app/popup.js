@@ -951,7 +951,7 @@ class PopupContent extends React.PureComponent {
     return (
       <div>
         <NavBar activeTabId={this.state.activeTabId} onClickTab={this._handleClickTab} />
-        <div className="tab-content container-fluid">
+        <div className="tab-content container">
           {activeTab}
         </div>
       </div>

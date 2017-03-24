@@ -7,12 +7,8 @@ body {
   font-size: 11px;
 }
 
-#status {
-  margin-bottom: 2px;
-}
-
 .nav-buttons {
-  margin: 8px;
+  margin: 9px;
 }
 
 .btn-remove {
@@ -34,10 +30,6 @@ body {
   width: 21px;
 }
 
-.table .text-center {
-  text-align: center;
-}
-
 tr:hover .favicon-hover-hide,
 tr:not(:hover) .favicon-hover-show {
   display: none !important;
@@ -46,13 +38,6 @@ tr:not(:hover) .favicon-hover-show {
 .tab-pane {
   padding-bottom: 20px;
   padding-top: 20px;
-}
-
-/**
- * Re-reset for stylesheet added to Chrome extension popups
- */
-table {
-  font-size: 14px;
 }
 
 /**

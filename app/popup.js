@@ -461,7 +461,7 @@ class OptionsTab extends React.Component {
             {whitelist.length === 0 ?
               <tr>
                 <td className="text-center" colSpan="2">
-                  No auto-locking strings. Use the form above to add to the whitelist.
+                  No auto-locking strings yet. Use the form above to add some to the whitelist.
                 </td>
               </tr> :
               whitelist.map(pattern =>

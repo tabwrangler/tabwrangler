@@ -587,7 +587,11 @@ class ClosedTabRow extends React.PureComponent {
             title="Remove tab from list"
           />
           {tab.favIconUrl == null
-            ? <span className="favicon-hover-hide">-</span>
+            ? <span
+              className="favicon-hover-hide"
+              style={{display: 'inline-block', height: '16px'}}>
+                -
+              </span>
             : <LazyImage
                 alt=""
                 className="favicon favicon-hover-hide"

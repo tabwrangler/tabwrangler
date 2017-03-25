@@ -151,12 +151,13 @@ class LockTab extends React.PureComponent {
 
     return (
       <div className="tab-pane active">
-        <div className="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
-        <table id="activeTabs" className="table table-hover table-striped">
+        <table className="table table-hover table-striped">
           <thead>
             <tr>
               <th className="text-center">
-                <i className="glyphicon glyphicon-lock" title="Lock/Unlock"></i>
+                <abbr title="Check a tab's box to lock the tab (prevent it from auto-closing).">
+                  <i className="glyphicon glyphicon-lock"></i>
+                </abbr>
               </th>
               <th></th>
               <th style={{width: '100%'}}>Tab</th>

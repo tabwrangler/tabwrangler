@@ -45,6 +45,25 @@ tr:not(:hover) .favicon-hover-show {
 }
 
 /**
+ * Chrome-like button style, taken from Chrome source.
+ *
+ * See https://chromium.googlesource.com/chromium/src/+/master/extensions/renderer/resources/extension.css
+ */
+
+.btn-default {
+  -webkit-appearance: none;
+  -webkit-user-select: none;
+  background-image: linear-gradient(#ededed, #ededed 38%, #dedede);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 2px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08),
+      inset 0 1px 2px rgba(255, 255, 255, 0.75);
+  color: #444;
+  outline: none;
+  text-shadow: 0 1px 0 rgb(240, 240, 240);
+}
+
+/**
  * Alert animations for ReactCSSTransitionGroup
  */
 

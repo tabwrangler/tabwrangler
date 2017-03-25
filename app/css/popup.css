@@ -7,6 +7,10 @@ body {
   font-size: 11px;
 }
 
+.table > tbody > tr:last-child > td {
+  border-bottom: 1px solid #ddd;
+}
+
 .nav-buttons {
   margin: 9px;
 }

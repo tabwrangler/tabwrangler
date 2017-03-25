@@ -152,7 +152,7 @@ class LockTab extends React.PureComponent {
     return (
       <div className="tab-pane active">
         <div className="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
-        <table id="activeTabs" className="table table-bordered table-condensed table-hover table-striped">
+        <table id="activeTabs" className="table table-hover table-striped">
           <thead>
             <tr>
               <th className="text-center">
@@ -417,12 +417,12 @@ class OptionsTab extends React.Component {
           : errorAlert}
 
         <h4 className="page-header">Auto-Lock</h4>
-        <form
-          onSubmit={this.handleAddPatternSubmit}
-          style={{marginBottom: '20px'}}>
-          <label htmlFor="wl-add">Tabs with urls "like":</label>
-          <div className="row">
-            <div className="col-xs-5">
+        <div className="row">
+          <div className="col-xs-8">
+            <form
+              onSubmit={this.handleAddPatternSubmit}
+              style={{marginBottom: '20px'}}>
+              <label htmlFor="wl-add">Auto-lock tabs with URLs containing:</label>
               <div className="input-group">
                 <input
                   className="form-control"
@@ -441,37 +441,45 @@ class OptionsTab extends React.Component {
                   </button>
                 </span>
               </div>
-            </div>
+              <p className="help-block">
+                <strong>Example:</strong> <i>cnn</i> would match every page on <i>cnn.com</i> and
+                any URL with <i>cnn</i> anywhere in it.
+              </p>
+            </form>
           </div>
-        </form>
+        </div>
 
-        <table className="table table-bordered table-condensed table-hover table-striped">
+        <table className="table table-hover table-striped">
           <thead>
             <tr>
-              <th style={{width: '100%'}}>URL Pattern</th>
+              <th style={{width: '100%'}}>URL String</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {whitelist.map(pattern =>
-              <tr key={pattern}>
-                <td>{pattern}</td>
-                <td>
-                  <button
-                    className="btn btn-default btn-xs"
-                    onClick={this.handleClickRemovePattern.bind(this, pattern)}
-                    style={{marginBottom: '-4px', marginTop: '-4px'}}>
-                    Remove
-                  </button>
+            {whitelist.length === 0 ?
+              <tr>
+                <td className="text-center" colSpan="2">
+                  No auto-locking strings. Use the form above to add to the whitelist.
                 </td>
-              </tr>
-            )}
+              </tr> :
+              whitelist.map(pattern =>
+                <tr key={pattern}>
+                  <td>{pattern}</td>
+                  <td>
+                    <button
+                      className="btn btn-default btn-xs"
+                      onClick={this.handleClickRemovePattern.bind(this, pattern)}
+                      style={{marginBottom: '-4px', marginTop: '-4px'}}>
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              )
+            }
           </tbody>
         </table>
-        <div className="alert alert-info">
-          <strong>Example:</strong> <i>cnn</i> would match every page on cnn.com
-          and any URL with cnn anywhere in url.
-        </div>
+
 
         <h4 className="page-header">
           Keyboard Shortcuts
@@ -727,41 +735,38 @@ class CorralTab extends React.Component {
 
   render() {
     const tableRows = [];
-    this.state.closedTabGroups.forEach(closedTabGroup => {
+    if (this.state.closedTabGroups.length === 0) {
       tableRows.push(
-        <ClosedTabGroupHeader
-          key={`ctgh-${closedTabGroup.title}`}
-          onRemoveAll={this.handleRemoveAllFromGroup}
-          onRestoreAll={this.handleRestoreAllFromGroup}
-          title={closedTabGroup.title}
-        />
+        <tr>
+          <td className="text-center" colSpan="3">
+            No closed tabs yet. When Tab Wrangler closes tabs, they will appear here. Go leave your
+            tabs open!
+          </td>
+        </tr>
       );
-
-      closedTabGroup.tabs.forEach(tab => {
+    } else {
+      this.state.closedTabGroups.forEach(closedTabGroup => {
         tableRows.push(
-          <ClosedTabRow
-            key={`ctr-${tab.id}`}
-            onOpenTab={this.openTab}
-            onRemoveTabFromList={this.handleRemoveTabFromList}
-            tab={tab}
+          <ClosedTabGroupHeader
+            key={`ctgh-${closedTabGroup.title}`}
+            onRemoveAll={this.handleRemoveAllFromGroup}
+            onRestoreAll={this.handleRestoreAllFromGroup}
+            title={closedTabGroup.title}
           />
         );
-      });
-    });
 
-    const messageElement = this.state.closedTabGroups.length === 0
-      ? (
-        <div id="autocloseMessage" className="alert alert-info">
-          If tabs are closed automatically, they will be stored here
-        </div>
-      )
-      : (
-        <button
-          className="btn btn-default btn-sm"
-          onClick={this.clearList}>
-          Clear list
-        </button>
-      );
+        closedTabGroup.tabs.forEach(tab => {
+          tableRows.push(
+            <ClosedTabRow
+              key={`ctr-${tab.id}`}
+              onOpenTab={this.openTab}
+              onRemoveTabFromList={this.handleRemoveTabFromList}
+              tab={tab}
+            />
+          );
+        });
+      });
+    }
 
     const totalTabsRemoved = storageLocal.get('totalTabsRemoved');
     const percentClosed = totalTabsRemoved === 0
@@ -791,7 +796,7 @@ class CorralTab extends React.Component {
           </div>
         </div>
 
-        <table id="corralTable" className="table table-bordered table-condensed table-hover table-striped">
+        <table id="corralTable" className="table table-hover table-striped">
           <thead>
             <tr>
               <th className="faviconCol">
@@ -806,7 +811,12 @@ class CorralTab extends React.Component {
           </tbody>
         </table>
 
-        {messageElement}
+        <button
+          className="btn btn-default btn-sm"
+          disabled={this.state.closedTabGroups.length === 0}
+          onClick={this.clearList}>
+          Clear list
+        </button>
       </div>
     );
   }

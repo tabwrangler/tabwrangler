@@ -125,17 +125,13 @@ const Settings = {
     Settings.setValue('paused', value);
   },
 
-  /**
-   *
-   * @param value
-   * @see Settings.set
-   */
   setshowBadgeCount(value: boolean) {
     if (value === false) {
       // Clear out the current badge setting
       chrome.browserAction.setBadgeText({text: ''});
     }
     Settings.setValue('showBadgeCount', value);
+    tabmanager.updateClosedCount();
   },
 
   setValue(key: string, value: mixed, fx?: () => void) {

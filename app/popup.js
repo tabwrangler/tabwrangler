@@ -361,7 +361,7 @@ class OptionsTab extends React.Component {
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="maxTabs">Remember up to</label>
+            <label htmlFor="maxTabs">Remember up to:</label>
             <div className="row">
               <div className="col-xs-2">
                 <input

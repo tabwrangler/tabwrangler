@@ -9,6 +9,7 @@ const rimraf = require('rimraf');
 const runSequence = require('run-sequence');
 const watch = require('gulp-watch');
 const webpack = require('webpack');
+const jest = require('gulp-jest').default;
 
 const packageJson = require('./package.json');
 const webpackConfig = require('./webpack.config.js');
@@ -48,6 +49,22 @@ gulp.task('lint', function() {
     // To have the process exit with an error code (1) on
     // lint error, return the stream and pipe to failAfterError last.
     .pipe(eslint.failAfterError());
+});
+
+gulp.task('test', function () {
+  process.env.NODE_ENV = 'test';
+
+  return gulp.src('__tests__').pipe(jest(Object.assign({}, { 
+    config: {
+      'transformIgnorePatterns': [
+        '<rootDir>/dist/', '<rootDir>/node_modules/',
+      ],
+      'transform': {
+        '^.+\\.jsx?$': 'babel-jest',
+      },
+      'verbose': true,
+    },
+  })));
 });
 
 function webpackLog(stats) {
@@ -102,6 +119,11 @@ gulp.task('watch', function(done) {
   });
   watch('app/**/*.js', function() {
     gulp.start('lint');
+    gulp.start('test');
+  });
+  watch('__tests__/**/*.js', function() {
+    gulp.start('lint');
+    gulp.start('test');
   });
   gulp.start(['cp', 'cp-lib', 'lint', 'webpack:watch']);
 });

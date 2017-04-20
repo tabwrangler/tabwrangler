@@ -8,6 +8,8 @@ import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import ReactDOM from 'react-dom';
 import timeago from 'timeago.js';
+import Button from './js/Button';
+import {importData, exportData} from './js/importExport';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
@@ -481,6 +483,21 @@ class OptionsTab extends React.Component {
           </tbody>
         </table>
 
+        <h4 className="page-header">Import / Export</h4>
+        <div className="row">
+          <div className="col-xs-8">
+            <Button label='Export' clickHandler={exportData} className='glyphicon-export'/>
+            <Button label='Import' clickHandler={importData} className='glyphicon-import'/>
+          </div>
+          <div className="col-xs-8">
+            <p className="help-block">
+              Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension.
+            </p>
+            <p className="help-block">
+              <strong>Warning:</strong> Importing data will overwrite all existing current data. There is no way back (unless you have a backup)
+            </p>
+          </div>
+        </div>
 
         <h4 className="page-header">
           Keyboard Shortcuts

@@ -5,7 +5,8 @@
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "main": "app/background.js",
   "scripts": {
-    "build": "gulp"
+    "build": "gulp",
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
     "archiver": "^1.3.0",
     "babel-core": "^6.21.0",
     "babel-eslint": "^7.1.1",
+    "babel-jest": "^19.0.0",
     "babel-loader": "^6.2.10",
     "babel-plugin-transform-class-properties": "^6.19.0",
     "babel-preset-es2015": "^6.18.0",
@@ -30,16 +32,23 @@
     "flow-interfaces-chrome": "^0.3.0",
     "gulp": "^3.9.1",
     "gulp-eslint": "^3.0.1",
+    "gulp-jest": "^1.0.0",
     "gulp-util": "^3.0.8",
     "gulp-watch": "^4.3.11",
+    "jest": "^19.0.2",
+    "react-test-renderer": "^15.5.4",
     "rimraf": "^2.5.4",
     "run-sequence": "^1.2.2",
     "webpack": "^1.14.0"
   },
   "dependencies": {
+    "classnames": "^2.2.5",
+    "file-saver": "^1.3.3",
+    "prop-types": "^15.5.8",
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.4.2",
-    "react-dom": "^15.4.2",
+    "react-dom": "^15.5.4",
+    "save": "^2.3.0",
     "timeago.js": "^2.0.4",
     "underscore": "^1.8.3"
   }

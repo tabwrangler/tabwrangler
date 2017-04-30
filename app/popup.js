@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chrome */
+/* @flow */
 
 import _ from 'underscore';
 import LazyImage from './js/LazyImage';
@@ -31,17 +32,19 @@ function truncateString(str, length) {
 class OpenTabRow extends React.Component {
   props: {
     isLocked: boolean,
-    onLockTab: (tabId: string) => void,
-    onUnlockTab: (tabId: string) => void,
+    onLockTab: (tabId: number) => void,
+    onUnlockTab: (tabId: number) => void,
     tab: chrome$Tab,
   };
 
   handleLockedOnChange = (event) => {
     const {tab} = this.props;
+    if (tab.id == null) return;
+
     if (event.target.checked) {
       this.props.onLockTab(tab.id);
     } else {
-      this.props.onUnlockTab(tab.id)
+      this.props.onUnlockTab(tab.id);
     }
   };
 
@@ -481,7 +484,6 @@ class OptionsTab extends React.Component {
           </tbody>
         </table>
 
-
         <h4 className="page-header">
           Keyboard Shortcuts
           <small style={{marginLeft: '10px'}}>
@@ -493,20 +495,23 @@ class OptionsTab extends React.Component {
             </a>
           </small>
         </h4>
-        {this.props.commands.map(command => {
-          // This is a default command for any extension with a browser action. It can't be
-          // listened for.
-          //
-          // See https://developer.chrome.com/extensions/commands#usage
-          if (command.name === '_execute_browser_action') return null;
-          return (
-            <p>
-              {command.shortcut == null || command.shortcut.length === 0 ?
-                <em>No shortcut set</em> :
-                <kbd>{command.shortcut}</kbd>}: {command.description}
-            </p>
-          );
-        })}
+        {this.props.commands == null ?
+          null :
+          this.props.commands.map(command => {
+            // This is a default command for any extension with a browser action. It can't be
+            // listened for.
+            //
+            // See https://developer.chrome.com/extensions/commands#usage
+            if (command.name === '_execute_browser_action') return null;
+            return (
+              <p>
+                {command.shortcut == null || command.shortcut.length === 0 ?
+                  <em>No shortcut set</em> :
+                  <kbd>{command.shortcut}</kbd>}: {command.description}
+              </p>
+            );
+          })
+        }
       </div>
     );
   }
@@ -566,6 +571,7 @@ class ClosedTabRow extends React.PureComponent {
   };
 
   removeTabFromList = () => {
+    if (this.props.tab.id == null) return;
     this.props.onRemoveTabFromList(this.props.tab.id);
   };
 
@@ -606,6 +612,7 @@ class ClosedTabRow extends React.PureComponent {
             {truncateString(tab.title, 70)}
           </a>
         </td>
+        {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
         <td>{timeagoInstance.format(tab.closedAt)}</td>
       </tr>
     );
@@ -761,6 +768,8 @@ class CorralTab extends React.Component {
         );
 
         closedTabGroup.tabs.forEach(tab => {
+          if (tab.id == null) return;
+
           tableRows.push(
             <ClosedTabRow
               key={`ctr-${tab.id}`}

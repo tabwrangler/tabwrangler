@@ -487,14 +487,15 @@ class OptionsTab extends React.Component {
         <div className="row">
           <div className="col-xs-8">
             <Button label='Export' clickHandler={exportData} className='glyphicon-export'/>
-            <Button label='Import' clickHandler={importData} className='glyphicon-import'/>
+            <Button label='Import' clickHandler={() => {this.fileselector.click()}} className='glyphicon-import'/>
+            <input id="fileselector" type="file" onChange={importData} ref={(input) => {this.fileselector = input}}/>
           </div>
           <div className="col-xs-8">
             <p className="help-block">
               Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension.
             </p>
             <p className="help-block">
-              <strong>Warning:</strong> Importing data will overwrite all existing current data. There is no way back (unless you have a backup)
+              <strong>Warning:</strong> Importing data will overwrite all existing  data. There is no way back (unless you have a backup).
             </p>
           </div>
         </div>

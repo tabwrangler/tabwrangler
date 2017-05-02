@@ -6,7 +6,8 @@
   "main": "app/background.js",
   "scripts": {
     "build": "gulp",
-    "test": "gulp test"
+    "test": "gulp test",
+    "watch": "gulp watch"
   },
   "repository": {
     "type": "git",

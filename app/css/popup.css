@@ -138,3 +138,7 @@ tr:not(:hover) .favicon-hover-show {
   opacity: 0.01;
   transition: opacity 250ms ease-in;
 }
+
+#fileselector {
+  display: none;
+}

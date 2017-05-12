@@ -1,7 +1,5 @@
-'use strict';
-
-/* global chrome */
 /* @flow */
+/* global chrome */
 
 import _ from 'underscore';
 import LazyImage from './js/LazyImage';

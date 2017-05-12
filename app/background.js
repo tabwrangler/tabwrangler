@@ -1,5 +1,3 @@
-'use strict';
-
 /* global chrome */
 
 import _ from 'underscore';

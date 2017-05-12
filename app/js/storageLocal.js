@@ -1,5 +1,5 @@
-/* global chrome */
 /* @flow */
+/* global chrome */
 
 const storageLocal = {
   cache: {},

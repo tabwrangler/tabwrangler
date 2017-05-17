@@ -515,90 +515,52 @@ class OptionsTab extends React.Component {
   }
 }
 
-class ClosedTabGroupHeader extends React.PureComponent {
-  props: {
-    onRemoveAll: (title: string) => void,
-    onRestoreAll: (title: string) => void,
-    title: string,
-  };
-
-  handleClickRemoveAll = () => {
-    this.props.onRemoveAll(this.props.title);
-  };
-
-  handleClickRestoreAll = () => {
-    this.props.onRestoreAll(this.props.title);
-  };
-
-  render() {
-    return (
-      <tr className="info">
-        <td colSpan="3">
-          <div className="btn-group pull-right" role="group" style={{margin: '-4px 0'}}>
-            <button
-              className="btn btn-default btn-xs"
-              onClick={this.handleClickRemoveAll}
-              title="Remove all tabs in this group">
-              Remove all
-            </button>
-            <button
-              className="btn btn-default btn-xs"
-              onClick={this.handleClickRestoreAll}
-              title="Restore all tabs in this group">
-              Restore all
-            </button>
-          </div>
-          closed {this.props.title}
-        </td>
-      </tr>
-    );
-  }
-}
-
 class ClosedTabRow extends React.PureComponent {
   props: {
+    isSelected: boolean,
     onOpenTab: (tab: chrome$Tab) => void,
-    onRemoveTabFromList: (tabId: number) => void,
+    onToggleTab: (tabId: number) => void,
     tab: chrome$Tab,
   };
 
-  openTab = (event) => {
+  _handleClickAnchor = (event) => {
     const {tab} = this.props;
     event.preventDefault();
     this.props.onOpenTab(tab);
   };
 
-  removeTabFromList = () => {
+  _handleClickCheckbox = (event) => {
     if (this.props.tab.id == null) return;
-    this.props.onRemoveTabFromList(this.props.tab.id);
+    this.props.onToggleTab(this.props.tab.id, event.target.checked);
+  };
+
+  _handleClickTd = (event) => {
+    if (event.target.nodeName === 'input' || this.props.tab.id == null) return;
+    this.props.onToggleTab(this.props.tab.id, !this.props.isSelected);
   };
 
   render() {
-    const {tab} = this.props;
+    const {isSelected, tab} = this.props;
     const timeagoInstance = timeago();
 
-    // Control hiding/showing of the favicon and close button via CSS `:hover` so the browser can
-    // handle re-enabling the `:hover` state after re-rendering without requiring a new `mouseenter`
-    // event.
-    //
-    // See: https://github.com/jacobSingh/tabwrangler/issues/115
     return (
       <tr>
-        <td className="faviconCol">
-          <i
-            className="btn-remove glyphicon glyphicon-remove favicon-hover-show"
-            onClick={this.removeTabFromList}
-            title="Remove tab from list"
+        <td onClick={this._handleClickTd} style={{width: '1px'}}>
+          <input
+            checked={isSelected}
+            className="checkbox--td"
+            onClick={this._handleClickCheckbox}
+            type="checkbox"
           />
+        </td>
+        <td className="faviconCol">
           {tab.favIconUrl == null
-            ? <span
-              className="favicon-hover-hide"
-              style={{display: 'inline-block', height: '16px'}}>
+            ? <span style={{display: 'inline-block', height: '16px'}}>
                 -
               </span>
             : <LazyImage
                 alt=""
-                className="favicon favicon-hover-hide"
+                className="favicon"
                 height={16}
                 src={tab.favIconUrl}
                 width={16}
@@ -606,12 +568,15 @@ class ClosedTabRow extends React.PureComponent {
           }
         </td>
         <td>
-          <a target="_blank" href={tab.url} onClick={this.openTab}>
+          <a target="_blank" href={tab.url} onClick={this._handleClickAnchor}>
             {truncateString(tab.title, 70)}
           </a>
         </td>
         {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
-        <td>{timeagoInstance.format(tab.closedAt)}</td>
+        <td title={new Date(tab.closedAt).toLocaleString()}>
+          {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
+          {timeagoInstance.format(tab.closedAt)}
+        </td>
       </tr>
     );
   }
@@ -619,11 +584,9 @@ class ClosedTabRow extends React.PureComponent {
 
 class CorralTab extends React.Component {
   state: {
-    closedTabGroups: Array<{
-      tabs: Array<chrome$Tab>,
-      title: string,
-    }>,
+    closedTabs: Array<chrome$Tab>,
     filter: string,
+    selectedTabs: Set<number>,
   };
 
   _searchRefFocusTimeout: ?number;
@@ -632,8 +595,9 @@ class CorralTab extends React.Component {
   constructor() {
     super();
     this.state = {
-      closedTabGroups: [],
+      closedTabs: [],
       filter: '',
+      selectedTabs: new Set(),
     };
   }
 
@@ -654,37 +618,27 @@ class CorralTab extends React.Component {
     clearTimeout(this._searchRefFocusTimeout);
   }
 
-  clearList = () => {
-    this.state.closedTabGroups.forEach(closedTabGroup => {
-      closedTabGroup.tabs.forEach(tab => {
-        tabmanager.closedTabs.removeTab(tab.id);
-      });
-    });
-    this.setState({
-      closedTabGroups: [],
-    });
+  _handleRemoveSelectedTabs = () => {
+    const tabs = this.state.closedTabs.filter(tab => tab.id && this.state.selectedTabs.has(tab.id));
+    tabs.forEach(tab => { tabmanager.closedTabs.removeTab(tab.id); });
+    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
+    this.setState({selectedTabs: new Set()});
   };
 
-  handleRemoveAllFromGroup = (groupTitle) => {
-    const group = _.findWhere(this.state.closedTabGroups, {title: groupTitle});
-    group.tabs.forEach(tab => {
-      tabmanager.closedTabs.removeTab(tab.id);
-    });
-    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
+  _handleToggleTab = (tabId, isSelected) => {
+    if (isSelected) {
+      this.state.selectedTabs.add(tabId);
+    } else {
+      this.state.selectedTabs.delete(tabId);
+    }
     this.forceUpdate();
-  };
+  }
 
-  handleRemoveTabFromList = (tabId) => {
-    tabmanager.closedTabs.removeTab(tabId);
+  _handleRestoreSelectedTabs = () => {
+    const tabs = this.state.closedTabs.filter(tab => tab.id && this.state.selectedTabs.has(tab.id));
+    tabmanager.closedTabs.unwrangleTabs(tabs);
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
-    this.forceUpdate();
-  };
-
-  handleRestoreAllFromGroup = (groupTitle) => {
-    const group = _.findWhere(this.state.closedTabGroups, {title: groupTitle});
-    tabmanager.closedTabs.unwrangleTabs(group.tabs);
-    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
-    this.forceUpdate();
+    this.setState({selectedTabs: new Set()});
   };
 
   openTab = (tab) => {
@@ -694,47 +648,7 @@ class CorralTab extends React.Component {
   };
 
   setClosedTabs = (closedTabs) => {
-    const now = new Date().getTime();
-    const separations = []
-    separations.push([now - (1000 * 60 * 30), 'in the last 1/2 hour']);
-    separations.push([now - (1000 * 60 * 60), 'in the last hour']);
-    separations.push([now - (1000 * 60 * 60 * 2), 'in the last 2 hours']);
-    separations.push([now - (1000 * 60 * 60 * 24), 'in the last day']);
-
-    function getGroup(time) {
-      let limit, text;
-      for (let i = 0; i < separations.length; i++) {
-        limit = separations[i][0];
-        text = separations[i][1];
-        if (limit < time) {
-          return text;
-        }
-      }
-      return 'more than a day ago';
-    }
-
-    const closedTabGroups = [];
-    let currentGroup;
-    for (let i = 0; i < closedTabs.length; i++) {
-      const tab = closedTabs[i];
-      const timeGroup = getGroup(tab.closedAt);
-
-      if (timeGroup !== currentGroup) {
-        currentGroup = _.findWhere(closedTabGroups, {title: timeGroup});
-
-        if (currentGroup == null) {
-          currentGroup = {
-            tabs: [],
-            title: timeGroup,
-          };
-          closedTabGroups.push(currentGroup);
-        }
-      }
-
-      if (currentGroup != null) currentGroup.tabs.push(tab)
-    }
-
-    this.setState({closedTabGroups});
+    this.setState({closedTabs});
   };
 
   setFilter = (event) => {
@@ -743,9 +657,17 @@ class CorralTab extends React.Component {
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(filter)]);
   };
 
+  _toggleAllTabs = () => {
+    if (this.state.selectedTabs.size === this.state.closedTabs.length) {
+      this.setState({selectedTabs: new Set()});
+    } else {
+      this.setState({selectedTabs: new Set(this.state.closedTabs.map(tab => tab.id))});
+    }
+  };
+
   render() {
     const tableRows = [];
-    if (this.state.closedTabGroups.length === 0) {
+    if (this.state.closedTabs.length === 0) {
       tableRows.push(
         <tr>
           <td className="text-center" colSpan="3">
@@ -755,28 +677,19 @@ class CorralTab extends React.Component {
         </tr>
       );
     } else {
-      this.state.closedTabGroups.forEach(closedTabGroup => {
+      this.state.closedTabs.forEach(tab => {
+        const tabId = tab.id;
+        if (tabId == null) return;
+
         tableRows.push(
-          <ClosedTabGroupHeader
-            key={`ctgh-${closedTabGroup.title}`}
-            onRemoveAll={this.handleRemoveAllFromGroup}
-            onRestoreAll={this.handleRestoreAllFromGroup}
-            title={closedTabGroup.title}
+          <ClosedTabRow
+            isSelected={this.state.selectedTabs.has(tabId)}
+            key={`ctr-${tabId}`}
+            onOpenTab={this.openTab}
+            onToggleTab={this._handleToggleTab}
+            tab={tab}
           />
         );
-
-        closedTabGroup.tabs.forEach(tab => {
-          if (tab.id == null) return;
-
-          tableRows.push(
-            <ClosedTabRow
-              key={`ctr-${tab.id}`}
-              onOpenTab={this.openTab}
-              onRemoveTabFromList={this.handleRemoveTabFromList}
-              tab={tab}
-            />
-          );
-        });
       });
     }
 
@@ -808,27 +721,42 @@ class CorralTab extends React.Component {
           </div>
         </div>
 
+        <div style={{ marginBottom: '10px' }}>
+          <button className="btn btn-default btn-sm btn-chunky" onClick={this._toggleAllTabs}>
+            <input
+              checked={this.state.selectedTabs.size === this.state.closedTabs.length}
+              style={{ margin: 0 }}
+              type="checkbox"
+            />
+          </button>
+
+          {this.state.selectedTabs.size > 0 ?
+            <div className="btn-group" style={{ marginLeft: '10px' }}>
+              <button
+                className="btn btn-default btn-sm btn-chunky"
+                onClick={this._handleRemoveSelectedTabs}
+                title="Remove selected tabs">
+                <span className="sr-only">Remove selected tabs</span>
+                <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
+              </button>
+              <button
+                className="btn btn-default btn-sm btn-chunky"
+                disabled={this.state.selectedTabs.size > 15}
+                onClick={this._handleRestoreSelectedTabs}
+                title="Restore selected tabs">
+                <span className="sr-only">Restore selected tabs</span>
+                <span className="glyphicon glyphicon-new-window" aria-hidden="true"></span>
+              </button>
+            </div> :
+            null
+          }
+        </div>
+
         <table id="corralTable" className="table table-hover table-striped">
-          <thead>
-            <tr>
-              <th className="faviconCol">
-                <i className="glyphicon glyphicon-remove" style={{fontSize: '11px'}}></i>
-              </th>
-              <th>Title</th>
-              <th>Closed</th>
-            </tr>
-          </thead>
           <tbody>
             {tableRows}
           </tbody>
         </table>
-
-        <button
-          className="btn btn-default btn-sm"
-          disabled={this.state.closedTabGroups.length === 0}
-          onClick={this.clearList}>
-          Clear list
-        </button>
       </div>
     );
   }

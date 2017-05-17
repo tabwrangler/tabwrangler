@@ -34,11 +34,6 @@ body {
   width: 21px;
 }
 
-tr:hover .favicon-hover-hide,
-tr:not(:hover) .favicon-hover-show {
-  display: none !important;
-}
-
 .tab-pane {
   padding-bottom: 20px;
   padding-top: 20px;
@@ -94,6 +89,11 @@ tr:not(:hover) .favicon-hover-show {
   outline: none;
 }
 
+.btn-chunky {
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
 /**
  * Alert animations for ReactCSSTransitionGroup
  */
@@ -137,4 +137,9 @@ tr:not(:hover) .favicon-hover-show {
 .lazy-image-leave.lazy-image-leave-active {
   opacity: 0.01;
   transition: opacity 250ms ease-in;
+}
+
+input.checkbox--td {
+  margin-top: 0;
+  vertical-align: middle;
 }

@@ -38,7 +38,7 @@ gulp.task('cp-lib', function() {
 });
 
 gulp.task('lint', function() {
-  return gulp.src(['**/*.js', `!${DIST_DIRECTORY}/**`, '!node_modules/**'])
+  return gulp.src(['app/*.js', `!${DIST_DIRECTORY}/**`, '!node_modules/**'])
     // eslint() attaches the lint output to the "eslint" property
     // of the file object so it can be used by other modules.
     .pipe(eslint())

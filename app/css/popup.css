@@ -1,3 +1,7 @@
+abbr[title] {
+  text-decoration: none;
+}
+
 body {
   min-height: 300px;
   width: 700px;

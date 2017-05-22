@@ -6,6 +6,7 @@ import LazyImage from './js/LazyImage';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import ReactDOM from 'react-dom';
+import {StickyContainer, Sticky} from 'react-sticky';
 import timeago from 'timeago.js';
 
 const TW = chrome.extension.getBackgroundPage().TW;
@@ -519,7 +520,7 @@ class ClosedTabRow extends React.PureComponent {
   props: {
     isSelected: boolean,
     onOpenTab: (tab: chrome$Tab) => void,
-    onToggleTab: (tabId: number) => void,
+    onToggleTab: (tab: chrome$Tab) => void,
     tab: chrome$Tab,
   };
 
@@ -531,12 +532,12 @@ class ClosedTabRow extends React.PureComponent {
 
   _handleClickCheckbox = (event) => {
     if (this.props.tab.id == null) return;
-    this.props.onToggleTab(this.props.tab.id, event.target.checked);
+    this.props.onToggleTab(this.props.tab, event.target.checked);
   };
 
   _handleClickTd = (event) => {
     if (event.target.nodeName === 'input' || this.props.tab.id == null) return;
-    this.props.onToggleTab(this.props.tab.id, !this.props.isSelected);
+    this.props.onToggleTab(this.props.tab, !this.props.isSelected);
   };
 
   render() {
@@ -586,7 +587,8 @@ class CorralTab extends React.Component {
   state: {
     closedTabs: Array<chrome$Tab>,
     filter: string,
-    selectedTabs: Set<number>,
+    lastSelectedTab: ?chrome$Tab,
+    selectedTabs: Set<chrome$Tab>,
   };
 
   _searchRefFocusTimeout: ?number;
@@ -597,6 +599,7 @@ class CorralTab extends React.Component {
     this.state = {
       closedTabs: [],
       filter: '',
+      lastSelectedTab: null,
       selectedTabs: new Set(),
     };
   }
@@ -619,23 +622,23 @@ class CorralTab extends React.Component {
   }
 
   _handleRemoveSelectedTabs = () => {
-    const tabs = this.state.closedTabs.filter(tab => tab.id && this.state.selectedTabs.has(tab.id));
+    const tabs = this.state.closedTabs.filter(tab => this.state.selectedTabs.has(tab));
     tabs.forEach(tab => { tabmanager.closedTabs.removeTab(tab.id); });
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
     this.setState({selectedTabs: new Set()});
   };
 
-  _handleToggleTab = (tabId, isSelected) => {
+  _handleToggleTab = (tab, isSelected) => {
     if (isSelected) {
-      this.state.selectedTabs.add(tabId);
+      this.state.selectedTabs.add(tab);
     } else {
-      this.state.selectedTabs.delete(tabId);
+      this.state.selectedTabs.delete(tab);
     }
     this.forceUpdate();
   }
 
   _handleRestoreSelectedTabs = () => {
-    const tabs = this.state.closedTabs.filter(tab => tab.id && this.state.selectedTabs.has(tab.id));
+    const tabs = this.state.closedTabs.filter(tab => this.state.selectedTabs.has(tab));
     tabmanager.closedTabs.unwrangleTabs(tabs);
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
     this.setState({selectedTabs: new Set()});
@@ -661,7 +664,7 @@ class CorralTab extends React.Component {
     if (this.state.selectedTabs.size === this.state.closedTabs.length) {
       this.setState({selectedTabs: new Set()});
     } else {
-      this.setState({selectedTabs: new Set(this.state.closedTabs.map(tab => tab.id))});
+      this.setState({selectedTabs: new Set(this.state.closedTabs)});
     }
   };
 
@@ -683,8 +686,8 @@ class CorralTab extends React.Component {
 
         tableRows.push(
           <ClosedTabRow
-            isSelected={this.state.selectedTabs.has(tabId)}
-            key={`ctr-${tabId}`}
+            isSelected={this.state.selectedTabs.has(tab)}
+            key={tabId}
             onOpenTab={this.openTab}
             onToggleTab={this._handleToggleTab}
             tab={tab}
@@ -693,6 +696,8 @@ class CorralTab extends React.Component {
       });
     }
 
+    const allTabsSelected = this.state.selectedTabs.size > 0 &&
+      this.state.selectedTabs.size === this.state.closedTabs.length;
     const totalTabsRemoved = storageLocal.get('totalTabsRemoved');
     const percentClosed = totalTabsRemoved === 0
       ? 0
@@ -702,7 +707,7 @@ class CorralTab extends React.Component {
       <div className="tab-pane active">
         <div className="row">
           <form className="form-search col-xs-6">
-            <div className="form-group">
+            <div className="form-group" style={{marginBottom: 0}}>
               <input
                 className="form-control"
                 name="search"
@@ -721,42 +726,56 @@ class CorralTab extends React.Component {
           </div>
         </div>
 
-        <div style={{ marginBottom: '10px' }}>
-          <button className="btn btn-default btn-sm btn-chunky" onClick={this._toggleAllTabs}>
-            <input
-              checked={this.state.selectedTabs.size === this.state.closedTabs.length}
-              style={{ margin: 0 }}
-              type="checkbox"
-            />
-          </button>
+        <StickyContainer>
+          <Sticky>
+            {({style}) => (
+              <div style={Object.assign({}, style, {
+                background: 'white',
+                borderBottom: '1px solid #ddd',
+                paddingBottom: '10px',
+                paddingTop: '10px',
+                zIndex: 100})}>
+                <button
+                  className="btn btn-default btn-sm btn-chunky"
+                  onClick={this._toggleAllTabs}
+                  title={allTabsSelected ? 'Deselect all tabs' : 'Select all tabs'}>
+                  <input
+                    checked={allTabsSelected}
+                    style={{ margin: 0 }}
+                    type="checkbox"
+                  />
+                </button>
 
-          {this.state.selectedTabs.size > 0 ?
-            <div className="btn-group" style={{ marginLeft: '10px' }}>
-              <button
-                className="btn btn-default btn-sm btn-chunky"
-                onClick={this._handleRemoveSelectedTabs}
-                title="Remove selected tabs">
-                <span className="sr-only">Remove selected tabs</span>
-                <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
-              </button>
-              <button
-                className="btn btn-default btn-sm btn-chunky"
-                disabled={this.state.selectedTabs.size > 15}
-                onClick={this._handleRestoreSelectedTabs}
-                title="Restore selected tabs">
-                <span className="sr-only">Restore selected tabs</span>
-                <span className="glyphicon glyphicon-new-window" aria-hidden="true"></span>
-              </button>
-            </div> :
-            null
-          }
-        </div>
+                {this.state.selectedTabs.size > 0 ?
+                  <div className="btn-group" style={{ marginLeft: '10px' }}>
+                    <button
+                      className="btn btn-default btn-sm btn-chunky"
+                      onClick={this._handleRemoveSelectedTabs}
+                      title="Remove selected tabs">
+                      <span className="sr-only">Remove selected tabs</span>
+                      <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>
+                    <button
+                      className="btn btn-default btn-sm btn-chunky"
+                      disabled={this.state.selectedTabs.size > 15}
+                      onClick={this._handleRestoreSelectedTabs}
+                      title="Restore selected tabs">
+                      <span className="sr-only">Restore selected tabs</span>
+                      <span className="glyphicon glyphicon-new-window" aria-hidden="true"></span>
+                    </button>
+                  </div> :
+                  null
+                }
+              </div>
+            )}
+          </Sticky>
 
-        <table id="corralTable" className="table table-hover table-striped">
-          <tbody>
-            {tableRows}
-          </tbody>
-        </table>
+          <table id="corralTable" className="table table-hover">
+            <tbody>
+              {tableRows}
+            </tbody>
+          </table>
+        </StickyContainer>
       </div>
     );
   }

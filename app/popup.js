@@ -545,7 +545,7 @@ class ClosedTabRow extends React.PureComponent {
     const timeagoInstance = timeago();
 
     return (
-      <tr>
+      <tr className={isSelected ? 'bg-warning' : null}>
         <td onClick={this._handleClickTd} style={{width: '1px'}}>
           <input
             checked={isSelected}
@@ -624,8 +624,11 @@ class CorralTab extends React.Component {
   _handleRemoveSelectedTabs = () => {
     const tabs = this.state.closedTabs.filter(tab => this.state.selectedTabs.has(tab));
     tabs.forEach(tab => { tabmanager.closedTabs.removeTab(tab.id); });
-    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
-    this.setState({selectedTabs: new Set()});
+    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword('')]);
+    this.setState({
+      filter: '',
+      selectedTabs: new Set(),
+    });
   };
 
   _handleToggleTab = (tab, isSelected) => {
@@ -635,13 +638,16 @@ class CorralTab extends React.Component {
       this.state.selectedTabs.delete(tab);
     }
     this.forceUpdate();
-  }
+  };
 
   _handleRestoreSelectedTabs = () => {
     const tabs = this.state.closedTabs.filter(tab => this.state.selectedTabs.has(tab));
     tabmanager.closedTabs.unwrangleTabs(tabs);
-    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
-    this.setState({selectedTabs: new Set()});
+    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword('')]);
+    this.setState({
+      filter: '',
+      selectedTabs: new Set(),
+    });
   };
 
   openTab = (tab) => {
@@ -669,8 +675,10 @@ class CorralTab extends React.Component {
   };
 
   render() {
+    let allTabsSelected;
     const tableRows = [];
     if (this.state.closedTabs.length === 0) {
+      allTabsSelected = false;
       tableRows.push(
         <tr>
           <td className="text-center" colSpan="3">
@@ -680,9 +688,11 @@ class CorralTab extends React.Component {
         </tr>
       );
     } else {
+      allTabsSelected = true;
       this.state.closedTabs.forEach(tab => {
         const tabId = tab.id;
         if (tabId == null) return;
+        allTabsSelected = allTabsSelected && this.state.selectedTabs.has(tab);
 
         tableRows.push(
           <ClosedTabRow
@@ -696,8 +706,6 @@ class CorralTab extends React.Component {
       });
     }
 
-    const allTabsSelected = this.state.selectedTabs.size > 0 &&
-      this.state.selectedTabs.size === this.state.closedTabs.length;
     const totalTabsRemoved = storageLocal.get('totalTabsRemoved');
     const percentClosed = totalTabsRemoved === 0
       ? 0

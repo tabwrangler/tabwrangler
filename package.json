@@ -40,6 +40,7 @@
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.4.2",
     "react-dom": "^15.4.2",
+    "react-sticky": "^6.0.1",
     "timeago.js": "^2.0.4",
     "underscore": "^1.8.3"
   }

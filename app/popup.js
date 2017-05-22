@@ -520,7 +520,7 @@ class ClosedTabRow extends React.PureComponent {
   props: {
     isSelected: boolean,
     onOpenTab: (tab: chrome$Tab) => void,
-    onToggleTab: (tab: chrome$Tab) => void,
+    onToggleTab: (tab: chrome$Tab, selected: boolean, multiselect: boolean) => void,
     tab: chrome$Tab,
   };
 
@@ -532,12 +532,12 @@ class ClosedTabRow extends React.PureComponent {
 
   _handleClickCheckbox = (event) => {
     if (this.props.tab.id == null) return;
-    this.props.onToggleTab(this.props.tab, event.target.checked);
+    this.props.onToggleTab(this.props.tab, event.target.checked, event.shiftKey);
   };
 
   _handleClickTd = (event) => {
     if (event.target.nodeName === 'input' || this.props.tab.id == null) return;
-    this.props.onToggleTab(this.props.tab, !this.props.isSelected);
+    this.props.onToggleTab(this.props.tab, !this.props.isSelected, event.shiftKey);
   };
 
   render() {
@@ -631,13 +631,36 @@ class CorralTab extends React.Component {
     });
   };
 
-  _handleToggleTab = (tab, isSelected) => {
+  _handleToggleTab = (tab, isSelected, multiselect) => {
+    // If this is a multiselect (done by holding the Shift key and clicking), see if the last
+    // selected tab is still visible and, if it is, toggle all tabs between it and this new clicked
+    // tab.
+    if (multiselect && this.state.lastSelectedTab != null) {
+      const lastSelectedTabIndex = this.state.closedTabs.indexOf(this.state.lastSelectedTab);
+      if (lastSelectedTabIndex >= 0) {
+        const tabIndex = this.state.closedTabs.indexOf(tab);
+        for (
+          let i = Math.min(lastSelectedTabIndex, tabIndex);
+          i <= Math.max(lastSelectedTabIndex, tabIndex);
+          i++
+        ) {
+          if (isSelected) {
+            this.state.selectedTabs.add(this.state.closedTabs[i]);
+          } else {
+            this.state.selectedTabs.delete(this.state.closedTabs[i]);
+          }
+        }
+        this.setState({lastSelectedTab: tab});
+        return;
+      }
+    }
+
     if (isSelected) {
       this.state.selectedTabs.add(tab);
     } else {
       this.state.selectedTabs.delete(tab);
     }
-    this.forceUpdate();
+    this.setState({lastSelectedTab: tab});
   };
 
   _handleRestoreSelectedTabs = () => {
@@ -653,6 +676,7 @@ class CorralTab extends React.Component {
   openTab = (tab) => {
     tabmanager.closedTabs.unwrangleTabs([tab]);
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
+    this.state.selectedTabs.delete(tab);
     this.forceUpdate();
   };
 
@@ -667,11 +691,18 @@ class CorralTab extends React.Component {
   };
 
   _toggleAllTabs = () => {
-    if (this.state.selectedTabs.size === this.state.closedTabs.length) {
-      this.setState({selectedTabs: new Set()});
+    let selectedTabs;
+    if (this.state.closedTabs.every(tab => this.state.selectedTabs.has(tab))) {
+      selectedTabs = this.state.selectedTabs;
+      this.state.closedTabs.forEach(tab => this.state.selectedTabs.delete(tab));
     } else {
-      this.setState({selectedTabs: new Set(this.state.closedTabs)});
+      selectedTabs = new Set(this.state.closedTabs);
     }
+
+    this.setState({
+      lastSelectedTab: null,
+      selectedTabs,
+    });
   };
 
   render() {
@@ -754,7 +785,7 @@ class CorralTab extends React.Component {
                   />
                 </button>
 
-                {this.state.selectedTabs.size > 0 ?
+                {this.state.closedTabs.some(tab => this.state.selectedTabs.has(tab)) ?
                   <div className="btn-group" style={{ marginLeft: '10px' }}>
                     <button
                       className="btn btn-default btn-sm btn-chunky"
@@ -765,7 +796,7 @@ class CorralTab extends React.Component {
                     </button>
                     <button
                       className="btn btn-default btn-sm btn-chunky"
-                      disabled={this.state.selectedTabs.size > 15}
+                      disabled={this.state.closedTabs.length > 15}
                       onClick={this._handleRestoreSelectedTabs}
                       title="Restore selected tabs">
                       <span className="sr-only">Restore selected tabs</span>

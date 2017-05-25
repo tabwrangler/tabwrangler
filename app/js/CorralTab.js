@@ -361,10 +361,7 @@ export default class CorralTab extends React.Component {
                     />{' '}
                     Sort
                   </button>
-                  <ul
-                    aria-labelledby="sort-dropdown"
-                    className="dropdown-menu"
-                    style={{left: 'auto', right: 0}}>
+                  <ul aria-labelledby="sort-dropdown" className="dropdown-menu dropdown-menu-right">
                     {Sorters.map(sorter => {
                       const active = this.state.sorter === sorter;
                       return (

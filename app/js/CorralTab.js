@@ -131,11 +131,17 @@ export default class CorralTab extends React.Component {
     // style. Prevent default on the event in order to prevent scrolling to the top of the window
     // (the default action for an empty anchor "#").
     event.preventDefault();
-    this.setState({
-      closedTabs: this.state.closedTabs.sort(sorter.sort),
-      isSortDropdownOpen: false,
-      sorter,
-    });
+    if (sorter === this.state.sorter) {
+      // If this is already the active sorter, close the dropdown and do no work since the state is
+      // already correct.
+      this.setState({isSortDropdownOpen: false});
+    } else {
+      this.setState({
+        closedTabs: this.state.closedTabs.sort(sorter.sort),
+        isSortDropdownOpen: false,
+        sorter,
+      });
+    }
   }
 
   _handleRemoveSelectedTabs = () => {

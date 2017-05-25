@@ -365,14 +365,19 @@ export default class CorralTab extends React.Component {
                     aria-labelledby="sort-dropdown"
                     className="dropdown-menu"
                     style={{left: 'auto', right: 0}}>
-                    {Sorters.map(sorter =>
-                      <li>
-                        <a href="#" onClick={this._clickSorter.bind(this, sorter)}>
-                          {sorter.label}{' '}
-                          <small className="text-muted">{sorter.example}</small>
-                        </a>
-                      </li>
-                    )}
+                    {Sorters.map(sorter => {
+                      const active = this.state.sorter === sorter;
+                      return (
+                        <li className={classnames({active})}>
+                          <a href="#" onClick={this._clickSorter.bind(this, sorter)}>
+                            {sorter.label}{' '}
+                            <small className={classnames({'text-muted': !active})}>
+                              {sorter.example}
+                            </small>
+                          </a>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               </div>

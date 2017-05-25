@@ -138,7 +138,6 @@ export default class CorralTab extends React.Component {
     });
   }
 
-
   _handleRemoveSelectedTabs = () => {
     const tabs = this.state.closedTabs.filter(tab => this.state.selectedTabs.has(tab));
     tabs.forEach(tab => { tabmanager.closedTabs.removeTab(tab.id); });

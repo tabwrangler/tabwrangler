@@ -14,9 +14,7 @@ module.exports = Object.assign({}, developmentConfig, {
     }),
     // Compress, minify, all those good things.
     new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false,
-      },
+      minimize: true,
     }),
   ]),
 });

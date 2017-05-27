@@ -250,7 +250,7 @@ export default class CorralTab extends React.Component {
     if (this.state.closedTabs.length === 0) {
       allTabsSelected = false;
       tableRows.push(
-        <tr>
+        <tr key="no-tabs">
           <td className="text-center" colSpan="3">
             No closed tabs yet. When Tab Wrangler closes tabs, they will appear here. Go leave your
             tabs open!
@@ -270,7 +270,8 @@ export default class CorralTab extends React.Component {
         tableRows.push(
           <ClosedTabRow
             isSelected={isSelected}
-            key={tabId}
+            // $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab
+            key={`${tabId}-${tab.closedAt}`}
             onOpenTab={this.openTab}
             onToggleTab={this._handleToggleTab}
             tab={tab}
@@ -370,7 +371,7 @@ export default class CorralTab extends React.Component {
                     {Sorters.map(sorter => {
                       const active = this.state.sorter === sorter;
                       return (
-                        <li className={classnames({active})}>
+                        <li className={classnames({active})} key={sorter.label}>
                           <a href="#" onClick={this._clickSorter.bind(this, sorter)}>
                             {sorter.label}{' '}
                             <small className={classnames({'text-muted': !active})}>

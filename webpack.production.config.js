@@ -4,7 +4,7 @@ const webpack = require('webpack');
 
 const developmentConfig = require('./webpack.config.js');
 
-module.exports = Object.assign(developmentConfig, {
+module.exports = Object.assign({}, developmentConfig, {
   plugins: developmentConfig.plugins.concat([
     // Set `NODE_ENV` to production to compile out React development-only code.
     new webpack.DefinePlugin({

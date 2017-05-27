@@ -8,6 +8,9 @@ module.exports = {
     'plugin:flowtype/recommended',
     'plugin:react/recommended',
   ],
+  globals: {
+    chrome: true,
+  },
   parser: 'babel-eslint',
   parserOptions: {
     ecmaFeatures: {

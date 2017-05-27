@@ -1,5 +1,4 @@
 /* @flow */
-/* global chrome */
 
 import _ from 'underscore';
 import CorralTab from './js/CorralTab';

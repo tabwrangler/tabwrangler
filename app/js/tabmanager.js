@@ -1,5 +1,5 @@
 /* @flow */
-/* global chrome, TW */
+/* global TW */
 
 import _ from 'underscore';
 

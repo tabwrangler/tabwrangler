@@ -1,5 +1,3 @@
-/* global chrome */
-
 import settings from './settings';
 import tabmanager from './tabmanager';
 

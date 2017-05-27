@@ -1,5 +1,4 @@
 /* @flow */
-/* global chrome */
 
 import classnames from 'classnames';
 import ClosedTabRow from './ClosedTabRow';

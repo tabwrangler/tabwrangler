@@ -1,5 +1,4 @@
 /* @flow */
-/* global chrome */
 
 import tabmanager from './tabmanager';
 

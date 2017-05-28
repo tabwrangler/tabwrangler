@@ -1,5 +1,13 @@
 import FileSaver from 'file-saver'
 
+function readLocalStorage(key) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(key, (value) => {
+      resolve(value);
+    });
+  });
+}
+
 const importData = (event) => {
   const files = event.target.files;
 
@@ -31,14 +39,19 @@ const importData = (event) => {
 const exportData = () => {
   // since there is storageLocal, I don't know if it would be better to put
   // that function call there
-  chrome.storage.local.get('savedTabs', (savedTabs) => {
-    const result = JSON.stringify(savedTabs);
+  Promise.all([
+    readLocalStorage('savedTabs'),
+    readLocalStorage('totalTabsRemoved'),
+    readLocalStorage('totalTabsUnwrangled'),
+    readLocalStorage('totalTabsWrangled')]).then((allValues) => {
+      // allValues is an array containing all the values stored in local storage
+      const _result = JSON.stringify(allValues);
 
-    const blob = new Blob([result], {
-      type: 'application/json;charset=utf-8',
+      const blob = new Blob([_result], {
+        type: 'application/json;charset=utf-8',
+      });
+      FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
     });
-    FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
-  })
 }
 
 const exportFileName = (date) => {

@@ -19,7 +19,7 @@ test('should export the bookmark data', () => {
   window.chrome.storage.local.get = mockFunction;
 
   exportData();
-  expect(mockFunction.mock.calls.length).toBe(1);
+  expect(mockFunction.mock.calls.length).toBe(4);
 });
 
 test('should import the bookmark data', (done) => {
@@ -50,6 +50,9 @@ test('should import the bookmark data', (done) => {
       'width': 400,
       'windowId': 33,
     }],
+    'totalTabsRemoved': 256,
+    'totalTabsUnwrangled': 16,
+    'totalTabsWrangled': 32,
   };
 
   const blob = new Blob([JSON.stringify(expectedImportData)], {

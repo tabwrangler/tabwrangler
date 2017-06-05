@@ -1,14 +1,13 @@
 import FileSaver from 'file-saver'
 
-function readLocalStorage(key) {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(key, (value) => {
-      resolve(value);
-    });
-  });
-}
-
-const importData = (event) => {
+/**
+ * Import the backup of saved tabs and the accounting information.
+ * If any of the required keys in the backup object is missing, the backup will abort without importing the data.
+ * @param {storageLocal} storageLocal is needed to restore the accounting information
+ * @param {tabManager} tabManager is required to initialize it with the imported saved tabs
+ * @param {Event} event contains the path of the backup file
+ */
+const importData = (storageLocal, tabManager, event) => {
   const files = event.target.files;
 
   if (files[0]) { 
@@ -16,8 +15,24 @@ const importData = (event) => {
       const fileReader = new FileReader();
       fileReader.onload = () => {
         try {
-          chrome.storage.local.set(JSON.parse(fileReader.result));
-          resolve();
+          const json = JSON.parse(fileReader.result);
+          if(Object.keys(json).length < 4) {
+            reject('Invalid backup');
+          } else {
+            const savedTabs = json.savedTabs;
+            const totalTabsRemoved = json.totalTabsRemoved;
+            const totalTabsUnwrangled = json.totalTabsUnwrangled;
+            const totalTabsWrangled = json.totalTabsWrangled;
+
+            storageLocal.setValue('totalTabsRemoved', totalTabsRemoved);
+            storageLocal.setValue('totalTabsUnwrangled', totalTabsUnwrangled);
+            storageLocal.setValue('totalTabsWrangled', totalTabsWrangled);
+
+            chrome.storage.local.set({savedTabs});
+            // re-read the wrangled tabs
+            tabManager.closedTabs.init();
+            resolve();
+          }
         } catch (e) {
           reject(e);
         }
@@ -30,28 +45,35 @@ const importData = (event) => {
       fileReader.readAsText(files[0], 'utf-8');
     });
   } else {
-    console.log('Nothing to import');
-
-    return Promise.resolve();
+    return Promise.reject('Nothing to import');
   }
 }
+/**
+ * Export all saved tabs and some accounting information in one object. The object has 4 keys
+ * - savedTabs
+ * - totalTabsRemoved
+ * - totalTabsUnwrangled
+ * - totalTabsWrangled
+ * 
+ * savedTabs is acquired by reading it directly from localstorage.
+ * 
+ * @param {storageLocal} storageLocal to retrieve all the accounting information
+ */
+const exportData = (storageLocal) => {
+  chrome.storage.local.get('savedTabs', (err, savedTabs) => {
+    if (!err) {
+      savedTabs['totalTabsRemoved'] = storageLocal.get('totalTabsRemoved');
+      savedTabs['totalTabsUnwrangled'] = storageLocal.get('totalTabsUnwrangled');
+      savedTabs['totalTabsWrangled'] = storageLocal.get('totalTabsWrangled');
+      
+      const exportData = JSON.stringify(savedTabs);
 
-const exportData = () => {
-  // since there is storageLocal, I don't know if it would be better to put
-  // that function call there
-  Promise.all([
-    readLocalStorage('savedTabs'),
-    readLocalStorage('totalTabsRemoved'),
-    readLocalStorage('totalTabsUnwrangled'),
-    readLocalStorage('totalTabsWrangled')]).then((allValues) => {
-      // allValues is an array containing all the values stored in local storage
-      const _result = JSON.stringify(allValues);
-
-      const blob = new Blob([_result], {
+      const blob = new Blob([exportData], {
         type: 'application/json;charset=utf-8',
       });
       FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
-    });
+    }
+  });
 }
 
 const exportFileName = (date) => {

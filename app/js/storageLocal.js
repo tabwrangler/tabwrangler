@@ -1,4 +1,3 @@
-/* global chrome */
 /* @flow */
 
 const storageLocal = {

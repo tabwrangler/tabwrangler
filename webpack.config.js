@@ -9,7 +9,7 @@ module.exports = {
     popup: './app/popup.js',
   },
   module: {
-    loaders: [
+    rules: [
       {
         exclude: /node_modules/,
         loader: 'babel-loader',
@@ -26,6 +26,6 @@ module.exports = {
     filename: '[name].entry.js',
   },
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin('commons.chunk.js'),
+    new webpack.optimize.CommonsChunkPlugin('commons'),
   ],
 };

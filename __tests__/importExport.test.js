@@ -34,7 +34,7 @@ test('should export the bookmark data', () => {
   const fileSaveMock = jest.fn();
 
   window.chrome.storage.local.get = (t, func) => {
-    func(null, {test: 2});
+    func({test: 2});
   };
 
   const storageLocal = {
@@ -47,7 +47,6 @@ test('should export the bookmark data', () => {
   expect(localStorageGet.mock.calls.length).toBe(3);
   expect(fileSaveMock.mock.calls.length).toBe(1);
   const result = fileSaveMock.mock.calls[0][0];
-  console.log(result.type);
   expect(result.type).toBe('application/json;charset=utf-8');
 });
 

@@ -1,6 +1,4 @@
-'use strict';
-
-/* global chrome, TW */
+/* global TW */
 
 /**
  * Handles updates between versions of the extension.

@@ -25,7 +25,7 @@ gulp.task('clean', function(done) {
 // Copy all files except for *.js ones
 gulp.task('cp', function() {
   return gulp.src([
-    'app/**/!(*.js)',
+    'app/**/!(*.js|*.flow)',
     'MIT-LICENSE.txt',
     'README.md',
   ])
@@ -76,7 +76,7 @@ function webpackLog(stats) {
 
 gulp.task('webpack', function(done) {
   return webpack(
-    Object.assign({}, {minimize: true, optimize: true}, webpackConfig),
+    webpackConfig,
     function(err, stats) {
       if (err) throw new gutil.PluginError('webpack', err);
       webpackLog(stats);
@@ -87,7 +87,7 @@ gulp.task('webpack', function(done) {
 
 gulp.task('webpack:production', function(done) {
   return webpack(
-    Object.assign({}, {minimize: true, optimize: true}, webpackProductionConfig),
+    webpackProductionConfig,
     function(err, stats) {
       if (err) throw new gutil.PluginError('webpack', err);
       webpackLog(stats);

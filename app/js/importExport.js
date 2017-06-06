@@ -60,19 +60,17 @@ const importData = (storageLocal, tabManager, event) => {
  * @param {storageLocal} storageLocal to retrieve all the accounting information
  */
 const exportData = (storageLocal) => {
-  chrome.storage.local.get('savedTabs', (err, savedTabs) => {
-    if (!err) {
-      savedTabs['totalTabsRemoved'] = storageLocal.get('totalTabsRemoved');
-      savedTabs['totalTabsUnwrangled'] = storageLocal.get('totalTabsUnwrangled');
-      savedTabs['totalTabsWrangled'] = storageLocal.get('totalTabsWrangled');
-      
-      const exportData = JSON.stringify(savedTabs);
+  chrome.storage.local.get('savedTabs', (savedTabs) => {
+    savedTabs['totalTabsRemoved'] = storageLocal.get('totalTabsRemoved');
+    savedTabs['totalTabsUnwrangled'] = storageLocal.get('totalTabsUnwrangled');
+    savedTabs['totalTabsWrangled'] = storageLocal.get('totalTabsWrangled');
+    
+    const exportData = JSON.stringify(savedTabs);
 
-      const blob = new Blob([exportData], {
-        type: 'application/json;charset=utf-8',
-      });
-      FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
-    }
+    const blob = new Blob([exportData], {
+      type: 'application/json;charset=utf-8',
+    });
+    FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
   });
 }
 

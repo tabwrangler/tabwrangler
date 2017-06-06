@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Tab Wrangler",
-  "version": "5.0.1",
+  "version": "5.1.1",
 
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "icons": {

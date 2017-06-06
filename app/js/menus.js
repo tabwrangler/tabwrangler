@@ -1,7 +1,3 @@
-'use strict';
-
-/* global chrome */
-
 import settings from './settings';
 import tabmanager from './tabmanager';
 

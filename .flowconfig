@@ -7,3 +7,4 @@
 node_modules/flow-interfaces-chrome/interfaces/
 
 [options]
+suppress_comment=.*\\$FlowFixMe.*

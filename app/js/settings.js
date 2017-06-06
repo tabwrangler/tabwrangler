@@ -1,6 +1,3 @@
-'use strict';
-
-/* global chrome */
 /* @flow */
 
 import tabmanager from './tabmanager';

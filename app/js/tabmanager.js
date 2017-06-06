@@ -1,7 +1,5 @@
-'use strict';
-
-/* global chrome, TW */
 /* @flow */
+/* global TW */
 
 import _ from 'underscore';
 

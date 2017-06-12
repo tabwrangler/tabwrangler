@@ -487,7 +487,7 @@ class OptionsTab extends React.Component {
         <h4 className="page-header">Import / Export</h4>
         <div className="row">
           <div className="col-xs-8">
-            <Button label='Export' clickHandler={_exportData} className='glyphicon-export'/>
+            <Button label='Export' clickHandler={_exportData} className='glyphicon-export'/>{' '}
             <Button label='Import' clickHandler={() => {this.fileselector.click()}} className='glyphicon-import'/>
             <input id="fileselector" type="file" onChange={_importData} ref={(input) => {this.fileselector = input}}/>
           </div>

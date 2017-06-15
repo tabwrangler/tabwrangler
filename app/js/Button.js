@@ -8,11 +8,18 @@ export default class Button extends React.PureComponent {
   }
 
   render() {
-    const classes = classNames(['glyphicon', this.props.className]);
-    const content = <span><i className={classes}></i> {this.props.label}</span>;
+    let classes = '';
+    let spacer = '';
+
+    if (this.props.glyph) {
+      classes = classNames(['glyphicon', `glyphicon-${this.props.glyph}`]);
+      spacer = ' ';
+    }
+
+    const content = <span><i className={classes}></i>{spacer}{this.props.children}</span>;
 
     return (
-      <button className="btn btn-default btn-xs" onClick={this.props.clickHandler}>
+      <button className={this.props.className} onClick={this.props.onClick}>
         {content}
       </button>
     );
@@ -20,7 +27,8 @@ export default class Button extends React.PureComponent {
 }
 
 Button.propTypes = {
-  label: PropTypes.string,
+  glyph: PropTypes.string,
   className: PropTypes.string,
-  clickHandler: PropTypes.func.isRequired,
+  children: PropTypes.string,
+  onClick: PropTypes.func.isRequired,
 };

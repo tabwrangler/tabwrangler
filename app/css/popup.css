@@ -147,10 +147,6 @@ body {
   transition: opacity 250ms ease-in;
 }
 
-#fileselector {
-  display: none;
-}
-
 input.checkbox--td {
   margin-top: 0;
   vertical-align: middle;

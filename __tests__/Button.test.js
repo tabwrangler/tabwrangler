@@ -7,7 +7,17 @@ test('render button with correct label', () => {
   const mockCallback = jest.fn();
 
   const button = renderer.create(
-    <Button label='Export' clickHandler={mockCallback} className='glyphicon-export'/>
+    <Button onClick={mockCallback} className='btn btn-default btn-xs'>Export</Button>
+  );
+
+  expect(button).toMatchSnapshot();
+});
+
+test('render button with correct label and glyphicon', () => {
+  const mockCallback = jest.fn();
+
+  const button = renderer.create(
+    <Button glyph='export' onClick={mockCallback} className='btn btn-default btn-xs'>Export</Button>
   );
 
   expect(button).toMatchSnapshot();
@@ -17,8 +27,9 @@ test('should call click handler callback when clicked', () => {
   const mockCallback = jest.fn();
 
   const button = ReactTestUtils.renderIntoDocument(
-    <Button label='Export' clickHandler={mockCallback} className='glyphicon-export'/>
+    <Button onClick={mockCallback} className='btn btn-default btn-xs'>Export</Button>
   );
+
   const buttonNode = ReactTestUtils.findRenderedDOMComponentWithTag(button, 'button');
   ReactTestUtils.Simulate.click(buttonNode);
 

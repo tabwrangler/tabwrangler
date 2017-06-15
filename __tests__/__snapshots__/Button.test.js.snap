@@ -7,6 +7,21 @@ exports[`render button with correct label 1`] = `
 >
   <span>
     <i
+      className=""
+    />
+    
+    Export
+  </span>
+</button>
+`;
+
+exports[`render button with correct label and glyphicon 1`] = `
+<button
+  className="btn btn-default btn-xs"
+  onClick={[Function]}
+>
+  <span>
+    <i
       className="glyphicon glyphicon-export"
     />
      

@@ -488,19 +488,35 @@ class OptionsTab extends React.Component {
         <h4 className="page-header">Import / Export</h4>
         <div className="row">
           <div className="col-xs-8">
-            <Button className="btn btn-default btn-xs" glyph="export" onClick={_exportData}>Export</Button>
+            <Button
+              className="btn btn-default btn-xs"
+              glyph="export"
+              onClick={_exportData}>
+              Export
+            </Button>
             {' '}
-            <Button className="btn btn-default btn-xs" glyph="import" onClick={() => {this.fileselector.click()}}>Import</Button>
-            <div className="input-group">
-            <input style={{ display: 'none' }} id="fileselector" type="file" accept=".json" onChange={_importData} ref={(input) => {this.fileselector = input}}/>
-            </div>
+            <Button
+              className="btn btn-default btn-xs"
+              glyph="import"
+              onClick={() => {this.fileselector.click()}}>
+              Import
+            </Button>
+            <input
+              style={{ display: 'none' }}
+              id="fileselector"
+              type="file"
+              accept=".json"
+              onChange={_importData}
+              ref={(input) => {this.fileselector = input}}/>
           </div>
           <div className="col-xs-8">
             <p className="help-block">
-              Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension.
+              Export all information about wrangled tabs. This is a convenient way to restore
+               an old state after reinstalling the extension.
             </p>
             <p className="help-block">
-              <strong>Warning:</strong> Importing data will overwrite all existing data. There is no way back (unless you have a backup).
+              <strong>Warning:</strong> Importing data will overwrite all existing data.
+               There is no way back (unless you have a backup).
             </p>
           </div>
         </div>

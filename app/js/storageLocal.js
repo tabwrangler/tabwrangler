@@ -6,7 +6,7 @@ const storageLocal = {
   defaults: {
     installDate: Date.now(), // Date of installation of Tab Wrangler
     totalTabsRemoved: 0, // Number of tabs closed by any means since install
-    totalTabsUnwrangled: 0, // Number of tabs unwrangled (re-opened from the tab corral) since install
+    totalTabsUnwrangled: 0, // Number of tabs unwrangled (re-opened from the corral) since install
     totalTabsWrangled: 0, // Number of tabs wrangled since install
   },
 

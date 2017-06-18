@@ -40,7 +40,7 @@ test('should export the bookmark data', () => {
   const storageLocal = {
     get: localStorageGet,
   }
-  
+
   FileSaver.saveAs = fileSaveMock;
 
   exportData(storageLocal);
@@ -95,9 +95,15 @@ test('should import the bookmark data', (done) => {
   }}).then(() => {
     expect(localStorageSetMock.mock.calls.length).toBe(4);
     expect(localStorageSetMock.mock.calls[3][0]).toEqual({savedTabs: expectedImportData.savedTabs});
-    expect(localStorageSetMock.mock.calls[0][0]).toEqual({totalTabsRemoved: expectedImportData.totalTabsRemoved});
-    expect(localStorageSetMock.mock.calls[1][0]).toEqual({totalTabsUnwrangled: expectedImportData.totalTabsUnwrangled});
-    expect(localStorageSetMock.mock.calls[2][0]).toEqual({totalTabsWrangled: expectedImportData.totalTabsWrangled});
+    expect(localStorageSetMock.mock.calls[0][0]).toEqual(
+      {totalTabsRemoved: expectedImportData.totalTabsRemoved}
+    );
+    expect(localStorageSetMock.mock.calls[1][0]).toEqual(
+      {totalTabsUnwrangled: expectedImportData.totalTabsUnwrangled}
+    );
+    expect(localStorageSetMock.mock.calls[2][0]).toEqual(
+      {totalTabsWrangled: expectedImportData.totalTabsWrangled}
+    );
 
     done();
   }).catch((e) => console.error(e));

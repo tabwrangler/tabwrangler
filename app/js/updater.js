@@ -96,7 +96,9 @@ Updater.getNotification = function(title, items) {
 
 Updater.addCommonButtons = function(notification) {
   notification.buttons.push({iconUrl: 'img/star.png', title: 'Review Tab Wrangler'});
-  notification.buttons.push({iconUrl: 'img/notes.png', title: 'See all release notes / be a tester'});
+  notification.buttons.push(
+    {iconUrl: 'img/notes.png', title: 'See all release notes / be a tester'}
+  );
 };
 
 Updater.notificationIdPrefix = 'updater-';

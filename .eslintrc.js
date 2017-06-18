@@ -34,6 +34,7 @@ module.exports = {
     'consistent-return': 2,
     'eqeqeq': [2, 'smart'],
     'indent': [2, 2],
+    'max-len': [2, {'code': 100, 'ignoreUrls': true}],
     'no-console': 0,
     'no-multi-spaces': 2,
     'no-unused-expressions': 2,

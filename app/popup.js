@@ -319,7 +319,7 @@ class OptionsTab extends React.Component {
         }
 
         return Promise.resolve();
-      }); 
+      });
     }
   }
 
@@ -374,7 +374,11 @@ class OptionsTab extends React.Component {
 
     if (this.state.importExportErrors.length === 0) {
       if (this.state.importExportAlertVisible) {
-        importExportAlert = [<div className="alert alert-success" key="importExportAlert">{this.state.importExportOperationName}</div>];
+        importExportAlert = [
+          <div className="alert alert-success" key="importExportAlert">
+            {this.state.importExportOperationName}
+          </div>,
+        ];
       }
     } else {
       importExportAlert = (

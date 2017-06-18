@@ -2,7 +2,8 @@ import FileSaver from 'file-saver'
 
 /**
  * Import the backup of saved tabs and the accounting information.
- * If any of the required keys in the backup object is missing, the backup will abort without importing the data.
+ * If any of the required keys in the backup object is missing, the backup will abort without
+ * importing the data.
  * @param {storageLocal} storageLocal is needed to restore the accounting information
  * @param {tabManager} tabManager is required to initialize it with the imported saved tabs
  * @param {Event} event contains the path of the backup file
@@ -10,7 +11,7 @@ import FileSaver from 'file-saver'
 const importData = (storageLocal, tabManager, event) => {
   const files = event.target.files;
 
-  if (files[0]) { 
+  if (files[0]) {
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
       fileReader.onload = () => {
@@ -54,9 +55,9 @@ const importData = (storageLocal, tabManager, event) => {
  * - totalTabsRemoved
  * - totalTabsUnwrangled
  * - totalTabsWrangled
- * 
+ *
  * savedTabs is acquired by reading it directly from localstorage.
- * 
+ *
  * @param {storageLocal} storageLocal to retrieve all the accounting information
  */
 const exportData = (storageLocal) => {
@@ -64,7 +65,7 @@ const exportData = (storageLocal) => {
     savedTabs['totalTabsRemoved'] = storageLocal.get('totalTabsRemoved');
     savedTabs['totalTabsUnwrangled'] = storageLocal.get('totalTabsUnwrangled');
     savedTabs['totalTabsWrangled'] = storageLocal.get('totalTabsWrangled');
-    
+
     const exportData = JSON.stringify(savedTabs);
 
     const blob = new Blob([exportData], {

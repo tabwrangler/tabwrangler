@@ -283,7 +283,9 @@ export default class CorralTab extends React.Component {
     const totalTabsRemoved = storageLocal.get('totalTabsRemoved');
     const percentClosed = totalTabsRemoved === 0
       ? 0
-      : Math.trunc(storageLocal.get('totalTabsWrangled') / storageLocal.get('totalTabsRemoved') * 100);
+      : Math.trunc(
+          storageLocal.get('totalTabsWrangled') / storageLocal.get('totalTabsRemoved') * 100
+        );
 
     return (
       <div className="tab-pane active">

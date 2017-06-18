@@ -57,7 +57,10 @@ export default {
     chrome.tabs.get(tabId, function(tab) {
       try {
         const currentDomain = getDomain(tab.url);
-        chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
+        chrome.contextMenus.update(
+          self.lockDomainId,
+          {'title': 'Never close anything on ' + currentDomain}
+        );
       } catch (e) {
         console.log(tab, 'Error in updating menu');
         throw e;

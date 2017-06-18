@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render button with correct label 1`] = `
+<button
+  className="btn btn-default btn-xs"
+  onClick={[Function]}
+>
+  <span>
+    <i
+      className=""
+    />
+    
+    Export
+  </span>
+</button>
+`;
+
+exports[`render button with correct label and glyphicon 1`] = `
+<button
+  className="btn btn-default btn-xs"
+  onClick={[Function]}
+>
+  <span>
+    <i
+      className="glyphicon glyphicon-export"
+    />
+     
+    Export
+  </span>
+</button>
+`;

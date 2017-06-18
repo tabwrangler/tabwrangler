@@ -3,14 +3,19 @@ module.exports = {
     browser: true,
     es6: true,
   },
+  globals: {
+    chrome: true,
+    test: true,
+    expect: true,
+    jest: true,
+    beforeEach: true,
+    afterEach: true,
+  },
   extends: [
     'eslint:recommended',
     'plugin:flowtype/recommended',
     'plugin:react/recommended',
   ],
-  globals: {
-    chrome: true,
-  },
   parser: 'babel-eslint',
   parserOptions: {
     ecmaFeatures: {

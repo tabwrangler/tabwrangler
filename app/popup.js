@@ -6,6 +6,8 @@ import LazyImage from './js/LazyImage';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import ReactDOM from 'react-dom';
+import Button from './js/Button';
+import {importData, exportData} from './js/importExport';
 import truncateString from './js/truncateString';
 
 const TW = chrome.extension.getBackgroundPage().TW;
@@ -13,8 +15,13 @@ const TW = chrome.extension.getBackgroundPage().TW;
 // Unpack TW.
 const {
   settings,
+  storageLocal,
   tabmanager,
 } = TW;
+
+// curry import/export function with storageLocal
+const _importData = _.partial(importData, storageLocal, tabmanager);
+const _exportData = _.partial(exportData, storageLocal);
 
 function secondsToMinutes(seconds) {
   let s = seconds % 60;
@@ -194,10 +201,15 @@ class OptionsTab extends React.Component {
     errors: Array<Object>,
     newPattern: string,
     saveAlertVisible: boolean,
+    importExportErrors: Array<Object>,
+    importExportAlertVisible: boolean,
+    importExportOperationName: string,
   };
 
   _debouncedHandleSettingsChange: (event: SyntheticEvent) => void;
   _saveAlertTimeout: ?number;
+  fileselector: HTMLInputElement;
+  _importExportAlertTimeout: ?number;
 
   constructor() {
     super();
@@ -205,6 +217,9 @@ class OptionsTab extends React.Component {
       errors: [],
       newPattern: '',
       saveAlertVisible: false,
+      importExportErrors: [],
+      importExportAlertVisible: false,
+      importExportOperationName: '',
     };
 
     const debounced = _.debounce(this.handleSettingsChange, 150);
@@ -288,6 +303,52 @@ class OptionsTab extends React.Component {
     }
   }
 
+  toPromise = (func) => {
+    return function (...args) {
+      return new Promise((resolve, reject) => {
+        const res = func.apply(null, args);
+
+        try {
+          return res.then(resolve, reject);
+        } catch (err) {
+          if (err instanceof TypeError) {
+            resolve(res);
+          } else {
+            reject(err);
+          }
+        }
+
+        return Promise.resolve();
+      }); 
+    }
+  }
+
+  importExportDataWithFeedback = (operationName, func, funcArg) => {
+    if (this._importExportAlertTimeout != null) {
+      window.clearTimeout(this._importExportAlertTimeout);
+    }
+
+    this.setState({
+      importExportErrors: [],
+      importExportAlertVisible: true,
+      importExportOperationName: operationName,
+    });
+
+    const result = this.toPromise(func)(funcArg);
+
+    result.then(() => {
+      this._importExportAlertTimeout = window.setTimeout(() => {
+        this.setState({importExportAlertVisible: false});
+      }, 400);
+    }).catch((err) => {
+      this.state.importExportErrors.push(err);
+      this.forceUpdate();
+    });
+  }
+
+  exportData = () => this.importExportDataWithFeedback('Exporting...', _exportData);
+  importData = (event) => this.importExportDataWithFeedback('Importing...', _importData, event);
+
   render() {
     const whitelist = settings.get('whitelist');
 
@@ -307,6 +368,24 @@ class OptionsTab extends React.Component {
           </ul>
         </div>
       );
+    }
+
+    let importExportAlert;
+
+    if (this.state.importExportErrors.length === 0) {
+      if (this.state.importExportAlertVisible) {
+        importExportAlert = [<div className="alert alert-success" key="importExportAlert">{this.state.importExportOperationName}</div>];
+      }
+    } else {
+      importExportAlert = (
+        <div className="alert alert-danger">
+          <ul>
+            {this.state.importExportErrors.map((error, i) =>
+              <li key={i}>{error.message}</li>
+            )}
+          </ul>
+        </div>
+      )
     }
 
     return (
@@ -477,6 +556,52 @@ class OptionsTab extends React.Component {
           </tbody>
         </table>
 
+        <h4 className="page-header">Import / Export</h4>
+        <div className="row">
+          <div className="col-xs-8">
+            <Button
+              className="btn btn-default btn-xs"
+              glyph="export"
+              onClick={this.exportData}>
+              Export
+            </Button>
+            {' '}
+            <Button
+              className="btn btn-default btn-xs"
+              glyph="import"
+              onClick={() => {this.fileselector.click()}}>
+              Import
+            </Button>
+            <input
+              style={{ display: 'none' }}
+              id="fileselector"
+              type="file"
+              accept=".json"
+              onChange={this.importData}
+              ref={(input) => {this.fileselector = input}}/>
+          </div>
+          <div className="col-xs-8">
+            <p className="help-block">
+              Export all information about wrangled tabs. This is a convenient way to restore
+               an old state after reinstalling the extension.
+            </p>
+            <p className="help-block">
+              <strong>Warning:</strong> Importing data will overwrite all existing data.
+               There is no way back (unless you have a backup).
+            </p>
+          </div>
+        </div>
+        {(this.state.importExportErrors.length === 0)
+        ? (
+          <ReactCSSTransitionGroup
+            transitionEnter={false}
+            transitionLeaveTimeout={400}
+            transitionName="alert">
+            {importExportAlert}
+          </ReactCSSTransitionGroup>
+        )
+        : importExportAlert}
+
         <h4 className="page-header">
           Keyboard Shortcuts
           <small style={{marginLeft: '10px'}}>
@@ -497,7 +622,7 @@ class OptionsTab extends React.Component {
             // See https://developer.chrome.com/extensions/commands#usage
             if (command.name === '_execute_browser_action') return null;
             return (
-              <p>
+              <p key={command.shortcut}>
                 {command.shortcut == null || command.shortcut.length === 0 ?
                   <em>No shortcut set</em> :
                   <kbd>{command.shortcut}</kbd>}: {command.description}

@@ -186,19 +186,19 @@ Updater.updates[2.3] = {
   fx() {
 
   },
-}
+};
 
 Updater.updates[2.4] = {
   fx() {
 
   },
-}
+};
 
 Updater.updates[2.5] = {
   fx() {
 
   },
-}
+};
 
 Updater.updates[2.6] = {
   fx() {
@@ -216,7 +216,7 @@ Updater.updates[2.9] = {
   fx() {
 
   },
-}
+};
 
 Updater.updates[3.1] = {
   fx() {
@@ -233,6 +233,6 @@ Updater.updates[3.1] = {
     notification.items.push({title: 'Fix', message: 'Fixed display issue with timer after pause'});
     Updater.launchNotification('3.1', notification, true);
   },
-}
+};
 
 export default Updater;

@@ -12,7 +12,7 @@ type Props = {
 export default function Button(props: Props) {
   let glyph;
   if (props.glyph != null) {
-    glyph = <i className={`glyphicon glyphicon-${props.glyph}`}></i>
+    glyph = <i className={`glyphicon glyphicon-${props.glyph}`}></i>;
   }
 
   return (

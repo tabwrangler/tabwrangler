@@ -1,4 +1,4 @@
-import FileSaver from 'file-saver'
+import FileSaver from 'file-saver';
 
 /**
  * Import the backup of saved tabs and the accounting information.
@@ -48,7 +48,7 @@ const importData = (storageLocal, tabManager, event) => {
   } else {
     return Promise.reject('Nothing to import');
   }
-}
+};
 /**
  * Export all saved tabs and some accounting information in one object. The object has 4 keys
  * - savedTabs
@@ -73,15 +73,15 @@ const exportData = (storageLocal) => {
     });
     FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
   });
-}
+};
 
 const exportFileName = (date) => {
-  const localeDateString = date.toLocaleDateString().replace(/\//g, '-')
+  const localeDateString = date.toLocaleDateString().replace(/\//g, '-');
   return `TabWranglerExport-${localeDateString}.json`;
-}
+};
 
 export {
   importData,
   exportData,
   exportFileName,
-}
+};

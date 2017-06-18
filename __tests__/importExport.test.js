@@ -20,7 +20,7 @@ beforeEach(() => {
 
 afterEach(() => {
   window.chrome = {};
-})
+});
 
 test('should export the bookmark data', () => {
   const mockValues = {
@@ -39,7 +39,7 @@ test('should export the bookmark data', () => {
 
   const storageLocal = {
     get: localStorageGet,
-  }
+  };
 
   FileSaver.saveAs = fileSaveMock;
 

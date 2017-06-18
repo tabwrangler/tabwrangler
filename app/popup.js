@@ -132,7 +132,7 @@ class LockTab extends React.PureComponent {
 
     // TODO: THIS WILL BREAK. This is some async stuff inside a synchronous call. Fix this, move
     // the state into a higher component.
-    chrome.tabs.query({}, tabs => { this.setState({tabs}); })
+    chrome.tabs.query({}, tabs => { this.setState({tabs}); });
   }
 
   componentWillUnmount() {
@@ -320,7 +320,7 @@ class OptionsTab extends React.Component {
 
         return Promise.resolve();
       });
-    }
+    };
   }
 
   importExportDataWithFeedback = (operationName, func, funcArg) => {
@@ -389,7 +389,7 @@ class OptionsTab extends React.Component {
             )}
           </ul>
         </div>
-      )
+      );
     }
 
     return (
@@ -573,7 +573,7 @@ class OptionsTab extends React.Component {
             <Button
               className="btn btn-default btn-xs"
               glyph="import"
-              onClick={() => {this.fileselector.click()}}>
+              onClick={() => {this.fileselector.click();}}>
               Import
             </Button>
             <input
@@ -582,7 +582,7 @@ class OptionsTab extends React.Component {
               type="file"
               accept=".json"
               onChange={this.importData}
-              ref={(input) => {this.fileselector = input}}/>
+              ref={(input) => {this.fileselector = input;}}/>
           </div>
           <div className="col-xs-8">
             <p className="help-block">

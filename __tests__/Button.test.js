@@ -33,7 +33,7 @@ test('should call click handler callback when clicked', () => {
         <div>
           <Button onClick={mockCallback} className='btn btn-default btn-xs'>Export</Button>
         </div>
-      )
+      );
     }
   }
 

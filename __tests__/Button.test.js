@@ -26,8 +26,19 @@ test('render button with correct label and glyphicon', () => {
 test('should call click handler callback when clicked', () => {
   const mockCallback = jest.fn();
 
+  // Must wrap `Button` in a Composite Component in order to find it using ReactTestUtils.
+  class Wrapper extends React.Component {
+    render() {
+      return (
+        <div>
+          <Button onClick={mockCallback} className='btn btn-default btn-xs'>Export</Button>
+        </div>
+      )
+    }
+  }
+
   const button = ReactTestUtils.renderIntoDocument(
-    <Button onClick={mockCallback} className='btn btn-default btn-xs'>Export</Button>
+    <Wrapper />
   );
 
   const buttonNode = ReactTestUtils.findRenderedDOMComponentWithTag(button, 'button');

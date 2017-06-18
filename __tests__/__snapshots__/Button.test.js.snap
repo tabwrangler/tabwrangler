@@ -5,13 +5,7 @@ exports[`render button with correct label 1`] = `
   className="btn btn-default btn-xs"
   onClick={[Function]}
 >
-  <span>
-    <i
-      className=""
-    />
-    
-    Export
-  </span>
+  Export
 </button>
 `;
 
@@ -20,12 +14,10 @@ exports[`render button with correct label and glyphicon 1`] = `
   className="btn btn-default btn-xs"
   onClick={[Function]}
 >
-  <span>
-    <i
-      className="glyphicon glyphicon-export"
-    />
-     
-    Export
-  </span>
+  <i
+    className="glyphicon glyphicon-export"
+  />
+   
+  Export
 </button>
 `;

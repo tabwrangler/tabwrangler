@@ -17,7 +17,7 @@ const importData = (storageLocal, tabManager, event) => {
         try {
           const json = JSON.parse(fileReader.result);
           if(Object.keys(json).length < 4) {
-            reject('Invalid backup');
+            reject(new Error('Invalid backup'));
           } else {
             const savedTabs = json.savedTabs;
             const totalTabsRemoved = json.totalTabsRemoved;

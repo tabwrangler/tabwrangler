@@ -201,11 +201,15 @@ class OptionsTab extends React.Component {
     errors: Array<Object>,
     newPattern: string,
     saveAlertVisible: boolean,
+    importExportErrors: Array<Object>,
+    importExportAlertVisible: boolean,
+    importExportOperationName: string,
   };
 
   _debouncedHandleSettingsChange: (event: SyntheticEvent) => void;
   _saveAlertTimeout: ?number;
   fileselector: HTMLInputElement;
+  _importExportAlertTimeout: ?number;
 
   constructor() {
     super();
@@ -213,6 +217,9 @@ class OptionsTab extends React.Component {
       errors: [],
       newPattern: '',
       saveAlertVisible: false,
+      importExportErrors: [],
+      importExportAlertVisible: false,
+      importExportOperationName: '',
     };
 
     const debounced = _.debounce(this.handleSettingsChange, 150);
@@ -296,6 +303,52 @@ class OptionsTab extends React.Component {
     }
   }
 
+  toPromise = (func) => {
+    return function (...args) {
+      return new Promise((resolve, reject) => {
+        const res = func.apply(null, args);
+
+        try {
+          return res.then(resolve, reject);
+        } catch (err) {
+          if (err instanceof TypeError) {
+            resolve(res);
+          } else {
+            reject(err);
+          }
+        }
+
+        return Promise.resolve();
+      }); 
+    }
+  }
+
+  importExportDataWithFeedback = (operationName, func, funcArg) => {
+    if (this._importExportAlertTimeout != null) {
+      window.clearTimeout(this._importExportAlertTimeout);
+    }
+
+    this.setState({
+      importExportErrors: [],
+      importExportAlertVisible: true,
+      importExportOperationName: operationName,
+    });
+
+    const result = this.toPromise(func)(funcArg);
+
+    result.then(() => {
+      this._importExportAlertTimeout = window.setTimeout(() => {
+        this.setState({importExportAlertVisible: false});
+      }, 400);
+    }).catch((err) => {
+      this.state.importExportErrors.push(err);
+      this.forceUpdate();
+    });
+  }
+
+  exportData = () => this.importExportDataWithFeedback('Exporting...', _exportData);
+  importData = (event) => this.importExportDataWithFeedback('Importing...', _importData, event);
+
   render() {
     const whitelist = settings.get('whitelist');
 
@@ -315,6 +368,24 @@ class OptionsTab extends React.Component {
           </ul>
         </div>
       );
+    }
+
+    let importExportAlert;
+
+    if (this.state.importExportErrors.length === 0) {
+      if (this.state.importExportAlertVisible) {
+        importExportAlert = [<div className="alert alert-success" key="importExportAlert">{this.state.importExportOperationName}</div>];
+      }
+    } else {
+      importExportAlert = (
+        <div className="alert alert-danger">
+          <ul>
+            {this.state.importExportErrors.map((error, i) =>
+              <li key={i}>{error.message}</li>
+            )}
+          </ul>
+        </div>
+      )
     }
 
     return (
@@ -491,7 +562,7 @@ class OptionsTab extends React.Component {
             <Button
               className="btn btn-default btn-xs"
               glyph="export"
-              onClick={_exportData}>
+              onClick={this.exportData}>
               Export
             </Button>
             {' '}
@@ -506,7 +577,7 @@ class OptionsTab extends React.Component {
               id="fileselector"
               type="file"
               accept=".json"
-              onChange={_importData}
+              onChange={this.importData}
               ref={(input) => {this.fileselector = input}}/>
           </div>
           <div className="col-xs-8">
@@ -520,6 +591,16 @@ class OptionsTab extends React.Component {
             </p>
           </div>
         </div>
+        {(this.state.importExportErrors.length === 0)
+        ? (
+          <ReactCSSTransitionGroup
+            transitionEnter={false}
+            transitionLeaveTimeout={400}
+            transitionName="alert">
+            {importExportAlert}
+          </ReactCSSTransitionGroup>
+        )
+        : importExportAlert}
 
         <h4 className="page-header">
           Keyboard Shortcuts

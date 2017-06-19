@@ -30,10 +30,10 @@ Auto-closes tabs which you haven't used in awhile.
 
 1. Install all dependencies
 
-        npm install
+        $ yarn install
 2. Build, output, and watch the contents to `dist/`
 
-        gulp watch
+        $ yarn run watch
 3. Open the Extensions page in Chrome via *Window > Extensions*
 4. Click "Load unpacked extension..." and select the `dist/` directory created in Step 2
 
@@ -41,7 +41,7 @@ Auto-closes tabs which you haven't used in awhile.
 
 1. Create a .zip to upload to the Chrome Store with the `release` task
 
-        gulp release
+        $ yarn run release
 
 ## Credits
 

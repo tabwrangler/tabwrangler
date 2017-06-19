@@ -28,8 +28,8 @@ Auto-closes tabs which you haven't used in awhile.
 
 ### Back up & Restore
 
-It is possible to back up your list of closed tabs as well as the number of tabs Tab Wrangler has
-closed by using the import/export functionality in the Settings tab.
+You can back up your list of closed tabs as well as the number of tabs Tab Wrangler has closed by
+using the import/export functionality in the Settings tab.
 
 #### Back up / Export
 
@@ -40,9 +40,9 @@ closed by using the import/export functionality in the Settings tab.
 
 #### Restore / Import
 
-If you previously backed up your tabs by backing up / exporting them, follow these steps to restore
-the list in Tab Wrangler. Note: this will overwrite Tab Wrangler's tabs list; ensure you are not
-overwriting tabs that you wanted to save.
+If you previously backed up / exported your list of tabs, follow these steps to restore the list in
+Tab Wrangler. **Note: this will overwrite Tab Wrangler's tabs list;** ensure you are not overwriting
+tabs that you wanted to save.
 
 1. Open Tab Wrangler
 2. Switch to the *Settings* tab

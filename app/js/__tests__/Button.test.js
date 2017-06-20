@@ -1,7 +1,7 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 import ReactTestUtils from 'react-dom/test-utils';
-import Button from '../app/js/Button';
+import Button from '../Button';
 
 test('render button with correct label', () => {
   const mockCallback = jest.fn();

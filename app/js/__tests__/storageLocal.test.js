@@ -1,4 +1,4 @@
-import storageLocal from '../app/js/storageLocal';
+import storageLocal from '../storageLocal';
 
 beforeEach(() => {
   window.chrome = {

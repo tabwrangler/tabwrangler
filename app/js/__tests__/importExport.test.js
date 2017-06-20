@@ -1,5 +1,5 @@
-import storageLocal from '../app/js/storageLocal';
-import { importData, exportData, exportFileName } from '../app/js/importExport';
+import storageLocal from '../storageLocal';
+import { importData, exportData, exportFileName } from '../importExport';
 import FileSaver from 'file-saver';
 
 beforeEach(() => {

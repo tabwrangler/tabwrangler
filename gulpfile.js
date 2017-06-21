@@ -5,11 +5,11 @@ const eslint = require('gulp-eslint');
 const fs = require('fs');
 const gulp = require('gulp');
 const gutil = require('gulp-util');
+const jest = require('gulp-jest').default;
 const rimraf = require('rimraf');
 const runSequence = require('run-sequence');
 const watch = require('gulp-watch');
 const webpack = require('webpack');
-const jest = require('gulp-jest').default;
 
 const packageJson = require('./package.json');
 const webpackConfig = require('./webpack.config.js');
@@ -22,20 +22,24 @@ gulp.task('clean', function(done) {
   rimraf(`${__dirname}/${DIST_DIRECTORY}`, done);
 });
 
-// Copy all files except for *.js ones
+// Copy any files that don't require pre-processing.
 gulp.task('cp', function() {
-  return gulp.src([
-    'app/**/!(*.js|*.flow)',
+  const cpApp = gulp.src([
+    'app/css/**',
+    'app/img/**',
+    'app/lib/**',
+    'app/*.html',
+  ], {base: 'app'})
+    .pipe(gulp.dest(DIST_DIRECTORY));
+
+  const cpRoot = gulp.src([
+    'app/manifest.json',
     'MIT-LICENSE.txt',
     'README.md',
   ])
     .pipe(gulp.dest(DIST_DIRECTORY));
-});
 
-// Copy the entire lib/ directory; it's vendor, 3rd party stuff
-gulp.task('cp-lib', function() {
-  return gulp.src('app/lib/**')
-    .pipe(gulp.dest(`${DIST_DIRECTORY}/lib`));
+  return [cpApp, cpRoot];
 });
 
 gulp.task('lint', function() {
@@ -115,7 +119,6 @@ gulp.task('webpack:watch', function(done) {
 gulp.task('watch', function(done) {
   watch('app/**/!(*.js)', function() {
     gulp.start('cp');
-    gulp.start('cp-lib');
   });
   watch('app/**/*.js', function() {
     gulp.start('lint');
@@ -125,11 +128,11 @@ gulp.task('watch', function(done) {
     gulp.start('lint');
     gulp.start('test');
   });
-  gulp.start(['cp', 'cp-lib', 'lint', 'webpack:watch']);
+  gulp.start(['cp', 'lint', 'webpack:watch']);
 });
 
 gulp.task('release', function(done) {
-  runSequence('clean', 'cp', 'cp-lib', 'lint', 'webpack:production', function() {
+  runSequence('clean', 'cp', 'lint', 'webpack:production', function() {
     // create a file to stream archive data to.
     const output = fs.createWriteStream(`${__dirname}/tabwrangler-${packageJson.version}.zip`);
     const archive = archiver('zip');
@@ -158,5 +161,5 @@ gulp.task('release', function(done) {
 });
 
 gulp.task('default', function(done) {
-  runSequence('cp', 'cp-lib', 'lint', 'webpack', done);
+  runSequence('cp', 'lint', 'webpack', done);
 });

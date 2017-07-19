@@ -5,11 +5,11 @@
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "main": "app/background.js",
   "scripts": {
-    "build": "./node_modules/gulp/bin/gulp.js",
-    "coverage": "./node_modules/jest-cli/bin/jest.js --coverage",
-    "release": "./node_modules/gulp/bin/gulp.js release",
-    "test": "./node_modules/gulp/bin/gulp.js test",
-    "watch": "./node_modules/gulp/bin/gulp.js watch"
+    "build": "gulp",
+    "coverage": "jest --coverage",
+    "release": "gulp release",
+    "test": "gulp test",
+    "watch": "gulp watch"
   },
   "repository": {
     "type": "git",

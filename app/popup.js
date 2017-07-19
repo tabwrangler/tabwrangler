@@ -19,8 +19,6 @@ const {
   tabmanager,
 } = TW;
 
-console.log('BAR BAR');
-
 // curry import/export function with storageLocal
 const _importData = _.partial(importData, storageLocal, tabmanager);
 const _exportData = _.partial(exportData, storageLocal);

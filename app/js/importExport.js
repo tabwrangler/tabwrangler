@@ -1,4 +1,9 @@
+/* @flow */
+
 import FileSaver from 'file-saver';
+
+import typeof storageLocalType from './storageLocal';
+import typeof tabManagerType from './tabManager';
 
 /**
  * Import the backup of saved tabs and the accounting information.
@@ -8,7 +13,11 @@ import FileSaver from 'file-saver';
  * @param {tabManager} tabManager is required to initialize it with the imported saved tabs
  * @param {Event} event contains the path of the backup file
  */
-const importData = (storageLocal, tabManager, event) => {
+const importData = (
+  storageLocal: storageLocalType,
+  tabManager: tabManagerType,
+  event: SyntheticInputEvent
+) => {
   const files = event.target.files;
 
   if (files[0]) {
@@ -49,6 +58,7 @@ const importData = (storageLocal, tabManager, event) => {
     return Promise.reject('Nothing to import');
   }
 };
+
 /**
  * Export all saved tabs and some accounting information in one object. The object has 4 keys
  * - savedTabs
@@ -60,7 +70,7 @@ const importData = (storageLocal, tabManager, event) => {
  *
  * @param {storageLocal} storageLocal to retrieve all the accounting information
  */
-const exportData = (storageLocal) => {
+const exportData = (storageLocal: storageLocalType) => {
   chrome.storage.local.get('savedTabs', (savedTabs) => {
     savedTabs['totalTabsRemoved'] = storageLocal.get('totalTabsRemoved');
     savedTabs['totalTabsUnwrangled'] = storageLocal.get('totalTabsUnwrangled');
@@ -75,7 +85,7 @@ const exportData = (storageLocal) => {
   });
 };
 
-const exportFileName = (date) => {
+const exportFileName = (date: Date) => {
   const localeDateString = date.toLocaleDateString().replace(/\//g, '-');
   return `TabWranglerExport-${localeDateString}.json`;
 };

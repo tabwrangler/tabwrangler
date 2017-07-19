@@ -1,8 +1,11 @@
+/* @flow */
+
 import settings from './settings';
 import tabmanager from './tabmanager';
 
 function getDomain(url) {
-  return url.match(/[^:]+:\/\/([^\/]+)\//)[1];
+  const match = url.match(/[^:]+:\/\/([^\/]+)\//);
+  return match == null ? null : match[1];
 }
 
 /**
@@ -12,16 +15,24 @@ export default {
   lockActionId: null,
 
   pageSpecificActions: {
-    lockTab(onClickData, selectedTab) {
+    lockTab(onClickData: any, selectedTab: chrome$Tab) {
+      if (selectedTab.id == null) return;
       tabmanager.lockTab(selectedTab.id);
     },
-    lockDomain(onClickData, selectedTab) {
-      const whitelist = settings.get('whitelist');
+    lockDomain(onClickData: any, selectedTab: chrome$Tab) {
+      // Chrome tabs don't necessarily have URLs. In those cases there is no domain to lock.
+      if (selectedTab.url == null) return;
+
+      // If the URL doesn't match our bulletproof regexp for discovering the domain, do nothing
+      // because we have no domain to lock.
       const domain = getDomain(selectedTab.url);
+      if (domain == null) return;
+
+      const whitelist: Array<string> = (settings.get('whitelist'): any);
       whitelist.push(domain);
       settings.set('whitelist', whitelist);
     },
-    corralTab(onClickData, selectedTab) {
+    corralTab(onClickData: any, selectedTab: chrome$Tab) {
       tabmanager.closedTabs.wrangleTabs([selectedTab]);
     },
   },
@@ -50,16 +61,18 @@ export default {
     chrome.contextMenus.create(corralTab);
   },
 
-  updateContextMenus(tabId) {
+  updateContextMenus(tabId: number) {
     const self = this;
     // Little bit of a kludge, would be nice to be DRY here but this was simpler.
     // Sets the title again for each page.
     chrome.tabs.get(tabId, function(tab) {
       try {
+        if (tab.url == null) return;
         const currentDomain = getDomain(tab.url);
+        if (currentDomain == null) return;
         chrome.contextMenus.update(
           self.lockDomainId,
-          {'title': 'Never close anything on ' + currentDomain}
+          {title: `Never close anything on ${currentDomain}`}
         );
       } catch (e) {
         console.log(tab, 'Error in updating menu');

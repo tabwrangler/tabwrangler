@@ -44,7 +44,7 @@ export default class LazyImage extends React.PureComponent {
   };
 
   _img: ?Image;
-  _placeholder: ?HTMLElement;
+  _placeholder: ?HTMLDivElement;
 
   constructor(props: Props) {
     super(props);
@@ -112,7 +112,7 @@ export default class LazyImage extends React.PureComponent {
           <div
             className={this.props.className}
             key="placeholder"
-            ref={placeholder => { this._placeholder = placeholder; }}
+            ref={(placeholder: ?HTMLDivElement) => { this._placeholder = placeholder; }}
             style={Object.assign({}, this.props.style, {
               background: '#ccc',
               borderRadius: `${this.props.height / 2}px`,

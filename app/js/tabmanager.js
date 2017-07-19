@@ -190,7 +190,7 @@ const TabManager = {
 
   searchTabs(
     cb: (tabs: Array<chrome$Tab>) => void,
-    filters: Array<(url: string) => ((tab: chrome$Tab) => boolean)>
+    filters: Array<(tab: chrome$Tab) => boolean>
   ) {
     let tabs = TabManager.closedTabs.tabs;
     if (filters) {

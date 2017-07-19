@@ -1,6 +1,7 @@
 /* @flow */
 
 import tabmanager from './tabmanager';
+console.log('foo');
 
 /**
  * @type {Object}
@@ -13,11 +14,18 @@ const Settings = {
     lockedIds: [],  // An array of tabids which have been explicitly locked by the user.
     maxTabs: 100, // Just to keep memory / UI in check. No UI for this.
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
-    minutesInactive: 20, // How many minutes before we consider a tab "stale" and ready to close.
+
+    // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
+    minutesInactive: 20,
     paused: false, // If TabWrangler is paused (won't count down)
     purgeClosedTabs: false, // Save closed tabs in between browser sessions.
+
+    // How many seconds (+ minutesInactive) before a tab is "stale" and ready to close.
+    secondsInactive: 0,
     showBadgeCount: true, // Save closed tabs in between browser sessions.
-    whitelist: ['chrome://'], // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
+
+    // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
+    whitelist: ['chrome://'],
   },
 
   // Gets all settings from sync and stores them locally.
@@ -62,7 +70,7 @@ const Settings = {
    * @param value
    * @return {*}
    */
-  set(key: string, value: mixed) {
+  set(key: string, value: mixed): void {
     // Magic setter functions are set{fieldname}
     if (typeof this['set' + key] == 'function') {
       this['set' + key](value);
@@ -103,15 +111,35 @@ const Settings = {
    * @param value
    * @see Settings.set
    */
-  setminutesInactive(value: string) {
-    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 0 || parseInt(value, 10) > 7200 ) {
-      throw Error('Minutes Inactive must be greater than 0 and less than 7200');
+  setminutesInactive(value: string): void {
+    const minutes = parseInt(value, 10);
+    if (isNaN(minutes) || minutes < 0 || minutes > 7200) {
+      throw Error(
+        'Minutes Inactive must be greater than or equal to 0 and less than or equal to 7200'
+      );
     }
+
     // Reset the tabTimes since we changed the setting
     tabmanager.tabTimes = {};
     chrome.tabs.query({windowType: 'normal'}, tabmanager.initTabs);
-
     Settings.setValue('minutesInactive', value);
+  },
+
+  /**
+   *
+   * @param value
+   * @see Settings.set
+   */
+  setsecondsInactive(value: string): void {
+    const seconds = parseInt(value, 10);
+    if ( isNaN(seconds) || seconds < 0 || seconds > 59 ) {
+      throw Error('Seconds Inactive must be greater than or equal to 0 and less than 60');
+    }
+
+    // Reset the tabTimes since we changed the setting
+    tabmanager.tabTimes = {};
+    chrome.tabs.query({windowType: 'normal'}, tabmanager.initTabs);
+    Settings.setValue('secondsInactive', value);
   },
 
   setpaused(value: boolean) {
@@ -144,8 +172,11 @@ const Settings = {
    *
    * @return {Number}
    */
-  stayOpen() {
-    return parseInt(this.get('minutesInactive'), 10) * 60000;
+  stayOpen(): number {
+    return (
+      parseInt(this.get('minutesInactive'), 10) * 60000 + // minutes
+      parseInt(this.get('secondsInactive'), 10) * 1000    // seconds
+    );
   },
 };
 

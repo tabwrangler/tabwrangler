@@ -19,6 +19,8 @@ const {
   tabmanager,
 } = TW;
 
+console.log('BAR BAR');
+
 // curry import/export function with storageLocal
 const _importData = _.partial(importData, storageLocal, tabmanager);
 const _exportData = _.partial(exportData, storageLocal);
@@ -37,7 +39,7 @@ class OpenTabRow extends React.Component {
     tab: chrome$Tab,
   };
 
-  handleLockedOnChange = (event) => {
+  handleLockedOnChange = (event: SyntheticInputEvent) => {
     const {tab} = this.props;
     if (tab.id == null) return;
 
@@ -207,9 +209,9 @@ class OptionsTab extends React.Component {
   };
 
   _debouncedHandleSettingsChange: (event: SyntheticEvent) => void;
-  _saveAlertTimeout: ?number;
-  fileselector: HTMLInputElement;
+  _fileselector: HTMLInputElement;
   _importExportAlertTimeout: ?number;
+  _saveAlertTimeout: ?number;
 
   constructor() {
     super();
@@ -245,7 +247,7 @@ class OptionsTab extends React.Component {
     this.forceUpdate();
   }
 
-  handleAddPatternSubmit = (event) => {
+  handleAddPatternSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
     const {newPattern} = this.state;
 
@@ -398,65 +400,65 @@ class OptionsTab extends React.Component {
         <form className="form-inline">
           <div className="form-group">
             <label htmlFor="minutesInactive">Close inactive tabs after:</label>
-            <div className="row">
-              <div className="col-xs-2">
-                <input
-                  className="form-control"
-                  defaultValue={settings.get('minutesInactive')}
-                  id="minutesInactive"
-                  max="7200"
-                  min="1"
-                  name="minutesInactive"
-                  onChange={this._debouncedHandleSettingsChange}
-                  title="Must be a number greater than 0 and less than 7200"
-                  type="number"
-                />
-              </div>
-              <div className="col-xs-10">
-                <p className="form-control-static">minutes</p>
-              </div>
+            <div>
+              <input
+                className="form-control form-control--time"
+                defaultValue={settings.get('minutesInactive')}
+                id="minutesInactive"
+                max="7200"
+                min="0"
+                name="minutesInactive"
+                onChange={this._debouncedHandleSettingsChange}
+                title="Must be a number greater than 0 and less than 7200"
+                type="number"
+              />
+              <span> : </span>
+              <input
+                className="form-control form-control--time m-r"
+                defaultValue={settings.get('secondsInactive')}
+                id="secondsInactive"
+                max="59"
+                min="0"
+                name="secondsInactive"
+                onChange={this._debouncedHandleSettingsChange}
+                title="Must be a number greater than 0 and less than 60"
+                type="number"
+              />
+              <span className="form-control-static">minutes : seconds</span>
             </div>
           </div>
           <div className="form-group">
             <label htmlFor="minTabs">Don't auto-close if I only have:</label>
-            <div className="row">
-              <div className="col-xs-2">
-                <input
-                  className="form-control"
-                  defaultValue={settings.get('minTabs')}
-                  id="minTabs"
-                  min="0"
-                  name="minTabs"
-                  onChange={this._debouncedHandleSettingsChange}
-                  title="Must be a number greater than or equal to 0"
-                  type="number"
-                />
-              </div>
-              <div className="col-xs-10">
-                <p className="form-control-static">
-                  tabs open (does not include pinned or locked tabs).
-                </p>
-              </div>
+            <div>
+              <input
+                className="form-control form-control--time m-r"
+                defaultValue={settings.get('minTabs')}
+                id="minTabs"
+                min="0"
+                name="minTabs"
+                onChange={this._debouncedHandleSettingsChange}
+                title="Must be a number greater than or equal to 0"
+                type="number"
+              />
+              <span className="form-control-static">
+                tabs open (does not include pinned or locked tabs).
+              </span>
             </div>
           </div>
           <div className="form-group">
             <label htmlFor="maxTabs">Remember up to:</label>
-            <div className="row">
-              <div className="col-xs-2">
-                <input
-                  className="form-control"
-                  defaultValue={settings.get('maxTabs')}
-                  id="maxTabs"
-                  min="0"
-                  name="maxTabs"
-                  onChange={this._debouncedHandleSettingsChange}
-                  title="Must be a number greater than or equal to 0"
-                  type="number"
-                />
-              </div>
-              <div className="col-xs-10">
-                <p className="form-control-static">closed tabs.</p>
-              </div>
+            <div>
+              <input
+                className="form-control form-control--time m-r"
+                defaultValue={settings.get('maxTabs')}
+                id="maxTabs"
+                min="0"
+                name="maxTabs"
+                onChange={this._debouncedHandleSettingsChange}
+                title="Must be a number greater than or equal to 0"
+                type="number"
+              />
+              <span className="form-control-static">closed tabs.</span>
             </div>
           </div>
           <div className="checkbox">
@@ -573,16 +575,15 @@ class OptionsTab extends React.Component {
             <Button
               className="btn btn-default btn-xs"
               glyph="import"
-              onClick={() => {this.fileselector.click();}}>
+              onClick={() => {this._fileselector.click();}}>
               Import
             </Button>
             <input
               style={{ display: 'none' }}
-              id="fileselector"
               type="file"
               accept=".json"
               onChange={this.importData}
-              ref={(input) => {this.fileselector = input;}}/>
+              ref={(input: HTMLInputElement) => {this._fileselector = input;}}/>
           </div>
           <div className="col-xs-8">
             <p className="help-block">
@@ -686,22 +687,22 @@ class NavBar extends React.PureComponent {
     onClickTab: (tabId: string) => void,
   };
 
-  handleClickAboutTab = (event) => {
+  handleClickAboutTab = (event: SyntheticMouseEvent) => {
     event.preventDefault();
     this.props.onClickTab('about');
   };
 
-  handleClickCorralTab = (event) => {
+  handleClickCorralTab = (event: SyntheticMouseEvent) => {
     event.preventDefault();
     this.props.onClickTab('corral');
   };
 
-  handleClickLockTab = (event) => {
+  handleClickLockTab = (event: SyntheticMouseEvent) => {
     event.preventDefault();
     this.props.onClickTab('lock');
   };
 
-  handleClickOptionsTab = (event) => {
+  handleClickOptionsTab = (event: SyntheticMouseEvent) => {
     event.preventDefault();
     this.props.onClickTab('options');
   };
@@ -762,16 +763,18 @@ function AboutTab() {
   );
 }
 
+type PopupContentProps = {
+  commands: ?Array<chrome$Command>,
+};
+
 class PopupContent extends React.PureComponent {
-  props: {
-    commands: ?Array<chrome$Command>,
-  };
+  props: PopupContentProps;
 
   state: {
     activeTabId: string,
   };
 
-  constructor(props) {
+  constructor(props: PopupContentProps) {
     super(props);
     this.state = {
       activeTabId: 'corral',

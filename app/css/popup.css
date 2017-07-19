@@ -151,3 +151,21 @@ input.checkbox--td {
   margin-top: 0;
   vertical-align: middle;
 }
+
+/*
+ * This style is limited to media >768px wide in Bootstrap. Extract it and always apply it because
+ * Tab Wrangler's primary UI lives in a popup narrower than 768px.
+ */
+.form-inline .form-control {
+  display: inline-block;
+  width: auto;
+  vertical-align: middle;
+}
+
+.form-control.form-control--time {
+  width: 75px;
+}
+
+.m-r {
+  margin-right: 10px;
+}

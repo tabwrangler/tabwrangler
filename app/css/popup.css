@@ -169,3 +169,10 @@ input.checkbox--td {
 .m-r {
   margin-right: 10px;
 }
+
+/*
+ * An extra small version of the close button.
+ */
+.close-xs {
+  font-size: 10px;
+}

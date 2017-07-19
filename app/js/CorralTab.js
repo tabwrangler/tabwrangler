@@ -24,7 +24,7 @@ const AlphaSorter: Sorter = {
   example: '(A -> Z)',
   icon: 'sort-by-alphabet',
   label: 'Alpha',
-  sort(tabA, tabB) {
+  sort(tabA: chrome$Tab, tabB: chrome$Tab): number {
     if (tabA == null || tabB == null || tabA.title == null || tabB.title == null) {
       return 0;
     } else {
@@ -37,7 +37,7 @@ const ReverseAlphaSorter: Sorter = {
   example: '(Z -> A)',
   icon: 'sort-by-alphabet-alt',
   label: 'Reverse Alpha',
-  sort(tabA, tabB) {
+  sort(tabA: chrome$Tab, tabB: chrome$Tab): number {
     if (tabA == null || tabB == null || tabA.title == null || tabB.title == null) {
       return 0;
     } else {
@@ -50,7 +50,7 @@ const ChronoSorter: Sorter = {
   example: '(2000 -> 2020)',
   icon: 'sort-by-order-alt',
   label: 'Chrono',
-  sort(tabA, tabB) {
+  sort(tabA, tabB): number {
     if (tabA == null || tabB == null) {
       return 0;
     } else {
@@ -63,7 +63,7 @@ const ReverseChronoSorter: Sorter = {
   example: '(2020 -> 2000)',
   icon: 'sort-by-order',
   label: 'Reverse Chrono',
-  sort(tabA, tabB) {
+  sort(tabA, tabB): number {
     if (tabA == null || tabB == null) {
       return 0;
     } else {
@@ -124,6 +124,10 @@ export default class CorralTab extends React.Component {
     clearTimeout(this._searchRefFocusTimeout);
     window.removeEventListener('click', this._handleWindowClick);
   }
+
+  _clearFilter = () => {
+    this._setFilter('');
+  };
 
   _clickSorter(sorter: Sorter, event: SyntheticMouseEvent) {
     // The dropdown wraps items in bogus `<a href="#">` elements in order to match Bootstrap's
@@ -195,6 +199,11 @@ export default class CorralTab extends React.Component {
     });
   };
 
+  _handleSearchChange = (event: SyntheticInputEvent) => {
+    const filter = event.target.value;
+    this._setFilter(filter);
+  }
+
   _handleWindowClick = (event: MouseEvent) => {
     if (
       this.state.isSortDropdownOpen &&
@@ -218,11 +227,10 @@ export default class CorralTab extends React.Component {
     this.setState({closedTabs});
   };
 
-  setFilter = (event: SyntheticInputEvent) => {
-    const filter = event.target.value;
+  _setFilter(filter: string): void {
     this.setState({filter});
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(filter)]);
-  };
+  }
 
   _toggleAllTabs = () => {
     let selectedTabs;
@@ -295,9 +303,9 @@ export default class CorralTab extends React.Component {
               <input
                 className="form-control"
                 name="search"
-                onChange={this.setFilter}
+                onChange={this._handleSearchChange}
                 placeholder="Search tabs..."
-                ref={_searchRef => { this._searchRef = _searchRef; }}
+                ref={(_searchRef: ?HTMLElement) => { this._searchRef = _searchRef; }}
                 type="search"
                 value={this.state.filter}
               />
@@ -354,36 +362,52 @@ export default class CorralTab extends React.Component {
                     null
                   }
                 </div>
-                <div
-                  className={classnames('dropdown', {open: this.state.isSortDropdownOpen})}
-                  ref={(dropdown) => { this._dropdownRef = dropdown; }}>
-                  <button
-                    aria-haspopup="true"
-                    className="btn btn-default btn-sm btn-chunky"
-                    id="sort-dropdown"
-                    onClick={this._toggleSortDropdown}
-                    title={`Currently sorted ${this.state.sorter.label}`}>
-                    <span
-                      aria-hidden="true"
-                      className={`glyphicon glyphicon-${this.state.sorter.icon}`}
-                    />{' '}
-                    Sort
-                  </button>
-                  <ul aria-labelledby="sort-dropdown" className="dropdown-menu dropdown-menu-right">
-                    {Sorters.map(sorter => {
-                      const active = this.state.sorter === sorter;
-                      return (
-                        <li className={classnames({active})} key={sorter.label}>
-                          <a href="#" onClick={this._clickSorter.bind(this, sorter)}>
-                            {sorter.label}{' '}
-                            <small className={classnames({'text-muted': !active})}>
-                              {sorter.example}
-                            </small>
-                          </a>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                <div style={{ alignItems: 'center', display: 'flex' }}>
+                  {this.state.filter.length > 0 ?
+                    <span className="label label-info" style={{ marginRight: '5px' }}>
+                      {this.state.closedTabs.length} search results
+                      <span
+                        className="close close-xs"
+                        onClick={this._clearFilter}
+                        style={{ marginLeft: '5px' }}
+                        title="Clear search">
+                        &times;
+                      </span>
+                    </span> :
+                    null}
+                  <div
+                    className={classnames('dropdown', {open: this.state.isSortDropdownOpen})}
+                    ref={(dropdown) => { this._dropdownRef = dropdown; }}>
+                    <button
+                      aria-haspopup="true"
+                      className="btn btn-default btn-sm btn-chunky"
+                      id="sort-dropdown"
+                      onClick={this._toggleSortDropdown}
+                      title={`Currently sorted ${this.state.sorter.label}`}>
+                      <span
+                        aria-hidden="true"
+                        className={`glyphicon glyphicon-${this.state.sorter.icon}`}
+                      />{' '}
+                      Sort
+                    </button>
+                    <ul
+                      aria-labelledby="sort-dropdown"
+                      className="dropdown-menu dropdown-menu-right">
+                      {Sorters.map(sorter => {
+                        const active = this.state.sorter === sorter;
+                        return (
+                          <li className={classnames({active})} key={sorter.label}>
+                            <a href="#" onClick={this._clickSorter.bind(this, sorter)}>
+                              {sorter.label}{' '}
+                              <small className={classnames({'text-muted': !active})}>
+                                {sorter.example}
+                              </small>
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </div>
               </div>
             )}

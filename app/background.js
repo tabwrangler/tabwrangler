@@ -27,7 +27,7 @@ const checkToClose = function(cutOff) {
   }
 
   // Update the selected one to make sure it doesn't get closed.
-  chrome.tabs.getSelected(tabmanager.updateLastAccessed);
+  chrome.tabs.query({active: true}, tabmanager.updateLastAccessed);
 
   chrome.windows.getAll({populate:true}, function(windows) {
     let tabs = []; // Array of tabs, populated for each window.

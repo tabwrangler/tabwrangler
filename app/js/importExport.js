@@ -3,7 +3,7 @@
 import FileSaver from 'file-saver';
 
 import typeof storageLocalType from './storageLocal';
-import typeof tabManagerType from './tabManager';
+import typeof tabManagerType from './tabmanager';
 
 /**
  * Import the backup of saved tabs and the accounting information.
@@ -25,7 +25,7 @@ const importData = (
       const fileReader = new FileReader();
       fileReader.onload = () => {
         try {
-          const json = JSON.parse(fileReader.result);
+          const json = JSON.parse(String(fileReader.result));
           if(Object.keys(json).length < 4) {
             reject(new Error('Invalid backup'));
           } else {

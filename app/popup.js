@@ -426,7 +426,7 @@ class OptionsTab extends React.Component {
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="minTabs">Don't auto-close if I only have:</label>
+            <label htmlFor="minTabs">{"Don't"} auto-close if I only have:</label>
             <div>
               <input
                 className="form-control form-control--time m-r"
@@ -481,6 +481,18 @@ class OptionsTab extends React.Component {
                 type="checkbox"
               />
               Show # of closed tabs in url bar
+            </label>
+          </div>
+          <div className="checkbox">
+            <label>
+              <input
+                defaultChecked={settings.get('debounceOnActivated')}
+                id="debounceOnActivated"
+                name="debounceOnActivated"
+                onChange={this.handleSettingsChange}
+                type="checkbox"
+              />
+              Wait on a tab 1 second before reseting its timer.
             </label>
           </div>
         </form>

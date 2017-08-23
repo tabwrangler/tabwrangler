@@ -14,6 +14,7 @@ const Settings = {
     lockedIds: [],  // An array of tabids which have been explicitly locked by the user.
     maxTabs: 100, // Just to keep memory / UI in check. No UI for this.
     minTabs: 5, // Stop acting if there are only minTabs tabs open.
+    debounceOnActivated: false, // wait 1 second before updating an active tab
 
     // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
     minutesInactive: 20,

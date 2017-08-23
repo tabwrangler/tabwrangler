@@ -27,7 +27,7 @@ const checkToClose = function(cutOff) {
   }
 
   // Update the selected one to make sure it doesn't get closed.
-  chrome.tabs.getSelected(tabmanager.updateLastAccessed);
+  chrome.tabs.query({active: true}, tabmanager.updateLastAccessed);
 
   chrome.windows.getAll({populate:true}, function(windows) {
     let tabs = []; // Array of tabs, populated for each window.
@@ -112,6 +112,10 @@ const startup = function() {
   }
   settings.set('lockedIds', []);
 
+  const debouncedUpdateLastAccessed = _.debounce(
+    tabmanager.updateLastAccessed.bind(tabmanager),
+    1000
+  );
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({
     windowType: 'normal',
@@ -121,7 +125,12 @@ const startup = function() {
   chrome.tabs.onRemoved.addListener(tabmanager.removeTab);
   chrome.tabs.onActivated.addListener(function(tabInfo) {
     menus.updateContextMenus(tabInfo['tabId']);
-    tabmanager.updateLastAccessed(tabInfo['tabId']);
+
+    if (settings.get('debounceOnActivated')) {
+      debouncedUpdateLastAccessed(tabInfo['tabId']);
+    } else {
+      tabmanager.updateLastAccessed(tabInfo['tabId']);
+    }
   });
   window.setInterval(checkToClose, settings.get('checkInterval'));
 

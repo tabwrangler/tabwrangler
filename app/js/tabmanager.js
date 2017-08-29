@@ -1,7 +1,8 @@
 /* @flow */
 /* global TW */
 
-import _ from 'underscore';
+// import _ from 'underscore';
+import _ from 'lodash';
 
 /**
  * Stores the tabs in a separate variable to log Last Accessed time.
@@ -74,6 +75,7 @@ const TabManager = {
     wrangleTabs(tabs: Array<Object>) {
       const maxTabs = TW.settings.get('maxTabs');
       let totalTabsWrangled = TW.storageLocal.get('totalTabsWrangled');
+
       for (let i = 0; i < tabs.length; i++) {
         if (tabs[i] === null) {
           console.log('Weird bug, backtrace this...');

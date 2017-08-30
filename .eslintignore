@@ -1,3 +1,4 @@
 flow-typed/npm
+**/coverage/**
 **/dist/**
 **/node_modules/**

@@ -480,7 +480,7 @@ class OptionsTab extends React.Component {
                 onChange={this.handleSettingsChange}
                 type="checkbox"
               />
-              Show # of closed tabs in url bar
+              Show # of closed tabs in URL bar
             </label>
           </div>
           <div className="checkbox">
@@ -492,7 +492,7 @@ class OptionsTab extends React.Component {
                 onChange={this.handleSettingsChange}
                 type="checkbox"
               />
-              Wait on a tab 1 second before reseting its timer.
+              Reset a tab's timer only after it is active for 1 second
             </label>
           </div>
         </form>

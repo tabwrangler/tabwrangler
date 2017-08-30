@@ -253,7 +253,6 @@ export default class CorralTab extends React.Component {
 
   render() {
     let allTabsSelected;
-    let selectedClosedTabsCount = 0;
     const tableRows = [];
     if (this.state.closedTabs.length === 0) {
       allTabsSelected = false;
@@ -272,7 +271,6 @@ export default class CorralTab extends React.Component {
         if (tabId == null) return;
 
         const isSelected = this.state.selectedTabs.has(tab);
-        if (isSelected) selectedClosedTabsCount++;
         allTabsSelected = allTabsSelected && isSelected;
 
         tableRows.push(

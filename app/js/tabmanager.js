@@ -39,6 +39,15 @@ const TabManager = {
       return null;
     },
 
+    findPositionByURL(url: string): ?number {
+      for (let i = 0; i < this.tabs.length; i++) {
+        if (this.tabs[i].url === url && url !== undefined) {
+          return i;
+        }
+      }
+      return -1;
+    },
+
     removeTab(tabId: number) {
       const tabIndex = TabManager.closedTabs.findPositionById(tabId);
       if (tabIndex == null) return null;
@@ -81,8 +90,17 @@ const TabManager = {
           console.log('Weird bug, backtrace this...');
         }
 
+        const existingTabPosition = this.findPositionByURL(tabs[i].url);
         tabs[i].closedAt = new Date().getTime();
-        this.tabs.unshift(tabs[i]);
+        if (existingTabPosition > -1) {
+          const tab = this.tabs[existingTabPosition];
+          this.tabs.splice(existingTabPosition, 1);
+          this.tabs.unshift(tab);
+          console.error('Rearranged tabs:', this.tabs);
+        } else {
+          this.tabs.unshift(tabs[i]);
+        }
+
         totalTabsWrangled += 1;
 
         // Close it in Chrome.

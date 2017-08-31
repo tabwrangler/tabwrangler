@@ -89,7 +89,7 @@ test('should not wrangle duplicate tabs', () => {
   window.TW.storageLocal.set = jest.fn();
   window.chrome.tabs.remove = jest.fn();
 
-  let testTabs = [
+  TabManager.closedTabs.tabs = [
     {id: 1, url: 'https://www.github.com'},
     {id: 2, url: 'https://www.google.com'},
     {id: 3, url: 'https://www.nytimes.com'},
@@ -99,12 +99,10 @@ test('should not wrangle duplicate tabs', () => {
 
   window.chrome.browserAction.setBadgeText = jest.fn();
 
-  TabManager.closedTabs.wrangleTabs(testTabs);
-
   // reset all mocks
   jest.clearAllMocks();
 
-  testTabs = [{ id: 3, url: 'https://www.nytimes.com' }];
+  const testTabs = [{ id: 3, url: 'https://www.nytimes.com' }];
   
   TabManager.closedTabs.wrangleTabs(testTabs);
 
@@ -120,6 +118,46 @@ test('should not wrangle duplicate tabs', () => {
     }]]);
 
   expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
+});
+
+test('should return index of tab if the url matches', () => {
+  TabManager.closedTabs.tabs = [
+    {id: 1, url: 'https://www.github.com'},
+    {id: 2, url: 'https://www.google.com'},
+    {id: 3, url: 'https://www.nytimes.com'},
+  ];
+
+  expect(TabManager.closedTabs.findPositionByURL('https://www.nytimes.com')).toBe(2);
+});
+
+test('should return -1 if the url doesnt match any tab', () => {
+  TabManager.closedTabs.tabs = [
+    {id: 1, url: 'https://www.github.com'},
+    {id: 2, url: 'https://www.google.com'},
+    {id: 3, url: 'https://www.nytimes.com'},
+  ];
+
+  expect(TabManager.closedTabs.findPositionByURL('https://www.mozilla.org')).toBe(-1);
+});
+
+test('should return -1 if the url is undefined', () => {
+  TabManager.closedTabs.tabs = [
+    {id: 1, url: 'https://www.github.com'},
+    {id: 2, url: 'https://www.google.com'},
+    {id: 3, url: 'https://www.nytimes.com'},
+  ];
+
+  expect(TabManager.closedTabs.findPositionByURL()).toBe(-1);
+});
+
+test('should return -1 if the url is null', () => {
+  TabManager.closedTabs.tabs = [
+    {id: 1, url: 'https://www.github.com'},
+    {id: 2, url: 'https://www.google.com'},
+    {id: 3, url: 'https://www.nytimes.com'},
+  ];
+
+  expect(TabManager.closedTabs.findPositionByURL(null)).toBe(-1);
 });
 
 // sample tab data

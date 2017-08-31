@@ -40,12 +40,7 @@ const TabManager = {
     },
 
     findPositionByURL(url: string): ?number {
-      for (let i = 0; i < this.tabs.length; i++) {
-        if (this.tabs[i].url === url && url !== undefined) {
-          return i;
-        }
-      }
-      return -1;
+      return _.findIndex(this.tabs, (item) => { return item.url === url && !_.isUndefined(url); });
     },
 
     removeTab(tabId: number) {
@@ -96,7 +91,6 @@ const TabManager = {
           const tab = this.tabs[existingTabPosition];
           this.tabs.splice(existingTabPosition, 1);
           this.tabs.unshift(tab);
-          console.error('Rearranged tabs:', this.tabs);
         } else {
           this.tabs.unshift(tabs[i]);
         }

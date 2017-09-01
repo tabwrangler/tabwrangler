@@ -253,7 +253,6 @@ export default class CorralTab extends React.Component {
 
   render() {
     let allTabsSelected;
-    let selectedClosedTabsCount = 0;
     const tableRows = [];
     if (this.state.closedTabs.length === 0) {
       allTabsSelected = false;
@@ -272,7 +271,6 @@ export default class CorralTab extends React.Component {
         if (tabId == null) return;
 
         const isSelected = this.state.selectedTabs.has(tab);
-        if (isSelected) selectedClosedTabsCount++;
         allTabsSelected = allTabsSelected && isSelected;
 
         tableRows.push(
@@ -341,26 +339,24 @@ export default class CorralTab extends React.Component {
                     />
                   </button>
 
-                  {this.state.closedTabs.some(tab => this.state.selectedTabs.has(tab)) ?
-                    <div className="btn-group" style={{ marginLeft: '10px' }}>
-                      <button
-                        className="btn btn-default btn-sm btn-chunky"
-                        onClick={this._handleRemoveSelectedTabs}
-                        title="Remove selected tabs">
-                        <span className="sr-only">Remove selected tabs</span>
-                        <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                      </button>
-                      <button
-                        className="btn btn-default btn-sm btn-chunky"
-                        disabled={selectedClosedTabsCount > 15}
-                        onClick={this._handleRestoreSelectedTabs}
-                        title="Restore selected tabs">
-                        <span className="sr-only">Restore selected tabs</span>
-                        <span className="glyphicon glyphicon-new-window" aria-hidden="true"></span>
-                      </button>
-                    </div> :
-                    null
-                  }
+                  {this.state.closedTabs.some(tab => this.state.selectedTabs.has(tab)) ? [
+                    <button
+                      className="btn btn-default btn-sm btn-chunky"
+                      onClick={this._handleRemoveSelectedTabs}
+                      style={{marginLeft: '10px'}}
+                      title="Remove selected tabs">
+                      <span className="sr-only">Remove selected tabs</span>
+                      <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>,
+                    <button
+                      className="btn btn-default btn-sm btn-chunky"
+                      onClick={this._handleRestoreSelectedTabs}
+                      style={{marginLeft: '10px'}}
+                      title="Restore selected tabs">
+                      <span className="sr-only">Restore selected tabs</span>
+                      <span className="glyphicon glyphicon-new-window" aria-hidden="true"></span>
+                    </button>,
+                  ] : null}
                 </div>
                 <div style={{ alignItems: 'center', display: 'flex' }}>
                   {this.state.filter.length > 0 ?

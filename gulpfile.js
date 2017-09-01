@@ -132,32 +132,36 @@ gulp.task('watch', function(done) {
   gulp.start(['cp', 'lint', 'webpack:watch']);
 });
 
+gulp.task('archive', function(done) {
+  // create a file to stream archive data to.
+  const output = fs.createWriteStream(`${__dirname}/tabwrangler-${packageJson.version}.zip`);
+  const archive = archiver('zip');
+
+  // listen for all archive data to be written
+  output.on('close', function() {
+    console.log(`${archive.pointer()} total bytes`);
+    console.log('archiver has been finalized and the output file descriptor has closed.');
+    done();
+  });
+
+  // good practice to catch this error explicitly
+  archive.on('error', function(err) {
+    throw err;
+  });
+
+  // pipe archive data to the file
+  archive.pipe(output);
+
+  // append files from a directory
+  archive.directory(`${DIST_DIRECTORY}/`);
+
+  // finalize the archive (ie we are done appending files but streams have to finish yet)
+  archive.finalize();
+});
+
 gulp.task('release', function(done) {
-  runSequence('clean', 'cp', 'lint', 'webpack:production', function() {
-    // create a file to stream archive data to.
-    const output = fs.createWriteStream(`${__dirname}/tabwrangler-${packageJson.version}.zip`);
-    const archive = archiver('zip');
-
-    // listen for all archive data to be written
-    output.on('close', function() {
-      console.log(`${archive.pointer()} total bytes`);
-      console.log('archiver has been finalized and the output file descriptor has closed.');
-      done();
-    });
-
-    // good practice to catch this error explicitly
-    archive.on('error', function(err) {
-      throw err;
-    });
-
-    // pipe archive data to the file
-    archive.pipe(output);
-
-    // append files from a directory
-    archive.directory(`${DIST_DIRECTORY}/`);
-
-    // finalize the archive (ie we are done appending files but streams have to finish yet)
-    archive.finalize();
+  runSequence('clean', 'cp', 'lint', 'test', 'webpack:production', 'archive', function() {
+    done();
   });
 });
 

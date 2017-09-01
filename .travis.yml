@@ -1,11 +1,7 @@
-sudo: false
+cache: yarn
 language: node_js
 node_js:
   - 8
   - 7
-  - 6
-
-before_script:
-  - yarn
-
-script: npm run test
+script: yarn run release
+sudo: false

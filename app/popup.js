@@ -3,6 +3,7 @@
 import _ from 'underscore';
 import CorralTab from './js/CorralTab';
 import LazyImage from './js/LazyImage';
+import TabWrangleOption from './js/TabWrangleOption';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import ReactDOM from 'react-dom';
@@ -540,6 +541,9 @@ class OptionsTab extends React.Component {
             </form>
           </div>
         </div>
+
+        <h4 className="page-header">Tab Wrangle Option</h4>
+        <TabWrangleOption />
 
         <table className="table table-hover table-striped">
           <thead>

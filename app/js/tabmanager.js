@@ -39,8 +39,16 @@ const TabManager = {
       return null;
     },
 
-    findPositionByURL(url: string): ?number {
+    findPositionByURL(url: string = ''): ?number {
       return _.findIndex(this.tabs, (item) => { return item.url === url && !_.isUndefined(url); });
+    },
+
+    findPositionByHostnameAndTitle(url: string, title: string = ''): ?number {
+      return _.findIndex(this.tabs, (tab) => {
+        const hostA = new URL(tab.url).hostname;
+        const hostB = new URL(url).hostname;
+        return hostA === hostB && tab.title === title;
+      });
     },
 
     removeTab(tabId: number) {
@@ -87,6 +95,7 @@ const TabManager = {
 
         const existingTabPosition = this.findPositionByURL(tabs[i].url);
         tabs[i].closedAt = new Date().getTime();
+
         if (existingTabPosition > -1) {
           const tab = this.tabs[existingTabPosition];
           this.tabs.splice(existingTabPosition, 1);

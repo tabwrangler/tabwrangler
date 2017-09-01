@@ -120,68 +120,36 @@ test('should not wrangle duplicate tabs', () => {
   expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
 });
 
-test('should return index of tab if the url matches', () => {
-  TabManager.closedTabs.tabs = [
-    {id: 1, url: 'https://www.github.com'},
-    {id: 2, url: 'https://www.google.com'},
-    {id: 3, url: 'https://www.nytimes.com'},
-  ];
+describe('filter', () => {
+  beforeEach(() => {
+    TabManager.closedTabs.tabs = [
+      {id: 1, url: 'https://www.github.com', title: 'GitHub'},
+      {id: 2, url: 'https://www.google.com', title: 'Google'},
+      {id: 3, url: 'https://www.nytimes.com', title: 'The New York Times - Breaking News, World News & Multimedia'},
+    ];
+  });
 
-  expect(TabManager.closedTabs.findPositionByURL('https://www.nytimes.com')).toBe(2);
+  test('should return index of tab if the url matches', () => {
+    expect(TabManager.closedTabs.findPositionByURL('https://www.nytimes.com')).toBe(2);
+  });
+  
+  test('should return -1 if the url does not match any tab', () => {
+    expect(TabManager.closedTabs.findPositionByURL('https://www.mozilla.org')).toBe(-1);
+  });
+  
+  test('should return -1 if the url is undefined', () => {
+    expect(TabManager.closedTabs.findPositionByURL()).toBe(-1);
+  });
+  
+  test('should return -1 if the url is null', () => {
+    expect(TabManager.closedTabs.findPositionByURL(null)).toBe(-1);
+  });
+
+  test('should return index of tab if the url matches', () => {
+    expect(TabManager.closedTabs.findPositionByHostnameAndTitle('https://www.nytimes.com', 'The New York Times - Breaking News, World News & Multimedia')).toBe(2);
+  });
+
+  test('should return -1 of tab if no title provided', () => {
+    expect(TabManager.closedTabs.findPositionByHostnameAndTitle('https://www.nytimes.com')).toBe(-1);
+  });
 });
-
-test('should return -1 if the url doesnt match any tab', () => {
-  TabManager.closedTabs.tabs = [
-    {id: 1, url: 'https://www.github.com'},
-    {id: 2, url: 'https://www.google.com'},
-    {id: 3, url: 'https://www.nytimes.com'},
-  ];
-
-  expect(TabManager.closedTabs.findPositionByURL('https://www.mozilla.org')).toBe(-1);
-});
-
-test('should return -1 if the url is undefined', () => {
-  TabManager.closedTabs.tabs = [
-    {id: 1, url: 'https://www.github.com'},
-    {id: 2, url: 'https://www.google.com'},
-    {id: 3, url: 'https://www.nytimes.com'},
-  ];
-
-  expect(TabManager.closedTabs.findPositionByURL()).toBe(-1);
-});
-
-test('should return -1 if the url is null', () => {
-  TabManager.closedTabs.tabs = [
-    {id: 1, url: 'https://www.github.com'},
-    {id: 2, url: 'https://www.google.com'},
-    {id: 3, url: 'https://www.nytimes.com'},
-  ];
-
-  expect(TabManager.closedTabs.findPositionByURL(null)).toBe(-1);
-});
-
-// sample tab data
-// [
-//   {
-//     "active": true,
-//     "audible": false,
-//     "autoDiscardable": true,
-//     "discarded": false,
-//     "favIconUrl": "https://facebook.github.io/jest/img/favicon/favicon.ico",
-//     "height": 1496,
-//     "highlighted": true,
-//     "id": 2267,
-//     "incognito": false,
-//     "index": 4,
-//     "mutedInfo": {
-//       "muted": false
-//     },
-//     "pinned": false,
-//     "selected": true,
-//     "status": "complete",
-//     "title": "Expect · Jest",
-//     "url": "https://facebook.github.io/jest/docs/en/expect.html#expectanything",
-//     "width": 2823,
-//     "windowId": 769
-//   }
-// ]

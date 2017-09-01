@@ -10,6 +10,7 @@ module.exports = {
     jest: true,
     beforeEach: true,
     afterEach: true,
+    describe: true,
   },
   extends: [
     'eslint:recommended',

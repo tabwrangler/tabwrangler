@@ -10,30 +10,29 @@ import React from 'react';
 // };
 
 export default function TabWrangleOption() {
+  constructor(props) {
+    super(props);
+
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(e) {
+    console.log(e.target);
+  }
+
+  const checked = this.props.checked;
   return (
     <div className="row">
       <div className="col-xs-8">
         <form
           onSubmit={this.handleAddPatternSubmit}
           style={{marginBottom: '20px'}}>
-          <label htmlFor="wl-add">Auto-lock tabs with URLs containing:</label>
+          <label htmlFor="wl-add">Wrangle Tab Options:</label>
           <div className="input-group">
-            <input
-              className="form-control"
-              id="wl-add"
-              onChange={this.handleNewPatternChange}
-              type="text"
-              value={this.state.newPattern}
-            />
-            {/* <span className="input-group-btn">
-              <button
-                className="btn btn-default"
-                disabled={!isValidPattern(this.state.newPattern)}
-                id="addToWL"
-                type="submit">
-                Add
-              </button>
-            </span> */}
+              onChange={this.handleChange}>
+              <input type="radio" value="withDupes" name="option" checked={checked === "withDupes"}/>With Duplicates
+              <input type="radio" value="exactURLMatch" name="option" checked={checked === "exactURLMatch"}/>Exact URL match
+              <input type="radio" value="hostnameAndTitleMatch" name="option" checked={checked === "hostnameAndTitleMatch"}/>Hostname and Title match
           </div>
           <p className="help-block">
             <strong>Example:</strong> <i>cnn</i> would match every page on <i>cnn.com</i> and

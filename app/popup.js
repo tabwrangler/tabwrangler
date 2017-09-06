@@ -278,6 +278,8 @@ class OptionsTab extends React.Component {
   handleSettingsChange = (event) => {
     if (event.target.type === 'checkbox') {
       this.saveOption(event.target.id, !!event.target.checked);
+    } else if (event.target.type === 'radio') {
+      this.saveOption(event.target.name, event.target.value);
     } else {
       this.saveOption(event.target.id, event.target.value);
     }
@@ -542,8 +544,14 @@ class OptionsTab extends React.Component {
           </div>
         </div>
 
-        <h4 className="page-header">Tab Wrangle Option</h4>
-        <TabWrangleOption />
+        <h4 className="page-header">Tab Wrangle Options</h4>
+        <div className="row">
+          <div className="col-xs-8">
+            <TabWrangleOption
+              selectedOption={settings.get('wrangleOption')}
+              onChange={this.handleSettingsChange}/>
+          </div>
+        </div>
 
         <table className="table table-hover table-striped">
           <thead>

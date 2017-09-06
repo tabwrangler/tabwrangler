@@ -2,44 +2,77 @@
 
 import React from 'react';
 
-// type Props = {
-//   children?: any,
-//   className?: string,
-//   glyph?: string,
-//   onClick?: () => void,
-// };
+type Props = {
+  selectedOption?: string,
+  onChange?: () => void,
+};
 
-export default function TabWrangleOption() {
-  constructor(props) {
+export default class TabWrangleOption extends React.Component {
+  constructor(props: Props) {
     super(props);
 
+    this.state = {selectedOption: this.props.selectedOption };
     this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange(e) {
-    console.log(e.target);
+    this.setState({
+      selectedOption: e.target.value,
+    });
+
+    this.props.onChange(e);
   }
 
-  const checked = this.props.checked;
-  return (
-    <div className="row">
-      <div className="col-xs-8">
-        <form
-          onSubmit={this.handleAddPatternSubmit}
-          style={{marginBottom: '20px'}}>
-          <label htmlFor="wl-add">Wrangle Tab Options:</label>
-          <div className="input-group">
-              onChange={this.handleChange}>
-              <input type="radio" value="withDupes" name="option" checked={checked === "withDupes"}/>With Duplicates
-              <input type="radio" value="exactURLMatch" name="option" checked={checked === "exactURLMatch"}/>Exact URL match
-              <input type="radio" value="hostnameAndTitleMatch" name="option" checked={checked === "hostnameAndTitleMatch"}/>Hostname and Title match
+  render() {
+    const checked = this.state.selectedOption;
+
+    return (
+      <form className="form-inline"
+            onSubmit={this.handleChange} style={{ marginBottom: '20px' }}>
+          <div className="form-check">
+            <label className="form-check-label">
+              <input
+                className="form-check-input"
+                type="radio"
+                value="withDupes"
+                name="wrangleOption"
+                id="withDupes"
+                onChange={this.handleChange}
+                checked={checked === 'withDupes'}
+              /> With Duplicates
+            </label>
           </div>
-          <p className="help-block">
-            <strong>Example:</strong> <i>cnn</i> would match every page on <i>cnn.com</i> and
-            any URL with <i>cnn</i> anywhere in it.
-          </p>
-        </form>
-      </div>
-    </div>
-  );
+          <div className="form-check">
+            <label className="form-check-label">
+              <input
+                className="form-check-input"
+                type="radio"
+                value="exactURLMatch"
+                name="wrangleOption"
+                id="exactURLMatch"
+                onChange={this.handleChange}
+                checked={checked === 'exactURLMatch'}
+              /> Exact URL match
+            </label>
+          </div>
+          <div className="form-check">
+            <label className="form-check-label">
+              <input
+                className="form-check-input"
+                type="radio"
+                value="hostnameAndTitleMatch"
+                name="wrangleOption"
+                id="hostnameAndTitleMatch"
+                onChange={this.handleChange}
+                checked={checked === 'hostnameAndTitleMatch'}
+              /> Hostname and Title match
+            </label>
+          </div>
+        <p className="help-block">
+          <strong>Example:</strong> <i>cnn</i> would match every page on <i>cnn.com</i> and any
+          URL with <i>cnn</i> anywhere in it.
+        </p>
+      </form>
+    );
+  }
 }

@@ -86,7 +86,7 @@ const exportData = (storageLocal: storageLocalType) => {
 };
 
 const exportFileName = (date: Date) => {
-  const localeDateString = date.toLocaleDateString().replace(/\//g, '-');
+  const localeDateString = date.toLocaleDateString('en-US').replace(/\//g, '-');
   return `TabWranglerExport-${localeDateString}.json`;
 };
 

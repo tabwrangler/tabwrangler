@@ -1,0 +1,262 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render options with exactURLMatch selected 1`] = `
+<form
+  className="form-inline"
+  style={
+    Object {
+      "marginBottom": "20px",
+    }
+  }
+>
+  <div
+    className="form-check"
+  >
+    <label
+      className="form-check-label"
+    >
+      <input
+        checked={false}
+        className="form-check-input"
+        id="withDupes"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="withDupes"
+      />
+       
+      With Duplicates
+    </label>
+  </div>
+  <div
+    className="form-check"
+  >
+    <label
+      className="form-check-label"
+    >
+      <input
+        checked={true}
+        className="form-check-input"
+        id="exactURLMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="exactURLMatch"
+      />
+       
+      Exact URL match
+    </label>
+  </div>
+  <div
+    className="form-check"
+  >
+    <label
+      className="form-check-label"
+    >
+      <input
+        checked={false}
+        className="form-check-input"
+        id="hostnameAndTitleMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="hostnameAndTitleMatch"
+      />
+       
+      Hostname and Title match
+    </label>
+  </div>
+  <div
+    className="help-block"
+  >
+    <strong>
+      Options:
+    </strong>
+    <ul>
+      <li>
+        With Duplicates - Wrangle tab no matter what (Default and original behavior).
+      </li>
+      <li>
+        Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab.
+      </li>
+      <li>
+        Hostname and Title match - Wrangle tab only if the hostname and the title doesn't match an already wrangled tab.
+      </li>
+    </ul>
+  </div>
+</form>
+`;
+
+exports[`should render options with hostnameAndTitleMatch selected 1`] = `
+<form
+  className="form-inline"
+  style={
+    Object {
+      "marginBottom": "20px",
+    }
+  }
+>
+  <div
+    className="form-check"
+  >
+    <label
+      className="form-check-label"
+    >
+      <input
+        checked={false}
+        className="form-check-input"
+        id="withDupes"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="withDupes"
+      />
+       
+      With Duplicates
+    </label>
+  </div>
+  <div
+    className="form-check"
+  >
+    <label
+      className="form-check-label"
+    >
+      <input
+        checked={false}
+        className="form-check-input"
+        id="exactURLMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="exactURLMatch"
+      />
+       
+      Exact URL match
+    </label>
+  </div>
+  <div
+    className="form-check"
+  >
+    <label
+      className="form-check-label"
+    >
+      <input
+        checked={true}
+        className="form-check-input"
+        id="hostnameAndTitleMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="hostnameAndTitleMatch"
+      />
+       
+      Hostname and Title match
+    </label>
+  </div>
+  <div
+    className="help-block"
+  >
+    <strong>
+      Options:
+    </strong>
+    <ul>
+      <li>
+        With Duplicates - Wrangle tab no matter what (Default and original behavior).
+      </li>
+      <li>
+        Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab.
+      </li>
+      <li>
+        Hostname and Title match - Wrangle tab only if the hostname and the title doesn't match an already wrangled tab.
+      </li>
+    </ul>
+  </div>
+</form>
+`;
+
+exports[`should render options with withDupes selected 1`] = `
+<form
+  className="form-inline"
+  style={
+    Object {
+      "marginBottom": "20px",
+    }
+  }
+>
+  <div
+    className="form-check"
+  >
+    <label
+      className="form-check-label"
+    >
+      <input
+        checked={true}
+        className="form-check-input"
+        id="withDupes"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="withDupes"
+      />
+       
+      With Duplicates
+    </label>
+  </div>
+  <div
+    className="form-check"
+  >
+    <label
+      className="form-check-label"
+    >
+      <input
+        checked={false}
+        className="form-check-input"
+        id="exactURLMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="exactURLMatch"
+      />
+       
+      Exact URL match
+    </label>
+  </div>
+  <div
+    className="form-check"
+  >
+    <label
+      className="form-check-label"
+    >
+      <input
+        checked={false}
+        className="form-check-input"
+        id="hostnameAndTitleMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="hostnameAndTitleMatch"
+      />
+       
+      Hostname and Title match
+    </label>
+  </div>
+  <div
+    className="help-block"
+  >
+    <strong>
+      Options:
+    </strong>
+    <ul>
+      <li>
+        With Duplicates - Wrangle tab no matter what (Default and original behavior).
+      </li>
+      <li>
+        Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab.
+      </li>
+      <li>
+        Hostname and Title match - Wrangle tab only if the hostname and the title doesn't match an already wrangled tab.
+      </li>
+    </ul>
+  </div>
+</form>
+`;

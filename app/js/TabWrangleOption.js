@@ -4,14 +4,19 @@ import React from 'react';
 
 type Props = {
   selectedOption?: string,
-  onChange?: () => void,
+  onChange?: () => void
 };
 
+const OPTIONS = [
+  { name: 'withDupes', text: 'With Duplicates' },
+  { name: 'exactURLMatch', text: 'Exact URL match' },
+  { name: 'hostnameAndTitleMatch', text: 'Hostname and Title match' },
+];
 export default class TabWrangleOption extends React.Component {
   constructor(props: Props) {
     super(props);
 
-    this.state = {selectedOption: this.props.selectedOption };
+    this.state = { selectedOption: this.props.selectedOption };
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -27,51 +32,34 @@ export default class TabWrangleOption extends React.Component {
     const checked = this.state.selectedOption;
 
     return (
-      <form className="form-inline"
-            onSubmit={this.handleChange} style={{ marginBottom: '20px' }}>
-          <div className="form-check">
+      <form className="form-inline" style={{ marginBottom: '20px' }}>
+        {OPTIONS.map(option => (
+          <div className="form-check" key={option.name}>
             <label className="form-check-label">
               <input
                 className="form-check-input"
                 type="radio"
-                value="withDupes"
+                value={option.name}
                 name="wrangleOption"
-                id="withDupes"
+                id={option.name}
                 onChange={this.handleChange}
-                checked={checked === 'withDupes'}
-              /> With Duplicates
+                checked={checked === option.name}
+              />{' '}
+              {option.text}
             </label>
           </div>
-          <div className="form-check">
-            <label className="form-check-label">
-              <input
-                className="form-check-input"
-                type="radio"
-                value="exactURLMatch"
-                name="wrangleOption"
-                id="exactURLMatch"
-                onChange={this.handleChange}
-                checked={checked === 'exactURLMatch'}
-              /> Exact URL match
-            </label>
-          </div>
-          <div className="form-check">
-            <label className="form-check-label">
-              <input
-                className="form-check-input"
-                type="radio"
-                value="hostnameAndTitleMatch"
-                name="wrangleOption"
-                id="hostnameAndTitleMatch"
-                onChange={this.handleChange}
-                checked={checked === 'hostnameAndTitleMatch'}
-              /> Hostname and Title match
-            </label>
-          </div>
-        <p className="help-block">
-          <strong>Example:</strong> <i>cnn</i> would match every page on <i>cnn.com</i> and any
-          URL with <i>cnn</i> anywhere in it.
-        </p>
+        ))}
+        <div className="help-block">
+          <strong>Options:</strong>
+          <ul>
+            <li>With Duplicates - Wrangle tab no matter what (Default and original behavior).</li>
+            <li>Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab.</li>
+            <li>
+              Hostname and Title match - Wrangle tab only if the hostname and the title doesn't
+              match an already wrangled tab.
+            </li>
+          </ul>
+        </div>
       </form>
     );
   }

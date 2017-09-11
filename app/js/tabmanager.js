@@ -231,6 +231,7 @@ const TabManager = {
     let tabId;
     if (Array.isArray(tabOrTabId)) {
       tabOrTabId.map(this.updateLastAccessed.bind(this));
+      return;
     } else if (typeof tabOrTabId === 'number') {
       tabId = tabOrTabId;
     } else {

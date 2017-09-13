@@ -367,7 +367,7 @@ export default class CorralTab extends React.Component {
                         onClick={this._clearFilter}
                         style={{ marginLeft: '5px' }}
                         title="Clear search">
-                        &times;
+                        x
                       </span>
                     </span> :
                     null}

@@ -14,13 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jacobSingh/tabwrangler.git"
+    "url": "git+https://github.com/tabwrangler/tabwrangler.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jacobSingh/tabwrangler/issues"
+    "url": "https://github.com/tabwrangler/tabwrangler/issues"
   },
-  "homepage": "https://github.com/jacobSingh/tabwrangler#readme",
+  "homepage": "https://github.com/tabwrangler/tabwrangler#readme",
   "devDependencies": {
     "archiver": "^1.3.0",
     "babel-core": "^6.24.1",

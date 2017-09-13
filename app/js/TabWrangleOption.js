@@ -64,3 +64,7 @@ export default class TabWrangleOption extends React.Component {
     );
   }
 }
+
+TabWrangleOption.defaultProps = {
+  selectedOption: 'withDupes',
+};

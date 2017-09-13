@@ -161,19 +161,19 @@ describe('WrangleOptions', () => {
     expect(window.TW.settings.get).toBeCalled();
   });
 
-  test('should return WITH_DUPES if setting is not available', () => {
+  test('should return WITH_DUPES if setting is withDupes', () => {
     window.TW.settings.get = jest.fn(() => 'withDupes');
     expect(TabManager.closedTabs.getWrangleOption()).toEqual('WITH_DUPES');
     expect(window.TW.settings.get).toBeCalled();
   });
 
-  test('should return EXACT_URL_MATCH if setting is not available', () => {
+  test('should return EXACT_URL_MATCH if setting is exactURLMatch', () => {
     window.TW.settings.get = jest.fn(() => 'exactURLMatch');
     expect(TabManager.closedTabs.getWrangleOption()).toEqual('EXACT_URL_MATCH');
     expect(window.TW.settings.get).toBeCalled();
   });
 
-  test('should return HOST_AND_TITLE_MATCH if setting is not available', () => {
+  test('should return HOST_AND_TITLE_MATCH if setting is hostnameAndTitleMatch', () => {
     window.TW.settings.get = jest.fn(() => 'hostnameAndTitleMatch');
     expect(TabManager.closedTabs.getWrangleOption()).toEqual('HOST_AND_TITLE_MATCH');
     expect(window.TW.settings.get).toBeCalled();

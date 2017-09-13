@@ -3,8 +3,6 @@
 
 import _ from 'underscore';
 
-type TabOrTabId = chrome$Tab | number
-
 /**
  * Stores the tabs in a separate variable to log Last Accessed time.
  * @type {Object}
@@ -222,12 +220,7 @@ const TabManager = {
     chrome.browserAction.setBadgeText({text: storedTabs.toString()});
   },
 
-  /**
-   * Takes a tabId or a tab object
-   * @param {mixed} tabId
-   *  Tab ID or Tab object.
-   */
-  updateLastAccessed(tabOrTabId: TabOrTabId | Array<TabOrTabId>) {
+  updateLastAccessed(tabOrTabId: chrome$Tab | number | Array<chrome$Tab>) {
     let tabId;
     if (Array.isArray(tabOrTabId)) {
       tabOrTabId.map(TabManager.updateLastAccessed.bind(this));

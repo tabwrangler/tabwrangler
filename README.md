@@ -1,6 +1,6 @@
 # Tab Wrangler
 
-Auto-closes tabs which you haven't used in awhile.
+Helps you focus by auto-closing tabs that you haven't used in a while.
 
 ## Features
 

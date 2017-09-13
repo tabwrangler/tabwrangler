@@ -230,7 +230,7 @@ const TabManager = {
   updateLastAccessed(tabOrTabId: TabOrTabId | Array<TabOrTabId>) {
     let tabId;
     if (Array.isArray(tabOrTabId)) {
-      tabOrTabId.map(this.updateLastAccessed.bind(this));
+      tabOrTabId.map(TabManager.updateLastAccessed.bind(this));
       return;
     } else if (typeof tabOrTabId === 'number') {
       tabId = tabOrTabId;

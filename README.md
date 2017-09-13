@@ -1,6 +1,6 @@
 # Tab Wrangler
 
-Auto-closes tabs which you haven't used in awhile.
+Helps you focus by auto-closing tabs that you haven't used in a while.
 
 ## Features
 
@@ -12,10 +12,13 @@ Auto-closes tabs which you haven't used in awhile.
 * *Smart*: Doesn't autoclose pinned tabs, doesn't close all your tabs,
   just enough to make your browser usable.
 
-## Usage / Installation
+## Installation
 
 1. Install the extension from the Chrome Web Store https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
-2. Click on the icon next to the URL bar
+
+## Usage
+
+1. Click on the icon next to the URL bar
     * Tab Corral
       * Stores tabs which have been auto-closed.
     * Tab Lock

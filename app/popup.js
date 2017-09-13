@@ -766,17 +766,17 @@ function AboutTab() {
       <p>TabWrangler v{chrome.runtime.getManifest().version}</p>
       <ul>
         <li>
-          <a href="https://github.com/jacobSingh/tabwrangler/releases" target="_blank">
+          <a href="https://github.com/tabwrangler/tabwrangler/releases" target="_blank">
             Change Log
           </a>
         </li>
         <li>
-          <a href="https://github.com/jacobSingh/tabwrangler/issues" target="_blank">
+          <a href="https://github.com/tabwrangler/tabwrangler/issues" target="_blank">
             Support
           </a>
         </li>
         <li>
-          <a href="https://github.com/jacobSingh/tabwrangler" target="_blank">
+          <a href="https://github.com/tabwrangler/tabwrangler" target="_blank">
             Source Code (MIT)
           </a>
         </li>

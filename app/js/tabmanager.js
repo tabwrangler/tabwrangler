@@ -278,14 +278,12 @@ const TabManager = {
     chrome.browserAction.setBadgeText({text: storedTabs.toString()});
   },
 
-  /**
-   * Takes a tabId or a tab object
-   * @param {mixed} tabId
-   *  Tab ID or Tab object.
-   */
-  updateLastAccessed(tabOrTabId: chrome$Tab | number) {
+  updateLastAccessed(tabOrTabId: chrome$Tab | number | Array<chrome$Tab>) {
     let tabId;
-    if (typeof tabOrTabId === 'number') {
+    if (Array.isArray(tabOrTabId)) {
+      tabOrTabId.map(TabManager.updateLastAccessed.bind(this));
+      return;
+    } else if (typeof tabOrTabId === 'number') {
       tabId = tabOrTabId;
     } else {
       tabId = tabOrTabId.id;

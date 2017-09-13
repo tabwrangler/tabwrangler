@@ -1,3 +1,5 @@
+/* @flow */
+
 import _ from 'underscore';
 import menus from './js/menus';
 import settings from './js/settings';
@@ -15,11 +17,11 @@ const TW = window.TW = {};
  */
 const checkToClose = function(cutOff) {
   let i;
-  cutOff = cutOff || new Date().getTime() - settings.get('stayOpen');
-  const minTabs = settings.get('minTabs');
+  cutOff = cutOff || new Date().getTime() - ((settings.get('stayOpen'): any): number);
+  const minTabs = ((settings.get('minTabs'): any): number);
 
   // Tabs which have been locked via the checkbox.
-  const lockedIds = settings.get('lockedIds');
+  const lockedIds = ((settings.get('lockedIds'): any): Array<number>);
   const toCut = tabmanager.getOlderThen(cutOff);
 
   if (settings.get('paused') === true) {
@@ -31,17 +33,20 @@ const checkToClose = function(cutOff) {
 
   chrome.windows.getAll({populate:true}, function(windows) {
     let tabs = []; // Array of tabs, populated for each window.
-    _.each(windows, function(myWindow) {
+    windows.forEach(myWindow => {
       tabs = myWindow.tabs;
+      if (tabs == null) return;
+
       // Filter out the pinned tabs
-      tabs = _.filter(tabs, function(tab) {return tab.pinned === false;});
-      let tabsToCut = _.filter(tabs, function(t) {return toCut.indexOf(t.id) !== -1;});
+      tabs = tabs.filter(tab => tab.pinned === false);
+      let tabsToCut = tabs.filter(t => t.id == null || toCut.indexOf(t.id) !== -1);
       if ((tabs.length - minTabs) <= 0) {
         // We have less than minTab tabs, abort.
         // Also, let's reset the last accessed time of our current tabs so they
         // don't get closed when we add a new one.
         for (i = 0; i < tabs.length; i++) {
-          tabmanager.updateLastAccessed(tabs[i].id);
+          const tabId = tabs[i].id;
+          if (tabId != null) tabmanager.updateLastAccessed(tabId);
         }
         return;
       }
@@ -53,12 +58,15 @@ const checkToClose = function(cutOff) {
         return;
       }
 
-      for (i=0; i < tabsToCut.length; i++) {
-        if (lockedIds.indexOf(tabsToCut[i].id) !== -1) {
+      for (i = 0; i < tabsToCut.length; i++) {
+        const tabId = tabsToCut[i].id;
+        if (tabId == null) continue;
+
+        if (lockedIds.indexOf(tabId) !== -1) {
           // Update its time so it gets checked less frequently.
           // Would also be smart to just never add it.
           // @todo: fix that.
-          tabmanager.updateLastAccessed(tabsToCut[i].id);
+          tabmanager.updateLastAccessed(tabId);
           continue;
         }
         closeTab(tabsToCut[i]);
@@ -72,7 +80,7 @@ const closeTab = function(tab) {
     return;
   }
 
-  if (tabmanager.isWhitelisted(tab.url)) {
+  if (tab.url != null && tabmanager.isWhitelisted(tab.url)) {
     return;
   }
 
@@ -80,20 +88,21 @@ const closeTab = function(tab) {
 };
 
 const onNewTab = function(tab) {
-  // Check if it exists in corral already
-  // The 2nd argument is an array of filters, we add one filter
-  // which checks for an exact URL match.  If we match throw the old
-  // entry away.
-  tabmanager.searchTabs(function(tabs) {
-    if (tabs.length) {
-      _.each(tabs, function(t) {
-        tabmanager.closedTabs.removeTab(t.id);
-      });
-    }
-  }, [tabmanager.filters.exactUrl(tab.url)]);
+  // Check if it exists in corral already. The 2nd argument is an array of filters, we add one
+  // filter which checks for an exact URL match. If we match, throw the old entry away.
+  if (tab.url != null) {
+    tabmanager.searchTabs(function(tabs) {
+      if (tabs.length) {
+        tabs.forEach(t => {
+          if (t.id == null) return;
+          tabmanager.closedTabs.removeTab(t.id);
+        });
+      }
+    }, [tabmanager.filters.exactUrl(tab.url)]);
+  }
 
   // Add the new one;
-  tabmanager.updateLastAccessed(tab.id);
+  if (tab.id != null) tabmanager.updateLastAccessed(tab.id);
 };
 
 const startup = function() {

@@ -1,7 +1,6 @@
 /* @flow */
 
 import tabmanager from './tabmanager';
-console.log('foo');
 
 /**
  * @type {Object}

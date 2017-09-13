@@ -153,3 +153,54 @@ describe('filter', () => {
     expect(TabManager.closedTabs.findPositionByHostnameAndTitle('https://www.nytimes.com')).toBe(-1);
   });
 });
+
+describe('WrangleOptions', () => {
+  test('should return WITH_DUPES if setting is not available', () => {
+    window.TW.settings.get = jest.fn(() => undefined);
+    expect(TabManager.closedTabs.getWrangleOption()).toEqual('WITH_DUPES');
+    expect(window.TW.settings.get).toBeCalled();
+  });
+
+  test('should return WITH_DUPES if setting is not available', () => {
+    window.TW.settings.get = jest.fn(() => 'withDupes');
+    expect(TabManager.closedTabs.getWrangleOption()).toEqual('WITH_DUPES');
+    expect(window.TW.settings.get).toBeCalled();
+  });
+
+  test('should return EXACT_URL_MATCH if setting is not available', () => {
+    window.TW.settings.get = jest.fn(() => 'exactURLMatch');
+    expect(TabManager.closedTabs.getWrangleOption()).toEqual('EXACT_URL_MATCH');
+    expect(window.TW.settings.get).toBeCalled();
+  });
+
+  test('should return HOST_AND_TITLE_MATCH if setting is not available', () => {
+    window.TW.settings.get = jest.fn(() => 'hostnameAndTitleMatch');
+    expect(TabManager.closedTabs.getWrangleOption()).toEqual('HOST_AND_TITLE_MATCH');
+    expect(window.TW.settings.get).toBeCalled();
+  });
+});
+
+describe('getURLPositionFilterByWrangleOption', () => {
+  test('should return function that always returns -1', () => {
+    const filterFunction = TabManager.closedTabs.getURLPositionFilterByWrangleOption('WITH_DUPES');
+
+    expect(filterFunction).not.toBeNull();
+    expect(filterFunction({url: 'http://www.test.com'})).toBe(-1);
+  });
+
+  test('should return function that will return the tab position by exact URL match', () => {
+    const filterFunction = 
+      TabManager.closedTabs.getURLPositionFilterByWrangleOption('EXACT_URL_MATCH');
+
+    expect(filterFunction).not.toBeNull();
+    expect(filterFunction({url: 'http://www.test.com'})).toBe(-1);
+  });
+
+  test('should return function that will return the tab position by hostname and title', () => {
+    const filterFunction = 
+      TabManager.closedTabs.getURLPositionFilterByWrangleOption('HOST_AND_TITLE_MATCH');
+
+    expect(filterFunction).not.toBeNull();
+    expect(filterFunction({url: 'http://www.test.com', title: 'test'})).toBe(-1);
+  });
+});

@@ -5,16 +5,6 @@
  */
 const Updater = {
   updates: {},
-  firstInstall() {
-    chrome.notifications.create({
-      iconUrl: 'img/icon48.png',
-      message:
-`Tab wrangler is now auto-closing tabs after ${TW.settings.get('minutesInactive')} minutes. \
-To change this setting, click on the new icon on your URL bar.`,
-      title: 'Tab Wrangler is installed',
-      type: 'basic',
-    });
-  },
   //@todo: refactor this into a couple functions
   run() {
     console.log('running updater');
@@ -54,8 +44,6 @@ To change this setting, click on the new icon on your URL bar.`,
     if (!currentVersion) {
       chrome.storage.sync.set({
         'version': manifestVersion,
-      },function() {
-        self.firstInstall();
       });
     } else if (currentVersion < manifestVersion) {
       for (const i in this.updates) {
@@ -79,56 +67,6 @@ To change this setting, click on the new icon on your URL bar.`,
       }
     }
   },
-};
-
-Updater.getNotification = function(title, items) {
-  title = title || 'Tab Wrangler Updates';
-  items = items || [];
-  return {
-    type: 'list',
-    title,
-    message: 'Tab wrangler updates',
-    iconUrl: 'img/icon48.png',
-    items,
-    buttons: [],
-  };
-};
-
-Updater.addCommonButtons = function(notification) {
-  notification.buttons.push({iconUrl: 'img/star.png', title: 'Review Tab Wrangler'});
-  notification.buttons.push(
-    {iconUrl: 'img/notes.png', title: 'See all release notes / be a tester'}
-  );
-};
-
-Updater.notificationIdPrefix = 'updater-';
-
-Updater.commonButtonHandler = function(id, buttonIdx) {
-  // If an updater is creating a notification it should
-  // do so by prefixing the Id with updater--.
-  // This is a little hacky, so there is a helper function
-  // which launches the notification with this.
-  if(id.indexOf(Updater.notificationIdPrefix) === 0) {
-    if (buttonIdx === 0) {
-      // Reviewing TabWrangler
-      // Launch the Chrome store page
-      chrome.tabs.create({url: 'https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews', active: true});
-    }
-
-    if (buttonIdx === 1) {
-      chrome.tabs.create({url: 'http://www.jacobsingh.name/tabwrangler/release-notes', active: true});
-    }
-  }
-};
-
-Updater.launchNotification = function(id, notification, addButtons) {
-  const cb = function(){};
-  addButtons = typeof(addButtons) == 'undefined' ? false : true;
-  if (addButtons) {
-    this.addCommonButtons(notification);
-    chrome.notifications.onButtonClicked.addListener(this.commonButtonHandler);
-  }
-  chrome.notifications.create(this.notificationIdPrefix + id, notification, cb);
 };
 
 // These are also run for users with no currentVersion set.
@@ -179,59 +117,6 @@ Updater.updates[2.2] = {
       localStorage.clear();
       TW.settings.init();
     });
-  },
-};
-
-Updater.updates[2.3] = {
-  fx() {
-
-  },
-};
-
-Updater.updates[2.4] = {
-  fx() {
-
-  },
-};
-
-Updater.updates[2.5] = {
-  fx() {
-
-  },
-};
-
-Updater.updates[2.6] = {
-  fx() {
-
-  },
-};
-
-Updater.updates[2.8] = {
-  fx() {
-
-  },
-};
-
-Updater.updates[2.9] = {
-  fx() {
-
-  },
-};
-
-Updater.updates[3.1] = {
-  fx() {
-
-  },
-
-  finished() {
-
-    const notification = Updater.getNotification('Tab Wrangler 3.1 updates');
-    notification.items.push({title: 'New', message: 'Remove tabs from Corral'});
-    notification.items.push({title: 'New', message: 'Pinned tabs not counted'});
-    notification.items.push({title: 'New', message: 'Auto-lock page UX'});
-    notification.items.push({title: 'Fix', message: 'No auto-close when > minTabs.'});
-    notification.items.push({title: 'Fix', message: 'Fixed display issue with timer after pause'});
-    Updater.launchNotification('3.1', notification, true);
   },
 };
 

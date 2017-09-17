@@ -4,12 +4,12 @@ module.exports = {
     es6: true,
   },
   globals: {
+    afterEach: true,
+    beforeEach: true,
     chrome: true,
-    test: true,
     expect: true,
     jest: true,
-    beforeEach: true,
-    afterEach: true,
+    test: true,
   },
   extends: [
     'eslint:recommended',

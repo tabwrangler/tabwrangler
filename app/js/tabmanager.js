@@ -180,12 +180,16 @@ const TabManager = {
 
   /**
    * Kinda frivolous.  Abstracterbation FTW!
-   * @param tabId
    */
   removeTab(tabId: number) {
     const totalTabsRemoved = TW.storageLocal.get('totalTabsRemoved');
     TW.storageLocal.set('totalTabsRemoved', totalTabsRemoved + 1);
     delete TabManager.tabTimes[tabId];
+  },
+
+  replaceTab(addedTabId: number, removedTabId: number) {
+    TabManager.removeTab(removedTabId);
+    TabManager.updateLastAccessed(addedTabId);
   },
 
   searchTabs(

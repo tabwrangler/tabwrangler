@@ -34,8 +34,8 @@ export default class TabWrangleOption extends React.Component {
     return (
       <form className="form-inline" style={{ marginBottom: '20px' }}>
         {OPTIONS.map(option => (
-          <div className="form-check" key={option.name}>
-            <label className="form-check-label">
+          <div className="radio" key={option.name}>
+            <label>
               <input
                 className="form-check-input"
                 type="radio"
@@ -50,13 +50,14 @@ export default class TabWrangleOption extends React.Component {
           </div>
         ))}
         <div className="help-block">
-          <strong>Options:</strong>
+          <strong>Explanation:</strong>
           <ul>
-            <li>With Duplicates - Wrangle tab no matter what (Default and original behavior).</li>
-            <li>Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab.</li>
+            <li>With Duplicates - Wrangle tab no matter if it already exist in the wrangled tab list
+             (Default and original behavior), e.g. a tab for http://www.github.com will be placed at top the wrangled tab list although there is an existing entry for it already.</li>
+            <li>Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab, e.g. a tab for http://www.github.com will not added to the wrangled tabs list if there is already one in the list. The existing entry will be moved to the top of the list instead.</li>
             <li>
               Hostname and Title match - Wrangle tab only if the hostname and the title doesn't
-              match an already wrangled tab.
+              match an already wrangled tab, e.g. a tab for https://github.com/tabwrangler/tabwrangler and title 'tabwrangler/tabwrangler' will only added to the wrangled tabs list, if there isn't already an entry that matches both the hostname and the title.
             </li>
           </ul>
         </div>

@@ -122,7 +122,8 @@ describe('wrangleTabs', () => {
   });
   
   test('should not wrangle if hostname and title match', () => {
-    window.TW.settings.get = jest.fn().mockImplementationOnce(() => 3).mockImplementationOnce(() => 'HOST_AND_TITLE_MATCH');
+    window.TW.settings.get = jest.fn().mockImplementationOnce(() => 3).
+                                        mockImplementationOnce(() => 'HOST_AND_TITLE_MATCH');
     window.TW.storageLocal.get = jest.fn(() => 0);
     window.TW.storageLocal.set = jest.fn();
     window.chrome.tabs.remove = jest.fn();

@@ -5,11 +5,6 @@
 import _ from 'lodash';
 
 type WrangleOption = 'WITH_DUPES' | 'EXACT_URL_MATCH' | 'HOST_AND_TITLE_MATCH';
-// enum WrangleOptions {
-//   WITH_DUPES = 'withDupes',
-//   EXACT_URL_MATCH = 'exactURLMatch',
-//   HOST_AND_TITLE_MATCH = 'hostnameAndTitleMatch'
-// };
 
 /**
  * Stores the tabs in a separate variable to log Last Accessed time.

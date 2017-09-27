@@ -1,7 +1,6 @@
 /* @flow */
 /* global TW */
 
-// import _ from 'underscore';
 import _ from 'lodash';
 
 type WrangleOption = 'WITH_DUPES' | 'EXACT_URL_MATCH' | 'HOST_AND_TITLE_MATCH';
@@ -41,11 +40,11 @@ const TabManager = {
       return null;
     },
 
-    findPositionByURL(url: string = ''): ?number {
+    findPositionByURL(url: string = ''): number {
       return _.findIndex(this.tabs, (item) => { return item.url === url && !_.isUndefined(url); });
     },
 
-    findPositionByHostnameAndTitle(url: string, title: string = ''): ?number {
+    findPositionByHostnameAndTitle(url: string = '', title: string = ''): number {
       return _.findIndex(this.tabs, (tab) => {
         const hostA = new URL(tab.url).hostname;
         const hostB = new URL(url).hostname;
@@ -97,12 +96,15 @@ const TabManager = {
       return 'WITH_DUPES';
     },
 
-    getURLPositionFilterByWrangleOption(option: WrangleOption): () => number {
+    getURLPositionFilterByWrangleOption(option: WrangleOption): (tab: chrome$Tab) => number {
       if (option === 'HOST_AND_TITLE_MATCH') {
-        return (tab) => {
-          return TabManager.closedTabs.findPositionByHostnameAndTitle(tab.url, tab.title); };
+        return (tab: chrome$Tab): number => {
+          return TabManager.closedTabs.findPositionByHostnameAndTitle(tab.url, tab.title);
+        };
       } else if (option === 'EXACT_URL_MATCH') {
-        return (tab) => { return TabManager.closedTabs.findPositionByURL(tab.url); };
+        return (tab: chrome$Tab): number => {
+          return TabManager.closedTabs.findPositionByURL(tab.url);
+        };
       }
 
       // WITH_DUPES && default

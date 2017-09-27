@@ -1,6 +1,6 @@
 /* @flow */
 
-import _ from 'underscore';
+import _ from 'lodash';
 import menus from './js/menus';
 import settings from './js/settings';
 import storageLocal from './js/storageLocal';

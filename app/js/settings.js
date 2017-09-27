@@ -26,6 +26,9 @@ const Settings = {
 
     // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
     whitelist: ['chrome://'],
+
+    // We allow duplicate entries in the closed/wrangled tabs list
+    wrangleOption: 'WITH_DUPES',
   },
 
   // Gets all settings from sync and stores them locally.

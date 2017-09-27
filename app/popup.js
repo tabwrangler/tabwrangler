@@ -1,6 +1,6 @@
 /* @flow */
 
-import _ from 'underscore';
+import _ from 'lodash';
 import CorralTab from './js/CorralTab';
 import LazyImage from './js/LazyImage';
 import TabWrangleOption from './js/TabWrangleOption';
@@ -275,7 +275,7 @@ class OptionsTab extends React.Component {
     this.setState({newPattern: event.target.value});
   };
 
-  handleSettingsChange = (event) => {
+  handleSettingsChange = (event: SyntheticInputEvent) => {
     if (event.target.type === 'checkbox') {
       this.saveOption(event.target.id, !!event.target.checked);
     } else if (event.target.type === 'radio') {

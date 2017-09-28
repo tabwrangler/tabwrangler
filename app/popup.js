@@ -543,16 +543,6 @@ class OptionsTab extends React.Component {
             </form>
           </div>
         </div>
-
-        <h4 className="page-header">Tab Wrangle Options</h4>
-        <div className="row">
-          <div className="col-xs-8">
-            <TabWrangleOption
-              selectedOption={settings.get('wrangleOption')}
-              onChange={this.handleSettingsChange}/>
-          </div>
-        </div>
-
         <table className="table table-hover table-striped">
           <thead>
             <tr>
@@ -583,6 +573,16 @@ class OptionsTab extends React.Component {
             }
           </tbody>
         </table>
+
+        <h4 className="page-header">Corral Options</h4>
+        <div className="row">
+          <div className="col-xs-8">
+            <TabWrangleOption
+              onChange={this.handleSettingsChange}
+              selectedOption={settings.get('wrangleOption')}
+            />
+          </div>
+        </div>
 
         <h4 className="page-header">Import / Export</h4>
         <div className="row">

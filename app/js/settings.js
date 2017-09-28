@@ -9,26 +9,41 @@ const Settings = {
   cache: {},
 
   defaults: {
-    checkInterval: 5000, // How often we check for old tabs.
-    lockedIds: [],  // An array of tabids which have been explicitly locked by the user.
-    maxTabs: 100, // Just to keep memory / UI in check. No UI for this.
-    minTabs: 5, // Stop acting if there are only minTabs tabs open.
-    debounceOnActivated: false, // wait 1 second before updating an active tab
+    // How often we check for old tabs.
+    checkInterval: 5000,
+
+    // wait 1 second before updating an active tab
+    debounceOnActivated: false,
+
+    // An array of tabids which have been explicitly locked by the user.
+    lockedIds: [],
+
+    // Just to keep memory / UI in check. No UI for this.
+    maxTabs: 100,
+
+    // Stop acting if there are only minTabs tabs open.
+    minTabs: 5,
 
     // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
     minutesInactive: 20,
-    paused: false, // If TabWrangler is paused (won't count down)
-    purgeClosedTabs: false, // Save closed tabs in between browser sessions.
+
+    // If TabWrangler is paused (won't count down)
+    paused: false,
+
+    // Save closed tabs in between browser sessions.
+    purgeClosedTabs: false,
 
     // How many seconds (+ minutesInactive) before a tab is "stale" and ready to close.
     secondsInactive: 0,
-    showBadgeCount: true, // Save closed tabs in between browser sessions.
+
+    // Save closed tabs in between browser sessions.
+    showBadgeCount: true,
 
     // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
     whitelist: ['chrome://'],
 
     // We allow duplicate entries in the closed/wrangled tabs list
-    wrangleOption: 'WITH_DUPES',
+    wrangleOption: 'withDupes',
   },
 
   // Gets all settings from sync and stores them locally.

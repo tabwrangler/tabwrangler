@@ -23,7 +23,7 @@ exports[`should render options with exactURLMatch selected 1`] = `
         value="withDupes"
       />
        
-      With Duplicates
+      With Duplicates (Default)
     </label>
   </div>
   <div
@@ -63,20 +63,38 @@ exports[`should render options with exactURLMatch selected 1`] = `
   <div
     className="help-block"
   >
-    <strong>
-      Explanation:
-    </strong>
-    <ul>
-      <li>
-        With Duplicates - Wrangle tab no matter if it already exist in the wrangled tab list (Default and original behavior), e.g. a tab for http://www.github.com will be placed at top the wrangled tab list although there is an existing entry for it already.
-      </li>
-      <li>
-        Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab, e.g. a tab for http://www.github.com will not added to the wrangled tabs list if there is already one in the list. The existing entry will be moved to the top of the list instead.
-      </li>
-      <li>
-        Hostname and Title match - Wrangle tab only if the hostname and the title doesn't match an already wrangled tab, e.g. a tab for https://github.com/tabwrangler/tabwrangler and title 'tabwrangler/tabwrangler' will only added to the wrangled tabs list, if there isn't already an entry that matches both the hostname and the title.
-      </li>
-    </ul>
+    <dl>
+      <dt>
+        With Duplicates
+      </dt>
+      <dd>
+        Always add a wrangled tab to the corral.
+      </dd>
+      <dt
+        style={
+          Object {
+            "marginTop": "10px",
+          }
+        }
+      >
+        Exact URL match
+      </dt>
+      <dd>
+        Add a wrangled tab to the corral only if its exact URL is unique in the corral. For example, a tab for "https://www.github.com" will not be added to the corral if there is already a tab with the exact same URL in the corral. The existing entry will be renewed instead.
+      </dd>
+      <dt
+        style={
+          Object {
+            "marginTop": "10px",
+          }
+        }
+      >
+        Hostname and Title match
+      </dt>
+      <dd>
+        Add a wrangled tab to the corral only if its hostname + page title pair are unique in the corral. For an example, a tab for "https://github.com/tabwrangler/tabwrangler" with title "tabwrangler/tabwrangler" will not be added to the corral if there is already an tab in the corral that matches both the hostname and the title. The existing entry will be renewed instead.
+      </dd>
+    </dl>
   </div>
 </form>
 `;
@@ -104,7 +122,7 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
         value="withDupes"
       />
        
-      With Duplicates
+      With Duplicates (Default)
     </label>
   </div>
   <div
@@ -144,20 +162,38 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
   <div
     className="help-block"
   >
-    <strong>
-      Explanation:
-    </strong>
-    <ul>
-      <li>
-        With Duplicates - Wrangle tab no matter if it already exist in the wrangled tab list (Default and original behavior), e.g. a tab for http://www.github.com will be placed at top the wrangled tab list although there is an existing entry for it already.
-      </li>
-      <li>
-        Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab, e.g. a tab for http://www.github.com will not added to the wrangled tabs list if there is already one in the list. The existing entry will be moved to the top of the list instead.
-      </li>
-      <li>
-        Hostname and Title match - Wrangle tab only if the hostname and the title doesn't match an already wrangled tab, e.g. a tab for https://github.com/tabwrangler/tabwrangler and title 'tabwrangler/tabwrangler' will only added to the wrangled tabs list, if there isn't already an entry that matches both the hostname and the title.
-      </li>
-    </ul>
+    <dl>
+      <dt>
+        With Duplicates
+      </dt>
+      <dd>
+        Always add a wrangled tab to the corral.
+      </dd>
+      <dt
+        style={
+          Object {
+            "marginTop": "10px",
+          }
+        }
+      >
+        Exact URL match
+      </dt>
+      <dd>
+        Add a wrangled tab to the corral only if its exact URL is unique in the corral. For example, a tab for "https://www.github.com" will not be added to the corral if there is already a tab with the exact same URL in the corral. The existing entry will be renewed instead.
+      </dd>
+      <dt
+        style={
+          Object {
+            "marginTop": "10px",
+          }
+        }
+      >
+        Hostname and Title match
+      </dt>
+      <dd>
+        Add a wrangled tab to the corral only if its hostname + page title pair are unique in the corral. For an example, a tab for "https://github.com/tabwrangler/tabwrangler" with title "tabwrangler/tabwrangler" will not be added to the corral if there is already an tab in the corral that matches both the hostname and the title. The existing entry will be renewed instead.
+      </dd>
+    </dl>
   </div>
 </form>
 `;
@@ -185,7 +221,7 @@ exports[`should render options with withDupes selected 1`] = `
         value="withDupes"
       />
        
-      With Duplicates
+      With Duplicates (Default)
     </label>
   </div>
   <div
@@ -225,20 +261,38 @@ exports[`should render options with withDupes selected 1`] = `
   <div
     className="help-block"
   >
-    <strong>
-      Explanation:
-    </strong>
-    <ul>
-      <li>
-        With Duplicates - Wrangle tab no matter if it already exist in the wrangled tab list (Default and original behavior), e.g. a tab for http://www.github.com will be placed at top the wrangled tab list although there is an existing entry for it already.
-      </li>
-      <li>
-        Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab, e.g. a tab for http://www.github.com will not added to the wrangled tabs list if there is already one in the list. The existing entry will be moved to the top of the list instead.
-      </li>
-      <li>
-        Hostname and Title match - Wrangle tab only if the hostname and the title doesn't match an already wrangled tab, e.g. a tab for https://github.com/tabwrangler/tabwrangler and title 'tabwrangler/tabwrangler' will only added to the wrangled tabs list, if there isn't already an entry that matches both the hostname and the title.
-      </li>
-    </ul>
+    <dl>
+      <dt>
+        With Duplicates
+      </dt>
+      <dd>
+        Always add a wrangled tab to the corral.
+      </dd>
+      <dt
+        style={
+          Object {
+            "marginTop": "10px",
+          }
+        }
+      >
+        Exact URL match
+      </dt>
+      <dd>
+        Add a wrangled tab to the corral only if its exact URL is unique in the corral. For example, a tab for "https://www.github.com" will not be added to the corral if there is already a tab with the exact same URL in the corral. The existing entry will be renewed instead.
+      </dd>
+      <dt
+        style={
+          Object {
+            "marginTop": "10px",
+          }
+        }
+      >
+        Hostname and Title match
+      </dt>
+      <dd>
+        Add a wrangled tab to the corral only if its hostname + page title pair are unique in the corral. For an example, a tab for "https://github.com/tabwrangler/tabwrangler" with title "tabwrangler/tabwrangler" will not be added to the corral if there is already an tab in the corral that matches both the hostname and the title. The existing entry will be renewed instead.
+      </dd>
+    </dl>
   </div>
 </form>
 `;

@@ -1,6 +1,6 @@
 /* @flow */
 
-import _ from 'underscore';
+import _ from 'lodash';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 

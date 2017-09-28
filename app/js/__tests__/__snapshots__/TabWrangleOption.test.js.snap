@@ -1,0 +1,244 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render options with exactURLMatch selected 1`] = `
+<form
+  className="form-inline"
+  style={
+    Object {
+      "marginBottom": "20px",
+    }
+  }
+>
+  <div
+    className="radio"
+  >
+    <label>
+      <input
+        checked={false}
+        className="form-check-input"
+        id="withDupes"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="withDupes"
+      />
+       
+      With Duplicates
+    </label>
+  </div>
+  <div
+    className="radio"
+  >
+    <label>
+      <input
+        checked={true}
+        className="form-check-input"
+        id="exactURLMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="exactURLMatch"
+      />
+       
+      Exact URL match
+    </label>
+  </div>
+  <div
+    className="radio"
+  >
+    <label>
+      <input
+        checked={false}
+        className="form-check-input"
+        id="hostnameAndTitleMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="hostnameAndTitleMatch"
+      />
+       
+      Hostname and Title match
+    </label>
+  </div>
+  <div
+    className="help-block"
+  >
+    <strong>
+      Explanation:
+    </strong>
+    <ul>
+      <li>
+        With Duplicates - Wrangle tab no matter if it already exist in the wrangled tab list (Default and original behavior), e.g. a tab for http://www.github.com will be placed at top the wrangled tab list although there is an existing entry for it already.
+      </li>
+      <li>
+        Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab, e.g. a tab for http://www.github.com will not added to the wrangled tabs list if there is already one in the list. The existing entry will be moved to the top of the list instead.
+      </li>
+      <li>
+        Hostname and Title match - Wrangle tab only if the hostname and the title doesn't match an already wrangled tab, e.g. a tab for https://github.com/tabwrangler/tabwrangler and title 'tabwrangler/tabwrangler' will only added to the wrangled tabs list, if there isn't already an entry that matches both the hostname and the title.
+      </li>
+    </ul>
+  </div>
+</form>
+`;
+
+exports[`should render options with hostnameAndTitleMatch selected 1`] = `
+<form
+  className="form-inline"
+  style={
+    Object {
+      "marginBottom": "20px",
+    }
+  }
+>
+  <div
+    className="radio"
+  >
+    <label>
+      <input
+        checked={false}
+        className="form-check-input"
+        id="withDupes"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="withDupes"
+      />
+       
+      With Duplicates
+    </label>
+  </div>
+  <div
+    className="radio"
+  >
+    <label>
+      <input
+        checked={false}
+        className="form-check-input"
+        id="exactURLMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="exactURLMatch"
+      />
+       
+      Exact URL match
+    </label>
+  </div>
+  <div
+    className="radio"
+  >
+    <label>
+      <input
+        checked={true}
+        className="form-check-input"
+        id="hostnameAndTitleMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="hostnameAndTitleMatch"
+      />
+       
+      Hostname and Title match
+    </label>
+  </div>
+  <div
+    className="help-block"
+  >
+    <strong>
+      Explanation:
+    </strong>
+    <ul>
+      <li>
+        With Duplicates - Wrangle tab no matter if it already exist in the wrangled tab list (Default and original behavior), e.g. a tab for http://www.github.com will be placed at top the wrangled tab list although there is an existing entry for it already.
+      </li>
+      <li>
+        Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab, e.g. a tab for http://www.github.com will not added to the wrangled tabs list if there is already one in the list. The existing entry will be moved to the top of the list instead.
+      </li>
+      <li>
+        Hostname and Title match - Wrangle tab only if the hostname and the title doesn't match an already wrangled tab, e.g. a tab for https://github.com/tabwrangler/tabwrangler and title 'tabwrangler/tabwrangler' will only added to the wrangled tabs list, if there isn't already an entry that matches both the hostname and the title.
+      </li>
+    </ul>
+  </div>
+</form>
+`;
+
+exports[`should render options with withDupes selected 1`] = `
+<form
+  className="form-inline"
+  style={
+    Object {
+      "marginBottom": "20px",
+    }
+  }
+>
+  <div
+    className="radio"
+  >
+    <label>
+      <input
+        checked={true}
+        className="form-check-input"
+        id="withDupes"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="withDupes"
+      />
+       
+      With Duplicates
+    </label>
+  </div>
+  <div
+    className="radio"
+  >
+    <label>
+      <input
+        checked={false}
+        className="form-check-input"
+        id="exactURLMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="exactURLMatch"
+      />
+       
+      Exact URL match
+    </label>
+  </div>
+  <div
+    className="radio"
+  >
+    <label>
+      <input
+        checked={false}
+        className="form-check-input"
+        id="hostnameAndTitleMatch"
+        name="wrangleOption"
+        onChange={[Function]}
+        type="radio"
+        value="hostnameAndTitleMatch"
+      />
+       
+      Hostname and Title match
+    </label>
+  </div>
+  <div
+    className="help-block"
+  >
+    <strong>
+      Explanation:
+    </strong>
+    <ul>
+      <li>
+        With Duplicates - Wrangle tab no matter if it already exist in the wrangled tab list (Default and original behavior), e.g. a tab for http://www.github.com will be placed at top the wrangled tab list although there is an existing entry for it already.
+      </li>
+      <li>
+        Exact URL match - Wrangle tab only if it doesn't match an already wrangled tab, e.g. a tab for http://www.github.com will not added to the wrangled tabs list if there is already one in the list. The existing entry will be moved to the top of the list instead.
+      </li>
+      <li>
+        Hostname and Title match - Wrangle tab only if the hostname and the title doesn't match an already wrangled tab, e.g. a tab for https://github.com/tabwrangler/tabwrangler and title 'tabwrangler/tabwrangler' will only added to the wrangled tabs list, if there isn't already an entry that matches both the hostname and the title.
+      </li>
+    </ul>
+  </div>
+</form>
+`;

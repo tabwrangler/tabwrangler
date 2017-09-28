@@ -1,7 +1,9 @@
 /* @flow */
 /* global TW */
 
-import _ from 'underscore';
+import _ from 'lodash';
+
+type WrangleOption = 'WITH_DUPES' | 'EXACT_URL_MATCH' | 'HOST_AND_TITLE_MATCH';
 
 /**
  * Stores the tabs in a separate variable to log Last Accessed time.
@@ -38,6 +40,18 @@ const TabManager = {
       return null;
     },
 
+    findPositionByURL(url: string = ''): number {
+      return _.findIndex(this.tabs, (item) => { return item.url === url && !_.isUndefined(url); });
+    },
+
+    findPositionByHostnameAndTitle(url: string = '', title: string = ''): number {
+      return _.findIndex(this.tabs, (tab) => {
+        const hostA = new URL(tab.url).hostname;
+        const hostB = new URL(url).hostname;
+        return hostA === hostB && tab.title === title;
+      });
+    },
+
     removeTab(tabId: number) {
       const tabIndex = TabManager.closedTabs.findPositionById(tabId);
       if (tabIndex == null) return null;
@@ -71,16 +85,57 @@ const TabManager = {
       TabManager.updateClosedCount();
     },
 
+    getWrangleOption(): WrangleOption {
+      const wrangleOptionSetting = TW.settings.get('wrangleOption');
+      if (wrangleOptionSetting === 'exactURLMatch') {
+        return 'EXACT_URL_MATCH';
+      } else if (wrangleOptionSetting === 'hostnameAndTitleMatch') {
+        return 'HOST_AND_TITLE_MATCH';
+      }
+
+      return 'WITH_DUPES';
+    },
+
+    getURLPositionFilterByWrangleOption(option: WrangleOption): (tab: chrome$Tab) => number {
+      if (option === 'HOST_AND_TITLE_MATCH') {
+        return (tab: chrome$Tab): number => {
+          return TabManager.closedTabs.findPositionByHostnameAndTitle(tab.url, tab.title);
+        };
+      } else if (option === 'EXACT_URL_MATCH') {
+        return (tab: chrome$Tab): number => {
+          return TabManager.closedTabs.findPositionByURL(tab.url);
+        };
+      }
+
+      // WITH_DUPES && default
+      return () => { return -1; };
+    },
+
     wrangleTabs(tabs: Array<Object>) {
       const maxTabs = TW.settings.get('maxTabs');
       let totalTabsWrangled = TW.storageLocal.get('totalTabsWrangled');
+      const wrangleOption = this.getWrangleOption();
+      const findURLPositionByWrangleOption = 
+        this.getURLPositionFilterByWrangleOption(wrangleOption);
+
       for (let i = 0; i < tabs.length; i++) {
         if (tabs[i] === null) {
           console.log('Weird bug, backtrace this...');
         }
 
-        tabs[i].closedAt = new Date().getTime();
-        this.tabs.unshift(tabs[i]);
+        const existingTabPosition = findURLPositionByWrangleOption(tabs[i]);
+        const closingDate = new Date().getTime();
+
+        if (existingTabPosition > -1) {
+          const tab = this.tabs[existingTabPosition];
+          tab.closedAt = closingDate;
+          this.tabs.splice(existingTabPosition, 1);
+          this.tabs.unshift(tab);
+        } else {
+          tabs[i].closedAt = closingDate;
+          this.tabs.unshift(tabs[i]);
+        }
+
         totalTabsWrangled += 1;
 
         // Close it in Chrome.

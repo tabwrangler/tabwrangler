@@ -9,6 +9,9 @@ module.exports = {
     chrome: true,
     expect: true,
     jest: true,
+    beforeEach: true,
+    afterEach: true,
+    describe: true,
     test: true,
   },
   extends: [

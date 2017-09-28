@@ -26,6 +26,9 @@ const Settings = {
 
     // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
     whitelist: ['chrome://'],
+
+    // We allow duplicate entries in the closed/wrangled tabs list
+    wrangleOption: 'WITH_DUPES',
   },
 
   // Gets all settings from sync and stores them locally.
@@ -85,7 +88,7 @@ const Settings = {
    * @see Settings.set
    */
   setmaxTabs(value: string) {
-    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) <= 1 || parseInt(value, 10) > 500 ) {
+    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 1 || parseInt(value, 10) > 500 ) {
       throw Error(
         'Max tabs must be a number between 1 and 500. ' +
         'Setting this too high can cause performance issues'

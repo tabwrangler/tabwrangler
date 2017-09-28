@@ -1,8 +1,9 @@
 /* @flow */
 
-import _ from 'underscore';
+import _ from 'lodash';
 import CorralTab from './js/CorralTab';
 import LazyImage from './js/LazyImage';
+import TabWrangleOption from './js/TabWrangleOption';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import ReactDOM from 'react-dom';
@@ -274,9 +275,11 @@ class OptionsTab extends React.Component {
     this.setState({newPattern: event.target.value});
   };
 
-  handleSettingsChange = (event) => {
+  handleSettingsChange = (event: SyntheticInputEvent) => {
     if (event.target.type === 'checkbox') {
       this.saveOption(event.target.id, !!event.target.checked);
+    } else if (event.target.type === 'radio') {
+      this.saveOption(event.target.name, event.target.value);
     } else {
       this.saveOption(event.target.id, event.target.value);
     }
@@ -538,6 +541,15 @@ class OptionsTab extends React.Component {
                 any URL with <i>cnn</i> anywhere in it.
               </p>
             </form>
+          </div>
+        </div>
+
+        <h4 className="page-header">Tab Wrangle Options</h4>
+        <div className="row">
+          <div className="col-xs-8">
+            <TabWrangleOption
+              selectedOption={settings.get('wrangleOption')}
+              onChange={this.handleSettingsChange}/>
           </div>
         </div>
 

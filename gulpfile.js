@@ -58,7 +58,7 @@ gulp.task('lint', function() {
 gulp.task('test', function () {
   process.env.NODE_ENV = 'test';
 
-  return gulp.src('**/__tests__').pipe(jest(Object.assign({}, {
+  return gulp.src('app/js/__tests__').pipe(jest(Object.assign({}, {
     config: {
       'transformIgnorePatterns': [
         '<rootDir>/dist/', '<rootDir>/node_modules/',
@@ -67,6 +67,7 @@ gulp.task('test', function () {
         '^.+\\.jsx?$': 'babel-jest',
       },
       'verbose': true,
+      'automock': false,
     },
   })));
 });

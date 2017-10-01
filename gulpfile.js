@@ -76,6 +76,7 @@ function webpackLog(stats) {
   gutil.log('[webpack]', stats.toString({
     chunks: false, // Limit chunk information output; it's slow and not too useful
     colors: true,
+    modules: false,
   }));
 }
 

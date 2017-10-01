@@ -46,7 +46,7 @@ const TabManager = {
 
     findPositionByHostnameAndTitle(url: string = '', title: string = ''): number {
       return _.findIndex(this.tabs, (tab) => {
-        const hostA = new URL(tab.url).hostname;
+        const hostA = new URL(tab.url || '').hostname;
         const hostB = new URL(url).hostname;
         return hostA === hostB && tab.title === title;
       });

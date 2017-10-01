@@ -3,7 +3,7 @@
 import React from 'react';
 
 interface Props {
-  onChange: (event: SyntheticInputEvent) => void;
+  onChange: (event: SyntheticInputEvent<HTMLInputElement>) => void;
   selectedOption: string;
 }
 
@@ -13,9 +13,7 @@ const OPTIONS = [
   { name: 'hostnameAndTitleMatch', text: 'Hostname and Title match' },
 ];
 
-export default class TabWrangleOption extends React.Component {
-  props: Props;
-
+export default class TabWrangleOption extends React.Component<Props> {
   render() {
     return (
       <form className="form-inline" style={{ marginBottom: '20px' }}>

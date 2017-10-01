@@ -1916,13 +1916,13 @@ flat-cache@^1.2.1:
     graceful-fs "^4.1.2"
     write "^0.2.1"
 
-flow-bin@^0.50.0:
-  version "0.50.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.50.0.tgz#d4cdb2430dee1a3599f0eb6fe551146e3027256a"
+flow-bin@^0.56.0:
+  version "0.56.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.56.0.tgz#ce43092203a344ba9bf63c0cabe95d95145f6cad"
 
-flow-interfaces-chrome@^0.3.0:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/flow-interfaces-chrome/-/flow-interfaces-chrome-0.3.1.tgz#c02936071d7d083253ce2006e90984a2f76c918a"
+flow-interfaces-chrome@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/flow-interfaces-chrome/-/flow-interfaces-chrome-0.3.2.tgz#1c5301dd0b0f4c1c391c944c1e27304e8d8ca1c5"
 
 for-in@^1.0.1:
   version "1.0.2"

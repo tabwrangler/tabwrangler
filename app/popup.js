@@ -30,15 +30,15 @@ function secondsToMinutes(seconds) {
   return `${String(Math.floor(seconds / 60))}:${s}`;
 }
 
-class OpenTabRow extends React.Component {
-  props: {
-    isLocked: boolean,
-    onLockTab: (tabId: number) => void,
-    onUnlockTab: (tabId: number) => void,
-    tab: chrome$Tab,
-  };
+interface OpenTabRowProps {
+  isLocked: boolean;
+  onLockTab: (tabId: number) => void;
+  onUnlockTab: (tabId: number) => void;
+  tab: chrome$Tab;
+}
 
-  handleLockedOnChange = (event: SyntheticInputEvent) => {
+class OpenTabRow extends React.Component<OpenTabRowProps> {
+  handleLockedOnChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
     const {tab} = this.props;
     if (tab.id == null) return;
 
@@ -114,11 +114,11 @@ class OpenTabRow extends React.Component {
   }
 }
 
-class LockTab extends React.PureComponent {
-  state: {
-    tabs: Array<chrome$Tab>,
-  };
+interface LockTabState {
+  tabs: Array<chrome$Tab>;
+}
 
+class LockTab extends React.PureComponent<{}, LockTabState> {
   _timeLeftInterval: ?number;
 
   constructor() {
@@ -193,22 +193,22 @@ function isValidPattern(pattern) {
   return pattern != null && pattern.length > 0 && /\S/.test(pattern);
 }
 
-class OptionsTab extends React.Component {
-  props: {
-    commands: ?Array<chrome$Command>,
-  };
+interface OptionsTabProps {
+  commands: ?Array<chrome$Command>;
+}
 
-  state: {
-    errors: Array<Object>,
-    newPattern: string,
-    saveAlertVisible: boolean,
-    importExportErrors: Array<Object>,
-    importExportAlertVisible: boolean,
-    importExportOperationName: string,
-  };
+interface OptionsTabState {
+  errors: Array<Object>;
+  newPattern: string;
+  saveAlertVisible: boolean;
+  importExportErrors: Array<Object>;
+  importExportAlertVisible: boolean;
+  importExportOperationName: string;
+}
 
-  _debouncedHandleSettingsChange: (event: SyntheticEvent) => void;
-  _fileselector: HTMLInputElement;
+class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
+  _debouncedHandleSettingsChange: (event: SyntheticEvent<HTMLElement>) => void;
+  _fileselector: ?HTMLInputElement;
   _importExportAlertTimeout: ?number;
   _saveAlertTimeout: ?number;
 
@@ -246,7 +246,7 @@ class OptionsTab extends React.Component {
     this.forceUpdate();
   }
 
-  handleAddPatternSubmit = (event: SyntheticEvent) => {
+  handleAddPatternSubmit = (event: SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     const {newPattern} = this.state;
 
@@ -275,7 +275,7 @@ class OptionsTab extends React.Component {
     this.setState({newPattern: event.target.value});
   };
 
-  handleSettingsChange = (event: SyntheticInputEvent) => {
+  handleSettingsChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
     if (event.target.type === 'checkbox') {
       this.saveOption(event.target.id, !!event.target.checked);
     } else if (event.target.type === 'radio') {
@@ -597,7 +597,7 @@ class OptionsTab extends React.Component {
             <Button
               className="btn btn-default btn-xs"
               glyph="import"
-              onClick={() => {this._fileselector.click();}}>
+              onClick={() => { if(this._fileselector != null) this._fileselector.click(); }}>
               Import
             </Button>
             <input
@@ -605,7 +605,7 @@ class OptionsTab extends React.Component {
               type="file"
               accept=".json"
               onChange={this.importData}
-              ref={(input: HTMLInputElement) => {this._fileselector = input;}}/>
+              ref={input => { this._fileselector = input; }}/>
           </div>
           <div className="col-xs-8">
             <p className="help-block">
@@ -663,11 +663,11 @@ class OptionsTab extends React.Component {
   }
 }
 
-class PauseButton extends React.PureComponent {
-  state: {
-    paused: boolean,
-  };
+interface PauseButtonState {
+  paused: boolean;
+}
 
+class PauseButton extends React.PureComponent<{}, PauseButtonState> {
   constructor() {
     super();
     this.state = {
@@ -704,28 +704,28 @@ class PauseButton extends React.PureComponent {
   }
 }
 
-class NavBar extends React.PureComponent {
-  props: {
-    activeTabId: string,
-    onClickTab: (tabId: string) => void,
-  };
+interface NavBarProps {
+  activeTabId: string;
+  onClickTab: (tabId: string) => void;
+}
 
-  handleClickAboutTab = (event: SyntheticMouseEvent) => {
+class NavBar extends React.PureComponent<NavBarProps> {
+  handleClickAboutTab = (event: SyntheticMouseEvent<HTMLElement>) => {
     event.preventDefault();
     this.props.onClickTab('about');
   };
 
-  handleClickCorralTab = (event: SyntheticMouseEvent) => {
+  handleClickCorralTab = (event: SyntheticMouseEvent<HTMLElement>) => {
     event.preventDefault();
     this.props.onClickTab('corral');
   };
 
-  handleClickLockTab = (event: SyntheticMouseEvent) => {
+  handleClickLockTab = (event: SyntheticMouseEvent<HTMLElement>) => {
     event.preventDefault();
     this.props.onClickTab('lock');
   };
 
-  handleClickOptionsTab = (event: SyntheticMouseEvent) => {
+  handleClickOptionsTab = (event: SyntheticMouseEvent<HTMLElement>) => {
     event.preventDefault();
     this.props.onClickTab('options');
   };
@@ -796,17 +796,15 @@ function AboutTab() {
   );
 }
 
-type PopupContentProps = {
-  commands: ?Array<chrome$Command>,
-};
+interface PopupContentProps {
+  commands: ?Array<chrome$Command>;
+}
 
-class PopupContent extends React.PureComponent {
-  props: PopupContentProps;
+interface PopupContentState {
+  activeTabId: string;
+}
 
-  state: {
-    activeTabId: string,
-  };
-
+class PopupContent extends React.PureComponent<PopupContentProps, PopupContentState> {
   constructor(props: PopupContentProps) {
     super(props);
     this.state = {

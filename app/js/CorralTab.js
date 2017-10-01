@@ -79,16 +79,16 @@ const Sorters: Array<Sorter> = [
   ReverseChronoSorter,
 ];
 
-export default class CorralTab extends React.Component {
-  state: {
-    closedTabs: Array<chrome$Tab>,
-    filter: string,
-    isSortDropdownOpen: boolean,
-    lastSelectedTab: ?chrome$Tab,
-    selectedTabs: Set<chrome$Tab>,
-    sorter: Sorter,
-  };
+interface State {
+  closedTabs: Array<chrome$Tab>;
+  filter: string;
+  isSortDropdownOpen: boolean;
+  lastSelectedTab: ?chrome$Tab;
+  selectedTabs: Set<chrome$Tab>;
+  sorter: Sorter;
+}
 
+export default class CorralTab extends React.Component<{}, State> {
   _dropdownRef: ?HTMLElement;
   _searchRefFocusTimeout: ?number;
   _searchRef: ?HTMLElement;
@@ -99,7 +99,7 @@ export default class CorralTab extends React.Component {
       closedTabs: [],
       filter: '',
       isSortDropdownOpen: false,
-      lastSelectedTab: null,
+      lastSelectedTab: undefined,
       selectedTabs: new Set(),
       sorter: ReverseChronoSorter,
     };
@@ -129,7 +129,7 @@ export default class CorralTab extends React.Component {
     this._setFilter('');
   };
 
-  _clickSorter(sorter: Sorter, event: SyntheticMouseEvent) {
+  _clickSorter(sorter: Sorter, event: SyntheticMouseEvent<HTMLElement>) {
     // The dropdown wraps items in bogus `<a href="#">` elements in order to match Bootstrap's
     // style. Prevent default on the event in order to prevent scrolling to the top of the window
     // (the default action for an empty anchor "#").
@@ -199,7 +199,7 @@ export default class CorralTab extends React.Component {
     });
   };
 
-  _handleSearchChange = (event: SyntheticInputEvent) => {
+  _handleSearchChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
     const filter = event.target.value;
     this._setFilter(filter);
   }

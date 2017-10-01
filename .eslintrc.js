@@ -45,5 +45,8 @@ module.exports = {
     'quotes': [2, 'single', {'avoidEscape': true}],
     'semi': 2,
     'sort-imports': 2,
+
+    // React
+    'react/prop-types': 0,
   },
 };

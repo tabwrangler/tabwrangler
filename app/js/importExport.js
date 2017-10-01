@@ -9,15 +9,16 @@ import typeof tabManagerType from './tabmanager';
  * Import the backup of saved tabs and the accounting information.
  * If any of the required keys in the backup object is missing, the backup will abort without
  * importing the data.
- * @param {storageLocal} storageLocal is needed to restore the accounting information
- * @param {tabManager} tabManager is required to initialize it with the imported saved tabs
- * @param {Event} event contains the path of the backup file
+ *
+ * @param storageLocal is needed to restore the accounting information
+ * @param tabManager is required to initialize it with the imported saved tabs
+ * @param event contains the path of the backup file
  */
 const importData = (
   storageLocal: storageLocalType,
   tabManager: tabManagerType,
-  event: SyntheticInputEvent
-) => {
+  event: SyntheticInputEvent<HTMLInputElement>
+): Promise<void> => {
   const files = event.target.files;
 
   if (files[0]) {
@@ -68,7 +69,7 @@ const importData = (
  *
  * savedTabs is acquired by reading it directly from localstorage.
  *
- * @param {storageLocal} storageLocal to retrieve all the accounting information
+ * @param storageLocal to retrieve all the accounting information
  */
 const exportData = (storageLocal: storageLocalType) => {
   chrome.storage.local.get('savedTabs', (savedTabs) => {

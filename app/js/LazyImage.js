@@ -29,20 +29,19 @@ setTimeout(function() {
   window.addEventListener('scroll', _.throttle(checkShouldLoadLazyImages, 150));
 }, 1000);
 
-type Props = {
-  className?: string,
-  height: number,
-  src: ?string,
-  style?: {[key: string]: any},
-  width: number,
-};
+interface Props {
+  className?: string;
+  height: number;
+  src: ?string;
+  style?: Object;
+  width: number;
+}
 
-export default class LazyImage extends React.PureComponent {
-  props: Props;
-  state: {
-    loaded: boolean,
-  };
+interface State {
+  loaded: boolean;
+}
 
+export default class LazyImage extends React.PureComponent<Props, State> {
   _img: ?Image;
   _placeholder: ?HTMLDivElement;
 

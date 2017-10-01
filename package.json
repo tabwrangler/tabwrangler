@@ -53,6 +53,6 @@
     "react-addons-css-transition-group": "^15.6.2",
     "react-dom": "^16.0.0",
     "react-sticky": "^6.0.1",
-    "timeago.js": "^2.0.4"
+    "timeago-react": "^1.2.2"
   }
 }

@@ -290,8 +290,8 @@ export default class CorralTab extends React.Component {
     const percentClosed = totalTabsRemoved === 0
       ? 0
       : Math.trunc(
-          storageLocal.get('totalTabsWrangled') / storageLocal.get('totalTabsRemoved') * 100
-        );
+        storageLocal.get('totalTabsWrangled') / storageLocal.get('totalTabsRemoved') * 100
+      );
 
     return (
       <div className="tab-pane active">
@@ -342,6 +342,7 @@ export default class CorralTab extends React.Component {
                   {this.state.closedTabs.some(tab => this.state.selectedTabs.has(tab)) ? [
                     <button
                       className="btn btn-default btn-sm btn-chunky"
+                      key="remove"
                       onClick={this._handleRemoveSelectedTabs}
                       style={{marginLeft: '10px'}}
                       title="Remove selected tabs">
@@ -350,6 +351,7 @@ export default class CorralTab extends React.Component {
                     </button>,
                     <button
                       className="btn btn-default btn-sm btn-chunky"
+                      key="restore"
                       onClick={this._handleRestoreSelectedTabs}
                       style={{marginLeft: '10px'}}
                       title="Restore selected tabs">

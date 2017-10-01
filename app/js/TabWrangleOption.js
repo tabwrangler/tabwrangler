@@ -44,17 +44,18 @@ export default class TabWrangleOption extends React.Component {
             <dt style={{ marginTop: '10px' }}>Exact URL match</dt>
             <dd>
               Add a wrangled tab to the corral only if its exact URL is unique in the corral. For
-              example, a tab for "https://www.github.com" will not be added to the corral if there
-              is already a tab with the exact same URL in the corral. The existing entry will be
-              renewed instead.
+              example, a tab for &quot;https://www.github.com&quot; will not be added to the corral
+              if there is already a tab with the exact same URL in the corral. The existing entry
+              will be renewed instead.
             </dd>
             <dt style={{ marginTop: '10px' }}>Hostname and Title match</dt>
             <dd>
               Add a wrangled tab to the corral only if its hostname + page title pair are unique in
-              the corral. For an example, a tab for "https://github.com/tabwrangler/tabwrangler"
-              with title "tabwrangler/tabwrangler" will not be added to the corral if there is
-              already an tab in the corral that matches both the hostname and the title. The
-              existing entry will be renewed instead.
+              the corral. For an example, a tab for
+              &quot;https://github.com/tabwrangler/tabwrangler&quot;
+              with title &quot;tabwrangler/tabwrangler&quot; will not be added to the corral if
+              there is already an tab in the corral that matches both the hostname and the title.
+              The existing entry will be renewed instead.
             </dd>
           </dl>
         </div>

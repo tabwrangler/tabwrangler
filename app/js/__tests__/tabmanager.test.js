@@ -50,8 +50,8 @@ describe('wrangleTabs', () => {
       [{
         'savedTabs':
         [{ 'id': 4 },
-        { 'id': 3 },
-        { 'id': 2 }],
+          { 'id': 3 },
+          { 'id': 2 }],
       }]]);
 
     expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
@@ -77,8 +77,8 @@ describe('wrangleTabs', () => {
       [{
         'savedTabs':
         [{ 'id': 5 },
-        { 'id': 4 },
-        { 'id': 3 }],
+          { 'id': 4 },
+          { 'id': 3 }],
       }]]);
 
     expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
@@ -114,8 +114,8 @@ describe('wrangleTabs', () => {
       [{
         'savedTabs':
         [{ 'id': 3 },
-        { 'id': 1 },
-        { 'id': 2 }],
+          { 'id': 1 },
+          { 'id': 2 }],
       }]]);
 
     expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
@@ -123,7 +123,7 @@ describe('wrangleTabs', () => {
 
   test('should not wrangle if hostname and title match', () => {
     window.TW.settings.get = jest.fn().mockImplementationOnce(() => 3).
-                                        mockImplementationOnce(() => 'HOST_AND_TITLE_MATCH');
+      mockImplementationOnce(() => 'HOST_AND_TITLE_MATCH');
     window.TW.storageLocal.get = jest.fn(() => 0);
     window.TW.storageLocal.set = jest.fn();
     window.chrome.tabs.remove = jest.fn();
@@ -152,8 +152,8 @@ describe('wrangleTabs', () => {
       [{
         'savedTabs':
         [{ 'id': 3 },
-        { 'id': 1 },
-        { 'id': 2 }],
+          { 'id': 1 },
+          { 'id': 2 }],
       }]]);
 
     expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);

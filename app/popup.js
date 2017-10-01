@@ -495,7 +495,7 @@ class OptionsTab extends React.Component {
                 onChange={this.handleSettingsChange}
                 type="checkbox"
               />
-              Reset a tab's timer only after it is active for 1 second
+              Reset a tab&apos;s timer only after it is active for 1 second
             </label>
           </div>
         </form>
@@ -619,15 +619,15 @@ class OptionsTab extends React.Component {
           </div>
         </div>
         {(this.state.importExportErrors.length === 0)
-        ? (
-          <ReactCSSTransitionGroup
-            transitionEnter={false}
-            transitionLeaveTimeout={400}
-            transitionName="alert">
-            {importExportAlert}
-          </ReactCSSTransitionGroup>
-        )
-        : importExportAlert}
+          ? (
+            <ReactCSSTransitionGroup
+              transitionEnter={false}
+              transitionLeaveTimeout={400}
+              transitionName="alert">
+              {importExportAlert}
+            </ReactCSSTransitionGroup>
+          )
+          : importExportAlert}
 
         <h4 className="page-header">
           Keyboard Shortcuts
@@ -635,6 +635,7 @@ class OptionsTab extends React.Component {
             <a
               href="chrome://extensions/configureCommands"
               onClick={this._handleConfigureCommandsClick}
+              rel="noopener noreferrer"
               target="_blank">
               Configure these shortcuts
             </a>
@@ -737,6 +738,7 @@ class NavBar extends React.PureComponent {
           <a
             className="btn btn-default btn-xs"
             href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"
+            rel="noopener noreferrer"
             target="_blank">
             <i className="glyphicon glyphicon-star"></i> Review Tab Wrangler
           </a>
@@ -766,17 +768,26 @@ function AboutTab() {
       <p>TabWrangler v{chrome.runtime.getManifest().version}</p>
       <ul>
         <li>
-          <a href="https://github.com/tabwrangler/tabwrangler/releases" target="_blank">
+          <a
+            href="https://github.com/tabwrangler/tabwrangler/releases"
+            rel="noopener noreferrer"
+            target="_blank">
             Change Log
           </a>
         </li>
         <li>
-          <a href="https://github.com/tabwrangler/tabwrangler/issues" target="_blank">
+          <a
+            href="https://github.com/tabwrangler/tabwrangler/issues"
+            rel="noopener noreferrer"
+            target="_blank">
             Support
           </a>
         </li>
         <li>
-          <a href="https://github.com/tabwrangler/tabwrangler" target="_blank">
+          <a
+            href="https://github.com/tabwrangler/tabwrangler"
+            rel="noopener noreferrer"
+            target="_blank">
             Source Code (MIT)
           </a>
         </li>

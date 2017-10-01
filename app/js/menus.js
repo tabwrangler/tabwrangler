@@ -4,7 +4,7 @@ import settings from './settings';
 import tabmanager from './tabmanager';
 
 function getDomain(url) {
-  const match = url.match(/[^:]+:\/\/([^\/]+)\//);
+  const match = url.match(/[^:]+:\/\/([^/]+)\//);
   return match == null ? null : match[1];
 }
 

@@ -52,14 +52,14 @@ export default class ClosedTabRow extends React.PureComponent {
           {tab.favIconUrl == null
             ? <span style={{display: 'inline-block', height: '16px'}}>
                 -
-              </span>
+            </span>
             : <LazyImage
-                alt=""
-                className="favicon"
-                height={16}
-                src={tab.favIconUrl}
-                width={16}
-              />
+              alt=""
+              className="favicon"
+              height={16}
+              src={tab.favIconUrl}
+              width={16}
+            />
           }
         </td>
         <td>

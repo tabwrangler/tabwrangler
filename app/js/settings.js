@@ -193,7 +193,7 @@ const Settings = {
   stayOpen(): number {
     return (
       parseInt(this.get('minutesInactive'), 10) * 60000 + // minutes
-      parseInt(this.get('secondsInactive'), 10) * 1000    // seconds
+      parseInt(this.get('secondsInactive'), 10) * 1000 // seconds
     );
   },
 };

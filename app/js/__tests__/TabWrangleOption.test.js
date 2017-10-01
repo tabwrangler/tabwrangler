@@ -1,7 +1,7 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
 import ReactTestUtils from 'react-dom/test-utils';
 import TabWrangleOption from '../TabWrangleOption';
+import renderer from 'react-test-renderer';
 
 test('should render options with withDupes selected', () => {
   const mockCallback = jest.fn();

@@ -1,5 +1,5 @@
-import storageLocal from '../storageLocal';
 import TabManager from '../tabmanager';
+import storageLocal from '../storageLocal';
 
 beforeEach(() => {
   window.chrome = {

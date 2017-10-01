@@ -1,6 +1,6 @@
-import storageLocal from '../storageLocal';
-import { importData, exportData, exportFileName } from '../importExport';
+import { exportData, exportFileName, importData } from '../importExport';
 import FileSaver from 'file-saver';
+import storageLocal from '../storageLocal';
 
 beforeEach(() => {
   window.chrome = {

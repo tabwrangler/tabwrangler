@@ -1,14 +1,14 @@
 /* @flow */
 
-import _ from 'lodash';
+import {exportData, importData} from './js/importExport';
+import Button from './js/Button';
 import CorralTab from './js/CorralTab';
 import LazyImage from './js/LazyImage';
-import TabWrangleOption from './js/TabWrangleOption';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import ReactDOM from 'react-dom';
-import Button from './js/Button';
-import {importData, exportData} from './js/importExport';
+import TabWrangleOption from './js/TabWrangleOption';
+import _ from 'lodash';
 import truncateString from './js/truncateString';
 
 const TW = chrome.extension.getBackgroundPage().TW;

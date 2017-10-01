@@ -1,8 +1,8 @@
 /* @flow */
 
-import _ from 'lodash';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import _ from 'lodash';
 
 // Whether `LazyImage` instances should check to load their images immediately. This will be true
 // only after a period of time that allows the popup to show quickly.

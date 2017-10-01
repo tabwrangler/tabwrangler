@@ -1,9 +1,9 @@
 /* @flow */
 
-import classnames from 'classnames';
+import {Sticky, StickyContainer} from 'react-sticky';
 import ClosedTabRow from './ClosedTabRow';
 import React from 'react';
-import {StickyContainer, Sticky} from 'react-sticky';
+import classnames from 'classnames';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 

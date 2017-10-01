@@ -7,11 +7,9 @@ module.exports = {
     afterEach: true,
     beforeEach: true,
     chrome: true,
+    describe: true,
     expect: true,
     jest: true,
-    beforeEach: true,
-    afterEach: true,
-    describe: true,
     test: true,
   },
   extends: [

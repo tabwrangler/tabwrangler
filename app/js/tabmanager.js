@@ -45,9 +45,9 @@ const TabManager = {
     },
 
     findPositionByHostnameAndTitle(url: string = '', title: string = ''): number {
+      const hostB = new URL(url).hostname;
       return _.findIndex(this.tabs, (tab) => {
         const hostA = new URL(tab.url || '').hostname;
-        const hostB = new URL(url).hostname;
         return hostA === hostB && tab.title === title;
       });
     },
@@ -116,15 +116,11 @@ const TabManager = {
         const closingDate = new Date().getTime();
 
         if (existingTabPosition > -1) {
-          const tab = this.tabs[existingTabPosition];
-          tab.closedAt = closingDate;
           this.tabs.splice(existingTabPosition, 1);
-          this.tabs.unshift(tab);
-        } else {
-          tabs[i].closedAt = closingDate;
-          this.tabs.unshift(tabs[i]);
         }
 
+        tabs[i].closedAt = closingDate;
+        this.tabs.unshift(tabs[i]);
         totalTabsWrangled += 1;
 
         // Close it in Chrome.

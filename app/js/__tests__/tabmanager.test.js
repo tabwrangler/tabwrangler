@@ -67,7 +67,6 @@ describe('wrangleTabs', () => {
     window.chrome.storage.local.set = jest.fn();
 
     window.chrome.browserAction.setBadgeText = jest.fn();
-
     TabManager.closedTabs.wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove.mock.calls.length).toBe(4);
@@ -76,16 +75,21 @@ describe('wrangleTabs', () => {
     expect(window.chrome.storage.local.set.mock.calls).toMatchObject([
       [{
         'savedTabs':
-        [{ 'id': 5 },
+        [
+          { 'id': 5 },
           { 'id': 4 },
-          { 'id': 3 }],
-      }]]);
+          { 'id': 3 },
+        ],
+      }],
+    ]);
 
     expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
   });
 
-  test('should not wrangle duplicate tabs', () => {
-    window.TW.settings.get = jest.fn(() => 3);
+  test('replaces duplicate tab in the corral if exact URL matches', () => {
+    window.TW.settings.get = jest.fn().
+      mockImplementationOnce(() => 100).
+      mockImplementationOnce(() => 'exactURLMatch');
     window.TW.storageLocal.get = jest.fn(() => 0);
     window.TW.storageLocal.set = jest.fn();
     window.chrome.tabs.remove = jest.fn();
@@ -97,32 +101,35 @@ describe('wrangleTabs', () => {
     ];
 
     window.chrome.storage.local.set = jest.fn();
-
     window.chrome.browserAction.setBadgeText = jest.fn();
 
     // reset all mocks
     jest.clearAllMocks();
 
-    const testTabs = [{ id: 3, url: 'https://www.nytimes.com' }];
+    const testTabs = [{ id: 4, url: 'https://www.nytimes.com' }];
 
     TabManager.closedTabs.wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove.mock.calls.length).toBe(1);
-    expect(window.chrome.tabs.remove.mock.calls).toEqual([[3]]);
+    expect(window.chrome.tabs.remove.mock.calls).toEqual([[4]]);
     expect(window.TW.storageLocal.set.mock.calls).toEqual([['totalTabsWrangled', 1]]);
     expect(window.chrome.storage.local.set.mock.calls).toMatchObject([
       [{
         'savedTabs':
-        [{ 'id': 3 },
+        [
+          { 'id': 4 },
           { 'id': 1 },
-          { 'id': 2 }],
-      }]]);
+          { 'id': 2 },
+        ],
+      }],
+    ]);
 
     expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
   });
 
   test('replaces duplicate tab in the corral if hostname and title match', () => {
-    window.TW.settings.get = jest.fn().mockImplementationOnce(() => 3).
+    window.TW.settings.get = jest.fn().
+      mockImplementationOnce(() => 100).
       mockImplementationOnce(() => 'hostnameAndTitleMatch');
     window.TW.storageLocal.get = jest.fn(() => 0);
     window.TW.storageLocal.set = jest.fn();
@@ -135,26 +142,28 @@ describe('wrangleTabs', () => {
     ];
 
     window.chrome.storage.local.set = jest.fn();
-
     window.chrome.browserAction.setBadgeText = jest.fn();
 
     // reset all mocks
     jest.clearAllMocks();
 
-    const testTabs = [{ id: 3, url: 'https://www.nytimes.com', title: 'New York Times' }];
+    const testTabs = [{ id: 4, url: 'https://www.nytimes.com', title: 'New York Times' }];
 
     TabManager.closedTabs.wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove.mock.calls.length).toBe(1);
-    expect(window.chrome.tabs.remove.mock.calls).toEqual([[3]]);
+    expect(window.chrome.tabs.remove.mock.calls).toEqual([[4]]);
     expect(window.TW.storageLocal.set.mock.calls).toEqual([['totalTabsWrangled', 1]]);
     expect(window.chrome.storage.local.set.mock.calls).toMatchObject([
       [{
         'savedTabs':
-        [{ 'id': 3 },
+        [
+          { 'id': 4 },
           { 'id': 1 },
-          { 'id': 2 }],
-      }]]);
+          { 'id': 2 },
+        ],
+      }],
+    ]);
 
     expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
   });

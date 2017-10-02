@@ -45,7 +45,7 @@ const Updater = {
     const self = this;
     if (!currentVersion) {
       chrome.storage.sync.set({
-        'version': manifestVersion,
+        version: manifestVersion,
       });
     } else if (currentVersion < manifestVersion) {
       Object.keys(this.updates).forEach(i => {
@@ -57,7 +57,7 @@ const Updater = {
         if (i === manifestVersion) {
           // Post 2.0 updates.
           chrome.storage.sync.set({
-            'version': manifestVersion,
+            version: manifestVersion,
           }, function() {
             if (typeof self.updates[i].finished == 'function') {
               self.updates[i].finished();
@@ -74,14 +74,14 @@ const Updater = {
 Updater.updates[2.1] = {
   fx() {
     const map = {
-      'minutes_inactive' : 'minutesInactive',
-      'closed_tab_ids' : null,
-      'closed_tab_titles': null,
-      'closed_tab_urls' : null,
-      'closed_tab_icons' : null,
-      'closed_tab_actions': null,
-      'locked_ids' : 'lockedIds',
-      'popup_view' : null,
+      minutes_inactive : 'minutesInactive',
+      closed_tab_ids : null,
+      closed_tab_titles: null,
+      closed_tab_urls : null,
+      closed_tab_icons : null,
+      closed_tab_actions: null,
+      locked_ids : 'lockedIds',
+      popup_view : null,
     };
 
     let oldValue;

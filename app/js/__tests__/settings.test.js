@@ -5,10 +5,10 @@ let mockFunctionSet;
 
 beforeEach(() => {
   window.chrome = {
-    'storage': {
-      'local': {
+    storage: {
+      local: {
       },
-      'sync': {},
+      sync: {},
     },
   };
 

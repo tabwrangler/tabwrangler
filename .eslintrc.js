@@ -44,6 +44,7 @@ module.exports = {
     'no-var': 2,
     'object-shorthand': 2,
     'prefer-const': 2,
+    'quote-props': [2, 'as-needed'],
     'quotes': [2, 'single', {'avoidEscape': true}],
     'semi': 2,
     'sort-imports': 2,

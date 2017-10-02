@@ -3,17 +3,17 @@ import storageLocal from '../storageLocal';
 
 beforeEach(() => {
   window.chrome = {
-    'storage': {
-      'local': {
+    storage: {
+      local: {
       },
     },
-    'tabs': {
+    tabs: {
     },
-    'browserAction': {},
-    'extension': {
+    browserAction: {},
+    extension: {
       getBackgroundPage: () => {
         return {
-          'TW': storageLocal,
+          TW: storageLocal,
         };
       },
     },
@@ -48,13 +48,13 @@ describe('wrangleTabs', () => {
     expect(window.TW.storageLocal.set.mock.calls).toEqual([['totalTabsWrangled', 13]]);
     expect(window.chrome.storage.local.set.mock.calls).toMatchObject([
       [{
-        'savedTabs':
-        [{ 'id': 4 },
-          { 'id': 3 },
-          { 'id': 2 }],
+        savedTabs:
+        [{ id: 4 },
+          { id: 3 },
+          { id: 2 }],
       }]]);
 
-    expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
+    expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ text: '3' }]);
   });
 
   test('should wrangle max tabs', () => {
@@ -74,16 +74,16 @@ describe('wrangleTabs', () => {
     expect(window.TW.storageLocal.set.mock.calls).toEqual([['totalTabsWrangled', 4]]);
     expect(window.chrome.storage.local.set.mock.calls).toMatchObject([
       [{
-        'savedTabs':
+        savedTabs:
         [
-          { 'id': 5 },
-          { 'id': 4 },
-          { 'id': 3 },
+          { id: 5 },
+          { id: 4 },
+          { id: 3 },
         ],
       }],
     ]);
 
-    expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
+    expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ text: '3' }]);
   });
 
   test('replaces duplicate tab in the corral if exact URL matches', () => {
@@ -115,16 +115,16 @@ describe('wrangleTabs', () => {
     expect(window.TW.storageLocal.set.mock.calls).toEqual([['totalTabsWrangled', 1]]);
     expect(window.chrome.storage.local.set.mock.calls).toMatchObject([
       [{
-        'savedTabs':
+        savedTabs:
         [
-          { 'id': 4 },
-          { 'id': 1 },
-          { 'id': 2 },
+          { id: 4 },
+          { id: 1 },
+          { id: 2 },
         ],
       }],
     ]);
 
-    expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
+    expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ text: '3' }]);
   });
 
   test('replaces duplicate tab in the corral if hostname and title match', () => {
@@ -156,16 +156,16 @@ describe('wrangleTabs', () => {
     expect(window.TW.storageLocal.set.mock.calls).toEqual([['totalTabsWrangled', 1]]);
     expect(window.chrome.storage.local.set.mock.calls).toMatchObject([
       [{
-        'savedTabs':
+        savedTabs:
         [
-          { 'id': 4 },
-          { 'id': 1 },
-          { 'id': 2 },
+          { id: 4 },
+          { id: 1 },
+          { id: 2 },
         ],
       }],
     ]);
 
-    expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ 'text': '3' }]);
+    expect(window.chrome.browserAction.setBadgeText.mock.calls[0]).toEqual([{ text: '3' }]);
   });
 });
 

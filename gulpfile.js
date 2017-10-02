@@ -60,14 +60,14 @@ gulp.task('test', function () {
 
   return gulp.src('app/js/__tests__').pipe(jest(Object.assign({}, {
     config: {
-      'transformIgnorePatterns': [
+      transformIgnorePatterns: [
         '<rootDir>/dist/', '<rootDir>/node_modules/',
       ],
-      'transform': {
+      transform: {
         '^.+\\.jsx?$': 'babel-jest',
       },
-      'verbose': true,
-      'automock': false,
+      verbose: true,
+      automock: false,
     },
   })));
 });

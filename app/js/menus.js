@@ -39,21 +39,21 @@ export default {
 
   createContextMenus () {
     const lockTab = {
-      'type': 'checkbox',
-      'title': 'Never close this tab',
-      'onclick': this.pageSpecificActions['lockTab'],
+      type: 'checkbox',
+      title: 'Never close this tab',
+      onclick: this.pageSpecificActions['lockTab'],
     };
 
     const lockDomain = {
-      'type': 'checkbox',
-      'title': 'Never close anything on this domain',
-      'onclick': this.pageSpecificActions['lockDomain'],
+      type: 'checkbox',
+      title: 'Never close anything on this domain',
+      onclick: this.pageSpecificActions['lockDomain'],
     };
 
     const corralTab = {
-      'type': 'normal',
-      'title': 'Close tab and save URL immediately',
-      'onclick': this.pageSpecificActions['corralTab'],
+      type: 'normal',
+      title: 'Close tab and save URL immediately',
+      onclick: this.pageSpecificActions['corralTab'],
     };
 
     this.lockTabId = chrome.contextMenus.create(lockTab);
@@ -79,6 +79,6 @@ export default {
         throw e;
       }
     });
-    chrome.contextMenus.update(this.lockTabId, {'checked': tabmanager.isLocked(tabId)});
+    chrome.contextMenus.update(this.lockTabId, {checked: tabmanager.isLocked(tabId)});
   },
 };

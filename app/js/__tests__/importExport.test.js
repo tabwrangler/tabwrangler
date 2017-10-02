@@ -4,14 +4,14 @@ import storageLocal from '../storageLocal';
 
 beforeEach(() => {
   window.chrome = {
-    'storage': {
-      'local': {
+    storage: {
+      local: {
       },
     },
-    'extension': {
+    extension: {
       getBackgroundPage: () => {
         return {
-          'TW': storageLocal,
+          TW: storageLocal,
         };
       },
     },
@@ -24,9 +24,9 @@ afterEach(() => {
 
 test('should export the bookmark data', () => {
   const mockValues = {
-    'totalTabsRemoved': 256,
-    'totalTabsUnwrangled': 120,
-    'totalTabsWrangled': 100,
+    totalTabsRemoved: 256,
+    totalTabsUnwrangled: 120,
+    totalTabsWrangled: 100,
   };
 
   // provide some mock functions

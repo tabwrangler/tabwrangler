@@ -13,7 +13,6 @@ interface Props {
 }
 
 export default class ClosedTabRow extends React.PureComponent<Props> {
-  props: Props;
 
   _handleClickAnchor = (event: SyntheticMouseEvent<HTMLElement>) => {
     const {tab} = this.props;
@@ -80,4 +79,5 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
       </tr>
     );
   }
+
 }

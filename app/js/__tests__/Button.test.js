@@ -7,7 +7,7 @@ test('render button with correct label', () => {
   const mockCallback = jest.fn();
 
   const button = renderer.create(
-    <Button onClick={mockCallback} className='btn btn-default btn-xs'>Export</Button>
+    <Button onClick={mockCallback} className="btn btn-default btn-xs">Export</Button>
   );
 
   expect(button).toMatchSnapshot();
@@ -17,7 +17,7 @@ test('render button with correct label and glyphicon', () => {
   const mockCallback = jest.fn();
 
   const button = renderer.create(
-    <Button glyph='export' onClick={mockCallback} className='btn btn-default btn-xs'>Export</Button>
+    <Button glyph="export" onClick={mockCallback} className="btn btn-default btn-xs">Export</Button>
   );
 
   expect(button).toMatchSnapshot();
@@ -31,7 +31,7 @@ test('should call click handler callback when clicked', () => {
     render() {
       return (
         <div>
-          <Button onClick={mockCallback} className='btn btn-default btn-xs'>Export</Button>
+          <Button onClick={mockCallback} className="btn btn-default btn-xs">Export</Button>
         </div>
       );
     }

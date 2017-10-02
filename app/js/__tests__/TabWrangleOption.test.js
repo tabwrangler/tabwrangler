@@ -41,7 +41,7 @@ test('should call onChange handler callback when clicked', () => {
     render() {
       return (
         <div>
-          <TabWrangleOption onChange={mockCallback} selectedOption='hostnameAndTitleMatch' />
+          <TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />
         </div>
       );
     }

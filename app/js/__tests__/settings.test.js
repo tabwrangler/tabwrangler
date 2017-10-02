@@ -17,7 +17,7 @@ beforeEach(() => {
 
   window.chrome.storage.sync.get = mockFunctionGet;
   window.chrome.storage.sync.set = mockFunctionSet;
-  
+
   Settings.init();
 });
 
@@ -45,6 +45,6 @@ test('should throw an exception when maxTabs is < 1', () => {
 
 test('should throw an exception when maxTabs is > 500', () => {
   expect(() => Settings.setmaxTabs(600)).toThrowError(
-    'Max tabs must be a number between 1 and 500. ' + 
+    'Max tabs must be a number between 1 and 500. ' +
     'Setting this too high can cause performance issues');
 });

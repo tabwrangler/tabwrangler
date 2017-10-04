@@ -7,4 +7,5 @@
 node_modules/flow-interfaces-chrome/interfaces/
 
 [options]
+emoji=true
 suppress_comment=.*\\$FlowFixMe.*

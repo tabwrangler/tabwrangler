@@ -498,6 +498,12 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               Reset a tab&apos;s timer only after it is active for 1 second
             </label>
           </div>
+          <div className="form-group">
+            <TabWrangleOption
+              onChange={this.handleSettingsChange}
+              selectedOption={settings.get('wrangleOption')}
+            />
+          </div>
         </form>
 
         {(this.state.errors.length === 0)
@@ -573,16 +579,6 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             }
           </tbody>
         </table>
-
-        <h4 className="page-header">Corral Options</h4>
-        <div className="row">
-          <div className="col-xs-8">
-            <TabWrangleOption
-              onChange={this.handleSettingsChange}
-              selectedOption={settings.get('wrangleOption')}
-            />
-          </div>
-        </div>
 
         <h4 className="page-header">Import / Export</h4>
         <div className="row">

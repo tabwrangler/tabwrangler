@@ -8,15 +8,16 @@ interface Props {
 }
 
 const OPTIONS = [
-  { name: 'withDupes', text: 'With Duplicates (Default)' },
-  { name: 'exactURLMatch', text: 'Exact URL match' },
-  { name: 'hostnameAndTitleMatch', text: 'Hostname and Title match' },
+  { name: 'withDupes', text: 'Never (Default)' },
+  { name: 'exactURLMatch', text: 'If URL matches exactly' },
+  { name: 'hostnameAndTitleMatch', text: 'If hostname and page title match' },
 ];
 
 export default class TabWrangleOption extends React.Component<Props> {
   render() {
     return (
-      <form className="form-inline" style={{ marginBottom: '20px' }}>
+      <div>
+        <label htmlFor="wrangleOption">Prevent duplicate tabs in the Tab Corral:</label>
         {OPTIONS.map(option => (
           <div className="radio" key={option.name}>
             <label>
@@ -33,31 +34,29 @@ export default class TabWrangleOption extends React.Component<Props> {
             </label>
           </div>
         ))}
-        <div className="help-block">
-          <dl>
-            <dt>With Duplicates</dt>
-            <dd>
-              Always add a wrangled tab to the corral.
-            </dd>
-            <dt style={{ marginTop: '10px' }}>Exact URL match</dt>
-            <dd>
-              Add a wrangled tab to the corral only if its exact URL is unique in the corral. For
-              example, a tab for &quot;https://www.github.com&quot; will not be added to the corral
-              if there is already a tab with the exact same URL in the corral. The existing entry
-              will be renewed instead.
-            </dd>
-            <dt style={{ marginTop: '10px' }}>Hostname and Title match</dt>
-            <dd>
-              Add a wrangled tab to the corral only if its hostname + page title pair are unique in
-              the corral. For an example, a tab for
-              &quot;https://github.com/tabwrangler/tabwrangler&quot;
-              with title &quot;tabwrangler/tabwrangler&quot; will not be added to the corral if
-              there is already an tab in the corral that matches both the hostname and the title.
-              The existing entry will be renewed instead.
-            </dd>
-          </dl>
+        <div className="row">
+          <div className="col-xs-8 help-block">
+            <dl>
+              <dt>Never</dt>
+              <dd>
+                When a tab is wrangled, it will be added to the Corral. No other changes will be
+                made to the Corral.
+              </dd>
+              <dt style={{ marginTop: '10px' }}>If URL matches exactly</dt>
+              <dd>
+                When a tab is wrangled, it will be added to the Corral and any older tabs with the
+                exact same URL will be removed from the Corral.
+              </dd>
+              <dt style={{ marginTop: '10px' }}>If hostname and page title match</dt>
+              <dd>
+                When a tab is wrangled, it will be added to the Corral and any older tabs with the
+                same hostname (like &quot;wikipedia.org&quot;) and page title will be removed from
+                the Corral.
+              </dd>
+            </dl>
+          </div>
         </div>
-      </form>
+      </div>
     );
   }
 }

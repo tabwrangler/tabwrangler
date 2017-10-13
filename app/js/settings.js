@@ -118,8 +118,8 @@ const Settings = {
    * @see Settings.set
    */
   setminTabs(value: string) {
-    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0 || parseInt(value, 10) > 30 ) {
-      throw Error('Minimum tabs must be a number between 0 and 30');
+    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0 ) {
+      throw Error('Minimum tabs must be a number greater than or equal to 0');
     }
     Settings.setValue('minTabs', value);
   },
@@ -131,10 +131,8 @@ const Settings = {
    */
   setminutesInactive(value: string): void {
     const minutes = parseInt(value, 10);
-    if (isNaN(minutes) || minutes < 0 || minutes > 7200) {
-      throw Error(
-        'Minutes Inactive must be greater than or equal to 0 and less than or equal to 7200'
-      );
+    if (isNaN(minutes) || minutes < 0) {
+      throw Error('Minutes Inactive must be greater than or equal to 0');
     }
 
     // Reset the tabTimes since we changed the setting

@@ -198,12 +198,18 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
     let saveAlert;
     if (this.state.errors.length === 0) {
       if (this.state.saveAlertVisible) {
-        saveAlert = [<div className="alert alert-success" key="alert">Saving...</div>];
+        saveAlert = [
+          <div className="alert-sticky" key="alert">
+            <div className="alert alert-success pull-right" style={{ display: 'inline-block' }}>
+              Saving...
+            </div>
+          </div>,
+        ];
       }
     } else {
       errorAlert = (
-        <div className="alert alert-danger">
-          <ul>
+        <div className="alert alert-danger alert-sticky">
+          <ul className="pull-right" style={{ display: 'inline-block' }}>
             {this.state.errors.map((error, i) =>
               <li key={i}>{error.message}</li>
             )}
@@ -213,7 +219,6 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
     }
 
     let importExportAlert;
-
     if (this.state.importExportErrors.length === 0) {
       if (this.state.importExportAlertVisible) {
         importExportAlert = [
@@ -344,17 +349,6 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
             />
           </div>
         </form>
-
-        {(this.state.errors.length === 0)
-          ? (
-            <ReactCSSTransitionGroup
-              transitionEnter={false}
-              transitionLeaveTimeout={400}
-              transitionName="alert">
-              {saveAlert}
-            </ReactCSSTransitionGroup>
-          )
-          : errorAlert}
 
         <h4 className="page-header">Auto-Lock</h4>
         <div className="row">
@@ -493,6 +487,17 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
             );
           })
         }
+
+        {(this.state.errors.length === 0)
+          ? (
+            <ReactCSSTransitionGroup
+              transitionEnter={false}
+              transitionLeaveTimeout={400}
+              transitionName="alert">
+              {saveAlert}
+            </ReactCSSTransitionGroup>
+          )
+          : errorAlert}
       </div>
     );
   }

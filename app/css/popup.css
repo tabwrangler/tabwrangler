@@ -176,3 +176,10 @@ input.checkbox--td {
 .close-xs {
   font-size: 10px;
 }
+
+.alert-sticky {
+  position: fixed;
+  left: 10px;
+  top: 15px;
+  right: 10px;
+}

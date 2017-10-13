@@ -35,8 +35,8 @@ export default class TabWrangleOption extends React.Component<Props> {
           </div>
         ))}
         <div className="row">
-          <div className="col-xs-8 help-block">
-            <dl>
+          <div className="col-xs-8 help-block" style={{ marginBottom: 0 }}>
+            <dl style={{ marginBottom: 0 }}>
               <dt>Never</dt>
               <dd>
                 When a tab is wrangled, it will be added to the Corral. No other changes will be

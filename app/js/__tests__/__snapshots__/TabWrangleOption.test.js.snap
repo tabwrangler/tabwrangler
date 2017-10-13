@@ -63,8 +63,19 @@ exports[`should render options with exactURLMatch selected 1`] = `
   >
     <div
       className="col-xs-8 help-block"
+      style={
+        Object {
+          "marginBottom": 0,
+        }
+      }
     >
-      <dl>
+      <dl
+        style={
+          Object {
+            "marginBottom": 0,
+          }
+        }
+      >
         <dt>
           Never
         </dt>
@@ -164,8 +175,19 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
   >
     <div
       className="col-xs-8 help-block"
+      style={
+        Object {
+          "marginBottom": 0,
+        }
+      }
     >
-      <dl>
+      <dl
+        style={
+          Object {
+            "marginBottom": 0,
+          }
+        }
+      >
         <dt>
           Never
         </dt>
@@ -265,8 +287,19 @@ exports[`should render options with withDupes selected 1`] = `
   >
     <div
       className="col-xs-8 help-block"
+      style={
+        Object {
+          "marginBottom": 0,
+        }
+      }
     >
-      <dl>
+      <dl
+        style={
+          Object {
+            "marginBottom": 0,
+          }
+        }
+      >
         <dt>
           Never
         </dt>

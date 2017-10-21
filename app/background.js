@@ -154,6 +154,20 @@ const startup = function() {
         tabmanager.closedTabs.wrangleTabs(tabs);
       });
       break;
+    case 'lock-current-tab':
+      chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+        tabs.forEach(tab => {
+          tabmanager.lockTab(tab.id);
+        });
+      });
+      break;
+    case 'unlock-current-tab':
+      chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+        tabs.forEach(tab => {
+          tabmanager.unlockTab(tab.id);
+        });
+      });
+      break;
     default:
       break;
     }

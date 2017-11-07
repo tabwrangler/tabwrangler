@@ -147,7 +147,7 @@ class LockTab extends React.PureComponent<{}, LockTabState> {
 
     return (
       <div className="tab-pane active">
-        <table className="table table-hover table-striped">
+        <table className="table table-hover">
           <thead>
             <tr>
               <th className="text-center">
@@ -156,7 +156,7 @@ class LockTab extends React.PureComponent<{}, LockTabState> {
                 </abbr>
               </th>
               <th></th>
-              <th style={{width: '100%'}}>Tab</th>
+              <th style={{width: '100%'}}></th>
               <th className="text-center">
                 <i className="glyphicon glyphicon-time" title="Closing in..."></i>
               </th>

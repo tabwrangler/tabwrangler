@@ -4,10 +4,6 @@ import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import _ from 'lodash';
 
-// Whether `LazyImage` instances should check to load their images immediately. This will be true
-// only after a period of time that allows the popup to show quickly.
-let checkShouldLoadOnMount = false;
-
 const loadedSrcs = new Set();
 const pendingLazyImages = new Set();
 
@@ -17,21 +13,14 @@ function checkShouldLoadLazyImages() {
   }
 }
 
-// Begin the loading process a full second after initial execution to allow the popup to open
-// before loading images. If images begin to load too soon after the popup opens, Chrome waits for
-// them to fully load before showing the popup.
-setTimeout(function() {
-  checkShouldLoadLazyImages();
-  checkShouldLoadOnMount = true;
-
-  // Check whether to load images on scroll events but throttle the check to once every 150ms
-  // because scroll events are numerous.
-  window.addEventListener('scroll', _.throttle(checkShouldLoadLazyImages, 150));
-}, 1000);
+// Check whether to load images on scroll events but throttle the check to once every 150ms
+// because scroll events are numerous.
+window.addEventListener('scroll', _.throttle(checkShouldLoadLazyImages, 150));
 
 interface Props {
   className?: string;
   height: number;
+  shouldCheck: boolean;
   src: ?string;
   style?: Object;
   width: number;
@@ -55,7 +44,13 @@ export default class LazyImage extends React.PureComponent<Props, State> {
   componentDidMount() {
     if (!this.state.loaded) {
       pendingLazyImages.add(this);
-      if (checkShouldLoadOnMount) this.checkShouldLoad();
+      if (this.props.shouldCheck) this.checkShouldLoad();
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (!prevProps.shouldCheck && this.props.shouldCheck) {
+      this.checkShouldLoad();
     }
   }
 
@@ -72,6 +67,8 @@ export default class LazyImage extends React.PureComponent<Props, State> {
   }
 
   checkShouldLoad() {
+    if (!this.props.shouldCheck) return;
+
     const {src} = this.props;
 
     if (src == null || !this._placeholder) return;
@@ -107,7 +104,14 @@ export default class LazyImage extends React.PureComponent<Props, State> {
         transitionLeaveTimeout={250}
         transitionName="lazy-image">
         {(this.props.src != null && this.state.loaded) ?
-          <img key="img" {...this.props} /> :
+          <img
+            className={this.props.className}
+            height={this.props.height}
+            key="img"
+            src={this.props.src}
+            style={this.props.style}
+            width={this.props.width}
+          /> :
           <div
             className={this.props.className}
             key="placeholder"

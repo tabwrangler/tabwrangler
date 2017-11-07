@@ -9,6 +9,7 @@ interface Props {
   isSelected: boolean;
   onOpenTab: (tab: chrome$Tab) => void;
   onToggleTab: (tab: chrome$Tab, selected: boolean, multiselect: boolean) => void;
+  shouldCheckLazyImages: boolean;
   tab: chrome$Tab;
 }
 
@@ -36,7 +37,7 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
   };
 
   render() {
-    const {isSelected, tab} = this.props;
+    const {isSelected, shouldCheckLazyImages, tab} = this.props;
 
     return (
       <tr className={isSelected ? 'bg-warning' : null}>
@@ -50,16 +51,17 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
         </td>
         <td className="faviconCol">
           {tab.favIconUrl == null
-            ? <span style={{display: 'inline-block', height: '16px'}}>
-                -
-            </span>
-            : <LazyImage
-              alt=""
-              className="favicon"
-              height={16}
-              src={tab.favIconUrl}
-              width={16}
-            />
+            ? <span style={{display: 'inline-block', height: '16px'}}>-</span>
+            : (
+              <LazyImage
+                alt=""
+                className="favicon"
+                height={16}
+                src={tab.favIconUrl}
+                shouldCheck={shouldCheckLazyImages}
+                width={16}
+              />
+            )
           }
         </td>
         <td>

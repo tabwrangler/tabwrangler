@@ -89,6 +89,7 @@ class OpenTabRow extends React.Component<OpenTabRowProps> {
           <LazyImage
             alt=""
             height={16}
+            shouldCheck={true}
             src={tab.favIconUrl}
             style={{height: '16px', maxWidth: 'none'}}
             width={16}

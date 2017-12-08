@@ -31,6 +31,10 @@ const checkToClose = function(cutOff) {
   // Update the selected one to make sure it doesn't get closed.
   chrome.tabs.query({active: true, currentWindow: true}, tabmanager.updateLastAccessed);
 
+  if (settings.get('filterAudio') === true) {
+    chrome.tabs.query({audible: true}, tabmanager.updateLastAccessed);
+  }
+
   chrome.windows.getAll({populate:true}, function(windows) {
     let tabs = []; // Array of tabs, populated for each window.
     windows.forEach(myWindow => {

@@ -44,6 +44,9 @@ const Settings = {
 
     // We allow duplicate entries in the closed/wrangled tabs list
     wrangleOption: 'withDupes',
+
+    // Don't close tabs that are playing audio.
+    filterAudio: false,
   },
 
   // Gets all settings from sync and stores them locally.

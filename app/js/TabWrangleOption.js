@@ -7,17 +7,19 @@ interface Props {
   selectedOption: string;
 }
 
-const OPTIONS = [
-  { name: 'withDupes', text: chrome.i18n.getMessage('options_dedupe_option_withDupes') },
-  { name: 'exactURLMatch', text: chrome.i18n.getMessage('options_dedupe_option_exactURLMatch') },
-  {
-    name: 'hostnameAndTitleMatch',
-    text: chrome.i18n.getMessage('options_dedupe_option_hostnameAndTitleMatch'),
-  },
-];
-
 export default class TabWrangleOption extends React.Component<Props> {
   render() {
+    // Declare this dynamically so it is available inside tests. It's not simple to modify globals,
+    // like `chrome`, using Jest. Is there a better way to do this? Probably.
+    const OPTIONS = [
+      { name: 'withDupes', text: chrome.i18n.getMessage('options_dedupe_option_withDupes') },
+      { name: 'exactURLMatch', text: chrome.i18n.getMessage('options_dedupe_option_exactURLMatch') },
+      {
+        name: 'hostnameAndTitleMatch',
+        text: chrome.i18n.getMessage('options_dedupe_option_hostnameAndTitleMatch'),
+      },
+    ];
+
     return (
       <div>
         <label htmlFor="wrangleOption">{chrome.i18n.getMessage('options_dedupe_label')}</label>

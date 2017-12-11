@@ -54,5 +54,10 @@
     "react-dom": "^16.0.0",
     "react-sticky": "^6.0.1",
     "timeago-react": "^1.2.2"
+  },
+  "jest": {
+    "globals": {
+      "chrome": true
+    }
   }
 }

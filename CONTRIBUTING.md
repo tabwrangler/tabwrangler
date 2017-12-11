@@ -1,6 +1,7 @@
 ## Contributing Translations
 
-1. Follow the instructions in the README for Developing the Tab Wrangler extension
+1. Follow the instructions in the README for [Developing](README.md#developing) the Tab Wrangler
+    extension
 2. Read the Chrome extension documenation on [i18n messages][0] to understand how i18n works in
     Chrome extensions
 3. Edit or create the appropriate "messages.json" file

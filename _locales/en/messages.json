@@ -15,6 +15,74 @@
     "description": "Link to the extension's support site",
     "message": "Support"
   },
+  "corral_currentSort": {
+    "description": "Button title for showing current sort order",
+    "message": "Currently sorted $sort_order$",
+    "placeholders": {
+      "sort_order": {
+        "content": "$1",
+        "example": "Reverse Chrono"
+      }
+    }
+  },
+  "corral_emptyList": {
+    "description": "Message displayed in the tab corral when the extension has not yet closed any tabs",
+    "message": "No closed tabs yet. When Tab Wrangler closes tabs, they will appear here. Go leave your tabs open!"
+  },
+  "corral_removeSelectedTabs": {
+    "description": "Button title for removing all selected tabs from the corral",
+    "message": "Remove selected tabs"
+  },
+  "corral_restoreSelectedTabs": {
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
+    "message": "Restore selected tabs"
+  },
+  "corral_searchResults_clear": {
+    "description": "Button title for clearing the search value and resetting results",
+    "message": "Clear search"
+  },
+  "corral_searchResults_label": {
+    "description": "Label showing number of tab search results",
+    "message": "$count$ search results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "33"
+      }
+    }
+  },
+  "corral_searchTabs": {
+    "description": "Text input placeholder for searching list of closed tabs",
+    "message": "Search tabs..."
+  },
+  "corral_sort": {
+    "description": "Button label for sorting list of closed tabs",
+    "message": "Sort"
+  },
+  "corral_sortAlpha": {
+    "description": "Label for sorting the tab corral list alphabetically (A -> Z)",
+    "message": "Alpha"
+  },
+  "corral_sortChrono": {
+    "description": "Label for sorting the tab corral list chronologically (2000 -> 2020)",
+    "message": "Chrono"
+  },
+  "corral_sortReverseAlpha": {
+    "description": "Label for sorting the tab corral list reverse alphabetically (Z -> A)",
+    "message": "Reverse Alpha"
+  },
+  "corral_sortReverseChrono": {
+    "description": "Label for sorting the tab corral list reverse chronologically (2020 -> 2000)",
+    "message": "Reverse Chrono"
+  },
+  "corral_toggleAllTabs_deselectAll": {
+    "description": "Button title for deselecting all tabs in the tab corral",
+    "message": "Deselect all tabs"
+  },
+  "corral_toggleAllTabs_selectAll": {
+    "description": "Button title for selecting all tabs in the tab corral",
+    "message": "Select all tabs"
+  },
   "extName": {
     "description": "The name of this extension",
     "message": "Tab Wrangler"

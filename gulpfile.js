@@ -32,14 +32,19 @@ gulp.task('cp', function() {
   ], {base: 'app'})
     .pipe(gulp.dest(DIST_DIRECTORY));
 
-  const cpRoot = gulp.src([
+  const cpManifest = gulp.src([
     'app/manifest.json',
-    'MIT-LICENSE.txt',
-    'README.md',
   ])
     .pipe(gulp.dest(DIST_DIRECTORY));
 
-  return [cpApp, cpRoot];
+  const cpRoot = gulp.src([
+    '_locales/**/*',
+    'MIT-LICENSE.txt',
+    'README.md',
+  ], {base: '.'})
+    .pipe(gulp.dest(DIST_DIRECTORY));
+
+  return [cpApp, cpManifest, cpRoot];
 });
 
 gulp.task('lint', function() {
@@ -119,6 +124,9 @@ gulp.task('webpack:watch', function(done) {
 // Watch and re-compile / re-lint when in development.
 // eslint-disable-next-line no-unused-vars
 gulp.task('watch', function(done) {
+  watch('_locales/**/*', function() {
+    gulp.start('cp');
+  });
   watch('app/**/!(*.js)', function() {
     gulp.start('cp');
   });

@@ -49,18 +49,22 @@ class OpenTabRow extends React.Component<OpenTabRowProps> {
     if (tabIsLocked) {
       let reason;
       if (tab.pinned) {
-        reason = 'Pinned';
+        reason = chrome.i18n.getMessage('tabLock_lockedReason_pinned');
       } else if (tabWhitelistMatch) {
-        reason = <abbr title={`Matches '${tabWhitelistMatch}'`}>Auto-Locked</abbr>;
+        reason = (
+          <abbr title={chrome.i18n.getMessage('tabLock_lockedReason_matches', tabWhitelistMatch)}>
+            Auto-Locked
+          </abbr>
+        );
       } else {
-        reason = 'Locked';
+        reason = chrome.i18n.getMessage('tabLock_lockedReason_locked');
       }
 
       lockStatusElement = <td className="text-center muted">{reason}</td>;
     } else {
       let timeLeftContent;
       if (settings.get('paused')) {
-        timeLeftContent = 'Paused';
+        timeLeftContent = chrome.i18n.getMessage('tabLock_lockedReason_paused');
       } else {
         const lastModified = tabmanager.tabTimes[tab.id];
         const cutOff = new Date().getTime() - settings.get('stayOpen');
@@ -151,14 +155,17 @@ class LockTab extends React.PureComponent<{}, LockTabState> {
           <thead>
             <tr>
               <th className="text-center">
-                <abbr title="Check a tab's box to lock the tab (prevent it from auto-closing).">
+                <abbr title={chrome.i18n.getMessage('tabLock_lockLabel')}>
                   <i className="glyphicon glyphicon-lock"></i>
                 </abbr>
               </th>
               <th></th>
               <th style={{width: '100%'}}></th>
               <th className="text-center">
-                <i className="glyphicon glyphicon-time" title="Closing in..."></i>
+                <i
+                  className="glyphicon glyphicon-time"
+                  title={chrome.i18n.getMessage('tabLock_remainingTimeLabel')}
+                />
               </th>
             </tr>
           </thead>
@@ -209,8 +216,15 @@ class PauseButton extends React.PureComponent<{}, PauseButtonState> {
       : this.pause;
 
     const content = this.state.paused
-      ? <span><i className="glyphicon glyphicon-play"></i> Resume</span>
-      : <span><i className="glyphicon glyphicon-pause"></i> Pause</span>;
+      ? (
+        <span>
+          <i className="glyphicon glyphicon-play"></i> {chrome.i18n.getMessage('extension_resume')}
+        </span>
+      ) : (
+        <span>
+          <i className="glyphicon glyphicon-pause"></i> {chrome.i18n.getMessage('extension_pause')}
+        </span>
+      );
 
     return (
       <button className="btn btn-default btn-xs" onClick={action}>
@@ -256,21 +270,30 @@ class NavBar extends React.PureComponent<NavBarProps> {
             href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"
             rel="noopener noreferrer"
             target="_blank">
-            <i className="glyphicon glyphicon-star"></i> Review Tab Wrangler
+            <i className="glyphicon glyphicon-star"></i>
+            {' '}{chrome.i18n.getMessage('extension_review', chrome.i18n.getMessage('extName'))}
           </a>
         </div>
         <ul className="nav nav-tabs">
           <li className={this.props.activeTabId === 'corral' ? 'active' : null}>
-            <a href="#corral" onClick={this.handleClickCorralTab}>Tab Corral</a>
+            <a href="#corral" onClick={this.handleClickCorralTab}>
+              {chrome.i18n.getMessage('tabCorral_name')}
+            </a>
           </li>
           <li className={this.props.activeTabId === 'lock' ? 'active' : null}>
-            <a href="#lock" onClick={this.handleClickLockTab}>Tab Lock</a>
+            <a href="#lock" onClick={this.handleClickLockTab}>
+              {chrome.i18n.getMessage('tabLock_name')}
+            </a>
           </li>
           <li className={this.props.activeTabId === 'options' ? 'active' : null}>
-            <a href="#options" onClick={this.handleClickOptionsTab}>Options</a>
+            <a href="#options" onClick={this.handleClickOptionsTab}>
+              {chrome.i18n.getMessage('options_name')}
+            </a>
           </li>
           <li className={this.props.activeTabId === 'about' ? 'active' : null}>
-            <a href="#about" onClick={this.handleClickAboutTab}>About</a>
+            <a href="#about" onClick={this.handleClickAboutTab}>
+              {chrome.i18n.getMessage('about_name')}
+            </a>
           </li>
         </ul>
       </div>
@@ -281,14 +304,14 @@ class NavBar extends React.PureComponent<NavBarProps> {
 function AboutTab() {
   return (
     <div className="tab-pane active">
-      <p>TabWrangler v{chrome.runtime.getManifest().version}</p>
+      <p>{chrome.i18n.getMessage('extName')} v{chrome.runtime.getManifest().version}</p>
       <ul>
         <li>
           <a
             href="https://github.com/tabwrangler/tabwrangler/releases"
             rel="noopener noreferrer"
             target="_blank">
-            Change Log
+            {chrome.i18n.getMessage('about_changeLog')}
           </a>
         </li>
         <li>
@@ -296,7 +319,7 @@ function AboutTab() {
             href="https://github.com/tabwrangler/tabwrangler/issues"
             rel="noopener noreferrer"
             target="_blank">
-            Support
+            {chrome.i18n.getMessage('about_support')}
           </a>
         </li>
         <li>
@@ -304,7 +327,7 @@ function AboutTab() {
             href="https://github.com/tabwrangler/tabwrangler"
             rel="noopener noreferrer"
             target="_blank">
-            Source Code (MIT)
+            {chrome.i18n.getMessage('about_sourceCode')}
           </a>
         </li>
       </ul>

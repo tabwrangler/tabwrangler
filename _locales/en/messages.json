@@ -1,0 +1,340 @@
+{
+  "about_name": {
+    "description": "Name of the 'About' section, where users can see information about the extension",
+    "message": "About"
+  },
+  "about_changeLog": {
+    "description": "Link to the extension's list of changes per release",
+    "message": "Change Log"
+  },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "Source Code (MIT)"
+  },
+  "about_support": {
+    "description": "Link to the extension's support site",
+    "message": "Support"
+  },
+  "contextMenu_corralTab": {
+    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
+    "message": "Close tab and save URL immediately"
+  },
+  "contextMenu_lockDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "Never close anything on this domain"
+  },
+  "contextMenu_lockSpecificDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "Never close anything on $domain$",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "www.wikipedia.org"
+      }
+    }
+  },
+  "contextMenu_lockTab": {
+    "description": "Label for context menu item that locks the clicked tab",
+    "message": "Never close this tab"
+  },
+  "corral_currentSort": {
+    "description": "Button title for showing current sort order",
+    "message": "Currently sorted $sort_order$",
+    "placeholders": {
+      "sort_order": {
+        "content": "$1",
+        "example": "Reverse Chrono"
+      }
+    }
+  },
+  "corral_emptyList": {
+    "description": "Message displayed in the tab corral when the extension has not yet closed any tabs",
+    "message": "No closed tabs yet. When Tab Wrangler closes tabs, they will appear here. Go leave your tabs open!"
+  },
+  "corral_removeSelectedTabs": {
+    "description": "Button title for removing all selected tabs from the corral",
+    "message": "Remove selected tabs"
+  },
+  "corral_restoreSelectedTabs": {
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
+    "message": "Restore selected tabs"
+  },
+  "corral_searchResults_clear": {
+    "description": "Button title for clearing the search value and resetting results",
+    "message": "Clear search"
+  },
+  "corral_searchResults_label": {
+    "description": "Label showing number of tab search results",
+    "message": "$count$ search results",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "33"
+      }
+    }
+  },
+  "corral_searchTabs": {
+    "description": "Text input placeholder for searching list of closed tabs",
+    "message": "Search tabs..."
+  },
+  "corral_sort": {
+    "description": "Button label for sorting list of closed tabs",
+    "message": "Sort"
+  },
+  "corral_sortAlpha": {
+    "description": "Label for sorting the tab corral list alphabetically (A -> Z)",
+    "message": "Alpha"
+  },
+  "corral_sortChrono": {
+    "description": "Label for sorting the tab corral list chronologically (2000 -> 2020)",
+    "message": "Chrono"
+  },
+  "corral_sortReverseAlpha": {
+    "description": "Label for sorting the tab corral list reverse alphabetically (Z -> A)",
+    "message": "Reverse Alpha"
+  },
+  "corral_sortReverseChrono": {
+    "description": "Label for sorting the tab corral list reverse chronologically (2020 -> 2000)",
+    "message": "Reverse Chrono"
+  },
+  "corral_toggleAllTabs_deselectAll": {
+    "description": "Button title for deselecting all tabs in the tab corral",
+    "message": "Deselect all tabs"
+  },
+  "corral_toggleAllTabs_selectAll": {
+    "description": "Button title for selecting all tabs in the tab corral",
+    "message": "Select all tabs"
+  },
+  "extName": {
+    "description": "The name of this extension",
+    "message": "Tab Wrangler"
+  },
+  "extension_pause": {
+    "description": "Label for button that pauses the extension",
+    "message": "Pause"
+  },
+  "extension_resume": {
+    "description": "Label for button that resumes (unpauses) the extension",
+    "message": "Resume"
+  },
+  "extension_review": {
+    "description": "Label for button that lets user review the extension",
+    "message": "Review $extName$",
+    "placeholders": {
+      "extName": {
+        "content": "$1",
+        "example": "Tab Wrangler"
+      }
+    }
+  },
+  "options_dedupe_label": {
+    "description": "Label for the de-duplicating option",
+    "message": "Prevent duplicate tabs in the Tab Corral:"
+  },
+  "options_dedupe_option_exactURLMatch": {
+    "description": "Label for option to de-duplicate when URL matches exactly",
+    "message": "If URL matches exactly"
+  },
+  "options_dedupe_option_exactURLMatch_description": {
+    "description": "Description for option to de-duplicate when URL matches exactly",
+    "message": "When a tab is wrangled, it will be added to the Corral and any older tabs with the exact same URL will be removed from the Corral."
+  },
+  "options_dedupe_option_exactURLMatch_label": {
+    "description": "Extended label of the de-duplicate when tab URL matches exactly option",
+    "message": "If URL matches exactly"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch": {
+    "description": "Label for option to de-duplicate when hostname and page title match",
+    "message": "If hostname and page title match"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_description": {
+    "description": "Extended description for option to de-duplicate when hostname and page title match",
+    "message": "When a tab is wrangled, it will be added to the Corral and any older tabs with the same hostname (like \"wikipedia.org\") and page title will be removed from the Corral."
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_label": {
+    "description": "Extended label for option to de-duplicate when hostname and page title match",
+    "message": "If hostname and page title match"
+  },
+  "options_dedupe_option_withDupes": {
+    "description": "Label for option to never de-duplicate the tab corral",
+    "message": "Never (Default)"
+  },
+  "options_dedupe_option_withDupes_description": {
+    "description": "Description of the never de-duplicating tabs option",
+    "message": "When a tab is wrangled, it will be added to the Corral. No other changes will be made to the Corral."
+  },
+  "options_dedupe_option_withDupes_label": {
+    "description": "Label for never de-duplicating option",
+    "message": "Never"
+  },
+  "options_importExport_description": {
+    "description": "Description of the import/export feature shown next to import/export buttons",
+    "message": "Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension."
+  },
+  "options_importExport_export": {
+    "description": "Button label to begin exporting closed tabs",
+    "message": "Export"
+  },
+  "options_importExport_exporting": {
+    "description": "Label displayed when exporting closed tabs",
+    "message": "Exporting..."
+  },
+  "options_importExport_import": {
+    "description": "Button label to begin importing closed tabs",
+    "message": "Import"
+  },
+  "options_importExport_importing": {
+    "description": "Label displayed when importing closed tabs",
+    "message": "Importing..."
+  },
+  "options_importExport_importWarning": {
+    "description": "Description of the destructiveness of importing; current tabs are overwritten",
+    "message": "Warning: Importing data will overwrite all existing data. There is no way back (unless you have a backup)."
+  },
+  "options_keyboardShortcuts_configure": {
+    "description": "Link text for navigating to keyboard shortcut configuration",
+    "message": "Configure these shortcuts"
+  },
+  "options_keyboardShortcuts_notSet": {
+    "description": "Message shown for a shortcut when it has not been configured",
+    "message": "No shortcut set"
+  },
+  "options_name": {
+    "description": "Name of the 'Options' section, where users can configure the extension",
+    "message": "Options"
+  },
+  "options_option_autoLock_add": {
+    "description": "Button label for adding to whitelist",
+    "message": "Add"
+  },
+  "options_option_autoLock_empty": {
+    "description": "Message shown when there are no whitelisted URLs",
+    "message": "No auto-locking URLs yet. Use the form above to add some to the whitelist."
+  },
+  "options_option_autoLock_example": {
+    "description": "Example describing how the whitelist works",
+    "message": "Example: \"cnn\" would match every page on \"https://www.cnn.com\" and any URL with \"cnn\" anywhere in it."
+  },
+  "options_option_autoLock_label": {
+    "description": "Label preceeding input for adding URL to whitelist",
+    "message": "Auto-lock tabs with URLs containing:"
+  },
+  "options_option_autoLock_remove": {
+    "description": "Button label for removing a URL from the whitelist",
+    "message": "Remove"
+  },
+  "options_option_autoLock_urlHeader": {
+    "description": "Table column header for list of whitelisted URL strings",
+    "message": "URL String"
+  },
+  "options_option_clearOnQuit_label": {
+    "description": "Label for checkbox to clear the tab list after quitting Chrome",
+    "message": "Clear closed tabs list on quit"
+  },
+  "options_option_debounceOnActivated_label": {
+    "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
+    "message": "Reset a tab's timer only after it is active for 1 second"
+  },
+  "options_option_minTabs_label": {
+    "description": "Label preceeding input for setting minimum number of tabs",
+    "message": "Auto-close tabs only if I have more than:"
+  },
+  "options_option_minTabs_postLabel": {
+    "description": "Label following input for setting minimum number of tabs",
+    "message": "tabs open (does not include pinned or locked tabs)."
+  },
+  "options_option_minTabs_tabs": {
+    "description": "Input title for minimum number of tabs",
+    "message": "Must be a number greater than or equal to 0"
+  },
+  "options_option_rememberTabs_label": {
+    "description": "Label preceeding input for number of tabs to remember",
+    "message": "Remember up to:"
+  },
+  "options_option_rememberTabs_postLabel": {
+    "description": "Label following input for number of tabs to remember",
+    "message": "closed tabs."
+  },
+  "options_option_rememberTabs_tabs": {
+    "description": "Input title for number of tabs to remember",
+    "message": "Must be a number greater than or equal to 0"
+  },
+  "options_option_showBadgeCount_label": {
+    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
+    "message": "Show # of closed tabs in URL bar"
+  },
+  "options_option_timeInactive_label": {
+    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
+    "message": "Close inactive tabs after:"
+  },
+  "options_option_timeInactive_minutes": {
+    "description": "Input title for number of minutes before closing tabs",
+    "message": "Must be a number greater than 0 and less than 7200"
+  },
+  "options_option_timeInactive_postLabel": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "minutes : seconds"
+  },
+  "options_option_timeInactive_seconds": {
+    "description": "Input title for number of seconds before closing tabs",
+    "message": "Must be a number greater than 0 and less than 60"
+  },
+  "options_saving": {
+    "desciption": "Message displayed when options are being saved",
+    "message": "Saving..."
+  },
+  "options_section_autoLock": {
+    "description": "Header for the auto-lock section of the options tab",
+    "message": "Auto-Lock"
+  },
+  "options_section_importExport": {
+    "description": "Header for the import/export feature section of the options tab",
+    "message": "Import / Export"
+  },
+  "options_section_keyboardShortcuts": {
+    "description": "Header for the section containing keyboard shortcut configuration",
+    "message": "Keyboard Shortcuts"
+  },
+  "options_section_settings": {
+    "description": "Header for settings section of the options tab",
+    "message": "Settings"
+  },
+  "tabCorral_name": {
+    "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
+    "message": "Tab Corral"
+  },
+  "tabLock_lockedReason_locked": {
+    "description": "Label for tab that is locked because the user locked it",
+    "message": "Locked"
+  },
+  "tabLock_lockedReason_matches": {
+    "description": "Label for a tab that is locked because it matches the whitelist",
+    "message": "Matches '$pattern$'",
+    "placeholders": {
+      "pattern": {
+        "content": "$1",
+        "example": "chrome://"
+      }
+    }
+  },
+  "tabLock_lockedReason_paused": {
+    "description": "Label for a tab when the extension is paused",
+    "message": "Paused"
+  },
+  "tabLock_lockedReason_pinned": {
+    "description": "Label for a tab that is locked because it's pinned",
+    "message": "Pinned"
+  },
+  "tabLock_lockLabel": {
+    "description": "Explanation of the lock checkbox's functionality",
+    "message": "Check a tab's box to lock the tab (prevent it from auto-closing)."
+  },
+  "tabLock_name": {
+    "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
+    "message": "Tab Lock"
+  },
+  "tabLock_remainingTimeLabel": {
+    "description": "Explanation of time remaining before tab is closed",
+    "message": "Closing in..."
+  }
+}

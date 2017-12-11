@@ -3,7 +3,14 @@ import ReactTestUtils from 'react-dom/test-utils';
 import TabWrangleOption from '../TabWrangleOption';
 import renderer from 'react-test-renderer';
 
+const chrome = {
+  i18n: {
+    getMessage: () => '',
+  },
+};
+
 test('should render options with withDupes selected', () => {
+  global.chrome = chrome;
   const mockCallback = jest.fn();
 
   const two = renderer.create(
@@ -14,6 +21,7 @@ test('should render options with withDupes selected', () => {
 });
 
 test('should render options with exactURLMatch selected', () => {
+  global.chrome = chrome;
   const mockCallback = jest.fn();
 
   const two = renderer.create(
@@ -24,6 +32,7 @@ test('should render options with exactURLMatch selected', () => {
 });
 
 test('should render options with hostnameAndTitleMatch selected', () => {
+  global.chrome = chrome;
   const mockCallback = jest.fn();
 
   const two = renderer.create(
@@ -34,6 +43,7 @@ test('should render options with hostnameAndTitleMatch selected', () => {
 });
 
 test('should call onChange handler callback when clicked', () => {
+  global.chrome = chrome;
   const mockCallback = jest.fn();
 
   // Must wrap `TabWrangleOption` in a Composite Component in order to find it using ReactTestUtils.

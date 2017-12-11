@@ -75,7 +75,7 @@ tabs that you wanted to save.
 
 ### Translators
 
-See [CONTRIBUTING.md][] for how you can help make Tab Wrangler available in more languages.
+See [CONTRIBUTING.md]() for how you can help make Tab Wrangler available in more languages.
 
 ### Developers
 

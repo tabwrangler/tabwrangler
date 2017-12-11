@@ -29,7 +29,7 @@ const checkToClose = function(cutOff) {
   }
 
   // Update the selected one to make sure it doesn't get closed.
-  chrome.tabs.query({active: true, currentWindow: true}, tabmanager.updateLastAccessed);
+  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabmanager.updateLastAccessed);
 
   if (settings.get('filterAudio') === true) {
     chrome.tabs.query({audible: true}, tabmanager.updateLastAccessed);

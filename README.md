@@ -56,14 +56,17 @@ tabs that you wanted to save.
 
 ## Developing
 
-1. Install all dependencies
+1. Clone the repository
+
+        $ git clone https://github.com/tabwrangler/tabwrangler
+2. Install all dependencies (install [Yarn][0] first if you don't yet have it)
 
         $ yarn install
-2. Build, output, and watch the contents to `dist/`
+3. Build, output, and watch the contents to `dist/`
 
         $ yarn run watch
-3. Open the Extensions page in Chrome via *Window > Extensions*
-4. Click "Load unpacked extension..." and select the `dist/` directory created in Step 2
+4. Open the Extensions page in Chrome via *Window > Extensions*
+5. Click "Load unpacked extension..." and select the `dist/` directory created in Step 2
 
 ### Building for Release
 
@@ -82,3 +85,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how you can help make Tab Wrangler av
 * Modernized by [ssorallen](https://github.com/ssorallen) in 2017.
 * Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012.
 * Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010.
+
+[0]: https://yarnpkg.com/lang/en/docs/install/

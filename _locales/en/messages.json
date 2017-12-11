@@ -127,17 +127,73 @@
       }
     }
   },
+  "options_importExport_description": {
+    "description": "Description of the import/export feature shown next to import/export buttons",
+    "message": "Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension."
+  },
+  "options_importExport_export": {
+    "description": "Button label to begin exporting closed tabs",
+    "message": "Export"
+  },
   "options_importExport_exporting": {
     "description": "Label displayed when exporting closed tabs",
     "message": "Exporting..."
+  },
+  "options_importExport_import": {
+    "description": "Button label to begin importing closed tabs",
+    "message": "Import"
   },
   "options_importExport_importing": {
     "description": "Label displayed when importing closed tabs",
     "message": "Importing..."
   },
+  "options_importExport_importWarning": {
+    "description": "Description of the destructiveness of importing; current tabs are overwritten",
+    "message": "Warning: Importing data will overwrite all existing data. There is no way back (unless you have a backup)."
+  },
+  "options_keyboardShortcuts_configure": {
+    "description": "Link text for navigating to keyboard shortcut configuration",
+    "message": "Configure these shortcuts"
+  },
+  "options_keyboardShortcuts_notSet": {
+    "description": "Message shown for a shortcut when it has not been configured",
+    "message": "No shortcut set"
+  },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Options"
+  },
+  "options_option_autoLock_add": {
+    "description": "Button label for adding to whitelist",
+    "message": "Add"
+  },
+  "options_option_autoLock_empty": {
+    "description": "Message shown when there are no whitelisted URLs",
+    "message": "No auto-locking URLs yet. Use the form above to add some to the whitelist."
+  },
+  "options_option_autoLock_example": {
+    "description": "Example describing how the whitelist works",
+    "message": "Example: \"cnn\" would match every page on \"https://www.cnn.com\" and any URL with \"cnn\" anywhere in it."
+  },
+  "options_option_autoLock_label": {
+    "description": "Label preceeding input for adding URL to whitelist",
+    "message": "Auto-lock tabs with URLs containing:"
+  },
+  "options_option_autoLock_remove": {
+    "description": "Button label for removing a URL from the whitelist",
+    "message": "Remove"
+  },
+  "options_option_autoLock_urlHeader": {
+    "description": "Table column header for list of whitelisted URL strings",
+    "message": "URL String"
+  },
+  "options_option_clearOnQuit_label": {
+    "description": "Label for checkbox to clear the tab list after quitting Chrome",
+    "message": "Clear closed tabs list on quit"
+  },
+  "options_option_debounceOnActivated_label": {
+    "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
+    "message": "Reset a tab's timer only after it is active for 1 second"
   },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
@@ -150,6 +206,22 @@
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "Must be a number greater than or equal to 0"
+  },
+  "options_option_rememberTabs_label": {
+    "description": "Label preceeding input for number of tabs to remember",
+    "message": "Remember up to:"
+  },
+  "options_option_rememberTabs_postLabel": {
+    "description": "Label following input for number of tabs to remember",
+    "message": "closed tabs."
+  },
+  "options_option_rememberTabs_tabs": {
+    "description": "Input title for number of tabs to remember",
+    "message": "Must be a number greater than or equal to 0"
+  },
+  "options_option_showBadgeCount_label": {
+    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
+    "message": "Show # of closed tabs in URL bar"
   },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
@@ -170,6 +242,22 @@
   "options_saving": {
     "desciption": "Message displayed when options are being saved",
     "message": "Saving..."
+  },
+  "options_section_autoLock": {
+    "description": "Header for the auto-lock section of the options tab",
+    "message": "Auto-Lock"
+  },
+  "options_section_importExport": {
+    "description": "Header for the import/export feature section of the options tab",
+    "message": "Import / Export"
+  },
+  "options_section_keyboardShortcuts": {
+    "description": "Header for the section containing keyboard shortcut configuration",
+    "message": "Keyboard Shortcuts"
+  },
+  "options_section_settings": {
+    "description": "Header for settings section of the options tab",
+    "message": "Settings"
   },
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",

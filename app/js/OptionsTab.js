@@ -186,9 +186,16 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
     });
   };
 
-  exportData = () => this.importExportDataWithFeedback('Exporting...', _exportData);
+  exportData = () => this.importExportDataWithFeedback(
+    chrome.i18n.getMessage('options_importExport_exporting') || '',
+    _exportData
+  );
   importData = (event: SyntheticInputEvent<HTMLInputElement>) => {
-    return this.importExportDataWithFeedback('Importing...', _importData, event);
+    return this.importExportDataWithFeedback(
+      chrome.i18n.getMessage('options_importExport_importing') || '',
+      _importData,
+      event
+    );
   };
 
   render() {
@@ -201,7 +208,7 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
         saveAlert = [
           <div className="alert-sticky" key="alert">
             <div className="alert alert-success pull-right" style={{ display: 'inline-block' }}>
-              Saving...
+              {chrome.i18n.getMessage('options_saving')}
             </div>
           </div>,
         ];
@@ -244,7 +251,9 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
         <h4 className="page-header" style={{marginTop: 0}}>Settings</h4>
         <form className="form-inline">
           <div className="form-group">
-            <label htmlFor="minutesInactive">Close inactive tabs after:</label>
+            <label htmlFor="minutesInactive">
+              {chrome.i18n.getMessage('options_option_timeInactive_label')}
+            </label>
             <div>
               <input
                 className="form-control form-control--time"
@@ -254,7 +263,7 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
                 min="0"
                 name="minutesInactive"
                 onChange={this._debouncedHandleSettingsChange}
-                title="Must be a number greater than 0 and less than 7200"
+                title={chrome.i18n.getMessage('options_option_timeInactive_minutes')}
                 type="number"
               />
               <span> : </span>
@@ -266,14 +275,18 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
                 min="0"
                 name="secondsInactive"
                 onChange={this._debouncedHandleSettingsChange}
-                title="Must be a number greater than 0 and less than 60"
+                title={chrome.i18n.getMessage('options_option_timeInactive_seconds')}
                 type="number"
               />
-              <span className="form-control-static">minutes : seconds</span>
+              <span className="form-control-static">
+                {chrome.i18n.getMessage('options_option_timeInactive_postLabel')}
+              </span>
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="minTabs">{"Don't"} auto-close if I only have:</label>
+            <label htmlFor="minTabs">
+              {chrome.i18n.getMessage('options_option_minTabs_label')}
+            </label>
             <div>
               <input
                 className="form-control form-control--time m-r"
@@ -282,11 +295,11 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
                 min="0"
                 name="minTabs"
                 onChange={this._debouncedHandleSettingsChange}
-                title="Must be a number greater than or equal to 0"
+                title={chrome.i18n.getMessage('options_option_minTabs_tabs')}
                 type="number"
               />
               <span className="form-control-static">
-                tabs open (does not include pinned or locked tabs).
+                {chrome.i18n.getMessage('options_option_minTabs_postLabel')}
               </span>
             </div>
           </div>

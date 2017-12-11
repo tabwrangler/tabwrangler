@@ -127,9 +127,49 @@
       }
     }
   },
+  "options_importExport_exporting": {
+    "description": "Label displayed when exporting closed tabs",
+    "message": "Exporting..."
+  },
+  "options_importExport_importing": {
+    "description": "Label displayed when importing closed tabs",
+    "message": "Importing..."
+  },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Options"
+  },
+  "options_option_minTabs_label": {
+    "description": "Label preceeding input for setting minimum number of tabs",
+    "message": "Auto-close tabs only if I have more than:"
+  },
+  "options_option_minTabs_postLabel": {
+    "description": "Label following input for setting minimum number of tabs",
+    "message": "tabs open (does not include pinned or locked tabs)."
+  },
+  "options_option_minTabs_tabs": {
+    "description": "Input title for minimum number of tabs",
+    "message": "Must be a number greater than or equal to 0"
+  },
+  "options_option_timeInactive_label": {
+    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
+    "message": "Close inactive tabs after:"
+  },
+  "options_option_timeInactive_minutes": {
+    "description": "Input title for number of minutes before closing tabs",
+    "message": "Must be a number greater than 0 and less than 7200"
+  },
+  "options_option_timeInactive_postLabel": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "minutes : seconds"
+  },
+  "options_option_timeInactive_seconds": {
+    "description": "Input title for number of seconds before closing tabs",
+    "message": "Must be a number greater than 0 and less than 60"
+  },
+  "options_saving": {
+    "desciption": "Message displayed when options are being saved",
+    "message": "Saving..."
   },
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",

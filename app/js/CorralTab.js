@@ -23,7 +23,7 @@ type Sorter = {
 const AlphaSorter: Sorter = {
   example: '(A -> Z)',
   icon: 'sort-by-alphabet',
-  label: 'Alpha',
+  label: chrome.i18n.getMessage('corral_sortAlpha') || '',
   sort(tabA: chrome$Tab, tabB: chrome$Tab): number {
     if (tabA == null || tabB == null || tabA.title == null || tabB.title == null) {
       return 0;
@@ -36,7 +36,7 @@ const AlphaSorter: Sorter = {
 const ReverseAlphaSorter: Sorter = {
   example: '(Z -> A)',
   icon: 'sort-by-alphabet-alt',
-  label: 'Reverse Alpha',
+  label: chrome.i18n.getMessage('corral_sortReverseAlpha') || '',
   sort(tabA: chrome$Tab, tabB: chrome$Tab): number {
     if (tabA == null || tabB == null || tabA.title == null || tabB.title == null) {
       return 0;
@@ -49,7 +49,7 @@ const ReverseAlphaSorter: Sorter = {
 const ChronoSorter: Sorter = {
   example: '(2000 -> 2020)',
   icon: 'sort-by-order-alt',
-  label: 'Chrono',
+  label: chrome.i18n.getMessage('corral_sortChrono') || '',
   sort(tabA, tabB): number {
     if (tabA == null || tabB == null) {
       return 0;
@@ -62,7 +62,7 @@ const ChronoSorter: Sorter = {
 const ReverseChronoSorter: Sorter = {
   example: '(2020 -> 2000)',
   icon: 'sort-by-order',
-  label: 'Reverse Chrono',
+  label: chrome.i18n.getMessage('corral_sortReverseChrono') || '',
   sort(tabA, tabB): number {
     if (tabA == null || tabB == null) {
       return 0;
@@ -273,10 +273,7 @@ export default class CorralTab extends React.Component<{}, State> {
       allTabsSelected = false;
       tableRows.push(
         <tr key="no-tabs">
-          <td className="text-center" colSpan="3">
-            No closed tabs yet. When Tab Wrangler closes tabs, they will appear here. Go leave your
-            tabs open!
-          </td>
+          <td className="text-center" colSpan="3">{chrome.i18n.getMessage('corral_emptyList')}</td>
         </tr>
       );
     } else {
@@ -318,7 +315,7 @@ export default class CorralTab extends React.Component<{}, State> {
                 className="form-control"
                 name="search"
                 onChange={this._handleSearchChange}
-                placeholder="Search tabs..."
+                placeholder={chrome.i18n.getMessage('corral_searchTabs')}
                 ref={(_searchRef: ?HTMLElement) => { this._searchRef = _searchRef; }}
                 type="search"
                 value={this.state.filter}
@@ -347,7 +344,9 @@ export default class CorralTab extends React.Component<{}, State> {
                   <button
                     className="btn btn-default btn-sm btn-chunky"
                     onClick={this._toggleAllTabs}
-                    title={allTabsSelected ? 'Deselect all tabs' : 'Select all tabs'}>
+                    title={allTabsSelected ?
+                      chrome.i18n.getMessage('corral_toggleAllTabs_deselectAll') :
+                      chrome.i18n.getMessage('corral_toggleAllTabs_selectAll')}>
                     <input
                       checked={allTabsSelected}
                       style={{ margin: 0 }}
@@ -361,8 +360,10 @@ export default class CorralTab extends React.Component<{}, State> {
                       key="remove"
                       onClick={this._handleRemoveSelectedTabs}
                       style={{marginLeft: '10px'}}
-                      title="Remove selected tabs">
-                      <span className="sr-only">Remove selected tabs</span>
+                      title={chrome.i18n.getMessage('corral_removeSelectedTabs')}>
+                      <span className="sr-only">
+                        {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                      </span>
                       <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     </button>,
                     <button
@@ -370,8 +371,10 @@ export default class CorralTab extends React.Component<{}, State> {
                       key="restore"
                       onClick={this._handleRestoreSelectedTabs}
                       style={{marginLeft: '10px'}}
-                      title="Restore selected tabs">
-                      <span className="sr-only">Restore selected tabs</span>
+                      title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}>
+                      <span className="sr-only">
+                        {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                      </span>
                       <span className="glyphicon glyphicon-new-window" aria-hidden="true"></span>
                     </button>,
                   ] : null}
@@ -379,12 +382,15 @@ export default class CorralTab extends React.Component<{}, State> {
                 <div style={{ alignItems: 'center', display: 'flex' }}>
                   {this.state.filter.length > 0 ?
                     <span className="label label-info" style={{ marginRight: '5px' }}>
-                      {this.state.closedTabs.length} search results
+                      {chrome.i18n.getMessage(
+                        'corral_searchResults_label',
+                        `${this.state.closedTabs.length}`
+                      )}
                       <span
                         className="close close-xs"
                         onClick={this._clearFilter}
                         style={{ marginLeft: '5px' }}
-                        title="Clear search">
+                        title={chrome.i18n.getMessage('corral_searchResults_clear')}>
                         x
                       </span>
                     </span> :
@@ -397,12 +403,12 @@ export default class CorralTab extends React.Component<{}, State> {
                       className="btn btn-default btn-sm btn-chunky"
                       id="sort-dropdown"
                       onClick={this._toggleSortDropdown}
-                      title={`Currently sorted ${this.state.sorter.label}`}>
+                      title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
                       <span
                         aria-hidden="true"
                         className={`glyphicon glyphicon-${this.state.sorter.icon}`}
                       />{' '}
-                      Sort
+                      {chrome.i18n.getMessage('corral_sort')}
                     </button>
                     <ul
                       aria-labelledby="sort-dropdown"

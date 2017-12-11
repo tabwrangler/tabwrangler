@@ -12,72 +12,79 @@ import updater from './js/updater';
 const TW = window.TW = {};
 
 /**
- * @todo: refactor into "get the ones to close" and "close 'em"
- * So it can be tested.
+ * @todo: refactor into "get the ones to close" and "close 'em" So it can be tested.
  */
-const checkToClose = function(cutOff) {
-  let i;
-  cutOff = cutOff || new Date().getTime() - ((settings.get('stayOpen'): any): number);
-  const minTabs = ((settings.get('minTabs'): any): number);
+const checkToClose = function(cutOff: ?number) {
+  try {
+    cutOff = cutOff || new Date().getTime() - ((settings.get('stayOpen'): any): number);
+    const minTabs = ((settings.get('minTabs'): any): number);
 
-  // Tabs which have been locked via the checkbox.
-  const lockedIds = ((settings.get('lockedIds'): any): Array<number>);
-  const toCut = tabmanager.getOlderThen(cutOff);
+    // Tabs which have been locked via the checkbox.
+    const lockedIds = ((settings.get('lockedIds'): any): Array<number>);
+    const toCut = tabmanager.getOlderThen(cutOff);
 
-  if (settings.get('paused') === true) {
-    return;
+    if (!settings.get('paused')) {
+
+      // Update the selected one to make sure it doesn't get closed.
+      chrome.tabs.query({active: true, lastFocusedWindow: true}, tabmanager.updateLastAccessed);
+
+      if (settings.get('filterAudio') === true) {
+        chrome.tabs.query({audible: true}, tabmanager.updateLastAccessed);
+      }
+	  
+      chrome.windows.getAll({populate: true}, function(windows) {
+        let tabs = []; // Array of tabs, populated for each window.
+        windows.forEach(myWindow => {
+          tabs = myWindow.tabs;
+          if (tabs == null) return;
+
+          // Filter out the pinned tabs
+          tabs = tabs.filter(tab => tab.pinned === false);
+          let tabsToCut = tabs.filter(t => t.id == null || toCut.indexOf(t.id) !== -1);
+          if ((tabs.length - minTabs) <= 0) {
+            // We have less than minTab tabs, abort.
+            // Also, let's reset the last accessed time of our current tabs so they
+            // don't get closed when we add a new one.
+            for (let i = 0; i < tabs.length; i++) {
+              const tabId = tabs[i].id;
+              if (tabId != null && myWindow.focused) tabmanager.updateLastAccessed(tabId);
+            }
+            return;
+          }
+
+          // If cutting will reduce us below 5 tabs, only remove the first N to get to 5.
+          tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
+
+          if (tabsToCut.length === 0) {
+            return;
+          }
+
+          for (let i = 0; i < tabsToCut.length; i++) {
+            const tabId = tabsToCut[i].id;
+            if (tabId == null) continue;
+
+            if (lockedIds.indexOf(tabId) !== -1) {
+              // Update its time so it gets checked less frequently.
+              // Would also be smart to just never add it.
+              // @todo: fix that.
+              tabmanager.updateLastAccessed(tabId);
+              continue;
+            }
+            closeTab(tabsToCut[i]);
+          }
+        });
+      });
+    }
+  } finally {
+    scheduleCheckToClose();
   }
-
-  // Update the selected one to make sure it doesn't get closed.
-  chrome.tabs.query({active: true, lastFocusedWindow: true}, tabmanager.updateLastAccessed);
-
-  if (settings.get('filterAudio') === true) {
-    chrome.tabs.query({audible: true}, tabmanager.updateLastAccessed);
-  }
-
-  chrome.windows.getAll({populate:true}, function(windows) {
-    let tabs = []; // Array of tabs, populated for each window.
-    windows.forEach(myWindow => {
-      tabs = myWindow.tabs;
-      if (tabs == null) return;
-
-      // Filter out the pinned tabs
-      tabs = tabs.filter(tab => tab.pinned === false);
-      let tabsToCut = tabs.filter(t => t.id == null || toCut.indexOf(t.id) !== -1);
-      if ((tabs.length - minTabs) <= 0) {
-        // We have less than minTab tabs, abort.
-        // Also, let's reset the last accessed time of our current tabs so they
-        // don't get closed when we add a new one.
-        for (i = 0; i < tabs.length; i++) {
-          const tabId = tabs[i].id;
-          if (tabId != null && myWindow.focused) tabmanager.updateLastAccessed(tabId);
-        }
-        return;
-      }
-
-      // If cutting will reduce us below 5 tabs, only remove the first N to get to 5.
-      tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
-
-      if (tabsToCut.length === 0) {
-        return;
-      }
-
-      for (i = 0; i < tabsToCut.length; i++) {
-        const tabId = tabsToCut[i].id;
-        if (tabId == null) continue;
-
-        if (lockedIds.indexOf(tabId) !== -1) {
-          // Update its time so it gets checked less frequently.
-          // Would also be smart to just never add it.
-          // @todo: fix that.
-          tabmanager.updateLastAccessed(tabId);
-          continue;
-        }
-        closeTab(tabsToCut[i]);
-      }
-    });
-  });
 };
+
+let checkToCloseTimeout: ?number;
+function scheduleCheckToClose() {
+  if (checkToCloseTimeout != null) window.clearTimeout(checkToCloseTimeout);
+  checkToCloseTimeout = window.setTimeout(checkToClose, settings.get('checkInterval'));
+}
 
 const closeTab = function(tab) {
   if (true === tab.pinned) {
@@ -146,7 +153,7 @@ const startup = function() {
       tabmanager.updateLastAccessed(tabInfo['tabId']);
     }
   });
-  window.setInterval(checkToClose, settings.get('checkInterval'));
+  scheduleCheckToClose();
 
   // Create the "lock tab" context menu:
   menus.createContextMenus();

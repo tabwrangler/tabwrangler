@@ -40,19 +40,19 @@ export default {
   createContextMenus () {
     const lockTab = {
       type: 'checkbox',
-      title: 'Never close this tab',
+      title: chrome.i18n.getMessage('contextMenu_lockTab') || '',
       onclick: this.pageSpecificActions['lockTab'],
     };
 
     const lockDomain = {
       type: 'checkbox',
-      title: 'Never close anything on this domain',
+      title: chrome.i18n.getMessage('contextMenu_lockDomain') || '',
       onclick: this.pageSpecificActions['lockDomain'],
     };
 
     const corralTab = {
       type: 'normal',
-      title: 'Close tab and save URL immediately',
+      title: chrome.i18n.getMessage('contextMenu_corralTab') || '',
       onclick: this.pageSpecificActions['corralTab'],
     };
 
@@ -72,7 +72,7 @@ export default {
         if (currentDomain == null) return;
         chrome.contextMenus.update(
           self.lockDomainId,
-          {title: `Never close anything on ${currentDomain}`}
+          {title: chrome.i18n.getMessage('contextMenu_lockSpecificDomain', currentDomain) || ''}
         );
       } catch (e) {
         console.log(tab, 'Error in updating menu');

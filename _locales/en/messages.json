@@ -15,6 +15,28 @@
     "description": "Link to the extension's support site",
     "message": "Support"
   },
+  "contextMenu_corralTab": {
+    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
+    "message": "Close tab and save URL immediately"
+  },
+  "contextMenu_lockDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "Never close anything on this domain"
+  },
+  "contextMenu_lockSpecificDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "Never close anything on $domain$",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "www.wikipedia.org"
+      }
+    }
+  },
+  "contextMenu_lockTab": {
+    "description": "Label for context menu item that locks the clicked tab",
+    "message": "Never close this tab"
+  },
   "corral_currentSort": {
     "description": "Button title for showing current sort order",
     "message": "Currently sorted $sort_order$",

@@ -31,7 +31,7 @@ const checkToClose = function(cutOff: ?number) {
       if (settings.get('filterAudio') === true) {
         chrome.tabs.query({audible: true}, tabmanager.updateLastAccessed);
       }
-	  
+
       chrome.windows.getAll({populate: true}, function(windows) {
         let tabs = []; // Array of tabs, populated for each window.
         windows.forEach(myWindow => {

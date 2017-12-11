@@ -5,7 +5,7 @@ exports[`should render options with exactURLMatch selected 1`] = `
   <label
     htmlFor="wrangleOption"
   >
-    Prevent duplicate tabs in the Tab Corral:
+    
   </label>
   <div
     className="radio"
@@ -21,7 +21,7 @@ exports[`should render options with exactURLMatch selected 1`] = `
         value="withDupes"
       />
        
-      Never (Default)
+      
     </label>
   </div>
   <div
@@ -38,7 +38,7 @@ exports[`should render options with exactURLMatch selected 1`] = `
         value="exactURLMatch"
       />
        
-      If URL matches exactly
+      
     </label>
   </div>
   <div
@@ -55,7 +55,7 @@ exports[`should render options with exactURLMatch selected 1`] = `
         value="hostnameAndTitleMatch"
       />
        
-      If hostname and page title match
+      
     </label>
   </div>
   <div
@@ -77,10 +77,10 @@ exports[`should render options with exactURLMatch selected 1`] = `
         }
       >
         <dt>
-          Never
+          
         </dt>
         <dd>
-          When a tab is wrangled, it will be added to the Corral. No other changes will be made to the Corral.
+          
         </dd>
         <dt
           style={
@@ -89,10 +89,10 @@ exports[`should render options with exactURLMatch selected 1`] = `
             }
           }
         >
-          If URL matches exactly
+          
         </dt>
         <dd>
-          When a tab is wrangled, it will be added to the Corral and any older tabs with the exact same URL will be removed from the Corral.
+          
         </dd>
         <dt
           style={
@@ -101,10 +101,10 @@ exports[`should render options with exactURLMatch selected 1`] = `
             }
           }
         >
-          If hostname and page title match
+          
         </dt>
         <dd>
-          When a tab is wrangled, it will be added to the Corral and any older tabs with the same hostname (like "wikipedia.org") and page title will be removed from the Corral.
+          
         </dd>
       </dl>
     </div>
@@ -117,7 +117,7 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
   <label
     htmlFor="wrangleOption"
   >
-    Prevent duplicate tabs in the Tab Corral:
+    
   </label>
   <div
     className="radio"
@@ -133,7 +133,7 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
         value="withDupes"
       />
        
-      Never (Default)
+      
     </label>
   </div>
   <div
@@ -150,7 +150,7 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
         value="exactURLMatch"
       />
        
-      If URL matches exactly
+      
     </label>
   </div>
   <div
@@ -167,7 +167,7 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
         value="hostnameAndTitleMatch"
       />
        
-      If hostname and page title match
+      
     </label>
   </div>
   <div
@@ -189,10 +189,10 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
         }
       >
         <dt>
-          Never
+          
         </dt>
         <dd>
-          When a tab is wrangled, it will be added to the Corral. No other changes will be made to the Corral.
+          
         </dd>
         <dt
           style={
@@ -201,10 +201,10 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
             }
           }
         >
-          If URL matches exactly
+          
         </dt>
         <dd>
-          When a tab is wrangled, it will be added to the Corral and any older tabs with the exact same URL will be removed from the Corral.
+          
         </dd>
         <dt
           style={
@@ -213,10 +213,10 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
             }
           }
         >
-          If hostname and page title match
+          
         </dt>
         <dd>
-          When a tab is wrangled, it will be added to the Corral and any older tabs with the same hostname (like "wikipedia.org") and page title will be removed from the Corral.
+          
         </dd>
       </dl>
     </div>
@@ -229,7 +229,7 @@ exports[`should render options with withDupes selected 1`] = `
   <label
     htmlFor="wrangleOption"
   >
-    Prevent duplicate tabs in the Tab Corral:
+    
   </label>
   <div
     className="radio"
@@ -245,7 +245,7 @@ exports[`should render options with withDupes selected 1`] = `
         value="withDupes"
       />
        
-      Never (Default)
+      
     </label>
   </div>
   <div
@@ -262,7 +262,7 @@ exports[`should render options with withDupes selected 1`] = `
         value="exactURLMatch"
       />
        
-      If URL matches exactly
+      
     </label>
   </div>
   <div
@@ -279,7 +279,7 @@ exports[`should render options with withDupes selected 1`] = `
         value="hostnameAndTitleMatch"
       />
        
-      If hostname and page title match
+      
     </label>
   </div>
   <div
@@ -301,10 +301,10 @@ exports[`should render options with withDupes selected 1`] = `
         }
       >
         <dt>
-          Never
+          
         </dt>
         <dd>
-          When a tab is wrangled, it will be added to the Corral. No other changes will be made to the Corral.
+          
         </dd>
         <dt
           style={
@@ -313,10 +313,10 @@ exports[`should render options with withDupes selected 1`] = `
             }
           }
         >
-          If URL matches exactly
+          
         </dt>
         <dd>
-          When a tab is wrangled, it will be added to the Corral and any older tabs with the exact same URL will be removed from the Corral.
+          
         </dd>
         <dt
           style={
@@ -325,10 +325,10 @@ exports[`should render options with withDupes selected 1`] = `
             }
           }
         >
-          If hostname and page title match
+          
         </dt>
         <dd>
-          When a tab is wrangled, it will be added to the Corral and any older tabs with the same hostname (like "wikipedia.org") and page title will be removed from the Corral.
+          
         </dd>
       </dl>
     </div>

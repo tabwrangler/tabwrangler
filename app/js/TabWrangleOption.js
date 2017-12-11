@@ -7,17 +7,25 @@ interface Props {
   selectedOption: string;
 }
 
-const OPTIONS = [
-  { name: 'withDupes', text: 'Never (Default)' },
-  { name: 'exactURLMatch', text: 'If URL matches exactly' },
-  { name: 'hostnameAndTitleMatch', text: 'If hostname and page title match' },
-];
-
 export default class TabWrangleOption extends React.Component<Props> {
   render() {
+    // Declare this dynamically so it is available inside tests. It's not simple to modify globals,
+    // like `chrome`, using Jest. Is there a better way to do this? Probably.
+    const OPTIONS = [
+      { name: 'withDupes', text: chrome.i18n.getMessage('options_dedupe_option_withDupes') },
+      {
+        name: 'exactURLMatch',
+        text: chrome.i18n.getMessage('options_dedupe_option_exactURLMatch'),
+      },
+      {
+        name: 'hostnameAndTitleMatch',
+        text: chrome.i18n.getMessage('options_dedupe_option_hostnameAndTitleMatch'),
+      },
+    ];
+
     return (
       <div>
-        <label htmlFor="wrangleOption">Prevent duplicate tabs in the Tab Corral:</label>
+        <label htmlFor="wrangleOption">{chrome.i18n.getMessage('options_dedupe_label')}</label>
         {OPTIONS.map(option => (
           <div className="radio" key={option.name}>
             <label>
@@ -37,21 +45,17 @@ export default class TabWrangleOption extends React.Component<Props> {
         <div className="row">
           <div className="col-xs-8 help-block" style={{ marginBottom: 0 }}>
             <dl style={{ marginBottom: 0 }}>
-              <dt>Never</dt>
+              <dt>{chrome.i18n.getMessage('options_dedupe_option_withDupes_label')}</dt>
+              <dd>{chrome.i18n.getMessage('options_dedupe_option_withDupes_description')}</dd>
+              <dt style={{ marginTop: '10px' }}>
+                {chrome.i18n.getMessage('options_dedupe_option_exactURLMatch_label')}
+              </dt>
+              <dd>{chrome.i18n.getMessage('options_dedupe_option_exactURLMatch_description')}</dd>
+              <dt style={{ marginTop: '10px' }}>
+                {chrome.i18n.getMessage('options_dedupe_option_hostnameAndTitleMatch_label')}
+              </dt>
               <dd>
-                When a tab is wrangled, it will be added to the Corral. No other changes will be
-                made to the Corral.
-              </dd>
-              <dt style={{ marginTop: '10px' }}>If URL matches exactly</dt>
-              <dd>
-                When a tab is wrangled, it will be added to the Corral and any older tabs with the
-                exact same URL will be removed from the Corral.
-              </dd>
-              <dt style={{ marginTop: '10px' }}>If hostname and page title match</dt>
-              <dd>
-                When a tab is wrangled, it will be added to the Corral and any older tabs with the
-                same hostname (like &quot;wikipedia.org&quot;) and page title will be removed from
-                the Corral.
+                {chrome.i18n.getMessage('options_dedupe_option_hostnameAndTitleMatch_description')}
               </dd>
             </dl>
           </div>

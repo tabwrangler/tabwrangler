@@ -9,6 +9,7 @@ module.exports = {
     chrome: true,
     describe: true,
     expect: true,
+    global: true,
     jest: true,
     test: true,
   },

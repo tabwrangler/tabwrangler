@@ -127,6 +127,46 @@
       }
     }
   },
+  "options_dedupe_label": {
+    "description": "Label for the de-duplicating option",
+    "message": "Prevent duplicate tabs in the Tab Corral:"
+  },
+  "options_dedupe_option_exactURLMatch": {
+    "description": "Label for option to de-duplicate when URL matches exactly",
+    "message": "If URL matches exactly"
+  },
+  "options_dedupe_option_exactURLMatch_description": {
+    "description": "Description for option to de-duplicate when URL matches exactly",
+    "message": "When a tab is wrangled, it will be added to the Corral and any older tabs with the exact same URL will be removed from the Corral."
+  },
+  "options_dedupe_option_exactURLMatch_label": {
+    "description": "Extended label of the de-duplicate when tab URL matches exactly option",
+    "message": "If URL matches exactly"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch": {
+    "description": "Label for option to de-duplicate when hostname and page title match",
+    "message": "If hostname and page title match"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_description": {
+    "description": "Extended description for option to de-duplicate when hostname and page title match",
+    "message": "When a tab is wrangled, it will be added to the Corral and any older tabs with the same hostname (like \"wikipedia.org\") and page title will be removed from the Corral."
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_label": {
+    "description": "Extended label for option to de-duplicate when hostname and page title match",
+    "message": "If hostname and page title match"
+  },
+  "options_dedupe_option_withDupes": {
+    "description": "Label for option to never de-duplicate the tab corral",
+    "message": "Never (Default)"
+  },
+  "options_dedupe_option_withDupes_description": {
+    "description": "Description of the never de-duplicating tabs option",
+    "message": "When a tab is wrangled, it will be added to the Corral. No other changes will be made to the Corral."
+  },
+  "options_dedupe_option_withDupes_label": {
+    "description": "Label for never de-duplicating option",
+    "message": "Never"
+  },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension."

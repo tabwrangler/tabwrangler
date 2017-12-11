@@ -1,8 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "Tab Wrangler",
+  "name": "__MSG_extName__",
   "version": "5.5.0",
 
+  "default_locale": "en",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "icons": {
     "128": "img/icon128.png",
@@ -11,7 +12,7 @@
   },
 
   "browser_action": {
-    "default_title": "Tab Wrangler",
+    "default_title": "__MSG_extName__",
     "default_icon": "img/icon.png",
     "default_popup": "popup.html"
   },

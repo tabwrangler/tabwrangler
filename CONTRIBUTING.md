@@ -12,7 +12,8 @@
 
 Making Tab Wrangler available in languages other than English is possible due to generous
 contributors. If you'd like to contribute and be mentioned in the "Translators" section of the
-README, please follow the instructions above and create a pull request with your updates.
+[README](README.md), please follow the instructions above and create a pull request with your
+updates.
 
 [0]: https://developer.chrome.com/apps/i18n-messages
 [1]: https://developer.chrome.com/webstore/i18n?csw=1#localeTable

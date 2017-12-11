@@ -73,6 +73,12 @@ tabs that you wanted to save.
 
 ## Credits
 
+### Translators
+
+See [CONTRIBUTING.md][] for how you can help make Tab Wrangler available in more languages.
+
+### Developers
+
 * Modernized by [ssorallen](https://github.com/ssorallen) in 2017.
 * Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012.
 * Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010.

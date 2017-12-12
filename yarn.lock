@@ -3871,9 +3871,9 @@ react-addons-css-transition-group@^15.6.2:
   dependencies:
     react-transition-group "^1.2.0"
 
-react-dom@^16.0.0:
-  version "16.0.0"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.0.0.tgz#9cc3079c3dcd70d4c6e01b84aab2a7e34c303f58"
+react-dom@^16.2.0:
+  version "16.2.0"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.2.0.tgz#69003178601c0ca19b709b33a83369fe6124c044"
   dependencies:
     fbjs "^0.8.16"
     loose-envify "^1.1.0"
@@ -3904,9 +3904,9 @@ react-transition-group@^1.2.0:
     prop-types "^15.5.6"
     warning "^3.0.0"
 
-react@^16.0.0:
-  version "16.0.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.0.0.tgz#ce7df8f1941b036f02b2cca9dbd0cb1f0e855e2d"
+react@^16.2.0:
+  version "16.2.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.2.0.tgz#a31bd2dab89bff65d42134fa187f24d054c273ba"
   dependencies:
     fbjs "^0.8.16"
     loose-envify "^1.1.0"
@@ -4527,9 +4527,9 @@ time-stamp@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/time-stamp/-/time-stamp-1.1.0.tgz#764a5a11af50561921b133f3b44e618687e0f5c3"
 
-timeago-react@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/timeago-react/-/timeago-react-1.2.2.tgz#249b475dcf4c44284284541c600f8cf04674bf5b"
+timeago-react@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/timeago-react/-/timeago-react-2.0.0.tgz#01ed7cea809a0e03706c6ec5602bfd29f76d8e49"
   dependencies:
     timeago.js "^3.0.1"
 

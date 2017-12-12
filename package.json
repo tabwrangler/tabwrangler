@@ -49,11 +49,11 @@
     "classnames": "^2.2.5",
     "file-saver": "^1.3.3",
     "lodash": "^4.17.4",
-    "react": "^16.0.0",
+    "react": "^16.2.0",
     "react-addons-css-transition-group": "^15.6.2",
-    "react-dom": "^16.0.0",
+    "react-dom": "^16.2.0",
     "react-sticky": "^6.0.1",
-    "timeago-react": "^1.2.2"
+    "timeago-react": "^2.0.0"
   },
   "jest": {
     "globals": {

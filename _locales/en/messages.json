@@ -325,6 +325,10 @@
     "description": "Label for a tab that is locked because it's pinned",
     "message": "Pinned"
   },
+  "tabLock_lockedReason_audible": {
+    "description": "Label for a tab that is locked because it's audible",
+	"message": "Tabs playing audio will not be closed"
+  },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
     "message": "Check a tab's box to lock the tab (prevent it from auto-closing)."

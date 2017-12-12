@@ -43,13 +43,20 @@ class OpenTabRow extends React.Component<OpenTabRowProps> {
   render() {
     const {tab} = this.props;
     const tabWhitelistMatch = tabmanager.getWhitelistMatch(tab.url);
-    const tabIsLocked = tab.pinned || tabWhitelistMatch || this.props.isLocked;
+    const tabIsLocked = tab.pinned || tabWhitelistMatch || this.props.isLocked
+     || tab.audible && settings.get('filterAudio');
 
     let lockStatusElement;
     if (tabIsLocked) {
       let reason;
       if (tab.pinned) {
         reason = chrome.i18n.getMessage('tabLock_lockedReason_pinned');
+      } else if (settings.get('filterAudio') && tab.audible) {
+        reason = (
+          <abbr title={chrome.i18n.getMessage('tabLock_lockedReason_audible')}>
+            Locked
+          </abbr>
+        );
       } else if (tabWhitelistMatch) {
         reason = (
           <abbr title={chrome.i18n.getMessage('tabLock_lockedReason_matches', tabWhitelistMatch)}>
@@ -84,7 +91,8 @@ class OpenTabRow extends React.Component<OpenTabRowProps> {
         <td className="text-center">
           <input
             checked={tabIsLocked}
-            disabled={tab.pinned || tabWhitelistMatch}
+            disabled={tab.pinned || tabWhitelistMatch
+             || tab.audible && settings.get('filterAudio')}
             onChange={this.handleLockedOnChange}
             type="checkbox"
           />

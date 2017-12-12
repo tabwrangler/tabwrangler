@@ -361,6 +361,18 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
               {chrome.i18n.getMessage('options_option_debounceOnActivated_label')}
             </label>
           </div>
+          <div className="checkbox">
+            <label>
+              <input
+                defaultChecked={settings.get('filterAudio')}
+                id="filterAudio"
+                name="filterAudio"
+                onChange={this.handleSettingsChange}
+                type="checkbox"
+              />
+              Don&apos;t close tabs that are playing audio
+            </label>
+          </div>
           <div className="form-group">
             <TabWrangleOption
               onChange={this.handleSettingsChange}

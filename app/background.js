@@ -28,10 +28,6 @@ const checkToClose = function(cutOff: ?number) {
       // Update the selected one to make sure it doesn't get closed.
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabmanager.updateLastAccessed);
 
-      if (settings.get('filterAudio') === true) {
-        chrome.tabs.query({audible: true}, tabmanager.updateLastAccessed);
-      }
-
       chrome.windows.getAll({populate: true}, function(windows) {
         let tabs = []; // Array of tabs, populated for each window.
         windows.forEach(myWindow => {
@@ -40,7 +36,8 @@ const checkToClose = function(cutOff: ?number) {
 
           // Filter out the pinned tabs
           tabs = tabs.filter(tab => tab.pinned === false);
-          // Filter out audible tabs if the option to do so is checked
+
+          // Filter out audible tabs if the option to do so is enabled
           tabs = tabs.filter(tab => (tab.audible && settings.get('filterAudio')) === false);
 
           let tabsToCut = tabs.filter(t => t.id == null || toCut.indexOf(t.id) !== -1);

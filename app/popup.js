@@ -384,10 +384,9 @@ class PopupContent extends React.PureComponent<PopupContentProps, PopupContentSt
 }
 
 function render(props) {
-  ReactDOM.render(
-    <PopupContent {...props} />,
-    document.getElementById('popup')
-  );
+  const popupElement = document.getElementById('popup');
+  if (popupElement == null) return;
+  ReactDOM.render(<PopupContent {...props} />, popupElement);
 }
 
 render({commands: null});

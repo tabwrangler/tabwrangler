@@ -40,6 +40,9 @@ const checkToClose = function(cutOff: ?number) {
 
           // Filter out the pinned tabs
           tabs = tabs.filter(tab => tab.pinned === false);
+          // Filter out audible tabs if the option to do so is checked
+          tabs = tabs.filter(tab => (tab.audible && settings.get('filterAudio')) === false);
+
           let tabsToCut = tabs.filter(t => t.id == null || toCut.indexOf(t.id) !== -1);
           if ((tabs.length - minTabs) <= 0) {
             // We have less than minTab tabs, abort.
@@ -88,6 +91,10 @@ function scheduleCheckToClose() {
 
 const closeTab = function(tab) {
   if (true === tab.pinned) {
+    return;
+  }
+
+  if (settings.get('filterAudio') && tab.audible) {
     return;
   }
 

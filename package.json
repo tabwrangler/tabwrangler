@@ -56,8 +56,8 @@
     "timeago-react": "^2.0.0"
   },
   "jest": {
-    "globals": {
-      "chrome": true
-    }
+    "setupFiles": [
+      "<rootDir>/jest/setupEnv.js"
+    ]
   }
 }

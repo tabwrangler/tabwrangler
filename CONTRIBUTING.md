@@ -5,7 +5,7 @@
 2. Find or create the appropriate "messages.json" file
     - For a new locale, create a new directory in the "\_locales" directory with the locale code.
       Ensure the new locale is one of the [locales supported by Chrome][1]. Copy
-      "\_locales/en/messages.json" to the new directory and begin edting.
+      "\_locales/en/messages.json" to the new directory and begin editing.
     - For an existing locale, edit the "messages.json" file in the appropriate locale's directory
 3. Edit each `"message"` field in the file with your translation
     - Optional: You may also translate the `"description"` so the next person to view the

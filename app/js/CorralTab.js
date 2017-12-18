@@ -323,9 +323,12 @@ export default class CorralTab extends React.Component<{}, State> {
             </div>
           </form>
           <div className="col-xs-6" style={{lineHeight: '30px', textAlign: 'right'}}>
-            <small style={{color: '#999'}}>tabs wrangled</small>{' '}
-            {storageLocal.get('totalTabsWrangled')} or{' '}
-            <abbr title="tabs closed by Tab Wrangler / all tabs closed">{percentClosed}%</abbr>
+            <small style={{color: '#999'}}>{chrome.i18n.getMessage('corral_tabsWrangled')}</small>
+            {' '}{storageLocal.get('totalTabsWrangled')}
+            {' '}{chrome.i18n.getMessage('corral_tabsWrangled_or')}{' '}
+            <abbr title={chrome.i18n.getMessage('corral_tabsWrangled_formula')}>
+              {percentClosed}%
+            </abbr>
           </div>
         </div>
 

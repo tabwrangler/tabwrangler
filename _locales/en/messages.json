@@ -340,5 +340,33 @@
   "tabLock_remainingTimeLabel": {
     "description": "Explanation of time remaining before tab is closed",
     "message": "Closing in..."
+  },
+  "corral_tabsWrangled": {
+    "description": "Label preceeding the number of tabs wrangled by this extension",
+    "message": "tabs wrangled"
+  },
+  "corral_tabsWrangled_formula": {
+    "description": "Title describing how % of tabs wrangled is calculated",
+    "message": "tabs closed by Tab Wrangler / all tabs closed"
+  },
+  "corral_tabsWrangled_or": {
+    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
+    "message": "or"
+  },
+  "settings_setmaxTabs_error": {
+    "description": "Error shown when invalid max tabs setting is supplied.",
+    "message": "Max tabs must be a number between 1 and 500. Setting this too high can cause performance issues"
+  },
+  "settings_setminTabs_error": {
+    "description": "Error shown when invalid min tabs setting is supplied.",
+    "message": "Minimum tabs must be a number greater than or equal to 0"
+  },
+  "settings_setminutesInactive_error": {
+    "description": "Error shown when invalid minutes inactive setting is supplied.",
+    "message": "Minutes Inactive must be greater than or equal to 0"
+  },
+  "settings_setsecondsInactive_error": {
+    "description": "Error shown when invalid seconds inactive setting is supplied.",
+    "message": "Seconds Inactive must be greater than or equal to 0 and less than 60"
   }
 }

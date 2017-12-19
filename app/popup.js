@@ -279,7 +279,8 @@ class NavBar extends React.PureComponent<NavBarProps> {
             rel="noopener noreferrer"
             target="_blank">
             <i className="glyphicon glyphicon-star"></i>
-            {' '}{chrome.i18n.getMessage('extension_review', chrome.i18n.getMessage('extName'))}
+            {' '}
+            {chrome.i18n.getMessage('extension_review', chrome.i18n.getMessage('extName') || '')}
           </a>
         </div>
         <ul className="nav nav-tabs">

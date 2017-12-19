@@ -2076,9 +2076,9 @@ flow-bin@^0.61.0:
   version "0.61.0"
   resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.61.0.tgz#d0473a8c35dbbf4de573823f4932124397d32d35"
 
-flow-interfaces-chrome@^0.3.2:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/flow-interfaces-chrome/-/flow-interfaces-chrome-0.3.2.tgz#1c5301dd0b0f4c1c391c944c1e27304e8d8ca1c5"
+flow-interfaces-chrome@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/flow-interfaces-chrome/-/flow-interfaces-chrome-0.4.0.tgz#8ba743d74d3373a54437757369d70004ee53de3f"
 
 for-in@^1.0.1:
   version "1.0.2"

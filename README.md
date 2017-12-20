@@ -78,6 +78,8 @@ tabs that you wanted to save.
 
 ### Translators
 
+* Korean translation by [simple-is-best](https://github.com/simple-is-best).
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how you can help make Tab Wrangler available in more languages.
 
 ### Developers

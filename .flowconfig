@@ -10,3 +10,4 @@ node_modules/flow-interfaces-chrome/interfaces/
 [options]
 emoji=true
 suppress_comment=.*\\$FlowFixMe.*
+unsafe.enable_getters_and_setters=true

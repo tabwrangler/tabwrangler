@@ -3,7 +3,12 @@
 import LazyImage from './LazyImage';
 import React from 'react';
 import TimeAgo from 'timeago-react';
+import timeago from 'timeago.js';
+import timeagoLocale from './timeagoLocale';
 import truncateString from './truncateString';
+
+const uiLanguage = chrome.i18n.getUILanguage();
+timeago.register(uiLanguage, timeagoLocale[uiLanguage]);
 
 interface Props {
   isSelected: boolean;
@@ -76,7 +81,7 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
         {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
         <td title={new Date(tab.closedAt).toLocaleString()}>
           {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
-          <TimeAgo datetime={tab.closedAt} />
+          <TimeAgo datetime={tab.closedAt} locale={uiLanguage} />
         </td>
       </tr>
     );

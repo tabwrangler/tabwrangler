@@ -37,6 +37,7 @@
     "gulp": "^3.9.1",
     "gulp-eslint": "^4.0.0",
     "gulp-jest": "^3.0.1",
+    "gulp-json-transform": "^0.4.5",
     "gulp-util": "^3.0.8",
     "gulp-watch": "^4.3.11",
     "jest-cli": "^21.2.1",

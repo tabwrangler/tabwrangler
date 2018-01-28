@@ -5,7 +5,6 @@ import React from 'react';
 import TimeAgo from 'timeago-react';
 import timeago from 'timeago.js';
 import timeagoLocale from './timeagoLocale';
-import truncateString from './truncateString';
 
 const uiLanguage = chrome.i18n.getUILanguage();
 timeago.register(uiLanguage, timeagoLocale[uiLanguage]);
@@ -69,17 +68,29 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
             )
           }
         </td>
-        <td>
-          <a
-            href={tab.url}
-            onClick={this._handleClickAnchor}
-            rel="noopener noreferrer"
-            target="_blank">
-            {truncateString(tab.title, 70)}
-          </a>
+        <td style={{width: '75%'}}>
+          <div style={{display: 'flex'}}>
+            <div
+              style={{
+                flex: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                width: '1px',
+              }}>
+              <a
+                href={tab.url}
+                onClick={this._handleClickAnchor}
+                rel="noopener noreferrer"
+                style={{flex: 1}}
+                target="_blank">
+                {tab.title}
+              </a>
+            </div>
+          </div>
         </td>
         {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
-        <td title={new Date(tab.closedAt).toLocaleString()}>
+        <td className="text-right" title={new Date(tab.closedAt).toLocaleString()}>
           {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
           <TimeAgo datetime={tab.closedAt} locale={uiLanguage} />
         </td>

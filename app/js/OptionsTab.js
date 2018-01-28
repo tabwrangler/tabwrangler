@@ -40,7 +40,7 @@ interface OptionsTabState {
 }
 
 export default class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
-  _debouncedHandleSettingsChange: (event: SyntheticEvent<HTMLElement>) => void;
+  _debouncedHandleSettingsChange: (event: SyntheticInputEvent<HTMLInputElement>) => void;
   _fileselector: ?HTMLInputElement;
   _importExportAlertTimeout: ?number;
   _saveAlertTimeout: ?number;

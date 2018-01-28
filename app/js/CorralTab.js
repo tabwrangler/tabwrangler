@@ -91,9 +91,9 @@ interface State {
 
 export default class CorralTab extends React.Component<{}, State> {
   _dropdownRef: ?HTMLElement;
-  _searchRefFocusTimeout: ?number;
+  _searchRefFocusTimeout: TimeoutID;
   _searchRef: ?HTMLElement;
-  _shouldCheckLazyImagesTimeout: number;
+  _shouldCheckLazyImagesTimeout: TimeoutID;
 
   constructor(props: {}) {
     super(props);

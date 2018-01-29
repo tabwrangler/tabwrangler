@@ -150,7 +150,6 @@ const startup = function() {
   chrome.tabs.onCreated.addListener(onNewTab);
   chrome.tabs.onRemoved.addListener(tabmanager.removeTab);
   chrome.tabs.onReplaced.addListener(tabmanager.replaceTab);
-  chrome.tabs.onUpdated.addListener(tabmanager.updateLastAccessed);
   chrome.tabs.onActivated.addListener(function(tabInfo) {
     menus.updateContextMenus(tabInfo['tabId']);
 

@@ -4,6 +4,8 @@ import {Sticky, StickyContainer} from 'react-sticky';
 import ClosedTabRow from './ClosedTabRow';
 import React from 'react';
 import classnames from 'classnames';
+import extractHostname from './extractHostname';
+import extractRootDomain from './extractRootDomain';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
@@ -14,17 +16,17 @@ const {
 } = TW;
 
 type Sorter = {
-  example: string,
   icon: string,
   label: string,
-  sort: (a: any, b: any) => number,
+  shortLabel: string,
+  sort: (a: ?chrome$Tab, b: ?chrome$Tab) => number,
 };
 
 const AlphaSorter: Sorter = {
-  example: '(A -> Z)',
-  icon: 'sort-by-alphabet',
-  label: chrome.i18n.getMessage('corral_sortAlpha') || '',
-  sort(tabA: chrome$Tab, tabB: chrome$Tab): number {
+  icon: 'arrow-down',
+  label: 'Page title' || chrome.i18n.getMessage('corral_sortAlpha') || '',
+  shortLabel: 'Page title',
+  sort(tabA, tabB) {
     if (tabA == null || tabB == null || tabA.title == null || tabB.title == null) {
       return 0;
     } else {
@@ -34,45 +36,69 @@ const AlphaSorter: Sorter = {
 };
 
 const ReverseAlphaSorter: Sorter = {
-  example: '(Z -> A)',
-  icon: 'sort-by-alphabet-alt',
-  label: chrome.i18n.getMessage('corral_sortReverseAlpha') || '',
-  sort(tabA: chrome$Tab, tabB: chrome$Tab): number {
-    if (tabA == null || tabB == null || tabA.title == null || tabB.title == null) {
-      return 0;
-    } else {
-      return tabB.title.localeCompare(tabA.title);
-    }
+  icon: 'arrow-up',
+  label: 'Page title (Descending)' || chrome.i18n.getMessage('corral_sortReverseAlpha') || '',
+  shortLabel: 'Page title (Desc.)',
+  sort(tabA, tabB) {
+    return -1 * AlphaSorter.sort(tabA, tabB);
   },
 };
 
 const ChronoSorter: Sorter = {
-  example: '(2000 -> 2020)',
-  icon: 'sort-by-order-alt',
-  label: chrome.i18n.getMessage('corral_sortChrono') || '',
-  sort(tabA, tabB): number {
+  icon: 'arrow-down',
+  label: 'Time closed' || chrome.i18n.getMessage('corral_sortChrono') || '',
+  shortLabel: 'Time closed',
+  sort(tabA, tabB) {
     if (tabA == null || tabB == null) {
       return 0;
     } else {
+      // $FlowFixMe `closedAt` is an expando property on `chrome$Tab`
       return tabA.closedAt - tabB.closedAt;
     }
   },
 };
 
 const ReverseChronoSorter: Sorter = {
-  example: '(2020 -> 2000)',
-  icon: 'sort-by-order',
-  label: chrome.i18n.getMessage('corral_sortReverseChrono') || '',
-  sort(tabA, tabB): number {
-    if (tabA == null || tabB == null) {
+  icon: 'arrow-up',
+  label: 'Time closed (Descending)' || chrome.i18n.getMessage('corral_sortReverseChrono') || '',
+  shortLabel: 'Time closed (Desc.)',
+  sort(tabA, tabB) {
+    return -1 * ChronoSorter.sort(tabA, tabB);
+  },
+};
+
+const DomainSorter: Sorter = {
+  icon: 'arrow-down',
+  label: 'Domain',
+  shortLabel: 'Domain',
+  sort(tabA, tabB) {
+    if (tabA == null || tabB == null || tabA.url == null || tabB.url == null) {
       return 0;
     } else {
-      return tabB.closedAt - tabA.closedAt;
+      const tabAUrl = tabA.url;
+      const tabBUrl = tabB.url;
+      const tabAHostname = extractHostname(tabAUrl);
+      const tabBHostname = extractHostname(tabBUrl);
+      const tabARootDomain = extractRootDomain(tabAUrl);
+      const tabBRootDomain = extractRootDomain(tabBUrl);
+      return tabARootDomain.localeCompare(tabBRootDomain) ||
+        tabAHostname.localeCompare(tabBHostname);
     }
   },
 };
 
+const ReverseDomainSorter: Sorter = {
+  icon: 'arrow-up',
+  label: 'Domain (Descending)',
+  shortLabel: 'Domain (Desc.)',
+  sort(tabA, tabB) {
+    return -1 * DomainSorter.sort(tabA, tabB);
+  },
+};
+
 const Sorters: Array<Sorter> = [
+  DomainSorter,
+  ReverseDomainSorter,
   AlphaSorter,
   ReverseAlphaSorter,
   ChronoSorter,
@@ -407,11 +433,9 @@ export default class CorralTab extends React.Component<{}, State> {
                       id="sort-dropdown"
                       onClick={this._toggleSortDropdown}
                       title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
-                      <span
-                        aria-hidden="true"
-                        className={`glyphicon glyphicon-${this.state.sorter.icon}`}
-                      />{' '}
-                      {chrome.i18n.getMessage('corral_sort')}
+                      <span className="text-muted">Sort by:</span>{' '}
+                      {this.state.sorter.shortLabel}{' '}
+                      <span className="caret" />
                     </button>
                     <ul
                       aria-labelledby="sort-dropdown"
@@ -421,10 +445,7 @@ export default class CorralTab extends React.Component<{}, State> {
                         return (
                           <li className={classnames({active})} key={sorter.label}>
                             <a href="#" onClick={this._clickSorter.bind(this, sorter)}>
-                              {sorter.label}{' '}
-                              <small className={classnames({'text-muted': !active})}>
-                                {sorter.example}
-                              </small>
+                              {sorter.label}
                             </a>
                           </li>
                         );

@@ -3,6 +3,7 @@
 import LazyImage from './LazyImage';
 import React from 'react';
 import TimeAgo from 'timeago-react';
+import extractHostname from './extractHostname';
 import timeago from 'timeago.js';
 import timeagoLocale from './timeagoLocale';
 
@@ -68,7 +69,7 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
             )
           }
         </td>
-        <td style={{width: '75%'}}>
+        <td style={{paddingBottom: '4px', paddingTop: '4px', width: '75%'}}>
           <div style={{display: 'flex'}}>
             <div
               style={{
@@ -86,6 +87,8 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
                 target="_blank">
                 {tab.title}
               </a>
+              <br />
+              <small className="text-muted">({extractHostname(tab.url)})</small>
             </div>
           </div>
         </td>

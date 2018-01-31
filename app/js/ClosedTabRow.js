@@ -46,7 +46,7 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
 
     return (
       <tr className={isSelected ? 'bg-warning' : null}>
-        <td onClick={this._handleClickTd} style={{width: '1px'}}>
+        <td onClick={this._handleClickTd} style={{verticalAlign: 'middle', width: '1px'}}>
           <input
             checked={isSelected}
             className="checkbox--td"
@@ -54,7 +54,7 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
             type="checkbox"
           />
         </td>
-        <td className="faviconCol">
+        <td className="faviconCol" style={{verticalAlign: 'middle'}}>
           {tab.favIconUrl == null
             ? <span style={{display: 'inline-block', height: '16px'}}>-</span>
             : (
@@ -88,12 +88,19 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
                 {tab.title}
               </a>
               <br />
-              <small className="text-muted">({extractHostname(tab.url)})</small>
+              <small className="text-muted">
+                ({tab.url == null ? '???' : extractHostname(tab.url)})
+              </small>
             </div>
           </div>
         </td>
-        {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
-        <td className="text-right" title={new Date(tab.closedAt).toLocaleString()}>
+        <td
+          className="text-right"
+          style={{verticalAlign: 'middle'}}
+          title={
+            /* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */
+            new Date(tab.closedAt).toLocaleString()
+          }>
           {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
           <TimeAgo datetime={tab.closedAt} locale={uiLanguage} />
         </td>

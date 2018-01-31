@@ -16,16 +16,14 @@ const {
 } = TW;
 
 type Sorter = {
-  icon: string,
   label: string,
   shortLabel: string,
   sort: (a: ?chrome$Tab, b: ?chrome$Tab) => number,
 };
 
 const AlphaSorter: Sorter = {
-  icon: 'arrow-down',
-  label: 'Page title' || chrome.i18n.getMessage('corral_sortAlpha') || '',
-  shortLabel: 'Page title',
+  label: chrome.i18n.getMessage('corral_sortPageTitle') || '',
+  shortLabel: chrome.i18n.getMessage('corral_sortPageTitle_short') || '',
   sort(tabA, tabB) {
     if (tabA == null || tabB == null || tabA.title == null || tabB.title == null) {
       return 0;
@@ -36,18 +34,16 @@ const AlphaSorter: Sorter = {
 };
 
 const ReverseAlphaSorter: Sorter = {
-  icon: 'arrow-up',
-  label: 'Page title (Descending)' || chrome.i18n.getMessage('corral_sortReverseAlpha') || '',
-  shortLabel: 'Page title (Desc.)',
+  label: chrome.i18n.getMessage('corral_sortPageTitle_descending') || '',
+  shortLabel: chrome.i18n.getMessage('corral_sortPageTitle_descending_short') || '',
   sort(tabA, tabB) {
     return -1 * AlphaSorter.sort(tabA, tabB);
   },
 };
 
 const ChronoSorter: Sorter = {
-  icon: 'arrow-down',
-  label: 'Time closed' || chrome.i18n.getMessage('corral_sortChrono') || '',
-  shortLabel: 'Time closed',
+  label: chrome.i18n.getMessage('corral_sortTimeClosed') || '',
+  shortLabel: chrome.i18n.getMessage('corral_sortTimeClosed_short') || '',
   sort(tabA, tabB) {
     if (tabA == null || tabB == null) {
       return 0;
@@ -59,18 +55,16 @@ const ChronoSorter: Sorter = {
 };
 
 const ReverseChronoSorter: Sorter = {
-  icon: 'arrow-up',
-  label: 'Time closed (Descending)' || chrome.i18n.getMessage('corral_sortReverseChrono') || '',
-  shortLabel: 'Time closed (Desc.)',
+  label: chrome.i18n.getMessage('corral_sortTimeClosed_descending') || '',
+  shortLabel: chrome.i18n.getMessage('corral_sortTimeClosed_descending_short') || '',
   sort(tabA, tabB) {
     return -1 * ChronoSorter.sort(tabA, tabB);
   },
 };
 
 const DomainSorter: Sorter = {
-  icon: 'arrow-down',
-  label: 'Domain',
-  shortLabel: 'Domain',
+  label: chrome.i18n.getMessage('corral_sortDomain') || '',
+  shortLabel: chrome.i18n.getMessage('corral_sortDomain_short') || '',
   sort(tabA, tabB) {
     if (tabA == null || tabB == null || tabA.url == null || tabB.url == null) {
       return 0;
@@ -88,9 +82,8 @@ const DomainSorter: Sorter = {
 };
 
 const ReverseDomainSorter: Sorter = {
-  icon: 'arrow-up',
-  label: 'Domain (Descending)',
-  shortLabel: 'Domain (Desc.)',
+  label: chrome.i18n.getMessage('corral_sortDomain_descending') || '',
+  shortLabel: chrome.i18n.getMessage('corral_sortDomain_descending_short') || '',
   sort(tabA, tabB) {
     return -1 * DomainSorter.sort(tabA, tabB);
   },
@@ -433,8 +426,8 @@ export default class CorralTab extends React.Component<{}, State> {
                       id="sort-dropdown"
                       onClick={this._toggleSortDropdown}
                       title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
-                      <span className="text-muted">Sort by:</span>{' '}
-                      {this.state.sorter.shortLabel}{' '}
+                      <span className="text-muted">{chrome.i18n.getMessage('corral_sortBy')}</span>
+                      {' '}{this.state.sorter.shortLabel}{' '}
                       <span className="caret" />
                     </button>
                     <ul

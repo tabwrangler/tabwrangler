@@ -20,7 +20,7 @@ body {
 }
 
 .nav-buttons {
-  margin: 9px;
+  margin: 8px 9px;
 }
 
 .btn-remove {
@@ -97,9 +97,8 @@ body {
   outline: none;
 }
 
-.btn-chunky {
-  padding-left: 16px;
-  padding-right: 16px;
+.btn-xs {
+  padding: 2px 10px;
 }
 
 /**

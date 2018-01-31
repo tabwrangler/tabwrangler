@@ -364,7 +364,7 @@ export default class CorralTab extends React.Component<{}, State> {
                 zIndex: 100})}>
                 <div>
                   <button
-                    className="btn btn-default btn-sm btn-chunky"
+                    className="btn btn-default btn-xs btn-chunky btn-chunky"
                     onClick={this._toggleAllTabs}
                     title={allTabsSelected ?
                       chrome.i18n.getMessage('corral_toggleAllTabs_deselectAll') :
@@ -378,7 +378,7 @@ export default class CorralTab extends React.Component<{}, State> {
 
                   {this.state.closedTabs.some(tab => this.state.selectedTabs.has(tab)) ? [
                     <button
-                      className="btn btn-default btn-sm btn-chunky"
+                      className="btn btn-default btn-xs btn-chunky btn-chunky"
                       key="remove"
                       onClick={this._handleRemoveSelectedTabs}
                       style={{marginLeft: '10px'}}
@@ -389,7 +389,7 @@ export default class CorralTab extends React.Component<{}, State> {
                       <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     </button>,
                     <button
-                      className="btn btn-default btn-sm btn-chunky"
+                      className="btn btn-default btn-xs btn-chunky btn-chunky"
                       key="restore"
                       onClick={this._handleRestoreSelectedTabs}
                       style={{marginLeft: '10px'}}
@@ -422,7 +422,7 @@ export default class CorralTab extends React.Component<{}, State> {
                     ref={(dropdown) => { this._dropdownRef = dropdown; }}>
                     <button
                       aria-haspopup="true"
-                      className="btn btn-default btn-sm"
+                      className="btn btn-default btn-xs btn-chunky"
                       id="sort-dropdown"
                       onClick={this._toggleSortDropdown}
                       title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>

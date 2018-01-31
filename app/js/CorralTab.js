@@ -429,7 +429,7 @@ export default class CorralTab extends React.Component<{}, State> {
                     ref={(dropdown) => { this._dropdownRef = dropdown; }}>
                     <button
                       aria-haspopup="true"
-                      className="btn btn-default btn-sm btn-chunky"
+                      className="btn btn-default btn-sm"
                       id="sort-dropdown"
                       onClick={this._toggleSortDropdown}
                       title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>

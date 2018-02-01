@@ -42,6 +42,15 @@ body {
   width: 21px;
 }
 
+tr:hover .faviconCol--hover-hidden,
+tr .faviconCol--hover-shown {
+  display: none;
+}
+
+tr:hover .faviconCol--hover-shown {
+  display: inline-block;
+}
+
 .tab-pane {
   padding-bottom: 20px;
   padding-top: 20px;

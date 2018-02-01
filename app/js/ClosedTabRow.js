@@ -11,14 +11,26 @@ const uiLanguage = chrome.i18n.getUILanguage();
 timeago.register(uiLanguage, timeagoLocale[uiLanguage]);
 
 interface Props {
-  isSelected: boolean;
-  onOpenTab: (tab: chrome$Tab) => void;
-  onToggleTab: (tab: chrome$Tab, selected: boolean, multiselect: boolean) => void;
-  shouldCheckLazyImages: boolean;
-  tab: chrome$Tab;
+  isSelected: boolean,
+  onOpenTab: (tab: chrome$Tab) => void,
+  onRemoveTab: (tab: chrome$Tab) => void,
+  onToggleTab: (tab: chrome$Tab, selected: boolean, multiselect: boolean) => void,
+  shouldCheckLazyImages: boolean,
+  tab: chrome$Tab,
 }
 
-export default class ClosedTabRow extends React.PureComponent<Props> {
+interface State {
+  hovered: boolean,
+}
+
+export default class ClosedTabRow extends React.PureComponent<Props, State> {
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hovered: false,
+    };
+  }
 
   _handleClickAnchor = (event: SyntheticMouseEvent<HTMLElement>) => {
     const {tab} = this.props;
@@ -36,9 +48,21 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
     this.props.onToggleTab(this.props.tab, event.target.checked, event.shiftKey);
   };
 
+  _handleClickRemove = () => {
+    this.props.onRemoveTab(this.props.tab);
+  };
+
   _handleClickTd = (event: SyntheticMouseEvent<HTMLElement>) => {
     if (event.target.nodeName === 'input' || this.props.tab.id == null) return;
     this.props.onToggleTab(this.props.tab, !this.props.isSelected, event.shiftKey);
+  };
+
+  _handleMouseOut = () => {
+    this.setState({hovered: false});
+  };
+
+  _handleMouseOver = () => {
+    this.setState({hovered: true});
   };
 
   render() {
@@ -56,11 +80,16 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
         </td>
         <td className="faviconCol" style={{verticalAlign: 'middle'}}>
           {tab.favIconUrl == null
-            ? <span style={{display: 'inline-block', height: '16px'}}>-</span>
-            : (
+            ? (
+              <span
+                className="faviconCol--hover-hidden"
+                style={{display: 'inline-block', height: '16px'}}>
+                -
+              </span>
+            ) : (
               <LazyImage
                 alt=""
-                className="favicon"
+                className="faviconCol--hover-hidden favicon"
                 height={16}
                 src={tab.favIconUrl}
                 shouldCheck={shouldCheckLazyImages}
@@ -68,6 +97,12 @@ export default class ClosedTabRow extends React.PureComponent<Props> {
               />
             )
           }
+          <span
+            className="faviconCol--hover-shown glyphicon glyphicon-trash"
+            onClick={this._handleClickRemove}
+            style={{cursor: 'pointer'}}
+            title="Remove this tab"
+          />
         </td>
         <td style={{paddingBottom: '4px', paddingTop: '4px', width: '75%'}}>
           <div style={{display: 'flex'}}>

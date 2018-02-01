@@ -191,6 +191,12 @@ export default class CorralTab extends React.Component<{}, State> {
     });
   };
 
+  _handleRemoveTab = (tab: chrome$Tab) => {
+    tabmanager.closedTabs.removeTab(tab.id);
+    this.state.selectedTabs.delete(tab);
+    this.forceUpdate();
+  };
+
   _handleToggleTab = (tab: chrome$Tab, isSelected: boolean, multiselect: boolean) => {
     // If this is a multiselect (done by holding the Shift key and clicking), see if the last
     // selected tab is still visible and, if it is, toggle all tabs between it and this new clicked
@@ -310,6 +316,7 @@ export default class CorralTab extends React.Component<{}, State> {
             // $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab
             key={`${tabId}-${tab.closedAt}`}
             onOpenTab={this.openTab}
+            onRemoveTab={this._handleRemoveTab}
             onToggleTab={this._handleToggleTab}
             shouldCheckLazyImages={this.state.shouldCheckLazyImages}
             tab={tab}

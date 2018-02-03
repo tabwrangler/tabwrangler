@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_extName__",
-  "version": "5.8.0",
+  "version": "5.8.1",
 
   "default_locale": "en",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",

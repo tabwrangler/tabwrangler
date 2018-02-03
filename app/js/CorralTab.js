@@ -75,8 +75,11 @@ const DomainSorter: Sorter = {
       const tabBHostname = extractHostname(tabBUrl);
       const tabARootDomain = extractRootDomain(tabAUrl);
       const tabBRootDomain = extractRootDomain(tabBUrl);
+      // Sort by root domain, then by hostname (like the subdomain), and then by closing time. This
+      // gives a predictable sorting order at each level of sort.
       return tabARootDomain.localeCompare(tabBRootDomain) ||
-        tabAHostname.localeCompare(tabBHostname);
+        tabAHostname.localeCompare(tabBHostname) ||
+        ReverseChronoSorter.sort(tabA, tabB);
     }
   },
 };

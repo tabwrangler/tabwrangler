@@ -27,6 +27,20 @@
         "default": "Ctrl+Shift+E",
         "mac": "MacCtrl+Shift+W"
       }
+    },
+    "lock-current-tab": {
+      "description": "Lock the current tab",
+      "suggested-key": {
+        "default": "Ctrl+Shift+L",
+        "mac": "MacCtrl+Shift+L"
+      }
+    },
+    "unlock-current-tab": {
+      "description": "Unlock the current tab",
+      "suggested-key": {
+        "default": "Ctrl+Shift+U",
+        "mac": "MacCtrl+Shift+U"
+      }
     }
   },
   "minimum_chrome_version": "28",

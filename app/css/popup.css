@@ -44,11 +44,11 @@ body {
 
 tr:hover .faviconCol--hover-hidden,
 tr .faviconCol--hover-shown {
-  display: none;
+  display: none !important;
 }
 
 tr:hover .faviconCol--hover-shown {
-  display: inline-block;
+  display: inline-block !important;
 }
 
 .tab-pane {

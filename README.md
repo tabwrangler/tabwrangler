@@ -67,7 +67,7 @@ tabs that you wanted to save.
         $ yarn run watch
 4. Open the Extensions page in Chrome via *Window > Extensions*
 5. Check the "Developer mode" checkbox in upper right
-6. Click the "Load unpacked extension..." button and select the `dist/` directory created in Step 2
+6. Click the "Load unpacked extension..." button and select the `dist/` directory created in step 3.
 
 ### Building for Release
 

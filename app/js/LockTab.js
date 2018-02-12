@@ -61,7 +61,7 @@ export default class LockTab extends React.PureComponent<{}, State> {
                 </abbr>
               </th>
               <th></th>
-              <th style={{width: '100%'}}></th>
+              <th style={{width: '75%'}}></th>
               <th className="text-center">
                 <i
                   className="glyphicon glyphicon-time"

@@ -1,7 +1,7 @@
 /* @flow */
 
-import LazyImage from './LazyImage';
 import React from 'react';
+import TabFavicon from './TabFavicon';
 import truncateString from './truncateString';
 
 const TW = chrome.extension.getBackgroundPage().TW;
@@ -64,7 +64,9 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
         reason = chrome.i18n.getMessage('tabLock_lockedReason_locked');
       }
 
-      lockStatusElement = <td className="text-center muted">{reason}</td>;
+      lockStatusElement = (
+        <td className="text-center muted" style={{verticalAlign: 'middle'}}>{reason}</td>
+      );
     } else {
       let timeLeftContent;
       if (settings.get('paused')) {
@@ -80,12 +82,14 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
         timeLeftContent = timeLeft < 0 ? '...' : secondsToMinutes(timeLeft);
       }
 
-      lockStatusElement = <td className="text-center">{timeLeftContent}</td>;
+      lockStatusElement = (
+        <td className="text-center" style={{verticalAlign: 'middle'}}>{timeLeftContent}</td>
+      );
     }
 
     return (
       <tr>
-        <td className="text-center">
+        <td className="text-center" style={{verticalAlign: 'middle'}}>
           <input
             checked={tabIsLocked}
             disabled={tab.pinned || tabWhitelistMatch
@@ -94,20 +98,13 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
             type="checkbox"
           />
         </td>
-        <td className="text-center">
-          <LazyImage
-            alt=""
-            height={16}
-            shouldCheck={true}
-            src={tab.favIconUrl}
-            style={{height: '16px', maxWidth: 'none'}}
-            width={16}
-          />
+        <td className="text-center" style={{verticalAlign: 'middle'}}>
+          <TabFavicon tab={tab} />
         </td>
-        <td>
-          <strong className="tabTitle">{truncateString(tab.title, 70)}</strong>
+        <td style={{paddingBottom: '4px', paddingTop: '4px'}}>
+          {truncateString(tab.title, 70)}
           <br />
-          <span className="tabUrl">{truncateString(tab.url, 70)}</span>
+          <small className="text-muted">({truncateString(tab.url, 70)})</small>
         </td>
         {lockStatusElement}
       </tr>

@@ -1,7 +1,7 @@
 /* @flow */
 
-import LazyImage from './LazyImage';
 import React from 'react';
+import TabFavicon from './TabFavicon';
 import TimeAgo from 'timeago-react';
 import extractHostname from './extractHostname';
 import timeago from 'timeago.js';
@@ -15,7 +15,6 @@ interface Props {
   onOpenTab: (tab: chrome$Tab) => void,
   onRemoveTab: (tab: chrome$Tab) => void,
   onToggleTab: (tab: chrome$Tab, selected: boolean, multiselect: boolean) => void,
-  shouldCheckLazyImages: boolean,
   tab: chrome$Tab,
 }
 
@@ -66,7 +65,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {isSelected, shouldCheckLazyImages, tab} = this.props;
+    const {isSelected, tab} = this.props;
 
     return (
       <tr className={isSelected ? 'bg-warning' : null}>
@@ -79,24 +78,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
           />
         </td>
         <td className="faviconCol" style={{verticalAlign: 'middle'}}>
-          {tab.favIconUrl == null
-            ? (
-              <span
-                className="faviconCol--hover-hidden"
-                style={{display: 'inline-block', height: '16px'}}>
-                -
-              </span>
-            ) : (
-              <LazyImage
-                alt=""
-                className="faviconCol--hover-hidden favicon"
-                height={16}
-                src={tab.favIconUrl}
-                shouldCheck={shouldCheckLazyImages}
-                width={16}
-              />
-            )
-          }
+          <TabFavicon className="faviconCol--hover-hidden" tab={tab} />
           <span
             className="faviconCol--hover-shown glyphicon glyphicon-trash"
             onClick={this._handleClickRemove}

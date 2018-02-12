@@ -106,7 +106,6 @@ interface State {
   filter: string;
   isSortDropdownOpen: boolean;
   lastSelectedTab: ?chrome$Tab;
-  shouldCheckLazyImages: boolean;
   selectedTabs: Set<chrome$Tab>;
   sorter: Sorter;
 }
@@ -115,7 +114,6 @@ export default class CorralTab extends React.Component<{}, State> {
   _dropdownRef: ?HTMLElement;
   _searchRefFocusTimeout: TimeoutID;
   _searchRef: ?HTMLElement;
-  _shouldCheckLazyImagesTimeout: TimeoutID;
 
   constructor(props: {}) {
     super(props);
@@ -125,11 +123,6 @@ export default class CorralTab extends React.Component<{}, State> {
       isSortDropdownOpen: false,
       lastSelectedTab: undefined,
       selectedTabs: new Set(),
-
-      // Whether `LazyImage` instances should check to load their images immediately. This will be
-      // true only after a period of time that allows the popup to show quickly.
-      shouldCheckLazyImages: false,
-
       sorter: ReverseChronoSorter,
     };
   }
@@ -145,20 +138,11 @@ export default class CorralTab extends React.Component<{}, State> {
     // TODO: This is assumed to be synchronous. If it becomes async, this state needs to be
     // hoisted so this component does not need to track whether it's mounted.
     tabmanager.searchTabs(this.setClosedTabs);
-
-    // Begin the loading process a full second after initial execution to allow the popup to open
-    // before loading images. If images begin to load too soon after the popup opens, Chrome waits
-    // for them to fully load before showing the popup.
-    this._shouldCheckLazyImagesTimeout = setTimeout(() => {
-      this.setState({shouldCheckLazyImages: true});
-    }, 1000);
-
     window.addEventListener('click', this._handleWindowClick);
   }
 
   componentWillUnmount() {
     clearTimeout(this._searchRefFocusTimeout);
-    clearTimeout(this._shouldCheckLazyImagesTimeout);
     window.removeEventListener('click', this._handleWindowClick);
   }
 
@@ -321,7 +305,6 @@ export default class CorralTab extends React.Component<{}, State> {
             onOpenTab={this.openTab}
             onRemoveTab={this._handleRemoveTab}
             onToggleTab={this._handleToggleTab}
-            shouldCheckLazyImages={this.state.shouldCheckLazyImages}
             tab={tab}
           />
         );

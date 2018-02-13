@@ -2,7 +2,6 @@
 
 import React from 'react';
 import TabFavicon from './TabFavicon';
-import truncateString from './truncateString';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
@@ -101,10 +100,21 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
         <td className="text-center" style={{verticalAlign: 'middle'}}>
           <TabFavicon tab={tab} />
         </td>
-        <td style={{paddingBottom: '4px', paddingTop: '4px'}}>
-          {truncateString(tab.title, 70)}
-          <br />
-          <small className="text-muted">({truncateString(tab.url, 70)})</small>
+        <td style={{paddingBottom: '4px', paddingTop: '4px', width: '75%'}}>
+          <div style={{display: 'flex'}}>
+            <div
+              style={{
+                flex: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                width: '1px',
+              }}>
+              {tab.title}
+              <br />
+              <small className="text-muted">({tab.url})</small>
+            </div>
+          </div>
         </td>
         {lockStatusElement}
       </tr>

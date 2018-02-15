@@ -401,5 +401,10 @@
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "Domain (desc.)"
+  },
+
+  "extDescription": {
+    "description": "Brief description of the extension",
+    "message": "Automatically closes inactive tabs and makes it easy to get them back"
   }
 }

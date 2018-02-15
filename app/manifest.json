@@ -4,7 +4,7 @@
   "version": "5.9.0",
 
   "default_locale": "en",
-  "description": "Automatically closes inactive tabs and makes it easy to get them back",
+  "description": "__MSG_extDescription__",
   "icons": {
     "128": "img/icon128.png",
     "48": "img/icon48.png",

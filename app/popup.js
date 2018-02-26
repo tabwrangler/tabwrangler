@@ -1,5 +1,7 @@
 /* @flow */
 
+import './lib/bootstrap/css/bootstrap.min.css';
+import './css/popup.css';
 import CorralTab from './js/CorralTab';
 import LockTab from './js/LockTab';
 import OptionsTab from './js/OptionsTab';

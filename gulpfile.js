@@ -27,9 +27,7 @@ gulp.task('clean', function(done) {
 // Copy any files that don't require pre-processing.
 gulp.task('cp', function() {
   const cpApp = gulp.src([
-    'app/css/**',
     'app/img/**',
-    'app/lib/**',
   ], {base: 'app'})
     .pipe(gulp.dest(DIST_DIRECTORY));
 

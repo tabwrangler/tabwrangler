@@ -1,5 +1,6 @@
 /* eslint-env node */
 
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
@@ -20,6 +21,17 @@ module.exports = {
         },
         test: /\.js$/,
       },
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: 'css-loader',
+        }),
+      },
+      {
+        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        use: ['file-loader'],
+      },
     ],
   },
   output: {
@@ -27,6 +39,7 @@ module.exports = {
     filename: '[name].entry.js',
   },
   plugins: [
+    new ExtractTextPlugin('popup.css'),
     new webpack.optimize.CommonsChunkPlugin('commons'),
     new HtmlWebpackPlugin({
       chunks: ['commons', 'popup'],

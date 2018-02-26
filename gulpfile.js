@@ -30,7 +30,6 @@ gulp.task('cp', function() {
     'app/css/**',
     'app/img/**',
     'app/lib/**',
-    'app/*.html',
   ], {base: 'app'})
     .pipe(gulp.dest(DIST_DIRECTORY));
 

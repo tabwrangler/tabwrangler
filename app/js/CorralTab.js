@@ -470,6 +470,7 @@ export default class CorralTab extends React.Component<Props, State> {
                 rowHeight={38}
                 rowRenderer={rowRenderer}
                 scrollTop={scrollTop}
+                tabIndex={null}
                 width={670}
               />
             )}

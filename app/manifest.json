@@ -37,6 +37,7 @@
   "permissions": [
     "chrome://favicon/",
     "contextMenus",
+    "sessions",
     "storage",
     "tabs"
   ],

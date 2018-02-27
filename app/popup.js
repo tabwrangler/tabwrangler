@@ -16,7 +16,7 @@ const {
   settings,
 } = TW;
 
-interface State {
+type State = {
   paused: boolean;
 }
 
@@ -166,13 +166,14 @@ function AboutTab() {
   );
 }
 
-interface PopupContentProps {
-  commands: ?Array<chrome$Command>;
-}
+type PopupContentProps = {
+  commands: Array<chrome$Command>,
+  sessions: Array<chrome$Session>,
+};
 
-interface PopupContentState {
-  activeTabId: string;
-}
+type PopupContentState = {
+  activeTabId: string,
+};
 
 class PopupContent extends React.PureComponent<PopupContentProps, PopupContentState> {
   constructor(props: PopupContentProps) {
@@ -193,7 +194,7 @@ class PopupContent extends React.PureComponent<PopupContentProps, PopupContentSt
       activeTab = <AboutTab />;
       break;
     case 'corral':
-      activeTab = <CorralTab />;
+      activeTab = <CorralTab sessions={this.props.sessions} />;
       break;
     case 'lock':
       activeTab = <LockTab />;
@@ -220,8 +221,26 @@ function render(props) {
   ReactDOM.render(<PopupContent {...props} />, popupElement);
 }
 
-render({commands: null});
+let state = {
+  commands: [],
+  sessions: [],
+};
 
+render(state);
+
+// TODO: Move into a Redux store rather than use one-off render calls.
+// See https://github.com/tabwrangler/tabwrangler/issues/113
 chrome.commands.getAll(commands => {
-  render({commands});
+  state = Object.assign({}, state, {commands});
+  render(state);
 });
+
+function updateSessionsRecentlyClosed() {
+  chrome.sessions.getRecentlyClosed(sessions => {
+    state = Object.assign({}, state, {sessions});
+    render(state);
+  });
+}
+
+chrome.sessions.onChanged.addListener(updateSessionsRecentlyClosed);
+updateSessionsRecentlyClosed();

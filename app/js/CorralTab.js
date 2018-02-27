@@ -103,6 +103,23 @@ const Sorters: Array<Sorter> = [
   ReverseChronoSorter,
 ];
 
+function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab) {
+  return session.tab != null &&
+    (
+      // Tabs with no favIcons have the value `undefined`, but once converted into a session the tab
+      // has an empty string (`''`) as its favIcon value. Account for that case for "equality".
+      session.tab.favIconUrl === tab.favIconUrl ||
+      (session.tab.favIconUrl === '' && tab.favIconUrl == null)
+    ) &&
+    session.tab.title === tab.title &&
+    session.tab.url === tab.url &&
+    // Sessions' `lastModified` is accurate to the second whereas `closedAt` is accurate to the
+    // millisecond. Ensure they are within 1s of each other as a fuzzy, but likely always correct,
+    // match.
+    // $FlowFixMe
+    Math.abs(session.lastModified * 1000 - tab.closedAt) < 1000;
+}
+
 function rowRenderer({key, rowData, style}) {
   const {tab} = rowData;
   const tabId = tab.id;
@@ -114,14 +131,18 @@ function rowRenderer({key, rowData, style}) {
       key={key}
       onOpenTab={rowData.onOpenTab}
       onRemoveTab={rowData.onRemoveTab}
+      onRestoreSession={rowData.onRestoreSession}
       onToggleTab={rowData.onToggleTab}
+      session={rowData.session}
       style={style}
       tab={tab}
     />
   );
 }
 
-type Props = {};
+type Props = {
+  sessions: Array<chrome$Session>,
+};
 
 type State = {
   closedTabs: Array<chrome$Tab>,
@@ -244,7 +265,12 @@ export default class CorralTab extends React.Component<Props, State> {
 
   _handleRestoreSelectedTabs = () => {
     const tabs = this.state.closedTabs.filter(tab => this.state.selectedTabs.has(tab));
-    tabmanager.closedTabs.unwrangleTabs(tabs);
+    const sessionTabs = tabs.map(tab => ({
+      session: this.props.sessions.find(session => sessionFuzzyMatchesTab(session, tab)),
+      tab,
+    }));
+
+    tabmanager.closedTabs.unwrangleTabs(sessionTabs);
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword('')]);
     this.setState({
       filter: '',
@@ -268,8 +294,8 @@ export default class CorralTab extends React.Component<Props, State> {
     }
   };
 
-  openTab = (tab: chrome$Tab) => {
-    tabmanager.closedTabs.unwrangleTabs([tab]);
+  openTab = (tab: chrome$Tab, session: ?chrome$Session) => {
+    tabmanager.closedTabs.unwrangleTabs([{session, tab}]);
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
     this.state.selectedTabs.delete(tab);
     this.forceUpdate();
@@ -459,11 +485,14 @@ export default class CorralTab extends React.Component<Props, State> {
                 rowCount={this.state.closedTabs.length}
                 rowGetter={({index}) => {
                   const tab = this.state.closedTabs[index];
+                  const session =
+                    this.props.sessions.find(session => sessionFuzzyMatchesTab(session, tab));
                   return {
                     isSelected: this.state.selectedTabs.has(tab),
                     onOpenTab: this.openTab,
                     onRemoveTab: this._handleRemoveTab,
                     onToggleTab: this._handleToggleTab,
+                    session,
                     tab,
                   };
                 }}

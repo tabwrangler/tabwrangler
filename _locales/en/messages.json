@@ -406,5 +406,10 @@
   "extDescription": {
     "description": "Brief description of the extension",
     "message": "Automatically closes inactive tabs and makes it easy to get them back"
+  },
+
+  "corral_tabSessionFresh": {
+    "description": "Tooltip describing why certain tabs will have their full session restored",
+    "message": "Restoring this tab will restore its entire session: history, scroll position, etc. This is limited by the browser to the last 25 closed tabs."
   }
 }

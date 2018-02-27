@@ -7,18 +7,6 @@ body {
   width: 700px;
 }
 
-.table td {
-  font-size: 11px;
-}
-
-#corralTable > tbody > tr:first-child > td {
-  border-top: none;
-}
-
-.table > tbody > tr:last-child > td {
-  border-bottom: 1px solid #ddd;
-}
-
 .nav-buttons {
   margin: 8px 9px;
 }
@@ -41,20 +29,6 @@ body {
   display: inline-block;
   height: 16px;
   width: 16px;
-}
-
-.table .faviconCol {
-  text-align: center;
-  width: 21px;
-}
-
-tr:hover .faviconCol--hover-hidden,
-tr .faviconCol--hover-shown {
-  display: none !important;
-}
-
-tr:hover .faviconCol--hover-shown {
-  display: inline-block !important;
 }
 
 .tab-pane {

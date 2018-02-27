@@ -2,6 +2,7 @@
 
 import './lib/bootstrap/css/bootstrap.min.css';
 import './css/popup.css';
+import 'react-virtualized/styles.css';
 import CorralTab from './js/CorralTab';
 import LockTab from './js/LockTab';
 import OptionsTab from './js/OptionsTab';
@@ -15,11 +16,11 @@ const {
   settings,
 } = TW;
 
-interface PauseButtonState {
+interface State {
   paused: boolean;
 }
 
-class PauseButton extends React.PureComponent<{}, PauseButtonState> {
+class PauseButton extends React.PureComponent<{}, State> {
   constructor() {
     super();
     this.state = {

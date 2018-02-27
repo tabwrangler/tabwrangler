@@ -59,6 +59,7 @@
     "react-addons-css-transition-group": "^15.6.2",
     "react-dom": "^16.2.0",
     "react-sticky": "^6.0.1",
+    "react-virtualized": "^9.18.5",
     "timeago-react": "^2.0.0",
     "timeago.js": "^3.0.2"
   },

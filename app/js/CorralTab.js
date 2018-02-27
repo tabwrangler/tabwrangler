@@ -1,9 +1,11 @@
 /* @flow */
 
+import './CorralTab.css';
 import {Sticky, StickyContainer} from 'react-sticky';
+import {Table, WindowScroller} from 'react-virtualized';
 import ClosedTabRow from './ClosedTabRow';
 import React from 'react';
-import classnames from 'classnames';
+import cx from 'classnames';
 import extractHostname from './extractHostname';
 import extractRootDomain from './extractRootDomain';
 
@@ -101,21 +103,41 @@ const Sorters: Array<Sorter> = [
   ReverseChronoSorter,
 ];
 
-interface State {
-  closedTabs: Array<chrome$Tab>;
-  filter: string;
-  isSortDropdownOpen: boolean;
-  lastSelectedTab: ?chrome$Tab;
-  selectedTabs: Set<chrome$Tab>;
-  sorter: Sorter;
+function rowRenderer({key, rowData, style}) {
+  const {tab} = rowData;
+  const tabId = tab.id;
+  if (tabId == null) return null;
+
+  return (
+    <ClosedTabRow
+      isSelected={rowData.isSelected}
+      key={key}
+      onOpenTab={rowData.onOpenTab}
+      onRemoveTab={rowData.onRemoveTab}
+      onToggleTab={rowData.onToggleTab}
+      style={style}
+      tab={tab}
+    />
+  );
 }
 
-export default class CorralTab extends React.Component<{}, State> {
+type Props = {};
+
+type State = {
+  closedTabs: Array<chrome$Tab>,
+  filter: string,
+  isSortDropdownOpen: boolean,
+  lastSelectedTab: ?chrome$Tab,
+  selectedTabs: Set<chrome$Tab>,
+  sorter: Sorter,
+}
+
+export default class CorralTab extends React.Component<Props, State> {
   _dropdownRef: ?HTMLElement;
   _searchRefFocusTimeout: TimeoutID;
   _searchRef: ?HTMLElement;
 
-  constructor(props: {}) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       closedTabs: [],
@@ -144,6 +166,10 @@ export default class CorralTab extends React.Component<{}, State> {
   componentWillUnmount() {
     clearTimeout(this._searchRefFocusTimeout);
     window.removeEventListener('click', this._handleWindowClick);
+  }
+
+  _areAllClosedTabsSelected() {
+    return this.state.closedTabs.every(tab => this.state.selectedTabs.has(tab));
   }
 
   _clearFilter = () => {
@@ -261,7 +287,7 @@ export default class CorralTab extends React.Component<{}, State> {
 
   _toggleAllTabs = () => {
     let selectedTabs;
-    if (this.state.closedTabs.every(tab => this.state.selectedTabs.has(tab))) {
+    if (this._areAllClosedTabsSelected()) {
       selectedTabs = this.state.selectedTabs;
       this.state.closedTabs.forEach(tab => this.state.selectedTabs.delete(tab));
     } else {
@@ -279,38 +305,7 @@ export default class CorralTab extends React.Component<{}, State> {
   };
 
   render() {
-    let allTabsSelected;
-    const tableRows = [];
-    if (this.state.closedTabs.length === 0) {
-      allTabsSelected = false;
-      tableRows.push(
-        <tr key="no-tabs">
-          <td className="text-center" colSpan="3">{chrome.i18n.getMessage('corral_emptyList')}</td>
-        </tr>
-      );
-    } else {
-      allTabsSelected = true;
-      this.state.closedTabs.forEach(tab => {
-        const tabId = tab.id;
-        if (tabId == null) return;
-
-        const isSelected = this.state.selectedTabs.has(tab);
-        allTabsSelected = allTabsSelected && isSelected;
-
-        tableRows.push(
-          <ClosedTabRow
-            isSelected={isSelected}
-            // $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab
-            key={`${tabId}-${tab.closedAt}`}
-            onOpenTab={this.openTab}
-            onRemoveTab={this._handleRemoveTab}
-            onToggleTab={this._handleToggleTab}
-            tab={tab}
-          />
-        );
-      });
-    }
-
+    const areAllClosedTabsSelected = this._areAllClosedTabsSelected();
     const totalTabsRemoved = storageLocal.get('totalTabsRemoved');
     const percentClosed = totalTabsRemoved === 0
       ? 0
@@ -347,23 +342,32 @@ export default class CorralTab extends React.Component<{}, State> {
         <StickyContainer>
           <Sticky>
             {({style}) => (
-              <div style={Object.assign({}, style, {
-                background: 'white',
-                borderBottom: '1px solid #ddd',
-                display: 'flex',
-                justifyContent: 'space-between',
-                paddingBottom: '10px',
-                paddingTop: '10px',
-                zIndex: 100})}>
+              <div style={Object.assign(
+                {
+                  // Ensure this element is always positioned so its z-index stacks it on top of the
+                  // virtual table below.
+                  position: 'relative',
+                },
+                style,
+                {
+                  background: 'white',
+                  borderBottom: '1px solid #ddd',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  paddingBottom: '10px',
+                  paddingTop: '10px',
+                  zIndex: 100,
+                })}>
                 <div>
                   <button
                     className="btn btn-default btn-xs btn-chunky btn-chunky"
                     onClick={this._toggleAllTabs}
-                    title={allTabsSelected ?
+                    title={areAllClosedTabsSelected ?
                       chrome.i18n.getMessage('corral_toggleAllTabs_deselectAll') :
                       chrome.i18n.getMessage('corral_toggleAllTabs_selectAll')}>
                     <input
-                      checked={allTabsSelected}
+                      checked={areAllClosedTabsSelected}
+                      readOnly
                       style={{ margin: 0 }}
                       type="checkbox"
                     />
@@ -411,7 +415,7 @@ export default class CorralTab extends React.Component<{}, State> {
                     </span> :
                     null}
                   <div
-                    className={classnames('dropdown', {open: this.state.isSortDropdownOpen})}
+                    className={cx('dropdown', {open: this.state.isSortDropdownOpen})}
                     ref={(dropdown) => { this._dropdownRef = dropdown; }}>
                     <button
                       aria-haspopup="true"
@@ -429,7 +433,7 @@ export default class CorralTab extends React.Component<{}, State> {
                       {Sorters.map(sorter => {
                         const active = this.state.sorter === sorter;
                         return (
-                          <li className={classnames({active})} key={sorter.label}>
+                          <li className={cx({active})} key={sorter.label}>
                             <a href="#" onClick={this._clickSorter.bind(this, sorter)}>
                               {sorter.label}
                             </a>
@@ -443,11 +447,33 @@ export default class CorralTab extends React.Component<{}, State> {
             )}
           </Sticky>
 
-          <table id="corralTable" className="table table-hover">
-            <tbody>
-              {tableRows}
-            </tbody>
-          </table>
+          <WindowScroller>
+            {({height, isScrolling, onChildScroll, scrollTop}) => (
+              <Table
+                autoHeight
+                className="table table-hover"
+                headerHeight={0}
+                height={height}
+                isScrolling={isScrolling}
+                onScroll={onChildScroll}
+                rowCount={this.state.closedTabs.length}
+                rowGetter={({index}) => {
+                  const tab = this.state.closedTabs[index];
+                  return {
+                    isSelected: this.state.selectedTabs.has(tab),
+                    onOpenTab: this.openTab,
+                    onRemoveTab: this._handleRemoveTab,
+                    onToggleTab: this._handleToggleTab,
+                    tab,
+                  };
+                }}
+                rowHeight={38}
+                rowRenderer={rowRenderer}
+                scrollTop={scrollTop}
+                width={670}
+              />
+            )}
+          </WindowScroller>
         </StickyContainer>
       </div>
     );

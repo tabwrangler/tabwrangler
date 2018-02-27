@@ -3,6 +3,7 @@
 import React from 'react';
 import TabFavicon from './TabFavicon';
 import TimeAgo from 'timeago-react';
+import cx from 'classnames';
 import extractHostname from './extractHostname';
 import timeago from 'timeago.js';
 import timeagoLocale from './timeagoLocale';
@@ -16,6 +17,7 @@ interface Props {
   onRemoveTab: (tab: chrome$Tab) => void,
   onToggleTab: (tab: chrome$Tab, selected: boolean, multiselect: boolean) => void,
   tab: chrome$Tab,
+  style: Object,
 }
 
 interface State {
@@ -65,28 +67,38 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {isSelected, tab} = this.props;
+    const {isSelected, style, tab} = this.props;
 
     return (
-      <tr className={isSelected ? 'bg-warning' : null}>
-        <td onClick={this._handleClickTd} style={{verticalAlign: 'middle', width: '1px'}}>
+      <div
+        aria-label="row"
+        className={cx('ReactVirtualized__Table__row', {'bg-warning': isSelected})}
+        role="row"
+        style={style}>
+        <div
+          className="ReactVirtualized__Table__rowColumn"
+          onClick={this._handleClickTd} style={{verticalAlign: 'middle'}}>
           <input
             checked={isSelected}
             className="checkbox--td"
             onClick={this._handleClickCheckbox}
             type="checkbox"
           />
-        </td>
-        <td className="faviconCol" style={{verticalAlign: 'middle'}}>
+        </div>
+        <div
+          className="faviconCol ReactVirtualized__Table__rowColumn"
+          style={{verticalAlign: 'middle'}}>
           <TabFavicon className="faviconCol--hover-hidden" tab={tab} />
           <span
             className="faviconCol--hover-shown glyphicon glyphicon-trash"
             onClick={this._handleClickRemove}
-            style={{cursor: 'pointer'}}
+            style={{cursor: 'pointer', height: 16, width: 16}}
             title="Remove this tab"
           />
-        </td>
-        <td style={{paddingBottom: '4px', paddingTop: '4px', width: '75%'}}>
+        </div>
+        <div
+          className="ReactVirtualized__Table__rowColumn"
+          style={{paddingBottom: '4px', paddingTop: '4px', width: '75%'}}>
           <div style={{display: 'flex'}}>
             <div
               style={{
@@ -110,9 +122,9 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
               </small>
             </div>
           </div>
-        </td>
-        <td
-          className="text-right"
+        </div>
+        <div
+          className="ReactVirtualized__Table__rowColumn text-right"
           style={{verticalAlign: 'middle'}}
           title={
             /* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */
@@ -120,8 +132,8 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
           }>
           {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
           <TimeAgo datetime={tab.closedAt} locale={uiLanguage} />
-        </td>
-      </tr>
+        </div>
+      </div>
     );
   }
 

@@ -88,7 +88,7 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
 
     return (
       <tr>
-        <td className="text-center" style={{verticalAlign: 'middle'}}>
+        <td className="text-center" style={{verticalAlign: 'middle', width: '1px'}}>
           <input
             checked={tabIsLocked}
             disabled={tab.pinned || tabWhitelistMatch
@@ -97,7 +97,7 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
             type="checkbox"
           />
         </td>
-        <td className="text-center" style={{verticalAlign: 'middle'}}>
+        <td className="text-center" style={{verticalAlign: 'middle', width: '32px'}}>
           <TabFavicon tab={tab} />
         </td>
         <td style={{paddingBottom: '4px', paddingTop: '4px', width: '75%'}}>

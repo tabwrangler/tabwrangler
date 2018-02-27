@@ -2,7 +2,7 @@
  * Table (the virtual one)
  */
 
- .table .ReactVirtualized__Table__rowColumn {
+.table {
   font-size: 11px;
 }
 

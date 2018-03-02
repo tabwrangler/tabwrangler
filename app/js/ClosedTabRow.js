@@ -114,7 +114,8 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
                 onClick={this._handleClickAnchor}
                 rel="noopener noreferrer"
                 style={{flex: 1}}
-                target="_blank">
+                target="_blank"
+                title={tab.url}>
                 {tab.title}
               </a>
               <br />

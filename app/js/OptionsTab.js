@@ -370,7 +370,7 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
                 onChange={this.handleSettingsChange}
                 type="checkbox"
               />
-              Don&apos;t close tabs that are playing audio
+              {chrome.i18n.getMessage('options_option_filterAudio_label')}
             </label>
           </div>
           <div className="form-group">

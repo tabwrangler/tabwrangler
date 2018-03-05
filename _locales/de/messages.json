@@ -141,7 +141,7 @@
   },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
-    "message": "Ein Tab wird geschlossen und dem Corral hinzugefügt. Es werden keine weiteren Änderungen am Corral durchgeführt."
+    "message": "Ein Tab wird geschlossen und der Tab Liste hinzugefügt. Es werden keine weiteren Änderungen am Corral durchgeführt."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -149,7 +149,7 @@
   },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
-    "message": "Alle geschlossenen Tabs aus dem Corral exportieren. Das ist die einzige Möglichkeit ein Backup der geschlossen Tabs herzustellen und nach einer erneuten Installation der Extension den alten Zustand wiederherzustellen."
+    "message": "Alle geschlossenen Tabs aus der Tab Liste exportieren. Das ist die einzige Möglichkeit ein Backup der geschlossen Tabs herzustellen und nach einer erneuten Installation der Extension den alten Zustand wiederherzustellen."
   },
   "options_importExport_export": {
     "description": "Button label to begin exporting closed tabs",

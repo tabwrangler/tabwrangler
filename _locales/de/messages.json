@@ -129,7 +129,7 @@
   },
   "options_dedupe_option_hostnameAndTitleMatch_description": {
     "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "Wenn ein Tab geschlossen und dem Corral hinzugefügt wird, dann wird ein bereits vorhandener Eintrag mit dem gleichen Hostnamen (like \"wikipedia.org\") und Seitentitel entfernt und durch den neuen Tab ersetzt."
+    "message": "Wenn ein Tab geschlossen und der Tab Liste hinzugefügt wird, dann wird ein bereits vorhandener Eintrag mit dem gleichen Hostnamen (like \"wikipedia.org\") und Seitentitel entfernt und durch den neuen Tab ersetzt."
   },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
@@ -414,6 +414,6 @@
 
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",
-    "message": "Restoring this tab will restore its entire session: history, scroll position, etc. This is limited by the browser to the last 25 closed tabs."
+    "message": "Öffnen des Tabs stellt die gesamte Session dieses Tabs wieder her: Verlauf, Scroll Position, etc. Diese Funktion ist auf die letzten 25 geschlossenen Tabs beschränkt."
   }
 }

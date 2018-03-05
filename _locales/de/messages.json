@@ -1,7 +1,7 @@
 {
   "about_name": {
     "description": "Name of the 'About' section, where users can see information about the extension",
-    "message": "Ueber"
+    "message": "Über"
   },
   "about_changeLog": {
     "description": "Link to the extension's list of changes per release",
@@ -17,15 +17,15 @@
   },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "Tab schliessen und URL sichern"
+    "message": "Tab schließen und URL sichern"
   },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
-    "message": "Niemals einen Tab aus dieser Domain schliessen"
+    "message": "Niemals einen Tab aus dieser Domain schließen"
   },
   "contextMenu_lockSpecificDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
-    "message": "Niemals einen Tab aus $domain$ schliessen",
+    "message": "Niemals einen Tab aus $domain$ schließen",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -35,15 +35,15 @@
   },
   "contextMenu_lockTab": {
     "description": "Label for context menu item that locks the clicked tab",
-    "message": "Niemals diesen Tab schliessen"
+    "message": "Niemals diesen Tab schließen"
   },
   "corral_currentSort": {
     "description": "Button title for showing current sort order",
-    "message": "Aktuelle Sortierreihenfolge $sort_order$",
+    "message": "Aktülle Sortierreihenfolge $sort_order$",
     "placeholders": {
       "sort_order": {
         "content": "$1",
-        "example": "Chronologisch Rueckwaerts"
+        "example": "Chronologisch Rückwärts"
       }
     }
   },
@@ -53,15 +53,15 @@
   },
   "corral_removeSelectedTabs": {
     "description": "Button title for removing all selected tabs from the corral",
-    "message": "Ausgewaehlte Tabs loeschen"
+    "message": "Ausgewählte Tabs löschen"
   },
   "corral_restoreSelectedTabs": {
     "description": "Button title for restoring / re-opening all selected tabs from the corral",
-    "message": "Ausgewaehlte Tabs wiederherstellen"
+    "message": "Ausgewählte Tabs wiederherstellen"
   },
   "corral_searchResults_clear": {
-    "description": "Button title for clearing the search value and resetting results",
-    "message": "Suchfeld loeschen"
+    "description": "Button title for clearing the search valü and resetting results",
+    "message": "Suchfeld löschen"
   },
   "corral_searchResults_label": {
     "description": "Label showing number of tab search results",
@@ -103,7 +103,7 @@
   },
   "corral_toggleAllTabs_selectAll": {
     "description": "Button title for selecting all tabs in the tab corral",
-    "message": "Alle Tabs auswaehlen"
+    "message": "Alle Tabs auswählen"
   },
   "extName": {
     "description": "The name of this extension",
@@ -129,11 +129,11 @@
   },
   "options_dedupe_label": {
     "description": "Label for the de-duplicating option",
-    "message": "Vermeiden von doppelten Eintraegen im Tab Corral:"
+    "message": "Vermeiden von doppelten Einträgen im Tab Corral:"
   },
   "options_dedupe_option_exactURLMatch": {
     "description": "Label for option to de-duplicate when URL matches exactly",
-    "message": "URL stimmt genau ueberein"
+    "message": "URL stimmt genau überein"
   },
   "options_dedupe_option_exactURLMatch_description": {
     "description": "Description for option to de-duplicate when URL matches exactly",
@@ -141,35 +141,35 @@
   },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
-    "message": "If URL matches exactly"
+    "message": "URL stimmt genau überein"
   },
   "options_dedupe_option_hostnameAndTitleMatch": {
     "description": "Label for option to de-duplicate when hostname and page title match",
-    "message": "If hostname and page title match"
+    "message": "Hostname und Seitentitel stimmen genau überein"
   },
   "options_dedupe_option_hostnameAndTitleMatch_description": {
     "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "When a tab is wrangled, it will be added to the Corral and any older tabs with the same hostname (like \"wikipedia.org\") and page title will be removed from the Corral."
+    "message": "Wenn ein Tab geschlossen und dem Corral hinzugefügt wird, dann wird ein bereits vorhandener Eintrag mit dem gleichen Hostnamen (like \"wikipedia.org\") und Seitentitel entfernt und durch den neuen Tab ersetzt."
   },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
-    "message": "If hostname and page title match"
+    "message": "Hostname und Seitentitel stimmen genau überein"
   },
   "options_dedupe_option_withDupes": {
     "description": "Label for option to never de-duplicate the tab corral",
-    "message": "Never (Default)"
+    "message": "Niemals (Default)"
   },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
-    "message": "When a tab is wrangled, it will be added to the Corral. No other changes will be made to the Corral."
+    "message": "Ein Tab wird geschlossen und dem Corral hinzugefügt. Es werden keine weiteren Änderungen am Corral durchgeführt."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
-    "message": "Never"
+    "message": "Niemals"
   },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
-    "message": "Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension."
+    "message": "Alle geschlossenen Tabs aus dem Corral exportieren. Das ist die einzige Möglichkeit ein Backup der geschlossen Tabs herzustellen und nach einer erneuten Installation der Extension den alten Zustand wiederherzustellen."
   },
   "options_importExport_export": {
     "description": "Button label to begin exporting closed tabs",
@@ -177,7 +177,7 @@
   },
   "options_importExport_exporting": {
     "description": "Label displayed when exporting closed tabs",
-    "message": "Exporting..."
+    "message": "Exportieren..."
   },
   "options_importExport_import": {
     "description": "Button label to begin importing closed tabs",
@@ -185,107 +185,107 @@
   },
   "options_importExport_importing": {
     "description": "Label displayed when importing closed tabs",
-    "message": "Importing..."
+    "message": "Importieren..."
   },
   "options_importExport_importWarning": {
     "description": "Description of the destructiveness of importing; current tabs are overwritten",
-    "message": "Warning: Importing data will overwrite all existing data. There is no way back (unless you have a backup)."
+    "message": "Achtung: Importieren eines Backup überschreibt unwiederbringlich die bestehenden Tabs im Corral. Ohne Backup gibt es keine Möglichkeit den Zustand wiederherzustellen."
   },
   "options_keyboardShortcuts_configure": {
     "description": "Link text for navigating to keyboard shortcut configuration",
-    "message": "Configure these shortcuts"
+    "message": "Tastenkombination konfigurieren"
   },
   "options_keyboardShortcuts_notSet": {
     "description": "Message shown for a shortcut when it has not been configured",
-    "message": "No shortcut set"
+    "message": "Keine Tastenkombination vorhanden"
   },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",
-    "message": "Options"
+    "message": "Optionen"
   },
   "options_option_autoLock_add": {
     "description": "Button label for adding to whitelist",
-    "message": "Add"
+    "message": "Hinzufügen"
   },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
-    "message": "No auto-locking URLs yet. Use the form above to add some to the whitelist."
+    "message": "Kein automatisch geschützten URLs vorhanden. Im oben angegeben Formular können ULs zur Whitelist hinzugefügt werden."
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
-    "message": "Example: \"cnn\" would match every page on \"https://www.cnn.com\" and any URL with \"cnn\" anywhere in it."
+    "message": "Beispiel: \"cnn\" entspricht jeder Seite auf \"https://www.cnn.com\" und jeder URL mit \"cnn\" im Namen."
   },
   "options_option_autoLock_label": {
     "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Auto-lock tabs with URLs containing:"
+    "message": "Automatisch geschützte Tabs deren URLs folgende Zeichenkette enthält:"
   },
   "options_option_autoLock_remove": {
     "description": "Button label for removing a URL from the whitelist",
-    "message": "Remove"
+    "message": "Entfernen"
   },
   "options_option_autoLock_urlHeader": {
     "description": "Table column header for list of whitelisted URL strings",
-    "message": "URL String"
+    "message": "URL"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting Chrome",
-    "message": "Clear closed tabs list on quit"
+    "message": "Liste der geschlossenen Tabs beim beenden von Chrome löschen"
   },
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
-    "message": "Reset a tab's timer only after it is active for 1 second"
+    "message": "Zurücksetzen des Timer sobald der Tab mehr als eine Sekunde aktiv ist"
   },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Auto-close tabs only if I have more than:"
+    "message": "Automatisches schließen von Tabs bei mehr als:"
   },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
-    "message": "tabs open (does not include pinned or locked tabs)."
+    "message": "geöffneten Tabs (beinhaltet nicht gepinnte oder automatisch geschützte Tabs)."
   },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
-    "message": "Must be a number greater than or equal to 0"
+    "message": "Muss eine Nummer größer oder gleich 0 sein"
   },
   "options_option_rememberTabs_label": {
     "description": "Label preceeding input for number of tabs to remember",
-    "message": "Remember up to:"
+    "message": "Anzahl Tabs zu erinnern:"
   },
   "options_option_rememberTabs_postLabel": {
     "description": "Label following input for number of tabs to remember",
-    "message": "closed tabs."
+    "message": "geschlossene Tabs."
   },
   "options_option_rememberTabs_tabs": {
     "description": "Input title for number of tabs to remember",
-    "message": "Must be a number greater than or equal to 0"
+    "message": "Muss eine Nummer größer oder gleich 0 sein"
   },
   "options_option_showBadgeCount_label": {
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
-    "message": "Show # of closed tabs in URL bar"
+    "message": "Anzahl geschlossener Tabs in der URL Zeile anzeigen"
   },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "Close inactive tabs after:"
+    "message": "Schließen von inaktiven Tabs nach:"
   },
   "options_option_timeInactive_minutes": {
     "description": "Input title for number of minutes before closing tabs",
-    "message": "Must be a number greater than 0 and less than 7200"
+    "message": "Muss eine Nummer zwischen 0 und 2700 sein"
   },
   "options_option_timeInactive_postLabel": {
     "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "minutes : seconds"
+    "message": "Minuten : Sekunden"
   },
   "options_option_timeInactive_seconds": {
     "description": "Input title for number of seconds before closing tabs",
-    "message": "Must be a number greater than 0 and less than 60"
+    "message": "Muss eine Nummer zwischen 0 und 60 sein"
   },
   "options_saving": {
     "desciption": "Message displayed when options are being saved",
-    "message": "Saving..."
+    "message": "Speichern..."
   },
   "options_section_autoLock": {
     "description": "Header for the auto-lock section of the options tab",
-    "message": "Auto-Lock"
+    "message": "Automatischer Schutz"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -293,11 +293,11 @@
   },
   "options_section_keyboardShortcuts": {
     "description": "Header for the section containing keyboard shortcut configuration",
-    "message": "Keyboard Shortcuts"
+    "message": "Tastatenkombination"
   },
   "options_section_settings": {
     "description": "Header for settings section of the options tab",
-    "message": "Settings"
+    "message": "Einstellungen"
   },
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
@@ -305,7 +305,7 @@
   },
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
-    "message": "Locked"
+    "message": "Geschützt"
   },
   "tabLock_lockedReason_matches": {
     "description": "Label for a tab that is locked because it matches the whitelist",
@@ -319,26 +319,26 @@
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",
-    "message": "Paused"
+    "message": "Pausiert"
   },
   "tabLock_lockedReason_pinned": {
     "description": "Label for a tab that is locked because it's pinned",
-    "message": "Pinned"
+    "message": "Gepinnt"
   },
   "tabLock_lockedReason_audible": {
     "description": "Label for a tab that is locked because it's audible",
-    "message": "Tabs playing audio will not be closed"
+    "message": "Tabs die Ton abspielen nicht schliessen"
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
-    "message": "Check a tab's box to lock the tab (prevent it from auto-closing)."
+    "message": "Auswählen der Checkbox verhindert das automatische schliessen des Tabs."
   },
   "tabLock_name": {
     "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
-    "message": "Tab Lock"
+    "message": "Tab Schutz"
   },
   "tabLock_remainingTimeLabel": {
     "description": "Explanation of time remaining before tab is closed",
-    "message": "Closing in..."
+    "message": "Schliessen in..."
   }
 }

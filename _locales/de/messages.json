@@ -215,6 +215,10 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Zurücksetzen des Timer sobald der Tab mehr als eine Sekunde aktiv ist"
   },
+  "options_option_filterAudio_label": {
+    "description": "Label for checkbox to filter tabs that are playing audio",
+    "message": "Tabs die Ton abspielen nicht schliessen"
+  },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
     "message": "Automatisches schließen von Tabs bei mehr als:"

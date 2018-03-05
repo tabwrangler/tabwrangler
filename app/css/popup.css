@@ -7,20 +7,8 @@ body {
   width: 700px;
 }
 
-.table td {
-  font-size: 11px;
-}
-
-#corralTable > tbody > tr:first-child > td {
-  border-top: none;
-}
-
-.table > tbody > tr:last-child > td {
-  border-bottom: 1px solid #ddd;
-}
-
 .nav-buttons {
-  margin: 9px;
+  margin: 8px 9px;
 }
 
 .btn-remove {
@@ -37,9 +25,10 @@ body {
   width: 20px;
 }
 
-.table .faviconCol {
-  text-align: center;
-  width: 21px;
+.favicon {
+  display: inline-block;
+  height: 16px;
+  width: 16px;
 }
 
 .tab-pane {
@@ -97,9 +86,8 @@ body {
   outline: none;
 }
 
-.btn-chunky {
-  padding-left: 18px;
-  padding-right: 18px;
+.btn-xs {
+  padding: 2px 10px;
 }
 
 /**
@@ -113,38 +101,6 @@ body {
 .alert-leave.alert-leave-active {
   opacity: 0.01;
   transition: opacity 400ms ease-in;
-}
-
-/**
- * Transitions for fading out LazyImage placeholders and fading in the images.
- */
-
-.lazy-image-container {
-  position: relative;
-}
-
-.lazy-image-enter {
-  opacity: 0.01;
-}
-
-.lazy-image-enter.lazy-image-enter-active {
-  opacity: 1;
-  transition: opacity 250ms ease-in;
-}
-
-/**
- * Position the placeholder absolutely when starting to leave so the `<img>` is in the page flow to
- * maintain the height of the container and so this gray fades out on top of the `<img>`.
- */
-.lazy-image-leave {
-  opacity: 1;
-  position: absolute;
-  top: 0;
-}
-
-.lazy-image-leave.lazy-image-leave-active {
-  opacity: 0.01;
-  transition: opacity 250ms ease-in;
 }
 
 input.checkbox--td {

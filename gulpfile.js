@@ -6,6 +6,8 @@ const fs = require('fs');
 const gulp = require('gulp');
 const gutil = require('gulp-util');
 const jest = require('gulp-jest').default;
+const jsonTransform = require('gulp-json-transform');
+const lodash = require('lodash');
 const rimraf = require('rimraf');
 const runSequence = require('run-sequence');
 const watch = require('gulp-watch');
@@ -25,10 +27,7 @@ gulp.task('clean', function(done) {
 // Copy any files that don't require pre-processing.
 gulp.task('cp', function() {
   const cpApp = gulp.src([
-    'app/css/**',
     'app/img/**',
-    'app/lib/**',
-    'app/*.html',
   ], {base: 'app'})
     .pipe(gulp.dest(DIST_DIRECTORY));
 
@@ -38,7 +37,6 @@ gulp.task('cp', function() {
     .pipe(gulp.dest(DIST_DIRECTORY));
 
   const cpRoot = gulp.src([
-    '_locales/**/*',
     'MIT-LICENSE.txt',
     'README.md',
   ], {base: '.'})
@@ -58,6 +56,19 @@ gulp.task('lint', function() {
     // To have the process exit with an error code (1) on
     // lint error, return the stream and pipe to failAfterError last.
     .pipe(eslint.failAfterError());
+});
+
+gulp.task('locales', function() {
+  return gulp.src('_locales/**/*.json', {base: '.'})
+    .pipe(jsonTransform(function(messages) {
+      return Object.keys(messages).reduce(function(result, messageId) {
+        // Omit the 'description' because it is only useful during development for translators.
+        // Those bytes do not need to be shipped to users.
+        result[messageId] = lodash.omit(messages[messageId], 'description');
+        return result;
+      }, {});
+    }))
+    .pipe(gulp.dest(DIST_DIRECTORY));
 });
 
 gulp.task('test', function () {
@@ -125,7 +136,7 @@ gulp.task('webpack:watch', function(done) {
 // eslint-disable-next-line no-unused-vars
 gulp.task('watch', function(done) {
   watch('_locales/**/*', function() {
-    gulp.start('cp');
+    gulp.start('locales');
   });
   watch('app/**/!(*.js)', function() {
     gulp.start('cp');
@@ -138,7 +149,7 @@ gulp.task('watch', function(done) {
     gulp.start('lint');
     gulp.start('test');
   });
-  gulp.start(['cp', 'lint', 'webpack:watch']);
+  gulp.start(['cp', 'lint', 'locales', 'test', 'webpack:watch']);
 });
 
 gulp.task('archive', function(done) {
@@ -169,11 +180,20 @@ gulp.task('archive', function(done) {
 });
 
 gulp.task('release', function(done) {
-  runSequence('clean', 'cp', 'lint', 'test', 'webpack:production', 'archive', function() {
-    done();
-  });
+  runSequence(
+    'clean',
+    'cp',
+    'locales',
+    'lint',
+    'test',
+    'webpack:production',
+    'archive',
+    function() {
+      done();
+    }
+  );
 });
 
 gulp.task('default', function(done) {
-  runSequence('cp', 'lint', 'webpack', done);
+  runSequence('cp', 'locales', 'lint', 'webpack', done);
 });

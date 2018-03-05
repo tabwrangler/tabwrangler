@@ -67,17 +67,22 @@ const TabManager = {
       chrome.storage.local.set({savedTabs: this.tabs});
     },
 
-    unwrangleTabs(tabs: Array<Object>) {
+    unwrangleTabs(sessionTabs: Array<{session: ?chrome$Session, tab: chrome$Tab}>) {
       const installDate = TW.storageLocal.get('installDate');
       let countableTabsUnwrangled = 0;
-      tabs.forEach(tab => {
-        chrome.tabs.create({active: false, url: tab.url});
-        this.removeTab(tab.id);
+      sessionTabs.forEach(sessionTab => {
+        if (sessionTab.session == null || sessionTab.session.tab == null) {
+          chrome.tabs.create({active: false, url: sessionTab.tab.url});
+        } else {
+          chrome.sessions.restore(sessionTab.session.tab.sessionId);
+        }
+        this.removeTab(sessionTab.tab.id);
 
         // Count only those tabs closed after install date because users who upgrade will not have
         // an accurate count of all tabs closed. The updaters' install dates will be the date of
         // the upgrade, after which point TW will keep an accurate count of closed tabs.
-        if (tab.closedAt >= installDate) countableTabsUnwrangled++;
+        // $FlowFixMe
+        if (sessionTab.tab.closedAt >= installDate) countableTabsUnwrangled++;
       });
 
       const totalTabsUnwrangled = TW.storageLocal.get('totalTabsUnwrangled');

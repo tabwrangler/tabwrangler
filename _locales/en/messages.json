@@ -77,26 +77,6 @@
     "description": "Text input placeholder for searching list of closed tabs",
     "message": "Search tabs..."
   },
-  "corral_sort": {
-    "description": "Button label for sorting list of closed tabs",
-    "message": "Sort"
-  },
-  "corral_sortAlpha": {
-    "description": "Label for sorting the tab corral list alphabetically (A -> Z)",
-    "message": "Alpha"
-  },
-  "corral_sortChrono": {
-    "description": "Label for sorting the tab corral list chronologically (2000 -> 2020)",
-    "message": "Chrono"
-  },
-  "corral_sortReverseAlpha": {
-    "description": "Label for sorting the tab corral list reverse alphabetically (Z -> A)",
-    "message": "Reverse Alpha"
-  },
-  "corral_sortReverseChrono": {
-    "description": "Label for sorting the tab corral list reverse chronologically (2020 -> 2000)",
-    "message": "Reverse Chrono"
-  },
   "corral_toggleAllTabs_deselectAll": {
     "description": "Button title for deselecting all tabs in the tab corral",
     "message": "Deselect all tabs"
@@ -340,5 +320,96 @@
   "tabLock_remainingTimeLabel": {
     "description": "Explanation of time remaining before tab is closed",
     "message": "Closing in..."
+  },
+  "corral_tabsWrangled": {
+    "description": "Label preceeding the number of tabs wrangled by this extension",
+    "message": "tabs wrangled"
+  },
+  "corral_tabsWrangled_formula": {
+    "description": "Title describing how % of tabs wrangled is calculated",
+    "message": "tabs closed by Tab Wrangler / all tabs closed"
+  },
+  "corral_tabsWrangled_or": {
+    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
+    "message": "or"
+  },
+  "settings_setmaxTabs_error": {
+    "description": "Error shown when invalid max tabs setting is supplied.",
+    "message": "Max tabs must be a number between 1 and 500. Setting this too high can cause performance issues"
+  },
+  "settings_setminTabs_error": {
+    "description": "Error shown when invalid min tabs setting is supplied.",
+    "message": "Minimum tabs must be a number greater than or equal to 0"
+  },
+  "settings_setminutesInactive_error": {
+    "description": "Error shown when invalid minutes inactive setting is supplied.",
+    "message": "Minutes Inactive must be greater than or equal to 0"
+  },
+  "settings_setsecondsInactive_error": {
+    "description": "Error shown when invalid seconds inactive setting is supplied.",
+    "message": "Seconds Inactive must be greater than or equal to 0 and less than 60"
+  },
+
+  "corral_sortBy": {
+    "description": "Label prefixing sort order of the tab corral",
+    "message": "Sort by:"
+  },
+  "corral_sortPageTitle": {
+    "description": "Label for sorting the tab corral list by page title",
+    "message": "Page title"
+  },
+  "corral_sortPageTitle_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title",
+    "message": "Page title"
+  },
+  "corral_sortPageTitle_descending": {
+    "description": "Label for sorting the tab corral list by page title in descending order",
+    "message": "Page title (descending)"
+  },
+  "corral_sortPageTitle_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title in descending order",
+    "message": "Page title (desc.)"
+  },
+  "corral_sortTimeClosed": {
+    "description": "Label for sorting the tab corral list by tab closed time",
+    "message": "Time closed"
+  },
+  "corral_sortTimeClosed_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time",
+    "message": "Time closed"
+  },
+  "corral_sortTimeClosed_descending": {
+    "description": "Label for sorting the tab corral list by tab closed time in descending order",
+    "message": "Time closed (descending)"
+  },
+  "corral_sortTimeClosed_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time in descending order",
+    "message": "Time closed (desc.)"
+  },
+  "corral_sortDomain": {
+    "description": "Label for sorting the tab corral list by domain",
+    "message": "Domain"
+  },
+  "corral_sortDomain_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain",
+    "message": "Domain"
+  },
+  "corral_sortDomain_descending": {
+    "description": "Label for sorting the tab corral list by domain in descending order",
+    "message": "Domain (descending)"
+  },
+  "corral_sortDomain_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
+    "message": "Domain (desc.)"
+  },
+
+  "extDescription": {
+    "description": "Brief description of the extension",
+    "message": "Automatically closes inactive tabs and makes it easy to get them back"
+  },
+
+  "corral_tabSessionFresh": {
+    "description": "Tooltip describing why certain tabs will have their full session restored",
+    "message": "Restoring this tab will restore its entire session: history, scroll position, etc. This is limited by the browser to the last 25 closed tabs."
   }
 }

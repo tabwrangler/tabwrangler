@@ -108,8 +108,8 @@ const Settings = {
   setmaxTabs(value: string) {
     if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 1 || parseInt(value, 10) > 500 ) {
       throw Error(
-        'Max tabs must be a number between 1 and 500. ' +
-        'Setting this too high can cause performance issues'
+        chrome.i18n.getMessage('settings_setmaxTabs_error') ||
+        'Error: settings.setmaxTabs'
       );
     }
     Settings.setValue('maxTabs', value);
@@ -122,7 +122,10 @@ const Settings = {
    */
   setminTabs(value: string) {
     if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0 ) {
-      throw Error('Minimum tabs must be a number greater than or equal to 0');
+      throw Error(
+        chrome.i18n.getMessage('settings_setminTabs_error') ||
+        'Error: settings.setminTabs'
+      );
     }
     Settings.setValue('minTabs', value);
   },
@@ -135,7 +138,10 @@ const Settings = {
   setminutesInactive(value: string): void {
     const minutes = parseInt(value, 10);
     if (isNaN(minutes) || minutes < 0) {
-      throw Error('Minutes Inactive must be greater than or equal to 0');
+      throw Error(
+        chrome.i18n.getMessage('settings_setminutesInactive_error') ||
+        'Error: settings.setminutesInactive'
+      );
     }
 
     // Reset the tabTimes since we changed the setting
@@ -152,7 +158,10 @@ const Settings = {
   setsecondsInactive(value: string): void {
     const seconds = parseInt(value, 10);
     if ( isNaN(seconds) || seconds < 0 || seconds > 59 ) {
-      throw Error('Seconds Inactive must be greater than or equal to 0 and less than 60');
+      throw Error(
+        chrome.i18n.getMessage('settings_setsecondsInactive_error') ||
+        'Error: setsecondsInactive'
+      );
     }
 
     // Reset the tabTimes since we changed the setting

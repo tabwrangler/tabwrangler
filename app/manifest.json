@@ -1,10 +1,10 @@
 {
   "manifest_version": 2,
   "name": "__MSG_extName__",
-  "version": "5.6.1",
+  "version": "5.10.1",
 
   "default_locale": "en",
-  "description": "Automatically closes inactive tabs and makes it easy to get them back",
+  "description": "__MSG_extDescription__",
   "icons": {
     "128": "img/icon128.png",
     "48": "img/icon48.png",
@@ -35,7 +35,9 @@
     "page": "popup.html"
   },
   "permissions": [
+    "chrome://favicon/",
     "contextMenus",
+    "sessions",
     "storage",
     "tabs"
   ],

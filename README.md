@@ -66,7 +66,8 @@ tabs that you wanted to save.
 
         $ yarn run watch
 4. Open the Extensions page in Chrome via *Window > Extensions*
-5. Click "Load unpacked extension..." and select the `dist/` directory created in Step 2
+5. Check the "Developer mode" checkbox in upper right
+6. Click the "Load unpacked extension..." button and select the `dist/` directory created in step 3.
 
 ### Building for Release
 
@@ -78,12 +79,15 @@ tabs that you wanted to save.
 
 ### Translators
 
+* Korean translation by [simple-is-best](https://github.com/simple-is-best)
+* Russian translation by [Voknehzyr](https://github.com/Voknehzyr)
+
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how you can help make Tab Wrangler available in more languages.
 
 ### Developers
 
-* Modernized by [ssorallen](https://github.com/ssorallen) in 2017.
-* Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012.
-* Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010.
+* Modernized by [ssorallen](https://github.com/ssorallen) in 2017
+* Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012
+* Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010
 
 [0]: https://yarnpkg.com/lang/en/docs/install/

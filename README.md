@@ -79,8 +79,9 @@ tabs that you wanted to save.
 
 ### Translators
 
-* Korean translation by [simple-is-best](https://github.com/simple-is-best)
-* Russian translation by [Voknehzyr](https://github.com/Voknehzyr)
+* 🇩🇪 German translation by [ingorichter](https://github.com/ingorichter)
+* 🇰🇷 Korean translation by [simple-is-best](https://github.com/simple-is-best)
+* 🇷🇺 Russian translation by [Voknehzyr](https://github.com/Voknehzyr)
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how you can help make Tab Wrangler available in more languages.
 

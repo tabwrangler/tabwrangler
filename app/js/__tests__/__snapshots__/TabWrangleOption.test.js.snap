@@ -16,7 +16,7 @@ exports[`should render options with exactURLMatch selected 1`] = `
         className="form-check-input"
         id="withDupes"
         name="wrangleOption"
-        onChange={[Function]}
+        onChange={[MockFunction]}
         type="radio"
         value="withDupes"
       />
@@ -33,7 +33,7 @@ exports[`should render options with exactURLMatch selected 1`] = `
         className="form-check-input"
         id="exactURLMatch"
         name="wrangleOption"
-        onChange={[Function]}
+        onChange={[MockFunction]}
         type="radio"
         value="exactURLMatch"
       />
@@ -50,7 +50,7 @@ exports[`should render options with exactURLMatch selected 1`] = `
         className="form-check-input"
         id="hostnameAndTitleMatch"
         name="wrangleOption"
-        onChange={[Function]}
+        onChange={[MockFunction]}
         type="radio"
         value="hostnameAndTitleMatch"
       />
@@ -128,7 +128,7 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
         className="form-check-input"
         id="withDupes"
         name="wrangleOption"
-        onChange={[Function]}
+        onChange={[MockFunction]}
         type="radio"
         value="withDupes"
       />
@@ -145,7 +145,7 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
         className="form-check-input"
         id="exactURLMatch"
         name="wrangleOption"
-        onChange={[Function]}
+        onChange={[MockFunction]}
         type="radio"
         value="exactURLMatch"
       />
@@ -162,7 +162,7 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
         className="form-check-input"
         id="hostnameAndTitleMatch"
         name="wrangleOption"
-        onChange={[Function]}
+        onChange={[MockFunction]}
         type="radio"
         value="hostnameAndTitleMatch"
       />
@@ -240,7 +240,7 @@ exports[`should render options with withDupes selected 1`] = `
         className="form-check-input"
         id="withDupes"
         name="wrangleOption"
-        onChange={[Function]}
+        onChange={[MockFunction]}
         type="radio"
         value="withDupes"
       />
@@ -257,7 +257,7 @@ exports[`should render options with withDupes selected 1`] = `
         className="form-check-input"
         id="exactURLMatch"
         name="wrangleOption"
-        onChange={[Function]}
+        onChange={[MockFunction]}
         type="radio"
         value="exactURLMatch"
       />
@@ -274,7 +274,7 @@ exports[`should render options with withDupes selected 1`] = `
         className="form-check-input"
         id="hostnameAndTitleMatch"
         name="wrangleOption"
-        onChange={[Function]}
+        onChange={[MockFunction]}
         type="radio"
         value="hostnameAndTitleMatch"
       />

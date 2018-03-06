@@ -42,7 +42,7 @@
     "gulp-jest": "^4.0.2",
     "gulp-json-transform": "^0.4.5",
     "gulp-util": "^3.0.8",
-    "gulp-watch": "^4.3.11",
+    "gulp-watch": "^5.0.0",
     "html-webpack-plugin": "^2.30.1",
     "jest-cli": "^22.4.2",
     "react-test-renderer": "^16.2.0",

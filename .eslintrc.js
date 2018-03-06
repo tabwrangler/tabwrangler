@@ -2,17 +2,9 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
-    node: true,
-  },
-  globals: {
-    afterEach: true,
-    beforeEach: true,
-    chrome: true,
-    describe: true,
-    expect: true,
-    global: true,
     jest: true,
-    test: true,
+    node: true,
+    webextensions: true,
   },
   extends: [
     'eslint:recommended',

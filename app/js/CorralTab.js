@@ -182,11 +182,13 @@ export default class CorralTab extends React.Component<Props, State> {
     // hoisted so this component does not need to track whether it's mounted.
     tabmanager.searchTabs(this.setClosedTabs);
     window.addEventListener('click', this._handleWindowClick);
+    window.addEventListener('keypress', this._handleKeypress);
   }
 
   componentWillUnmount() {
     clearTimeout(this._searchRefFocusTimeout);
     window.removeEventListener('click', this._handleWindowClick);
+    window.removeEventListener('keypress', this._handleKeypress);
   }
 
   _areAllClosedTabsSelected() {
@@ -214,6 +216,18 @@ export default class CorralTab extends React.Component<Props, State> {
       });
     }
   }
+
+  _handleKeypress = (event: SyntheticKeyboardEvent<>) => {
+    if (event.key !== '/') return;
+
+    // Focus and prevent default only if the input is not already active. This way the intial act of
+    // focusing does not print a '/' character, but if the input is already active then '/' can be
+    // typed.
+    if (this._searchRef != null && document.activeElement !== this._searchRef) {
+      this._searchRef.focus();
+      event.preventDefault();
+    }
+  };
 
   _handleRemoveSelectedTabs = () => {
     const tabs = this.state.closedTabs.filter(tab => this.state.selectedTabs.has(tab));

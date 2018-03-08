@@ -3,10 +3,10 @@
 import './lib/bootstrap/css/bootstrap.min.css';
 import './css/popup.css';
 import 'react-virtualized/styles.css';
+import NavBar, {type NavBarTabID} from './js/NavBar';
 import AboutTab from './js/AboutTab';
 import CorralTab from './js/CorralTab';
 import LockTab from './js/LockTab';
-import NavBar from './js/NavBar';
 import OptionsTab from './js/OptionsTab';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -17,7 +17,7 @@ type Props = {
 };
 
 type State = {
-  activeTabId: string,
+  activeTabId: NavBarTabID,
 };
 
 class Popup extends React.PureComponent<Props, State> {

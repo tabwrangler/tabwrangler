@@ -3,9 +3,11 @@
 import PauseButton from './PauseButton';
 import React from 'react';
 
+export type NavBarTabID = 'about' | 'corral' | 'lock' | 'options';
+
 type Props = {
-  activeTabId: string;
-  onClickTab: (tabId: string) => void;
+  activeTabId: NavBarTabID;
+  onClickTab: (tabId: NavBarTabID) => void;
 };
 
 export default class NavBar extends React.PureComponent<Props> {

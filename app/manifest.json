@@ -31,9 +31,6 @@
   },
   "minimum_chrome_version": "28",
   "options_page": "popup.html",
-  "options_ui": {
-    "page": "popup.html"
-  },
   "permissions": [
     "chrome://favicon/",
     "contextMenus",

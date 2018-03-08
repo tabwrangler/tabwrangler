@@ -7,6 +7,11 @@ body {
   width: 700px;
 }
 
+.container {
+  /* Override any @media queries inside Bootstrap */
+  width: auto !important;
+}
+
 .nav-buttons {
   margin: 8px 9px;
 }

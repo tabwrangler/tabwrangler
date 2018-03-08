@@ -3,6 +3,7 @@
 import './lib/bootstrap/css/bootstrap.min.css';
 import './css/popup.css';
 import 'react-virtualized/styles.css';
+import AboutTab from './js/AboutTab';
 import CorralTab from './js/CorralTab';
 import LockTab from './js/LockTab';
 import NavBar from './js/NavBar';
@@ -10,51 +11,17 @@ import OptionsTab from './js/OptionsTab';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-function AboutTab() {
-  return (
-    <div className="tab-pane active">
-      <p>{chrome.i18n.getMessage('extName')} v{chrome.runtime.getManifest().version}</p>
-      <ul>
-        <li>
-          <a
-            href="https://github.com/tabwrangler/tabwrangler/releases"
-            rel="noopener noreferrer"
-            target="_blank">
-            {chrome.i18n.getMessage('about_changeLog')}
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://github.com/tabwrangler/tabwrangler/issues"
-            rel="noopener noreferrer"
-            target="_blank">
-            {chrome.i18n.getMessage('about_support')}
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://github.com/tabwrangler/tabwrangler"
-            rel="noopener noreferrer"
-            target="_blank">
-            {chrome.i18n.getMessage('about_sourceCode')}
-          </a>
-        </li>
-      </ul>
-    </div>
-  );
-}
-
-type PopupContentProps = {
+type Props = {
   commands: Array<chrome$Command>,
   sessions: Array<chrome$Session>,
 };
 
-type PopupContentState = {
+type State = {
   activeTabId: string,
 };
 
-class PopupContent extends React.PureComponent<PopupContentProps, PopupContentState> {
-  constructor(props: PopupContentProps) {
+class Popup extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       activeTabId: 'corral',
@@ -96,7 +63,7 @@ class PopupContent extends React.PureComponent<PopupContentProps, PopupContentSt
 function render(props) {
   const popupElement = document.getElementById('popup');
   if (popupElement == null) return;
-  ReactDOM.render(<PopupContent {...props} />, popupElement);
+  ReactDOM.render(<Popup {...props} />, popupElement);
 }
 
 let state = {

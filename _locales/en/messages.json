@@ -415,5 +415,10 @@
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",
     "message": "Restoring this tab will restore its entire session: history, scroll position, etc. This is limited by the browser to the last 25 closed tabs."
+  },
+
+  "corral_noTabsMatch": {
+    "description": "Message shown when no tabs match the user's search query",
+    "message": "No tabs match your query. Try a new query or a less specific one."
   }
 }

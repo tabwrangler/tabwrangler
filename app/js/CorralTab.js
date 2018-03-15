@@ -120,6 +120,20 @@ function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab) {
     Math.abs(session.lastModified * 1000 - tab.closedAt) < 1000;
 }
 
+function noRowsRenderer() {
+  return (
+    <div aria-label="row" className="ReactVirtualized__Table__row" role="row">
+      <div
+        className="ReactVirtualized__Table__rowColumn text-center"
+        style={{flex: 1, padding: '8px'}}>
+        {tabmanager.closedTabs.tabs.length === 0 ?
+          chrome.i18n.getMessage('corral_emptyList') :
+          chrome.i18n.getMessage('corral_noTabsMatch')}
+      </div>
+    </div>
+  );
+}
+
 function rowRenderer({key, rowData, style}) {
   const {tab} = rowData;
   const tabId = tab.id;
@@ -192,7 +206,8 @@ export default class CorralTab extends React.Component<Props, State> {
   }
 
   _areAllClosedTabsSelected() {
-    return this.state.closedTabs.every(tab => this.state.selectedTabs.has(tab));
+    return this.state.closedTabs.length > 0 &&
+      this.state.closedTabs.every(tab => this.state.selectedTabs.has(tab));
   }
 
   _clearFilter = () => {
@@ -495,6 +510,7 @@ export default class CorralTab extends React.Component<Props, State> {
                 headerHeight={0}
                 height={height}
                 isScrolling={isScrolling}
+                noRowsRenderer={noRowsRenderer}
                 onScroll={onChildScroll}
                 rowCount={this.state.closedTabs.length}
                 rowGetter={({index}) => {

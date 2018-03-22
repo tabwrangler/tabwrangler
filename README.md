@@ -75,7 +75,7 @@ described in the following table:
 | `purgeClosedTabs`     | `false`         |                   | Whether to empty the closed tab list when the browser closes |
 | `secondsInactive`     | `0`             | `0` <= `secondsInactive`          | How much time (+ `minutesInactive`) before a tab is considered "stale" and ready to close |
 | `showBadgeCount`      | `true`          |                   | Whether to show the length of the closed tab list as a badge on the URL bar icon |
-| `whitelist`           | `['chrome://']` |                   | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never locked |
+| `whitelist`           | `['chrome://']` |                   | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed |
 | `wrangleOption`       | `'withDupes'`   | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'` | How to handle duplicate entries in the closed tabs list |
 
 ## Credits

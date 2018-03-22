@@ -64,7 +64,7 @@ described in the following table:
 
 | Setting               | Default         | Possible Values   | Description |
 | --------------------- | --------------- | ----------------- | ----------- |
-| `checkInterval`       | `5000`          |                   | How often Tab Wrangler should check for stale tabs to close (in milliseconds) |
+| `checkInterval`       | `5000`          | `0` < `checkInterval` | How often Tab Wrangler should check for stale tabs to close (in milliseconds) |
 | `debounceOnActivated` | `false`         |                   | Whether to wait 1 second before resetting the active tab's timer |
 | `filterAudio`         | `false`         |                   | Whether to prevent auto-closing tabs that are playing audio |
 | `lockedIds`           | `[]`            |                   | Array of tab IDs that have been explicitly locked by the user |

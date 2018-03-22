@@ -59,8 +59,9 @@ tabs that you wanted to save.
 
 ### Settings
 
-Tab Wrangler's settings are preserved when exporting. Their possible values and their usages are
-described in the following table:
+Tab Wrangler's settings are saved and synced by your browser, like [Chrome sync][0] for example, to
+all of your logged in browser sessions if you have sync enabled. Their possible values and their
+usages are described in the following table:
 
 | Setting               | Default         | Possible Values   | Description |
 | --------------------- | --------------- | ----------------- | ----------- |
@@ -94,3 +95,5 @@ make Tab Wrangler available in more languages.
 * Modernized and maintained by [ssorallen](https://github.com/ssorallen) in 2017
 * Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012
 * Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010
+
+[0]: https://chrome.google.com/sync

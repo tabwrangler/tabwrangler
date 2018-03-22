@@ -57,6 +57,27 @@ tabs that you wanted to save.
 5. Select the file created during back up, it will be named similarly to
    "TabWranglerExport-6-18-2017.json"
 
+### Settings
+
+Tab Wrangler's settings are preserved when exporting. Their possible values and their usages are
+described in the following table:
+
+| Setting               | Default         | Possible Values   | Description |
+| --------------------- | --------------- | ----------------- | ----------- |
+| `checkInterval`       | `5000`          |                   | How often Tab Wrangler should check for stale tabs to close (in milliseconds) |
+| `debounceOnActivated` | `false`         |                   | Whether to wait 1 second before resetting the active tab's timer |
+| `filterAudio`         | `false`         |                   | Whether to prevent auto-closing tabs that are playing audio |
+| `lockedIds`           | `[]`            |                   | Array of tab IDs that have been explicitly locked by the user |
+| `maxTabs`             | `100`           | `0` <= `maxTabs` <= `500` | Maximum number of tabs to keep in the tab list |
+| `minTabs`             | `5`             | `0` <= `minTabs`          | Auto-close tabs only if there are more than this number open |
+| `minutesInactive`     | `20`            | `0` <= `minutesInactive`          | How much time (+ `secondsInactive`) before a tab is considered "stale" and ready to close |
+| `paused`              | `false`         |                   | Whether TabWrangler is paused (shouldn't count down) |
+| `purgeClosedTabs`     | `false`         |                   | Whether to empty the closed tab list when the browser closes |
+| `secondsInactive`     | `0`             | `0` <= `secondsInactive`          | How much time (+ `minutesInactive`) before a tab is considered "stale" and ready to close |
+| `showBadgeCount`      | `true`          |                   | Whether to show the length of the closed tab list as a badge on the URL bar icon |
+| `whitelist`           | `['chrome://']` |                   | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never locked |
+| `wrangleOption`       | `'withDupes'`   | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'` | How to handle duplicate entries in the closed tabs list |
+
 ## Credits
 
 ### Translators

@@ -14,7 +14,8 @@ Helps you focus by auto-closing tabs that you haven't used in a while.
 
 ## Installation
 
-1. Install the extension from the Chrome Web Store https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
+Install the extension from the Chrome Web Store:
+https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
 
 ## Usage
 
@@ -63,21 +64,21 @@ Tab Wrangler's settings are saved and synced by your browser, like [Chrome sync]
 all of your logged in browser sessions if you have sync enabled. Their possible values and their
 usages are described in the following table:
 
-| Setting               | Default         | Possible Values   | Description |
-| --------------------- | --------------- | ----------------- | ----------- |
-| `checkInterval`       | `5000`          | `0` < `checkInterval` | How often Tab Wrangler should check for stale tabs to close (in milliseconds) |
-| `debounceOnActivated` | `false`         |                   | Whether to wait 1 second before resetting the active tab's timer |
-| `filterAudio`         | `false`         |                   | Whether to prevent auto-closing tabs that are playing audio |
-| `lockedIds`           | `[]`            |                   | Array of tab IDs that have been explicitly locked by the user |
-| `maxTabs`             | `100`           | `0` <= `maxTabs` <= `500` | Maximum number of tabs to keep in the tab list |
-| `minTabs`             | `5`             | `0` <= `minTabs`          | Auto-close tabs only if there are more than this number open |
-| `minutesInactive`     | `20`            | `0` <= `minutesInactive`          | How much time (+ `secondsInactive`) before a tab is considered "stale" and ready to close |
-| `paused`              | `false`         |                   | Whether TabWrangler is paused (shouldn't count down) |
-| `purgeClosedTabs`     | `false`         |                   | Whether to empty the closed tab list when the browser closes |
-| `secondsInactive`     | `0`             | `0` <= `secondsInactive`          | How much time (+ `minutesInactive`) before a tab is considered "stale" and ready to close |
-| `showBadgeCount`      | `true`          |                   | Whether to show the length of the closed tab list as a badge on the URL bar icon |
-| `whitelist`           | `['chrome://']` |                   | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed |
-| `wrangleOption`       | `'withDupes'`   | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'` | How to handle duplicate entries in the closed tabs list |
+| Setting               | Default         | Possible Values                                             | Description                                                                                         |
+| --------------------- | --------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `checkInterval`       | `5000`          | `0` < `checkInterval`                                       | How often Tab Wrangler should check for stale tabs to close (in milliseconds)                       |
+| `debounceOnActivated` | `false`         |                                                             | Whether to wait 1 second before resetting the active tab's timer                                    |
+| `filterAudio`         | `false`         |                                                             | Whether to prevent auto-closing tabs that are playing audio                                         |
+| `lockedIds`           | `[]`            |                                                             | Array of tab IDs that have been explicitly locked by the user                                       |
+| `maxTabs`             | `100`           | `0` <= `maxTabs` <= `500`                                   | Maximum number of tabs to keep in the tab list                                                      |
+| `minTabs`             | `5`             | `0` <= `minTabs`                                            | Auto-close tabs only if there are more than this number open                                        |
+| `minutesInactive`     | `20`            | `0` <= `minutesInactive`                                    | How much time (+ `secondsInactive`) before a tab is considered "stale" and ready to close           |
+| `paused`              | `false`         |                                                             | Whether TabWrangler is paused (shouldn't count down)                                                |
+| `purgeClosedTabs`     | `false`         |                                                             | Whether to empty the closed tab list when the browser closes                                        |
+| `secondsInactive`     | `0`             | `0` <= `secondsInactive`                                    | How much time (+ `minutesInactive`) before a tab is considered "stale" and ready to close           |
+| `showBadgeCount`      | `true`          |                                                             | Whether to show the length of the closed tab list as a badge on the URL bar icon                    |
+| `whitelist`           | `['chrome://']` |                                                             | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed |
+| `wrangleOption`       | `'withDupes'`   | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'` | How to handle duplicate entries in the closed tabs list                                             |
 
 ## Credits
 

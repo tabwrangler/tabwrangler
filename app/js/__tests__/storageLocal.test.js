@@ -26,12 +26,12 @@ test('should refresh cache after localstorage changed', () => {
   storageLocal.init();
 
   // update local storage with default entries
-  expect(Object.keys(storageLocal.cache).length).toBe(4);
+  expect(Object.keys(storageLocal.cache).length).toBe(5);
 
   // replace the savedTabs
   storageLocal.setValue('savedTabs', [{test: 'new Value'}]);
 
   // cache must be updated
-  expect(Object.keys(storageLocal.cache).length).toBe(5);
+  expect(Object.keys(storageLocal.cache).length).toBe(6);
   expect(storageLocal.cache['savedTabs']).toEqual([{ test: 'new Value' }]);
 });

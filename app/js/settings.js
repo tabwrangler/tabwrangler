@@ -1,10 +1,8 @@
 /* @flow */
+/* global TW */
 
 import tabmanager from './tabmanager';
 
-/**
- * @type {Object}
- */
 const Settings = {
   cache: {},
 
@@ -69,10 +67,6 @@ const Settings = {
 
   /**
    * Either calls a getter function or returns directly from storage.
-   * @param key
-   * @param fx
-   *  Callback function after value is received.
-   * @return {*}
    */
   get(key: string): mixed {
     if (typeof this[key] == 'function') {
@@ -82,14 +76,8 @@ const Settings = {
   },
 
   /**
-   * Sets a value in localStorage.  Can also call a setter.
-   *
-   * If the value is a struct (object or array) it is JSONified.
-   *
-   * @param key
-   *  Settings keyword string.
-   * @param value
-   * @return {*}
+   * Sets a value in localStorage. Can also call a setter. If the value is a struct
+   * (object or array) it is JSONified.
    */
   set(key: string, value: mixed): void {
     // Magic setter functions are set{fieldname}
@@ -101,8 +89,6 @@ const Settings = {
   },
 
   /**
-   *
-   * @param value
    * @see Settings.set
    */
   setmaxTabs(value: string) {
@@ -116,8 +102,6 @@ const Settings = {
   },
 
   /**
-   *
-   * @param value
    * @see Settings.set
    */
   setminTabs(value: string) {
@@ -131,8 +115,6 @@ const Settings = {
   },
 
   /**
-   *
-   * @param value
    * @see Settings.set
    */
   setminutesInactive(value: string): void {
@@ -145,14 +127,12 @@ const Settings = {
     }
 
     // Reset the tabTimes since we changed the setting
-    tabmanager.tabTimes = {};
+    TW.storageLocal.set('tabTimes', {});
     chrome.tabs.query({windowType: 'normal'}, tabmanager.initTabs);
     Settings.setValue('minutesInactive', value);
   },
 
   /**
-   *
-   * @param value
    * @see Settings.set
    */
   setsecondsInactive(value: string): void {
@@ -165,7 +145,7 @@ const Settings = {
     }
 
     // Reset the tabTimes since we changed the setting
-    tabmanager.tabTimes = {};
+    TW.storageLocal.set('tabTimes', {});
     chrome.tabs.query({windowType: 'normal'}, tabmanager.initTabs);
     Settings.setValue('secondsInactive', value);
   },
@@ -197,8 +177,6 @@ const Settings = {
 
   /**
    * Returns the number of milliseconds that tabs should stay open for without being used.
-   *
-   * @return {Number}
    */
   stayOpen(): number {
     return (

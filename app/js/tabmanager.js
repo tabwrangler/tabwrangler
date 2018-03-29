@@ -10,7 +10,6 @@ type WrangleOption = 'exactURLMatch' | 'hostnameAndTitleMatch' | 'withDuplicates
  * @type {Object}
  */
 const TabManager = {
-  tabTimes: {}, // An array of tabId => timestamp
 
   closedTabs: {
     tabs: [],
@@ -161,34 +160,39 @@ const TabManager = {
   },
 
   initTabs(tabs: Array<chrome$Tab>) {
-    for (let i = 0; i < tabs.length; i++) {
-      TabManager.updateLastAccessed(tabs[i]);
-    }
+    const now = new Date().getTime();
+    tabs.forEach(tab => {
+      TabManager.updateLastAccessed(tab);
+    });
+
+    // Delete any tab times older than the launch of Tab Wrangler because the tab no longer exists.
+    const tabTimes = TW.storageLocal.get('tabTimes');
+    Object.keys(tabTimes)
+      .filter(tabId => tabTimes[tabId] < now)
+      .forEach(tabId => { delete tabTimes[tabId]; });
+    TW.storageLocal.set('tabTimes', tabTimes);
   },
 
   /**
    * Wrapper function to get all tab times regardless of time inactive
-   * @return {Array}
    */
-  getAll() {
+  getAll(): Array<number> {
     return TabManager.getOlderThen();
   },
 
   /**
-   * Returns tab times (hash of tabId : lastAccess)
-   * @param time
-   *  If null, returns all.
-   * @return {Array}
+   * Returns tabs older than the given `time`.
+   *
+   * @param time If null, returns all.
    */
-  getOlderThen(time?: number) {
+  getOlderThen(time?: number): Array<number> {
     const ret = [];
-    for (const i in this.tabTimes) {
-      if (this.tabTimes.hasOwnProperty(i)) {
-        if (!time || this.tabTimes[i] < time) {
-          ret.push(parseInt(i, 10));
-        }
+    const tabTimes = TW.storageLocal.get('tabTimes');
+    Object.keys(tabTimes).forEach(tabId => {
+      if (!time || tabTimes[tabId] < time) {
+        ret.push(parseInt(tabId, 10));
       }
-    }
+    });
     return ret;
   },
 
@@ -228,7 +232,10 @@ const TabManager = {
   removeTab(tabId: number) {
     const totalTabsRemoved = TW.storageLocal.get('totalTabsRemoved');
     TW.storageLocal.set('totalTabsRemoved', totalTabsRemoved + 1);
-    delete TabManager.tabTimes[tabId];
+
+    const tabTimes = TW.storageLocal.get('tabTimes');
+    delete tabTimes[tabId];
+    TW.storageLocal.set('tabTimes', tabTimes);
   },
 
   // `addListener` intersection results in incorrect function type
@@ -270,8 +277,6 @@ const TabManager = {
     chrome.browserAction.setBadgeText({text: storedTabs.toString()});
   },
 
-  // `addListener` intersection results in incorrect function type
-  // $FlowFixMe
   updateLastAccessed(tabOrTabId: chrome$Tab | number | Array<chrome$Tab>) {
     let tabId;
     if (Array.isArray(tabOrTabId)) {
@@ -288,7 +293,9 @@ const TabManager = {
       return;
     }
 
-    TabManager.tabTimes[tabId] = new Date().getTime();
+    const tabTimes = TW.storageLocal.get('tabTimes');
+    tabTimes[tabId] = new Date().getTime();
+    TW.storageLocal.set('tabTimes', tabTimes);
   },
 };
 

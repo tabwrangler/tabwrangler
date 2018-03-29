@@ -42,6 +42,7 @@ module.exports = {
     'quotes': [2, 'single', {'avoidEscape': true}],
     'semi': 2,
     'sort-imports': 2,
+    'quote-props': [2, 'as-needed', {'numbers': true}], // Require for numbers to appease Flow
 
     // React
     'react/prop-types': 0,

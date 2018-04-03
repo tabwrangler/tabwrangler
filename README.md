@@ -75,6 +75,7 @@ usages are described in the following table:
 | `minutesInactive`     | `20`            | `0` <= `minutesInactive`                                    | How much time (+ `secondsInactive`) before a tab is considered "stale" and ready to close           |
 | `paused`              | `false`         |                                                             | Whether TabWrangler is paused (shouldn't count down)                                                |
 | `purgeClosedTabs`     | `false`         |                                                             | Whether to empty the closed tab list when the browser closes                                        |
+| `purgeTabTimes`       | `false`         |                                                             | Whether to reset all tab timers when the browser closes                                             |
 | `secondsInactive`     | `0`             | `0` <= `secondsInactive`                                    | How much time (+ `minutesInactive`) before a tab is considered "stale" and ready to close           |
 | `showBadgeCount`      | `true`          |                                                             | Whether to show the length of the closed tab list as a badge on the URL bar icon                    |
 | `whitelist`           | `['chrome://']` |                                                             | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed |

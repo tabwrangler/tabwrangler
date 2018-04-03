@@ -14,12 +14,15 @@ const TabManager = {
   closedTabs: {
     tabs: [],
 
-    init() {
-      chrome.storage.local.get('savedTabs', items => {
-        if (typeof items['savedTabs'] != 'undefined') {
-          this.tabs = items['savedTabs'];
-          TabManager.updateClosedCount();
-        }
+    init(): Promise<void> {
+      return new Promise(resolve => {
+        chrome.storage.local.get('savedTabs', items => {
+          if (typeof items['savedTabs'] != 'undefined') {
+            this.tabs = items['savedTabs'];
+            TabManager.updateClosedCount();
+          }
+          resolve();
+        });
       });
     },
 
@@ -160,17 +163,28 @@ const TabManager = {
   },
 
   initTabs(tabs: Array<chrome$Tab>) {
-    const now = new Date().getTime();
+    const purgeTabTimes = TW.settings.get('purgeTabTimes');
+    const initialTabTimes = TW.storageLocal.get('tabTimes');
+    const relevantTabIds = {};
     tabs.forEach(tab => {
-      TabManager.updateLastAccessed(tab);
+      // TODO: What should happen if a tab has an undefined ID?
+      if (tab.id == null) return;
+
+      // * If `purgeTabTimes` is true, always reset tab timers
+      // * Else, update tab timer only if it's not already initialized. Tabs whose close times were
+      //   persisted to local storage will already exist in the `initialTabTimes` Object.
+      if (purgeTabTimes || initialTabTimes[tab.id] == null) TabManager.updateLastAccessed(tab);
+
+      // Track all relevant tab IDs so others can be deleted from local storage.
+      relevantTabIds[tab.id] = true;
     });
 
-    // Delete any tab times older than the launch of Tab Wrangler because the tab no longer exists.
-    const tabTimes = TW.storageLocal.get('tabTimes');
-    Object.keys(tabTimes)
-      .filter(tabId => tabTimes[tabId] < now)
-      .forEach(tabId => { delete tabTimes[tabId]; });
-    TW.storageLocal.set('tabTimes', tabTimes);
+    // Delete any irrelevant tab IDs, i.e. those not currently in use.
+    const postTabTimes = TW.storageLocal.get('tabTimes');
+    Object.keys(postTabTimes)
+      .filter(tabId => !relevantTabIds[tabId])
+      .forEach(tabId => { delete postTabTimes[tabId]; });
+    TW.storageLocal.set('tabTimes', postTabTimes);
   },
 
   /**

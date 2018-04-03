@@ -12,16 +12,19 @@ const storageLocal = {
   },
 
   // Gets all settings from sync and stores them locally.
-  init(): void {
+  init(): Promise<void> {
     const keys = [];
     Object.keys(this.defaults).forEach(setting => {
       this.cache[setting] = this.defaults[setting];
       keys.push(setting);
     });
 
-    chrome.storage.local.get(keys, items => {
-      Object.keys(items).forEach(setting => {
-        this.cache[setting] = items[setting];
+    return new Promise(resolve => {
+      chrome.storage.local.get(keys, items => {
+        Object.keys(items).forEach(setting => {
+          this.cache[setting] = items[setting];
+        });
+        resolve();
       });
     });
   },

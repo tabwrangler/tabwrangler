@@ -231,6 +231,10 @@
     "description": "Input title for minimum number of tabs",
     "message": "Must be a number greater than or equal to 0"
   },
+  "options_option_purgeTabTimes_label": {
+    "description": "Label for checkbox to reset tab timers when the browser is closed",
+    "message": "Reset tab timers to the max time when the browser is restarted"
+  },
   "options_option_rememberTabs_label": {
     "description": "Label preceeding input for number of tabs to remember",
     "message": "Remember up to:"

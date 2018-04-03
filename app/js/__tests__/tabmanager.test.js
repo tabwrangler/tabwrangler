@@ -32,13 +32,22 @@ afterEach(() => {
 });
 
 describe('initTabs', () => {
-  test('should remove tabs no longer in the browser', () => {
-    window.TW.storageLocal.set('tabTimes', { '2': 1, '3': 1, '4': 1});
+  test('should remove tab times from local storage whose tabs no longer exist', () => {
+    window.TW.storageLocal.set('tabTimes', { '2': 1, '3': 1, '4': 1 });
     window.TW.settings.get = jest.fn(() => 5);
 
     TabManager.initTabs([{ id: 3}]);
 
     expect(Object.keys(window.TW.storageLocal.get('tabTimes'))).toEqual(['3']);
+  });
+
+  test('should add times for all new tabs', () => {
+    window.TW.storageLocal.set('tabTimes', {});
+    window.TW.settings.get = jest.fn(() => 5);
+
+    TabManager.initTabs([{ id: 3}, { id: 15 }, { id: 25 }]);
+
+    expect(Object.keys(window.TW.storageLocal.get('tabTimes'))).toEqual(['3', '15', '25']);
   });
 });
 

@@ -13,6 +13,9 @@ const Settings = {
     // wait 1 second before updating an active tab
     debounceOnActivated: false,
 
+    // Don't close tabs that are playing audio.
+    filterAudio: false,
+
     // An array of tabids which have been explicitly locked by the user.
     lockedIds: [],
 
@@ -31,6 +34,9 @@ const Settings = {
     // Save closed tabs in between browser sessions.
     purgeClosedTabs: false,
 
+    // Whether to reset all tab timers between browser sessions.
+    purgeTabTimes: false,
+
     // How many seconds (+ minutesInactive) before a tab is "stale" and ready to close.
     secondsInactive: 0,
 
@@ -42,13 +48,10 @@ const Settings = {
 
     // We allow duplicate entries in the closed/wrangled tabs list
     wrangleOption: 'withDupes',
-
-    // Don't close tabs that are playing audio.
-    filterAudio: false,
   },
 
   // Gets all settings from sync and stores them locally.
-  init() {
+  init(): Promise<void> {
     const keys = [];
     for (const i in this.defaults) {
       if (this.defaults.hasOwnProperty(i)) {
@@ -56,13 +59,19 @@ const Settings = {
         keys.push(i);
       }
     }
-    chrome.storage.sync.get(keys, items => {
-      for (const i in items) {
-        if (items.hasOwnProperty(i)) {
-          this.cache[i] = items[i];
+
+    const complete = new Promise(resolve => {
+      chrome.storage.sync.get(keys, items => {
+        for (const i in items) {
+          if (items.hasOwnProperty(i)) {
+            this.cache[i] = items[i];
+          }
         }
-      }
+        resolve();
+      });
     });
+
+    return complete;
   },
 
   /**

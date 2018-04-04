@@ -172,8 +172,8 @@ gulp.task('archive', function(done) {
   // pipe archive data to the file
   archive.pipe(output);
 
-  // append files from a directory
-  archive.directory(`${DIST_DIRECTORY}/`);
+  // append files from the distribution directory, putting files all at the root
+  archive.directory(`${DIST_DIRECTORY}/`, false);
 
   // finalize the archive (ie we are done appending files but streams have to finish yet)
   archive.finalize();

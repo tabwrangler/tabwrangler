@@ -55,7 +55,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
   };
 
   _handleClickTd = (event: SyntheticMouseEvent<HTMLElement>) => {
-    if (event.target.nodeName === 'input' || this.props.tab.id == null) return;
+    if (event.currentTarget.nodeName === 'input' || this.props.tab.id == null) return;
     this.props.onToggleTab(this.props.tab, !this.props.isSelected, event.shiftKey);
   };
 

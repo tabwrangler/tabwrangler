@@ -123,51 +123,36 @@ const onNewTab = function(tab) {
   if (tab.id != null) tabmanager.updateLastAccessed(tab.id);
 };
 
-const preload = async function(): Promise<void> {
-  // Settings are stored in browser sync storage. It can be init'd in parallel with local
-  await Promise.all([
-    settings.init(),
-    storageLocal.init(),
-  ]);
+const startup = function() {
+  settings.init();
+  storageLocal.init();
+  updater.run();
+  tabmanager.closedTabs.init();
 
-  // Updater and Tab Manager read from settings and local storage. Ensure they are init'd only after
-  // both settings and local storage are ready.
-  await Promise.all([
-    updater.run(),
-    tabmanager.closedTabs.init(),
-  ]);
+  TW.settings = settings;
+  TW.storageLocal = storageLocal;
+  TW.updater = updater;
+  TW.tabmanager = tabmanager;
 
   if (settings.get('purgeClosedTabs') !== false) {
     tabmanager.closedTabs.clear();
   }
   settings.set('lockedIds', []);
 
-  return new Promise(resolve => {
-    chrome.tabs.query({windowType: 'normal'}, function (tabs) {
-      tabmanager.initTabs(tabs);
-      resolve();
-    });
-  });
-};
-
-const startup = async function() {
-  TW.settings = settings;
-  TW.storageLocal = storageLocal;
-  TW.updater = updater;
-  TW.tabmanager = tabmanager;
-
-  await preload();
-
   const debouncedUpdateLastAccessed = _.debounce(
     tabmanager.updateLastAccessed.bind(tabmanager),
     1000
   );
-
+  // Move this to a function somehwere so we can restart the process.
+  chrome.tabs.query({
+    windowType: 'normal',
+  }, tabmanager.initTabs);
   chrome.tabs.onCreated.addListener(onNewTab);
   chrome.tabs.onRemoved.addListener(tabmanager.removeTab);
   chrome.tabs.onReplaced.addListener(tabmanager.replaceTab);
   chrome.tabs.onActivated.addListener(function(tabInfo) {
     menus.updateContextMenus(tabInfo['tabId']);
+
     if (settings.get('debounceOnActivated')) {
       debouncedUpdateLastAccessed(tabInfo['tabId']);
     } else {

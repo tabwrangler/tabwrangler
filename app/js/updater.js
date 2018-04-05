@@ -7,69 +7,65 @@
 const Updater = {
   updates: {},
   //@todo: refactor this into a couple functions
-  run(): Promise<void> {
+  run() {
     console.log('running updater');
     const self = this;
-    return new Promise(resolve => {
-      chrome.storage.sync.get('version', function(items) {
-        (async function() {
-          // Whatever is set in chrome.storage (if anything)
-          let currentVersion;
+    chrome.storage.sync.get('version', function(items) {
+      // Whatever is set in chrome.storage (if anything)
+      let currentVersion;
 
-          // The version from the manifest file
-          const manifestVersion = parseFloat(chrome.runtime.getManifest().version);
+      // The version from the manifest file
+      const manifestVersion = parseFloat(chrome.runtime.getManifest().version);
 
-          // If items[version] is undefined, the app has either not been installed,
-          // or it is an upgrade from when we were not storing the version.
-          if (typeof items['version'] != 'undefined') {
-            currentVersion = items['version'];
-          }
-
-          if (currentVersion) {
-            console.log('Updating from ' + currentVersion + ' to ' + manifestVersion);
-          } else {
-            // Hardcoded here to make the code simpler. This is the first update for users upgrading
-            // from when we didn't store a version.
-            if (localStorage['minutes_inactive']) {
-              // This is the ancient 1.x version
-              self.updates[2.1].fx();
-            }
-            if (localStorage['minutesInactive']) {
-              // This is an update from the 2.1 version
-              currentVersion = 2.1;
-            }
-            console.log('Updating to ' + manifestVersion);
-          }
-
-          await self.runUpdates(currentVersion, manifestVersion);
-          resolve();
-        })();
-      });
-    });
-  },
-  runUpdates(currentVersion: number, manifestVersion: number): Promise<void> {
-    return new Promise(resolve => {
-      if (currentVersion && currentVersion < manifestVersion) {
-        Object.keys(this.updates).some(i => {
-          if (i > currentVersion) {
-            this.updates[i].fx();
-          }
-
-          // This is the version we are updating to.
-          if (i === manifestVersion) {
-            if (typeof this.updates[i].finished == 'function') {
-              this.updates[i].finished();
-            }
-            return true;
-          }
-          return false;
-        });
+      // If items[version] is undefined, the app has either not been installed,
+      // or it is an upgrade from when we were not storing the version.
+      if (typeof items['version'] != 'undefined') {
+        currentVersion = items['version'];
       }
 
+      if (currentVersion) {
+        console.log('Updating from ' + currentVersion + ' to ' + manifestVersion);
+      } else {
+        // Hardcoded here to make the code simpler. This is the first update for users upgrading
+        // from when we didn't store a version.
+        if (localStorage['minutes_inactive']) {
+          // This is the ancient 1.x version
+          this.updates[2.1].fx();
+        }
+        if (localStorage['minutesInactive']) {
+          // This is an update from the 2.1 version
+          currentVersion = 2.1;
+        }
+        console.log('Updating to ' + manifestVersion);
+      }
+      self.runUpdates(currentVersion, manifestVersion);
+    });
+  },
+  runUpdates(currentVersion: number, manifestVersion: number) {
+    const self = this;
+    if (!currentVersion) {
       chrome.storage.sync.set({
         version: manifestVersion,
-      }, () => { resolve(); });
-    });
+      });
+    } else if (currentVersion < manifestVersion) {
+      Object.keys(this.updates).forEach(i => {
+        if (i > currentVersion) {
+          this.updates[i].fx();
+        }
+
+        // This is the version we are updating to.
+        if (i === manifestVersion) {
+          // Post 2.0 updates.
+          chrome.storage.sync.set({
+            version: manifestVersion,
+          }, function() {
+            if (typeof self.updates[i].finished == 'function') {
+              self.updates[i].finished();
+            }
+          });
+        }
+      });
+    }
   },
 };
 

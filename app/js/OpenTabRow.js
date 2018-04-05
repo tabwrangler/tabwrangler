@@ -8,7 +8,6 @@ const TW = chrome.extension.getBackgroundPage().TW;
 // Unpack TW.
 const {
   settings,
-  storageLocal,
   tabmanager,
 } = TW;
 
@@ -72,7 +71,7 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
       if (settings.get('paused')) {
         timeLeftContent = chrome.i18n.getMessage('tabLock_lockedReason_paused');
       } else {
-        const lastModified = storageLocal.get('tabTimes')[tab.id];
+        const lastModified = tabmanager.tabTimes[tab.id];
         const cutOff = new Date().getTime() - settings.get('stayOpen');
         const timeLeft = -1 * Math.round((cutOff - lastModified) / 1000);
         // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the

@@ -5,8 +5,6 @@ beforeEach(() => {
   window.chrome = {
     storage: {
       local: {
-        get: () => {},
-        set: () => {},
       },
     },
     tabs: {
@@ -23,23 +21,12 @@ beforeEach(() => {
 
   window.TW = {
     settings: {},
-    storageLocal,
+    storageLocal: {},
   };
 });
 
 afterEach(() => {
   window.chrome = {};
-});
-
-describe('initTabs', () => {
-  test('should remove tabs no longer in the browser', () => {
-    window.TW.storageLocal.set('tabTimes', { '2': 1, '3': 1, '4': 1});
-    window.TW.settings.get = jest.fn(() => 5);
-
-    TabManager.initTabs([{ id: 3}]);
-
-    expect(Object.keys(window.TW.storageLocal.get('tabTimes'))).toEqual(['3']);
-  });
 });
 
 describe('wrangleTabs', () => {

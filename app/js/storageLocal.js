@@ -5,31 +5,36 @@ const storageLocal = {
 
   defaults: {
     installDate: Date.now(), // Date of installation of Tab Wrangler
-    tabTimes: {}, // {[tabId: number]: number}
     totalTabsRemoved: 0, // Number of tabs closed by any means since install
     totalTabsUnwrangled: 0, // Number of tabs unwrangled (re-opened from the corral) since install
     totalTabsWrangled: 0, // Number of tabs wrangled since install
   },
 
   // Gets all settings from sync and stores them locally.
-  init(): void {
+  init() {
     const keys = [];
-    Object.keys(this.defaults).forEach(setting => {
-      this.cache[setting] = this.defaults[setting];
-      keys.push(setting);
-    });
+    for (const i in this.defaults) {
+      if (this.defaults.hasOwnProperty(i)) {
+        this.cache[i] = this.defaults[i];
+        keys.push(i);
+      }
+    }
 
     chrome.storage.local.get(keys, items => {
-      Object.keys(items).forEach(setting => {
-        this.cache[setting] = items[setting];
-      });
+      for (const i in items) {
+        if (items.hasOwnProperty(i)) {
+          this.cache[i] = items[i];
+        }
+      }
     });
   },
 
   /**
    * Either calls a getter function or returns directly from storage.
-   *
-   * Returns callback function after value is received.
+   * @param key
+   * @param fx
+   *  Callback function after value is received.
+   * @return {*}
    */
   get(key: string): mixed {
     if (typeof this[key] == 'function') {

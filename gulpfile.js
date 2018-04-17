@@ -1,4 +1,4 @@
-/*/ eslint-env node */
+/* eslint-env node */
 
 const archiver = require('archiver');
 const eslint = require('gulp-eslint');

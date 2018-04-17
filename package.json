@@ -63,8 +63,7 @@
     "react-sticky": "^6.0.2",
     "react-virtualized": "^9.18.5",
     "timeago-react": "^2.0.0",
-    "timeago.js": "^3.0.2",
-    "web-ext": "^2.6.0"
+    "timeago.js": "^3.0.2"
   },
   "jest": {
     "globals": {

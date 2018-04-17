@@ -1,4 +1,4 @@
-/* eslint-env node */
+/*/ eslint-env node */
 
 const archiver = require('archiver');
 const eslint = require('gulp-eslint');
@@ -16,6 +16,7 @@ const webpack = require('webpack');
 const packageJson = require('./package.json');
 const webpackConfig = require('./webpack.config.js');
 const webpackProductionConfig = require('./webpack.production.config.js');
+const webExt = require('web-ext/dist/web-ext').default;
 
 const DIST_DIRECTORY = 'dist';
 
@@ -177,6 +178,19 @@ gulp.task('archive', function(done) {
 
   // finalize the archive (ie we are done appending files but streams have to finish yet)
   archive.finalize();
+});
+
+// firefox extension signing: It needs a JWT_KEY and JWT_SECRET env variables set.
+// get those in https://addons.mozilla.org/en-US/developers/addon/api/key/
+gulp.task('firefox', ['release'], function(done) {
+  webExt.cmd.sign({
+    apiKey: process.env.JWT_KEY,
+    apiSecret: process.env.JWT_SECRET,
+    artifactsDir: '',
+    sourceDir: 'dist',
+  })
+    .then(() => done())
+    .catch(error => console.error('CAUGHT', error));
 });
 
 gulp.task('release', function(done) {

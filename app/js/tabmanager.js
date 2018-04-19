@@ -52,7 +52,7 @@ const TabManager = {
       });
     },
 
-    removeTab(tabId: number) {
+    removeTab(tabId: number): ?Array<chrome$Tab> {
       const tabIndex = TabManager.closedTabs.findPositionById(tabId);
       if (tabIndex == null) return null;
 

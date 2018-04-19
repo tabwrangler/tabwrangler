@@ -30,7 +30,10 @@
     }
   },
   "minimum_chrome_version": "28",
-  "options_page": "popup.html",
+  "options_ui": {
+    "open_in_tab": true,
+    "page": "popup.html"
+  },
   "permissions": [
     "chrome://favicon/",
     "contextMenus",

@@ -14,8 +14,9 @@ Helps you focus by auto-closing tabs that you haven't used in a while.
 
 ## Installation
 
-Install the extension from the Chrome Web Store:
-https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
+* Tab Wrangler for Chrome:
+  https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
+* Tab Wrangler for Firefox: https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/
 
 ## Usage
 

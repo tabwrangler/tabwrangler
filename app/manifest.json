@@ -35,7 +35,6 @@
     "page": "popup.html"
   },
   "permissions": [
-    "chrome://favicon/",
     "contextMenus",
     "sessions",
     "storage",

@@ -1,7 +1,7 @@
 /* @flow */
 
+import LazyImage from './LazyImage';
 import React from 'react';
-import TabFavicon from './TabFavicon';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
@@ -98,7 +98,13 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
           />
         </td>
         <td className="text-center" style={{verticalAlign: 'middle', width: '32px'}}>
-          <TabFavicon tab={tab} />
+          <LazyImage
+            alt=""
+            height={16}
+            src={tab.favIconUrl}
+            style={{height: '16px', maxWidth: 'none'}}
+            width={16}
+          />
         </td>
         <td style={{paddingBottom: '4px', paddingTop: '4px', width: '75%'}}>
           <div style={{display: 'flex'}}>

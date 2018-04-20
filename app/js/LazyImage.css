@@ -1,0 +1,32 @@
+.lazy-image-container {
+  position: relative;
+  vertical-align: middle;
+}
+
+/**
+ * Transitions for fading out LazyImage placeholders and fading in the images.
+ */
+.lazy-image-enter {
+  opacity: 0.01;
+}
+
+.lazy-image-enter.lazy-image-enter-active {
+  opacity: 1;
+  transition: opacity 250ms ease-in;
+}
+
+/**
+ * Position the placeholder absolutely when starting to leave so the `<img>` is in the page flow to
+ * maintain the height of the container and so this gray fades out on top of the `<img>`.
+ */
+.lazy-image-leave {
+  left: 0;
+  opacity: 1;
+  position: absolute;
+  top: 0;
+}
+
+.lazy-image-leave.lazy-image-leave-active {
+  opacity: 0.01;
+  transition: opacity 100000ms ease-in;
+}

@@ -1,7 +1,7 @@
 /* @flow */
 
+import LazyImage from './LazyImage';
 import React from 'react';
-import TabFavicon from './TabFavicon';
 import TimeAgo from 'timeago-react';
 import cx from 'classnames';
 import extractHostname from './extractHostname';
@@ -89,8 +89,14 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
         <div
           className="faviconCol ReactVirtualized__Table__rowColumn"
           style={{verticalAlign: 'middle'}}>
-          <TabFavicon className="faviconCol--hover-hidden" tab={tab} />
-          <i
+          <LazyImage
+            alt=""
+            className="faviconCol--hover-hidden favicon"
+            height={16}
+            src={tab.favIconUrl}
+            width={16}
+          />
+          <span
             className="faviconCol--hover-shown glyphicon glyphicon-trash"
             onClick={this._handleClickRemove}
             style={{cursor: 'pointer', height: 16, width: 16}}

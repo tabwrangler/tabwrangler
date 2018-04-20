@@ -40,7 +40,7 @@ const Settings = {
     showBadgeCount: true,
 
     // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
-    whitelist: ['chrome://'],
+    whitelist: ['about:', 'chrome://'],
 
     // We allow duplicate entries in the closed/wrangled tabs list
     wrangleOption: 'withDupes',

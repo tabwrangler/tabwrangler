@@ -1,6 +1,12 @@
 # Tab Wrangler
 
-Helps you focus by auto-closing tabs that you haven't used in a while.
+Automatically closes tabs you haven't used in a while and makes it easy to get them back
+
+## Installation
+
+* Tab Wrangler for Chrome:
+  https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
+* Tab Wrangler for Firefox: https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/
 
 ## Features
 
@@ -11,12 +17,6 @@ Helps you focus by auto-closing tabs that you haven't used in a while.
   be open at a minimum.
 * *Smart*: Doesn't autoclose pinned tabs, doesn't close all your tabs, just enough to make your
   browser usable.
-
-## Installation
-
-* Tab Wrangler for Chrome:
-  https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
-* Tab Wrangler for Firefox: https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/
 
 ## Usage
 

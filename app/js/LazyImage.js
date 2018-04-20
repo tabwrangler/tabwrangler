@@ -4,6 +4,7 @@ import './LazyImage.css';
 import ColorHash from 'color-hash';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import cx from 'classnames';
 
 const loadedSrcs = new Set();
 const pendingLazyImages = new Set();
@@ -96,7 +97,7 @@ export default class LazyImage extends React.PureComponent<Props, State> {
         transitionName="lazy-image">
         {(this.props.src != null && this.state.loaded) ?
           <img
-            className={this.props.className}
+            className={cx('lazy-image-img', this.props.className)}
             height={this.props.height}
             key="img"
             src={this.props.src}

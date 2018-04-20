@@ -1,6 +1,10 @@
 .lazy-image-container {
   position: relative;
-  vertical-align: middle;
+}
+
+.lazy-image-img {
+  /* Ensure there is no 1px gap below the image in Firefox */
+  display: block;
 }
 
 /**
@@ -28,5 +32,5 @@
 
 .lazy-image-leave.lazy-image-leave-active {
   opacity: 0.01;
-  transition: opacity 100000ms ease-in;
+  transition: opacity 250ms ease-in;
 }

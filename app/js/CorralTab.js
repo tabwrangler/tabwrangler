@@ -103,7 +103,13 @@ const Sorters: Array<Sorter> = [
   ReverseChronoSorter,
 ];
 
-function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab) {
+export function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab) {
+  // Sessions' `lastModified` is only accurate to the second in Chrome whereas `closedAt` is
+  // accurate to the millisecond. Convert to ms if needed.
+  const lastModifiedMs = session.lastModified < 10000000000 ?
+    session.lastModified * 1000 :
+    session.lastModified;
+
   return session.tab != null &&
     (
       // Tabs with no favIcons have the value `undefined`, but once converted into a session the tab
@@ -113,11 +119,10 @@ function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab) {
     ) &&
     session.tab.title === tab.title &&
     session.tab.url === tab.url &&
-    // Sessions' `lastModified` is accurate to the second whereas `closedAt` is accurate to the
-    // millisecond. Ensure they are within 1s of each other as a fuzzy, but likely always correct,
-    // match.
+    // Ensure the browser's last modified time is within 1s of Tab Wrangler's close to as a fuzzy,
+    // but likely always correct, match.
     // $FlowFixMe
-    Math.abs(session.lastModified * 1000 - tab.closedAt) < 1000;
+    Math.abs(lastModifiedMs - tab.closedAt) < 1000;
 }
 
 function noRowsRenderer() {

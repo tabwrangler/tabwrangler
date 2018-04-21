@@ -68,6 +68,9 @@
   "jest": {
     "globals": {
       "chrome": true
+    },
+    "moduleNameMapper": {
+      "\\.(css|less)$": "<rootDir>/app/__mocks__/styleMock.js"
     }
   }
 }

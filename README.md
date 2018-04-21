@@ -1,6 +1,6 @@
 # Tab Wrangler
 
-Automatically closes tabs you haven't used in a while and makes it easy to get them back
+A Google Chrome & Mozilla Firefox extension that automatically closes tabs you haven't used in a while and makes it easy to get them back
 
 ## Installation
 

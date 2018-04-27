@@ -1,5 +1,6 @@
 /* eslint-env node */
 
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
@@ -35,6 +36,12 @@ module.exports = {
     filename: '[name].entry.js',
   },
   plugins: [
+    new CopyWebpackPlugin([
+      { from: 'app/img/**' },
+      { from: 'app/manifest.json' },
+      { from: 'MIT-LICENSE.txt'} ,
+      { from: 'README.md' },
+    ]),
     new ExtractTextPlugin('popup.css'),
     new webpack.optimize.CommonsChunkPlugin('commons'),
     new HtmlWebpackPlugin({

@@ -24,27 +24,6 @@ gulp.task('clean', function(done) {
   rimraf(`${__dirname}/${DIST_DIRECTORY}`, done);
 });
 
-// Copy any files that don't require pre-processing.
-gulp.task('cp', function() {
-  const cpApp = gulp.src([
-    'app/img/**',
-  ], {base: 'app'})
-    .pipe(gulp.dest(DIST_DIRECTORY));
-
-  const cpManifest = gulp.src([
-    'app/manifest.json',
-  ])
-    .pipe(gulp.dest(DIST_DIRECTORY));
-
-  const cpRoot = gulp.src([
-    'MIT-LICENSE.txt',
-    'README.md',
-  ], {base: '.'})
-    .pipe(gulp.dest(DIST_DIRECTORY));
-
-  return [cpApp, cpManifest, cpRoot];
-});
-
 gulp.task('lint', function() {
   return gulp.src(['**/*.js', `!${DIST_DIRECTORY}/**`, '!node_modules/**', '!coverage/**'])
     // eslint() attaches the lint output to the "eslint" property
@@ -138,9 +117,6 @@ gulp.task('watch', function(done) {
   watch('_locales/**/*', function() {
     gulp.start('locales');
   });
-  watch('app/**/!(*.js)', function() {
-    gulp.start('cp');
-  });
   watch('app/**/*.js', function() {
     gulp.start('lint');
     gulp.start('test');
@@ -149,7 +125,7 @@ gulp.task('watch', function(done) {
     gulp.start('lint');
     gulp.start('test');
   });
-  gulp.start(['cp', 'lint', 'locales', 'test', 'webpack:watch']);
+  gulp.start(['lint', 'locales', 'test', 'webpack:watch']);
 });
 
 gulp.task('archive', function(done) {
@@ -182,7 +158,6 @@ gulp.task('archive', function(done) {
 gulp.task('release', function(done) {
   runSequence(
     'clean',
-    'cp',
     'locales',
     'lint',
     'test',
@@ -195,5 +170,5 @@ gulp.task('release', function(done) {
 });
 
 gulp.task('default', function(done) {
-  runSequence('cp', 'locales', 'lint', 'webpack', done);
+  runSequence('locales', 'lint', 'webpack', done);
 });

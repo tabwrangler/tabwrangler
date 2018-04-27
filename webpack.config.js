@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
 
-module.exports = {
+const COMMON_CONFIG = {
   entry: {
     background: './app/background.js',
     popup: './app/popup.js',
@@ -31,10 +31,6 @@ module.exports = {
       },
     ],
   },
-  output: {
-    path: path.join(__dirname, 'dist'),
-    filename: '[name].entry.js',
-  },
   plugins: [
     new CopyWebpackPlugin([
       { from: '_locales', to: '_locales' },
@@ -46,14 +42,33 @@ module.exports = {
     new ExtractTextPlugin('popup.css'),
     new webpack.optimize.CommonsChunkPlugin('commons'),
     new HtmlWebpackPlugin({
+      cache: false, // Disable cache to ensure file is always created in multi-compiler build
       chunks: ['commons', 'popup'],
       filename: 'popup.html',
       template: './app/popup.template.html',
     }),
     new HtmlWebpackPlugin({
+      cache: false, // Disable cache to ensure file is always created in multi-compiler build
       chunks: ['commons', 'background'],
       filename: 'background.html',
       template: './app/background.template.html',
     }),
   ],
 };
+
+module.exports = [
+  Object.assign({}, COMMON_CONFIG, {
+    name: 'chrome',
+    output: {
+      path: path.join(__dirname, 'dist', 'chrome'),
+      filename: '[name].entry.js',
+    },
+  }),
+  Object.assign({}, COMMON_CONFIG, {
+    name: 'firefox',
+    output: {
+      path: path.join(__dirname, 'dist', 'firefox'),
+      filename: '[name].entry.js',
+    },
+  }),
+];

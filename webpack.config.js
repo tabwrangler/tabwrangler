@@ -37,6 +37,7 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin([
+      { from: '_locales', to: '_locales' },
       { from: 'app/img/**' },
       { from: 'app/manifest.json' },
       { from: 'MIT-LICENSE.txt'} ,

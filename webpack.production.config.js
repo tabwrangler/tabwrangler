@@ -1,8 +1,10 @@
 /* eslint-env node */
 
+const ArchivePlugin = require('webpack-archive-plugin');
 const webpack = require('webpack');
 
 const developmentConfig = require('./webpack.config.js');
+const packageJson = require('./package.json');
 
 module.exports = Object.assign({}, developmentConfig, {
   plugins: developmentConfig.plugins.concat([
@@ -15,6 +17,10 @@ module.exports = Object.assign({}, developmentConfig, {
     // Compress, minify, all those good things.
     new webpack.optimize.UglifyJsPlugin({
       minimize: true,
+    }),
+    new ArchivePlugin({
+      format: 'zip',
+      output: `tabwrangler-${packageJson.version}`,
     }),
   ]),
 });

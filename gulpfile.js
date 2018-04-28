@@ -81,16 +81,21 @@ gulp.task('webpack:production', function(done) {
 
 gulp.task('webpack:watch', function(done) {
   let firstRun = true;
-  return webpack(Object.assign({}, {watch: true}, webpackConfig), function(err, stats) {
-    if (err) throw new gutil.PluginError('webpack', err);
-    webpackLog(stats);
+  return webpack(
+    webpackConfig.map(function (platformConfig) {
+      return Object.assign({}, {watch: true}, platformConfig);
+    }),
+    function(err, stats) {
+      if (err) throw new gutil.PluginError('webpack', err);
+      webpackLog(stats);
 
-    // Call Gulp's `done` callback only once per watch. Calling it more than once is an error.
-    if (firstRun) {
-      firstRun = false;
-      done();
+      // Call Gulp's `done` callback only once per watch. Calling it more than once is an error.
+      if (firstRun) {
+        firstRun = false;
+        done();
+      }
     }
-  });
+  );
 });
 
 // Watch and re-compile / re-lint when in development.

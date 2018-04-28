@@ -63,6 +63,11 @@ module.exports = [
       path: path.join(__dirname, 'dist', 'chrome'),
       filename: '[name].entry.js',
     },
+    plugins: COMMON_CONFIG.plugins.concat([
+      new webpack.DefinePlugin({
+        EXTENSION_URL: JSON.stringify('https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/'),
+      }),
+    ]),
   }),
   Object.assign({}, COMMON_CONFIG, {
     name: 'firefox',
@@ -70,5 +75,10 @@ module.exports = [
       path: path.join(__dirname, 'dist', 'firefox'),
       filename: '[name].entry.js',
     },
+    plugins: COMMON_CONFIG.plugins.concat([
+      new webpack.DefinePlugin({
+        EXTENSION_URL: JSON.stringify('https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/'),
+      }),
+    ]),
   }),
 ];

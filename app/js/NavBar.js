@@ -1,3 +1,4 @@
+/* global EXTENSION_URL */
 /* @flow */
 
 import PauseButton from './PauseButton';
@@ -38,7 +39,7 @@ export default class NavBar extends React.PureComponent<Props> {
           <PauseButton />{' '}
           <a
             className="btn btn-default btn-xs"
-            href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"
+            href={EXTENSION_URL}
             rel="noopener noreferrer"
             target="_blank">
             <i className="glyphicon glyphicon-star"></i>

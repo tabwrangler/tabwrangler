@@ -12,4 +12,5 @@ type TabWrangler = {
   updater: updater,
 };
 
+declare var EXTENSION_URL: string;
 declare var TW: TabWrangler;

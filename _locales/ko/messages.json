@@ -97,16 +97,6 @@
     "description": "Label for button that resumes (unpauses) the extension",
     "message": "재실행"
   },
-  "extension_review": {
-    "description": "Label for button that lets user review the extension",
-    "message": "$extName$ 평가하기",
-    "placeholders": {
-      "extName": {
-        "content": "$1",
-        "example": "Tab Wrangler"
-      }
-    }
-  },
   "options_dedupe_label": {
     "description": "Label for the de-duplicating option",
     "message": "탭 보관함에서 중복 탭 방지:"

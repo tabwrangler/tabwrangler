@@ -97,16 +97,6 @@
     "description": "Label for button that resumes (unpauses) the extension",
     "message": "Resume"
   },
-  "extension_review": {
-    "description": "Label for button that lets user review the extension",
-    "message": "Review $extName$",
-    "placeholders": {
-      "extName": {
-        "content": "$1",
-        "example": "Tab Wrangler"
-      }
-    }
-  },
   "options_dedupe_label": {
     "description": "Label for the de-duplicating option",
     "message": "Prevent duplicate tabs in the Tab Corral:"

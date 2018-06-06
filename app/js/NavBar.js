@@ -1,4 +1,3 @@
-/* global EXTENSION_URL */
 /* @flow */
 
 import PauseButton from './PauseButton';
@@ -7,8 +6,8 @@ import React from 'react';
 export type NavBarTabID = 'about' | 'corral' | 'lock' | 'options';
 
 type Props = {
-  activeTabId: NavBarTabID;
-  onClickTab: (tabId: NavBarTabID) => void;
+  activeTabId: NavBarTabID,
+  onClickTab: (tabId: NavBarTabID) => void,
 };
 
 export default class NavBar extends React.PureComponent<Props> {
@@ -36,16 +35,7 @@ export default class NavBar extends React.PureComponent<Props> {
     return (
       <div>
         <div className="pull-right nav-buttons">
-          <PauseButton />{' '}
-          <a
-            className="btn btn-default btn-xs"
-            href={EXTENSION_URL}
-            rel="noopener noreferrer"
-            target="_blank">
-            <i className="glyphicon glyphicon-star"></i>
-            {' '}
-            {chrome.i18n.getMessage('extension_review', chrome.i18n.getMessage('extName') || '')}
-          </a>
+          <PauseButton />
         </div>
         <ul className="nav nav-tabs">
           <li className={this.props.activeTabId === 'corral' ? 'active' : null}>

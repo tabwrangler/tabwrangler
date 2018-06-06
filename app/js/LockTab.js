@@ -6,10 +6,7 @@ import React from 'react';
 const TW = chrome.extension.getBackgroundPage().TW;
 
 // Unpack TW.
-const {
-  settings,
-  tabmanager,
-} = TW;
+const { settings, tabmanager } = TW;
 
 interface State {
   tabs: Array<chrome$Tab>;
@@ -25,12 +22,14 @@ export default class LockTab extends React.PureComponent<{}, State> {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this._timeLeftInterval = window.setInterval(this.forceUpdate.bind(this), 1000);
 
     // TODO: THIS WILL BREAK. This is some async stuff inside a synchronous call. Fix this, move
     // the state into a higher component.
-    chrome.tabs.query({}, tabs => { this.setState({tabs}); });
+    chrome.tabs.query({}, tabs => {
+      this.setState({ tabs });
+    });
   }
 
   componentWillUnmount() {
@@ -57,11 +56,11 @@ export default class LockTab extends React.PureComponent<{}, State> {
             <tr>
               <th className="text-center">
                 <abbr title={chrome.i18n.getMessage('tabLock_lockLabel')}>
-                  <i className="glyphicon glyphicon-lock"></i>
+                  <i className="glyphicon glyphicon-lock" />
                 </abbr>
               </th>
-              <th></th>
-              <th style={{width: '75%'}}></th>
+              <th />
+              <th style={{ width: '75%' }} />
               <th className="text-center">
                 <i
                   className="glyphicon glyphicon-time"
@@ -71,7 +70,7 @@ export default class LockTab extends React.PureComponent<{}, State> {
             </tr>
           </thead>
           <tbody>
-            {this.state.tabs.map(tab =>
+            {this.state.tabs.map(tab => (
               <OpenTabRow
                 isLocked={lockedIds.indexOf(tab.id) !== -1}
                 key={tab.id}
@@ -79,7 +78,7 @@ export default class LockTab extends React.PureComponent<{}, State> {
                 onUnlockTab={this.handleUnlockTab}
                 tab={tab}
               />
-            )}
+            ))}
           </tbody>
         </table>
       </div>

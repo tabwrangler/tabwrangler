@@ -11,19 +11,13 @@ import OptionsTab from './js/OptionsTab';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { connect } from 'react-redux';
-
-type Props = {
-  commands: Array<chrome$Command>,
-  sessions: Array<chrome$Session>,
-};
 
 type State = {
   activeTabId: NavBarTabID,
 };
 
-class Popup extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
+class Popup extends React.PureComponent<{}, State> {
+  constructor(props: {}) {
     super(props);
     this.state = {
       activeTabId: 'corral',
@@ -41,13 +35,13 @@ class Popup extends React.PureComponent<Props, State> {
         activeTab = <AboutTab />;
         break;
       case 'corral':
-        activeTab = <CorralTab sessions={this.props.sessions} />;
+        activeTab = <CorralTab />;
         break;
       case 'lock':
         activeTab = <LockTab />;
         break;
       case 'options':
-        activeTab = <OptionsTab commands={this.props.commands} />;
+        activeTab = <OptionsTab />;
         break;
     }
 
@@ -60,17 +54,12 @@ class Popup extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedPopup = connect(state => ({
-  commands: state.commands,
-  sessions: state.sessions,
-}))(Popup);
-
 const TW = chrome.extension.getBackgroundPage().TW;
 const popupElement = document.getElementById('popup');
 if (popupElement != null) {
   ReactDOM.render(
     <Provider store={TW.store}>
-      <ConnectedPopup />
+      <Popup />
     </Provider>,
     popupElement
   );

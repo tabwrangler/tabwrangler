@@ -1,20 +1,17 @@
 /* @flow */
 
-import {exportData, importData} from './importExport';
+import { exportData, importData } from './importExport';
 import Button from './Button';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import TabWrangleOption from './TabWrangleOption';
 import _ from 'lodash';
+import { connect } from 'react-redux';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
 // Unpack TW.
-const {
-  settings,
-  storageLocal,
-  tabmanager,
-} = TW;
+const { settings, storageLocal, tabmanager } = TW;
 
 // Curry import/export function with storageLocal
 const _importData = _.partial(importData, storageLocal, tabmanager);
@@ -39,7 +36,7 @@ interface OptionsTabState {
   importExportOperationName: string;
 }
 
-export default class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
+class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   _debouncedHandleSettingsChange: (event: SyntheticInputEvent<HTMLInputElement>) => void;
   _fileselector: ?HTMLInputElement;
   _importExportAlertTimeout: ?number;
@@ -81,7 +78,7 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
 
   handleAddPatternSubmit = (event: SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
-    const {newPattern} = this.state;
+    const { newPattern } = this.state;
 
     if (!isValidPattern(newPattern)) {
       return;
@@ -95,17 +92,17 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
       this.saveOption('whitelist', whitelist);
     }
 
-    this.setState({newPattern: ''});
+    this.setState({ newPattern: '' });
   };
 
   _handleConfigureCommandsClick = (event: SyntheticMouseEvent<HTMLAnchorElement>) => {
     // `chrome://` URLs are not linkable, but it's possible to create new tabs pointing to Chrome's
     // configuration pages. Calling `tabs.create` will open the tab and close this popup.
-    chrome.tabs.create({url: event.currentTarget.href});
+    chrome.tabs.create({ url: event.currentTarget.href });
   };
 
   handleNewPatternChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
-    this.setState({newPattern: event.target.value});
+    this.setState({ newPattern: event.target.value });
   };
 
   handleSettingsChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
@@ -130,17 +127,16 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
         saveAlertVisible: true,
       });
       this._saveAlertTimeout = window.setTimeout(() => {
-        this.setState({saveAlertVisible: false});
+        this.setState({ saveAlertVisible: false });
       }, 400);
-    }
-    catch (err) {
+    } catch (err) {
       this.state.errors.push(err);
       this.forceUpdate();
     }
   }
 
   toPromise = (func: (...args: Array<any>) => Promise<void>) => {
-    return function (...args: Array<any>): Promise<void> {
+    return function(...args: Array<any>): Promise<void> {
       return new Promise((resolve, reject) => {
         const res = func.apply(null, args);
 
@@ -176,20 +172,23 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
 
     const result = this.toPromise(func)(funcArg);
 
-    result.then(() => {
-      this._importExportAlertTimeout = window.setTimeout(() => {
-        this.setState({importExportAlertVisible: false});
-      }, 400);
-    }).catch((err) => {
-      this.state.importExportErrors.push(err);
-      this.forceUpdate();
-    });
+    result
+      .then(() => {
+        this._importExportAlertTimeout = window.setTimeout(() => {
+          this.setState({ importExportAlertVisible: false });
+        }, 400);
+      })
+      .catch(err => {
+        this.state.importExportErrors.push(err);
+        this.forceUpdate();
+      });
   };
 
-  exportData = () => this.importExportDataWithFeedback(
-    chrome.i18n.getMessage('options_importExport_exporting') || '',
-    _exportData
-  );
+  exportData = () =>
+    this.importExportDataWithFeedback(
+      chrome.i18n.getMessage('options_importExport_exporting') || '',
+      _exportData
+    );
   importData = (event: SyntheticInputEvent<HTMLInputElement>) => {
     return this.importExportDataWithFeedback(
       chrome.i18n.getMessage('options_importExport_importing') || '',
@@ -217,9 +216,7 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
       errorAlert = (
         <div className="alert alert-danger alert-sticky">
           <ul className="pull-right" style={{ display: 'inline-block' }}>
-            {this.state.errors.map((error, i) =>
-              <li key={i}>{error.message}</li>
-            )}
+            {this.state.errors.map((error, i) => <li key={i}>{error.message}</li>)}
           </ul>
         </div>
       );
@@ -238,9 +235,7 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
       importExportAlert = (
         <div className="alert alert-danger">
           <ul>
-            {this.state.importExportErrors.map((error, i) =>
-              <li key={i}>{error.message}</li>
-            )}
+            {this.state.importExportErrors.map((error, i) => <li key={i}>{error.message}</li>)}
           </ul>
         </div>
       );
@@ -248,7 +243,7 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
 
     return (
       <div className="tab-pane active">
-        <h4 className="page-header" style={{marginTop: 0}}>
+        <h4 className="page-header" style={{ marginTop: 0 }}>
           {chrome.i18n.getMessage('options_section_settings')}
         </h4>
         <form className="form-inline">
@@ -384,9 +379,7 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
         <h4 className="page-header">{chrome.i18n.getMessage('options_section_autoLock')}</h4>
         <div className="row">
           <div className="col-xs-8">
-            <form
-              onSubmit={this.handleAddPatternSubmit}
-              style={{marginBottom: '20px'}}>
+            <form onSubmit={this.handleAddPatternSubmit} style={{ marginBottom: '20px' }}>
               <label htmlFor="wl-add">
                 {chrome.i18n.getMessage('options_option_autoLock_label')}
               </label>
@@ -417,56 +410,57 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
         <table className="table table-hover table-striped">
           <thead>
             <tr>
-              <th style={{width: '100%'}}>
+              <th style={{ width: '100%' }}>
                 {chrome.i18n.getMessage('options_option_autoLock_urlHeader')}
               </th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>
-            {whitelist.length === 0 ?
+            {whitelist.length === 0 ? (
               <tr>
                 <td className="text-center" colSpan="2">
                   {chrome.i18n.getMessage('options_option_autoLock_empty')}
                 </td>
-              </tr> :
-              whitelist.map(pattern =>
+              </tr>
+            ) : (
+              whitelist.map(pattern => (
                 <tr key={pattern}>
                   <td>{pattern}</td>
                   <td>
                     <button
                       className="btn btn-default btn-xs"
                       onClick={this.handleClickRemovePattern.bind(this, pattern)}
-                      style={{marginBottom: '-4px', marginTop: '-4px'}}>
+                      style={{ marginBottom: '-4px', marginTop: '-4px' }}>
                       {chrome.i18n.getMessage('options_option_autoLock_remove')}
                     </button>
                   </td>
                 </tr>
-              )
-            }
+              ))
+            )}
           </tbody>
         </table>
 
         <h4 className="page-header">{chrome.i18n.getMessage('options_section_importExport')}</h4>
         <div className="row">
           <div className="col-xs-8">
-            <Button
-              className="btn btn-default btn-xs"
-              glyph="export"
-              onClick={this.exportData}>
+            <Button className="btn btn-default btn-xs" glyph="export" onClick={this.exportData}>
               {chrome.i18n.getMessage('options_importExport_export')}
-            </Button>
-            {' '}
+            </Button>{' '}
             <Button
               className="btn btn-default btn-xs"
               glyph="import"
-              onClick={() => { if(this._fileselector != null) this._fileselector.click(); }}>
+              onClick={() => {
+                if (this._fileselector != null) this._fileselector.click();
+              }}>
               {chrome.i18n.getMessage('options_importExport_import')}
             </Button>
             <input
               accept=".json"
               onChange={this.importData}
-              ref={input => { this._fileselector = input; }}
+              ref={input => {
+                this._fileselector = input;
+              }}
               style={{ display: 'none' }}
               type="file"
             />
@@ -480,20 +474,20 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
             </p>
           </div>
         </div>
-        {(this.state.importExportErrors.length === 0)
-          ? (
-            <ReactCSSTransitionGroup
-              transitionEnter={false}
-              transitionLeaveTimeout={400}
-              transitionName="alert">
-              {importExportAlert}
-            </ReactCSSTransitionGroup>
-          )
-          : importExportAlert}
+        {this.state.importExportErrors.length === 0 ? (
+          <ReactCSSTransitionGroup
+            transitionEnter={false}
+            transitionLeaveTimeout={400}
+            transitionName="alert">
+            {importExportAlert}
+          </ReactCSSTransitionGroup>
+        ) : (
+          importExportAlert
+        )}
 
         <h4 className="page-header">
           {chrome.i18n.getMessage('options_section_keyboardShortcuts')}
-          <small style={{marginLeft: '10px'}}>
+          <small style={{ marginLeft: '10px' }}>
             <a
               href="chrome://extensions/configureCommands"
               onClick={this._handleConfigureCommandsClick}
@@ -503,35 +497,40 @@ export default class OptionsTab extends React.Component<OptionsTabProps, Options
             </a>
           </small>
         </h4>
-        {this.props.commands == null ?
-          null :
-          this.props.commands.map(command => {
-            // This is a default command for any extension with a browser action. It can't be
-            // listened for.
-            //
-            // See https://developer.chrome.com/extensions/commands#usage
-            if (command.name === '_execute_browser_action') return null;
-            return (
-              <p key={command.shortcut}>
-                {command.shortcut == null || command.shortcut.length === 0 ?
-                  <em>{chrome.i18n.getMessage('options_keyboardShortcuts_notSet')}</em> :
-                  <kbd>{command.shortcut}</kbd>}: {command.description}
-              </p>
-            );
-          })
-        }
+        {this.props.commands == null
+          ? null
+          : this.props.commands.map(command => {
+              // This is a default command for any extension with a browser action. It can't be
+              // listened for.
+              //
+              // See https://developer.chrome.com/extensions/commands#usage
+              if (command.name === '_execute_browser_action') return null;
+              return (
+                <p key={command.shortcut}>
+                  {command.shortcut == null || command.shortcut.length === 0 ? (
+                    <em>{chrome.i18n.getMessage('options_keyboardShortcuts_notSet')}</em>
+                  ) : (
+                    <kbd>{command.shortcut}</kbd>
+                  )}: {command.description}
+                </p>
+              );
+            })}
 
-        {(this.state.errors.length === 0)
-          ? (
-            <ReactCSSTransitionGroup
-              transitionEnter={false}
-              transitionLeaveTimeout={400}
-              transitionName="alert">
-              {saveAlert}
-            </ReactCSSTransitionGroup>
-          )
-          : errorAlert}
+        {this.state.errors.length === 0 ? (
+          <ReactCSSTransitionGroup
+            transitionEnter={false}
+            transitionLeaveTimeout={400}
+            transitionName="alert">
+            {saveAlert}
+          </ReactCSSTransitionGroup>
+        ) : (
+          errorAlert
+        )}
       </div>
     );
   }
 }
+
+export default connect(state => ({
+  commands: state.commands,
+}))(OptionsTab);

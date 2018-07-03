@@ -1,10 +1,11 @@
 /* @flow */
 
 import './CorralTab.css';
-import {Sticky, StickyContainer} from 'react-sticky';
-import {Table, WindowScroller} from 'react-virtualized';
+import { Sticky, StickyContainer } from 'react-sticky';
+import { Table, WindowScroller } from 'react-virtualized';
 import ClosedTabRow from './ClosedTabRow';
 import React from 'react';
+import { connect } from 'react-redux';
 import cx from 'classnames';
 import extractHostname from './extractHostname';
 import extractRootDomain from './extractRootDomain';
@@ -12,10 +13,7 @@ import extractRootDomain from './extractRootDomain';
 const TW = chrome.extension.getBackgroundPage().TW;
 
 // Unpack TW.
-const {
-  storageLocal,
-  tabmanager,
-} = TW;
+const { storageLocal, tabmanager } = TW;
 
 type Sorter = {
   label: string,
@@ -79,9 +77,11 @@ const DomainSorter: Sorter = {
       const tabBRootDomain = extractRootDomain(tabBUrl);
       // Sort by root domain, then by hostname (like the subdomain), and then by closing time. This
       // gives a predictable sorting order at each level of sort.
-      return tabARootDomain.localeCompare(tabBRootDomain) ||
+      return (
+        tabARootDomain.localeCompare(tabBRootDomain) ||
         tabAHostname.localeCompare(tabBHostname) ||
-        ReverseChronoSorter.sort(tabA, tabB);
+        ReverseChronoSorter.sort(tabA, tabB)
+      );
     }
   },
 };
@@ -106,23 +106,22 @@ const Sorters: Array<Sorter> = [
 export function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab) {
   // Sessions' `lastModified` is only accurate to the second in Chrome whereas `closedAt` is
   // accurate to the millisecond. Convert to ms if needed.
-  const lastModifiedMs = session.lastModified < 10000000000 ?
-    session.lastModified * 1000 :
-    session.lastModified;
+  const lastModifiedMs =
+    session.lastModified < 10000000000 ? session.lastModified * 1000 : session.lastModified;
 
-  return session.tab != null &&
-    (
-      // Tabs with no favIcons have the value `undefined`, but once converted into a session the tab
-      // has an empty string (`''`) as its favIcon value. Account for that case for "equality".
-      session.tab.favIconUrl === tab.favIconUrl ||
-      (session.tab.favIconUrl === '' && tab.favIconUrl == null)
-    ) &&
+  return (
+    session.tab != null &&
+    // Tabs with no favIcons have the value `undefined`, but once converted into a session the tab
+    // has an empty string (`''`) as its favIcon value. Account for that case for "equality".
+    (session.tab.favIconUrl === tab.favIconUrl ||
+      (session.tab.favIconUrl === '' && tab.favIconUrl == null)) &&
     session.tab.title === tab.title &&
     session.tab.url === tab.url &&
     // Ensure the browser's last modified time is within 1s of Tab Wrangler's close to as a fuzzy,
     // but likely always correct, match.
     // $FlowFixMe
-    Math.abs(lastModifiedMs - tab.closedAt) < 1000;
+    Math.abs(lastModifiedMs - tab.closedAt) < 1000
+  );
 }
 
 function noRowsRenderer() {
@@ -130,17 +129,17 @@ function noRowsRenderer() {
     <div aria-label="row" className="ReactVirtualized__Table__row" role="row">
       <div
         className="ReactVirtualized__Table__rowColumn text-center"
-        style={{flex: 1, padding: '8px'}}>
-        {tabmanager.closedTabs.tabs.length === 0 ?
-          chrome.i18n.getMessage('corral_emptyList') :
-          chrome.i18n.getMessage('corral_noTabsMatch')}
+        style={{ flex: 1, padding: '8px' }}>
+        {tabmanager.closedTabs.tabs.length === 0
+          ? chrome.i18n.getMessage('corral_emptyList')
+          : chrome.i18n.getMessage('corral_noTabsMatch')}
       </div>
     </div>
   );
 }
 
-function rowRenderer({key, rowData, style}) {
-  const {tab} = rowData;
+function rowRenderer({ key, rowData, style }) {
+  const { tab } = rowData;
   const tabId = tab.id;
   if (tabId == null) return null;
 
@@ -170,9 +169,9 @@ type State = {
   lastSelectedTab: ?chrome$Tab,
   selectedTabs: Set<chrome$Tab>,
   sorter: Sorter,
-}
+};
 
-export default class CorralTab extends React.Component<Props, State> {
+class CorralTab extends React.Component<Props, State> {
   _dropdownRef: ?HTMLElement;
   _searchRefFocusTimeout: TimeoutID;
   _searchRef: ?HTMLElement;
@@ -211,8 +210,10 @@ export default class CorralTab extends React.Component<Props, State> {
   }
 
   _areAllClosedTabsSelected() {
-    return this.state.closedTabs.length > 0 &&
-      this.state.closedTabs.every(tab => this.state.selectedTabs.has(tab));
+    return (
+      this.state.closedTabs.length > 0 &&
+      this.state.closedTabs.every(tab => this.state.selectedTabs.has(tab))
+    );
   }
 
   _clearFilter = () => {
@@ -227,7 +228,7 @@ export default class CorralTab extends React.Component<Props, State> {
     if (sorter === this.state.sorter) {
       // If this is already the active sorter, close the dropdown and do no work since the state is
       // already correct.
-      this.setState({isSortDropdownOpen: false});
+      this.setState({ isSortDropdownOpen: false });
     } else {
       this.setState({
         closedTabs: this.state.closedTabs.sort(sorter.sort),
@@ -251,7 +252,9 @@ export default class CorralTab extends React.Component<Props, State> {
 
   _handleRemoveSelectedTabs = () => {
     const tabs = this.state.closedTabs.filter(tab => this.state.selectedTabs.has(tab));
-    tabs.forEach(tab => { tabmanager.closedTabs.removeTab(tab.id); });
+    tabs.forEach(tab => {
+      tabmanager.closedTabs.removeTab(tab.id);
+    });
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword('')]);
     this.setState({
       filter: '',
@@ -284,7 +287,7 @@ export default class CorralTab extends React.Component<Props, State> {
             this.state.selectedTabs.delete(this.state.closedTabs[i]);
           }
         }
-        this.setState({lastSelectedTab: tab});
+        this.setState({ lastSelectedTab: tab });
         return;
       }
     }
@@ -294,7 +297,7 @@ export default class CorralTab extends React.Component<Props, State> {
     } else {
       this.state.selectedTabs.delete(tab);
     }
-    this.setState({lastSelectedTab: tab});
+    this.setState({ lastSelectedTab: tab });
   };
 
   _handleRestoreSelectedTabs = () => {
@@ -315,7 +318,7 @@ export default class CorralTab extends React.Component<Props, State> {
   _handleSearchChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
     const filter = event.target.value;
     this._setFilter(filter);
-  }
+  };
 
   _handleWindowClick = (event: MouseEvent) => {
     if (
@@ -324,12 +327,12 @@ export default class CorralTab extends React.Component<Props, State> {
       event.target instanceof Node && // Type refinement for Flow
       !this._dropdownRef.contains(event.target)
     ) {
-      this.setState({isSortDropdownOpen: false});
+      this.setState({ isSortDropdownOpen: false });
     }
   };
 
   openTab = (tab: chrome$Tab, session: ?chrome$Session) => {
-    tabmanager.closedTabs.unwrangleTabs([{session, tab}]);
+    tabmanager.closedTabs.unwrangleTabs([{ session, tab }]);
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
     this.state.selectedTabs.delete(tab);
     this.forceUpdate();
@@ -337,11 +340,11 @@ export default class CorralTab extends React.Component<Props, State> {
 
   setClosedTabs = (closedTabs: Array<chrome$Tab>) => {
     closedTabs.sort(this.state.sorter.sort);
-    this.setState({closedTabs});
+    this.setState({ closedTabs });
   };
 
   _setFilter(filter: string): void {
-    this.setState({filter});
+    this.setState({ filter });
     tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(filter)]);
   }
 
@@ -361,38 +364,43 @@ export default class CorralTab extends React.Component<Props, State> {
   };
 
   _toggleSortDropdown = () => {
-    this.setState({isSortDropdownOpen: !this.state.isSortDropdownOpen});
+    this.setState({ isSortDropdownOpen: !this.state.isSortDropdownOpen });
   };
 
   render() {
     const areAllClosedTabsSelected = this._areAllClosedTabsSelected();
     const totalTabsRemoved = storageLocal.get('totalTabsRemoved');
-    const percentClosed = totalTabsRemoved === 0
-      ? 0
-      : Math.trunc(
-        storageLocal.get('totalTabsWrangled') / storageLocal.get('totalTabsRemoved') * 100
-      );
+    const percentClosed =
+      totalTabsRemoved === 0
+        ? 0
+        : Math.trunc(
+            (storageLocal.get('totalTabsWrangled') / storageLocal.get('totalTabsRemoved')) * 100
+          );
 
     return (
       <div className="tab-pane active">
         <div className="row">
           <form className="form-search col-xs-6">
-            <div className="form-group" style={{marginBottom: 0}}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <input
                 className="form-control"
                 name="search"
                 onChange={this._handleSearchChange}
                 placeholder={chrome.i18n.getMessage('corral_searchTabs')}
-                ref={(_searchRef: ?HTMLElement) => { this._searchRef = _searchRef; }}
+                ref={(_searchRef: ?HTMLElement) => {
+                  this._searchRef = _searchRef;
+                }}
                 type="search"
                 value={this.state.filter}
               />
             </div>
           </form>
-          <div className="col-xs-6" style={{lineHeight: '30px', textAlign: 'right'}}>
-            <small style={{color: '#999'}}>{chrome.i18n.getMessage('corral_tabsWrangled')}</small>
-            {' '}{storageLocal.get('totalTabsWrangled')}
-            {' '}{chrome.i18n.getMessage('corral_tabsWrangled_or')}{' '}
+          <div className="col-xs-6" style={{ lineHeight: '30px', textAlign: 'right' }}>
+            <small style={{ color: '#999999' }}>
+              {chrome.i18n.getMessage('corral_tabsWrangled')}
+            </small>{' '}
+            {storageLocal.get('totalTabsWrangled')}{' '}
+            {chrome.i18n.getMessage('corral_tabsWrangled_or')}{' '}
             <abbr title={chrome.i18n.getMessage('corral_tabsWrangled_formula')}>
               {percentClosed}%
             </abbr>
@@ -401,30 +409,34 @@ export default class CorralTab extends React.Component<Props, State> {
 
         <StickyContainer>
           <Sticky>
-            {({style}) => (
-              <div style={Object.assign(
-                {
-                  // Ensure this element is always positioned so its z-index stacks it on top of the
-                  // virtual table below.
-                  position: 'relative',
-                },
-                style,
-                {
-                  background: 'white',
-                  borderBottom: '1px solid #ddd',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  paddingBottom: '10px',
-                  paddingTop: '10px',
-                  zIndex: 100,
-                })}>
+            {({ style }) => (
+              <div
+                style={Object.assign(
+                  {
+                    // Ensure this element is always positioned so its z-index stacks it on top of
+                    // the virtual table below.
+                    position: 'relative',
+                  },
+                  style,
+                  {
+                    background: 'white',
+                    borderBottom: '1px solid #ddd',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    paddingBottom: '10px',
+                    paddingTop: '10px',
+                    zIndex: 100,
+                  }
+                )}>
                 <div>
                   <button
                     className="btn btn-default btn-xs btn-chunky btn-chunky"
                     onClick={this._toggleAllTabs}
-                    title={areAllClosedTabsSelected ?
-                      chrome.i18n.getMessage('corral_toggleAllTabs_deselectAll') :
-                      chrome.i18n.getMessage('corral_toggleAllTabs_selectAll')}>
+                    title={
+                      areAllClosedTabsSelected
+                        ? chrome.i18n.getMessage('corral_toggleAllTabs_deselectAll')
+                        : chrome.i18n.getMessage('corral_toggleAllTabs_selectAll')
+                    }>
                     <input
                       checked={areAllClosedTabsSelected}
                       readOnly
@@ -433,33 +445,35 @@ export default class CorralTab extends React.Component<Props, State> {
                     />
                   </button>
 
-                  {this.state.closedTabs.some(tab => this.state.selectedTabs.has(tab)) ? [
-                    <button
-                      className="btn btn-default btn-xs btn-chunky btn-chunky"
-                      key="remove"
-                      onClick={this._handleRemoveSelectedTabs}
-                      style={{marginLeft: '10px'}}
-                      title={chrome.i18n.getMessage('corral_removeSelectedTabs')}>
-                      <span className="sr-only">
-                        {chrome.i18n.getMessage('corral_removeSelectedTabs')}
-                      </span>
-                      <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                    </button>,
-                    <button
-                      className="btn btn-default btn-xs btn-chunky btn-chunky"
-                      key="restore"
-                      onClick={this._handleRestoreSelectedTabs}
-                      style={{marginLeft: '10px'}}
-                      title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}>
-                      <span className="sr-only">
-                        {chrome.i18n.getMessage('corral_removeSelectedTabs')}
-                      </span>
-                      <span className="glyphicon glyphicon-new-window" aria-hidden="true"></span>
-                    </button>,
-                  ] : null}
+                  {this.state.closedTabs.some(tab => this.state.selectedTabs.has(tab))
+                    ? [
+                        <button
+                          className="btn btn-default btn-xs btn-chunky btn-chunky"
+                          key="remove"
+                          onClick={this._handleRemoveSelectedTabs}
+                          style={{ marginLeft: '10px' }}
+                          title={chrome.i18n.getMessage('corral_removeSelectedTabs')}>
+                          <span className="sr-only">
+                            {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                          </span>
+                          <span className="glyphicon glyphicon-trash" aria-hidden="true" />
+                        </button>,
+                        <button
+                          className="btn btn-default btn-xs btn-chunky btn-chunky"
+                          key="restore"
+                          onClick={this._handleRestoreSelectedTabs}
+                          style={{ marginLeft: '10px' }}
+                          title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}>
+                          <span className="sr-only">
+                            {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                          </span>
+                          <span className="glyphicon glyphicon-new-window" aria-hidden="true" />
+                        </button>,
+                      ]
+                    : null}
                 </div>
                 <div style={{ alignItems: 'center', display: 'flex' }}>
-                  {this.state.filter.length > 0 ?
+                  {this.state.filter.length > 0 ? (
                     <span className="label label-info" style={{ marginRight: '5px' }}>
                       {chrome.i18n.getMessage(
                         'corral_searchResults_label',
@@ -472,11 +486,13 @@ export default class CorralTab extends React.Component<Props, State> {
                         title={chrome.i18n.getMessage('corral_searchResults_clear')}>
                         x
                       </span>
-                    </span> :
-                    null}
+                    </span>
+                  ) : null}
                   <div
-                    className={cx('dropdown', {open: this.state.isSortDropdownOpen})}
-                    ref={(dropdown) => { this._dropdownRef = dropdown; }}>
+                    className={cx('dropdown', { open: this.state.isSortDropdownOpen })}
+                    ref={dropdown => {
+                      this._dropdownRef = dropdown;
+                    }}>
                     <button
                       aria-haspopup="true"
                       className="btn btn-default btn-xs btn-chunky"
@@ -484,8 +500,7 @@ export default class CorralTab extends React.Component<Props, State> {
                       onClick={this._toggleSortDropdown}
                       title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
                       <span className="text-muted">{chrome.i18n.getMessage('corral_sortBy')}</span>
-                      {' '}{this.state.sorter.shortLabel}{' '}
-                      <span className="caret" />
+                      <span> {this.state.sorter.shortLabel}</span> <span className="caret" />
                     </button>
                     <ul
                       aria-labelledby="sort-dropdown"
@@ -493,7 +508,7 @@ export default class CorralTab extends React.Component<Props, State> {
                       {Sorters.map(sorter => {
                         const active = this.state.sorter === sorter;
                         return (
-                          <li className={cx({active})} key={sorter.label}>
+                          <li className={cx({ active })} key={sorter.label}>
                             <a href="#" onClick={this._clickSorter.bind(this, sorter)}>
                               {sorter.label}
                             </a>
@@ -508,7 +523,7 @@ export default class CorralTab extends React.Component<Props, State> {
           </Sticky>
 
           <WindowScroller>
-            {({height, isScrolling, onChildScroll, scrollTop}) => (
+            {({ height, isScrolling, onChildScroll, scrollTop }) => (
               <Table
                 autoHeight
                 className="table table-hover"
@@ -518,10 +533,11 @@ export default class CorralTab extends React.Component<Props, State> {
                 noRowsRenderer={noRowsRenderer}
                 onScroll={onChildScroll}
                 rowCount={this.state.closedTabs.length}
-                rowGetter={({index}) => {
+                rowGetter={({ index }) => {
                   const tab = this.state.closedTabs[index];
-                  const session =
-                    this.props.sessions.find(session => sessionFuzzyMatchesTab(session, tab));
+                  const session = this.props.sessions.find(session =>
+                    sessionFuzzyMatchesTab(session, tab)
+                  );
                   return {
                     isSelected: this.state.selectedTabs.has(tab),
                     onOpenTab: this.openTab,
@@ -544,3 +560,7 @@ export default class CorralTab extends React.Component<Props, State> {
     );
   }
 }
+
+export default connect(state => ({
+  sessions: state.sessions,
+}))(CorralTab);

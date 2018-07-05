@@ -1,17 +1,15 @@
 import { exportData, exportFileName, importData } from '../importExport';
 import FileSaver from 'file-saver';
-import storageLocal from '../storageLocal';
 
 beforeEach(() => {
   window.chrome = {
     storage: {
-      local: {
-      },
+      local: {},
     },
     extension: {
       getBackgroundPage: () => {
         return {
-          TW: storageLocal,
+          TW: { store: {} },
         };
       },
     },
@@ -30,11 +28,11 @@ test('should export the bookmark data', () => {
   };
 
   // provide some mock functions
-  const localStorageGet = jest.fn((key) => mockValues[key]);
+  const localStorageGet = jest.fn(key => mockValues[key]);
   const fileSaveMock = jest.fn();
 
   window.chrome.storage.local.get = (t, func) => {
-    func({test: 2});
+    func({ test: 2 });
   };
 
   const storageLocal = {
@@ -50,7 +48,7 @@ test('should export the bookmark data', () => {
   expect(result.type).toBe('application/json;charset=utf-8');
 });
 
-test('should import the bookmark data', (done) => {
+test('should import the bookmark data', done => {
   // provide a mock function
   const localStorageSetMock = jest.fn();
   window.chrome.storage.local.set = localStorageSetMock;
@@ -90,23 +88,33 @@ test('should import the bookmark data', (done) => {
     type: 'text/plain;charset=utf-8',
   });
 
-  importData(storageLocal, {closedTabs: {init: tabManagerInit}}, {target: {
-    files: [blob],
-  }}).then(() => {
-    expect(localStorageSetMock.mock.calls.length).toBe(4);
-    expect(localStorageSetMock.mock.calls[3][0]).toEqual({savedTabs: expectedImportData.savedTabs});
-    expect(localStorageSetMock.mock.calls[0][0]).toEqual(
-      {totalTabsRemoved: expectedImportData.totalTabsRemoved}
-    );
-    expect(localStorageSetMock.mock.calls[1][0]).toEqual(
-      {totalTabsUnwrangled: expectedImportData.totalTabsUnwrangled}
-    );
-    expect(localStorageSetMock.mock.calls[2][0]).toEqual(
-      {totalTabsWrangled: expectedImportData.totalTabsWrangled}
-    );
+  importData(
+    storageLocal,
+    { closedTabs: { init: tabManagerInit } },
+    {
+      target: {
+        files: [blob],
+      },
+    }
+  )
+    .then(() => {
+      expect(localStorageSetMock.mock.calls.length).toBe(4);
+      expect(localStorageSetMock.mock.calls[3][0]).toEqual({
+        savedTabs: expectedImportData.savedTabs,
+      });
+      expect(localStorageSetMock.mock.calls[0][0]).toEqual({
+        totalTabsRemoved: expectedImportData.totalTabsRemoved,
+      });
+      expect(localStorageSetMock.mock.calls[1][0]).toEqual({
+        totalTabsUnwrangled: expectedImportData.totalTabsUnwrangled,
+      });
+      expect(localStorageSetMock.mock.calls[2][0]).toEqual({
+        totalTabsWrangled: expectedImportData.totalTabsWrangled,
+      });
 
-    done();
-  }).catch((e) => console.error(e));
+      done();
+    })
+    .catch(e => console.error(e));
 });
 
 test('should fail to import non existent backup', done => {
@@ -145,11 +153,15 @@ test('should fail import of incomplete backup data', done => {
     type: 'text/plain;charset=utf-8',
   });
 
-  importData(storageLocal, {}, {
-    target: {
-      files: [blob],
-    },
-  }).catch(() => {
+  importData(
+    storageLocal,
+    {},
+    {
+      target: {
+        files: [blob],
+      },
+    }
+  ).catch(() => {
     expect(mockFunction.mock.calls.length).toBe(0);
 
     done();

@@ -22,7 +22,7 @@ const initialState = {
   sessions: [],
 };
 
-export default function reducers(state: State = initialState, action: Action) {
+export default function tempStorage(state: State = initialState, action: Action) {
   switch (action.type) {
     case 'SET_COMMANDS':
       return {

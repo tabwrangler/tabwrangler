@@ -1,8 +1,12 @@
 /* @flow */
 
+import {
+  setSavedTabs,
+  setTotalTabsRemoved,
+  setTotalTabsUnwrangled,
+  setTotalTabsWrangled,
+} from './actions/localStorageActions';
 import FileSaver from 'file-saver';
-
-import typeof storageLocalType from './storageLocal';
 import typeof tabManagerType from './tabmanager';
 
 /**
@@ -15,7 +19,7 @@ import typeof tabManagerType from './tabmanager';
  * @param event contains the path of the backup file
  */
 const importData = (
-  storageLocal: storageLocalType,
+  store: Object,
   tabManager: tabManagerType,
   event: SyntheticInputEvent<HTMLInputElement>
 ): Promise<void> => {
@@ -27,7 +31,7 @@ const importData = (
       fileReader.onload = () => {
         try {
           const json = JSON.parse(String(fileReader.result));
-          if(Object.keys(json).length < 4) {
+          if (Object.keys(json).length < 4) {
             reject(new Error('Invalid backup'));
           } else {
             const savedTabs = json.savedTabs;
@@ -35,13 +39,10 @@ const importData = (
             const totalTabsUnwrangled = json.totalTabsUnwrangled;
             const totalTabsWrangled = json.totalTabsWrangled;
 
-            storageLocal.setValue('totalTabsRemoved', totalTabsRemoved);
-            storageLocal.setValue('totalTabsUnwrangled', totalTabsUnwrangled);
-            storageLocal.setValue('totalTabsWrangled', totalTabsWrangled);
-
-            chrome.storage.local.set({savedTabs});
-            // re-read the wrangled tabs
-            tabManager.closedTabs.init();
+            store.dispatch(setTotalTabsRemoved(totalTabsRemoved));
+            store.dispatch(setTotalTabsUnwrangled(totalTabsUnwrangled));
+            store.dispatch(setTotalTabsWrangled(totalTabsWrangled));
+            store.dispatch(setSavedTabs(savedTabs));
             resolve();
           }
         } catch (e) {
@@ -49,7 +50,7 @@ const importData = (
         }
       };
 
-      fileReader.onerror = (arg) => {
+      fileReader.onerror = arg => {
         reject(arg);
       };
 
@@ -71,11 +72,12 @@ const importData = (
  *
  * @param storageLocal to retrieve all the accounting information
  */
-const exportData = (storageLocal: storageLocalType) => {
-  chrome.storage.local.get('savedTabs', (savedTabs) => {
-    savedTabs['totalTabsRemoved'] = storageLocal.get('totalTabsRemoved');
-    savedTabs['totalTabsUnwrangled'] = storageLocal.get('totalTabsUnwrangled');
-    savedTabs['totalTabsWrangled'] = storageLocal.get('totalTabsWrangled');
+const exportData = (store: Object) => {
+  chrome.storage.local.get('savedTabs', savedTabs => {
+    const { localStorage } = store.getState();
+    savedTabs['totalTabsRemoved'] = localStorage.totalTabsRemoved;
+    savedTabs['totalTabsUnwrangled'] = localStorage.totalTabsUnwrangled;
+    savedTabs['totalTabsWrangled'] = localStorage.totalTabsWrangled;
 
     const exportData = JSON.stringify(savedTabs);
 
@@ -91,8 +93,4 @@ const exportFileName = (date: Date) => {
   return `TabWranglerExport-${localeDateString}.json`;
 };
 
-export {
-  importData,
-  exportData,
-  exportFileName,
-};
+export { importData, exportData, exportFileName };

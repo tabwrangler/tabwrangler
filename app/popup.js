@@ -8,6 +8,7 @@ import AboutTab from './js/AboutTab';
 import CorralTab from './js/CorralTab';
 import LockTab from './js/LockTab';
 import OptionsTab from './js/OptionsTab';
+import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -59,7 +60,9 @@ const popupElement = document.getElementById('popup');
 if (popupElement != null) {
   ReactDOM.render(
     <Provider store={TW.store}>
-      <Popup />
+      <PersistGate loading={null} persistor={TW.persistor}>
+        <Popup />
+      </PersistGate>
     </Provider>,
     popupElement
   );

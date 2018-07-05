@@ -1,12 +1,11 @@
 /* @flow */
 
-import * as actions from './js/actions';
+import * as tempStorageActions from './js/actions/tempStorageActions';
 import _ from 'lodash';
-import { createStore } from 'redux';
+import configureStore from './js/configureStore';
 import menus from './js/menus';
-import reducers from './js/reducers';
+import { removeSavedTabId } from './js/actions/localStorageActions';
 import settings from './js/settings';
-import storageLocal from './js/storageLocal';
 import tabmanager from './js/tabmanager';
 import updater from './js/updater';
 
@@ -111,17 +110,11 @@ const onNewTab = function(tab) {
   // Check if it exists in corral already. The 2nd argument is an array of filters, we add one
   // filter which checks for an exact URL match. If we match, throw the old entry away.
   if (tab.url != null) {
-    tabmanager.searchTabs(
-      function(tabs) {
-        if (tabs.length) {
-          tabs.forEach(t => {
-            if (t.id == null) return;
-            tabmanager.closedTabs.removeTab(t.id);
-          });
-        }
-      },
-      [tabmanager.filters.exactUrl(tab.url)]
-    );
+    const matchingTabs = tabmanager.searchTabs([tabmanager.filters.exactUrl(tab.url)]);
+    matchingTabs.forEach(t => {
+      if (t.id == null) return;
+      TW.store.dispatch(removeSavedTabId(t.id));
+    });
   }
 
   // Add the new one;
@@ -129,19 +122,14 @@ const onNewTab = function(tab) {
 };
 
 const startup = function() {
-  const store = createStore(
-    reducers,
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-  );
+  const { persistor, store } = configureStore();
+  TW.store = store;
+  TW.persistor = persistor;
 
   settings.init();
-  storageLocal.init();
   updater.run();
-  tabmanager.closedTabs.init();
 
   TW.settings = settings;
-  TW.store = store;
-  TW.storageLocal = storageLocal;
   TW.updater = updater;
   TW.tabmanager = tabmanager;
 
@@ -191,15 +179,14 @@ const startup = function() {
   });
 
   chrome.commands.getAll(commands => {
-    store.dispatch(actions.setCommands(commands));
+    store.dispatch(tempStorageActions.setCommands(commands));
   });
 
   function updateSessionsRecentlyClosed() {
     chrome.sessions.getRecentlyClosed(sessions => {
-      store.dispatch(actions.setSessions(sessions));
+      store.dispatch(tempStorageActions.setSessions(sessions));
     });
   }
-
   chrome.sessions.onChanged.addListener(updateSessionsRecentlyClosed);
   updateSessionsRecentlyClosed();
 };

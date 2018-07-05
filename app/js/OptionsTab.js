@@ -11,11 +11,11 @@ import { connect } from 'react-redux';
 const TW = chrome.extension.getBackgroundPage().TW;
 
 // Unpack TW.
-const { settings, storageLocal, tabmanager } = TW;
+const { settings, store, tabmanager } = TW;
 
 // Curry import/export function with storageLocal
-const _importData = _.partial(importData, storageLocal, tabmanager);
-const _exportData = _.partial(exportData, storageLocal);
+const _importData = _.partial(importData, store, tabmanager);
+const _exportData = _.partial(exportData, store);
 
 function isValidPattern(pattern) {
   // some other choices such as '/' also do not make sense
@@ -532,5 +532,5 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
 }
 
 export default connect(state => ({
-  commands: state.commands,
+  commands: state.tempStorage.commands,
 }))(OptionsTab);

@@ -8,6 +8,7 @@ import { removeSavedTabId } from './js/actions/localStorageActions';
 import settings from './js/settings';
 import tabmanager from './js/tabmanager';
 import updater from './js/updater';
+import watch from 'redux-watch';
 
 // Declare this global namespace so it can be used from popup.js
 // @see startup();
@@ -126,6 +127,14 @@ const startup = function() {
   TW.store = store;
   TW.persistor = persistor;
 
+  // Update closed count badge in the URL bar whenever the store updates.
+  const savedTabsCountWatch = watch(store.getState, 'localStorage.savedTabs');
+  store.subscribe(
+    savedTabsCountWatch(() => {
+      tabmanager.updateClosedCount();
+    })
+  );
+
   settings.init();
   updater.run();
 
@@ -143,12 +152,7 @@ const startup = function() {
     1000
   );
   // Move this to a function somehwere so we can restart the process.
-  chrome.tabs.query(
-    {
-      windowType: 'normal',
-    },
-    tabmanager.initTabs
-  );
+  chrome.tabs.query({ windowType: 'normal' }, tabmanager.initTabs);
   chrome.tabs.onCreated.addListener(onNewTab);
   chrome.tabs.onRemoved.addListener(tabmanager.removeTab);
   chrome.tabs.onReplaced.addListener(tabmanager.replaceTab);

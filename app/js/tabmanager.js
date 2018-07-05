@@ -70,7 +70,6 @@ const TabManager = {
 
       const totalTabsUnwrangled = localStorage.totalTabsUnwrangled;
       TW.store.dispatch(setTotalTabsUnwrangled(totalTabsUnwrangled + countableTabsUnwrangled));
-      TabManager.updateClosedCount();
     },
 
     getURLPositionFilterByWrangleOption(option: WrangleOption): (tab: chrome$Tab) => number {
@@ -244,14 +243,11 @@ const TabManager = {
   },
 
   updateClosedCount() {
-    if (TW.settings.get('showBadgeCount') === false) {
-      return;
-    }
-    let storedTabs = TW.store.getState().localStorage.savedTabs.length;
-    if (storedTabs === 0) {
-      storedTabs = '';
-    }
-    chrome.browserAction.setBadgeText({ text: storedTabs.toString() });
+    if (TW.settings.get('showBadgeCount') === false) return;
+    const savedTabsLength = TW.store.getState().localStorage.savedTabs.length;
+    chrome.browserAction.setBadgeText({
+      text: savedTabsLength.length === 0 ? '' : savedTabsLength.toString(),
+    });
   },
 
   // `addListener` intersection results in incorrect function type

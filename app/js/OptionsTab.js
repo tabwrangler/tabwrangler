@@ -7,6 +7,7 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import TabWrangleOption from './TabWrangleOption';
 import _ from 'lodash';
 import { connect } from 'react-redux';
+import { setCommands } from './actions/tempStorageActions';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
@@ -23,18 +24,19 @@ function isValidPattern(pattern) {
   return pattern != null && pattern.length > 0 && /\S/.test(pattern);
 }
 
-interface OptionsTabProps {
-  commands: ?Array<chrome$Command>;
-}
+type OptionsTabProps = {
+  commands: ?Array<chrome$Command>,
+  dispatch: Function,
+};
 
-interface OptionsTabState {
-  errors: Array<Object>;
-  newPattern: string;
-  saveAlertVisible: boolean;
-  importExportErrors: Array<Object>;
-  importExportAlertVisible: boolean;
-  importExportOperationName: string;
-}
+type OptionsTabState = {
+  errors: Array<Object>,
+  newPattern: string,
+  saveAlertVisible: boolean,
+  importExportErrors: Array<Object>,
+  importExportAlertVisible: boolean,
+  importExportOperationName: string,
+};
 
 class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   _debouncedHandleSettingsChange: (event: SyntheticInputEvent<HTMLInputElement>) => void;
@@ -52,6 +54,14 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       importExportAlertVisible: false,
       importExportOperationName: '',
     };
+  }
+
+  componentDidMount() {
+    // Fetch commands only when opening the `OptionsTab` since this is the only place they're
+    // needed.
+    chrome.commands.getAll(commands => {
+      store.dispatch(this.props.dispatch(setCommands(commands)));
+    });
 
     const debounced = _.debounce(this.handleSettingsChange, 150);
     this._debouncedHandleSettingsChange = event => {

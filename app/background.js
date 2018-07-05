@@ -178,10 +178,6 @@ const startup = function() {
     }
   });
 
-  chrome.commands.getAll(commands => {
-    store.dispatch(tempStorageActions.setCommands(commands));
-  });
-
   function updateSessionsRecentlyClosed() {
     chrome.sessions.getRecentlyClosed(sessions => {
       store.dispatch(tempStorageActions.setSessions(sessions));

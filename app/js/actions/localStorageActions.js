@@ -15,6 +15,7 @@ export function setSavedTabs(savedTabs: Array<chrome$Tab>) {
 export function setTotalTabsRemoved(totalTabsRemoved: number) {
   return { totalTabsRemoved, type: 'SET_TOTAL_TABS_REMOVED' };
 }
+
 export function setTotalTabsUnwrangled(totalTabsUnwrangled: number) {
   return { totalTabsUnwrangled, type: 'SET_TOTAL_TABS_UNWRANGLED' };
 }

@@ -69,7 +69,9 @@ if (popupElement != null) {
 
   // The popup fires `pagehide` when the popup is going away. Make sure to unmount the component so
   // it can unsubscribe from the Store events.
-  window.addEventListener('pagehide', function() {
+  const unmountPopup = function unmountPopup() {
     ReactDOM.unmountComponentAtNode(popupElement);
-  });
+    window.removeEventListener('pagehide', unmountPopup);
+  };
+  window.addEventListener('pagehide', unmountPopup);
 }

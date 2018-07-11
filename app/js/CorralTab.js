@@ -295,8 +295,7 @@ class CorralTab extends React.Component<Props, State> {
 
   _handleRestoreSelectedTabs = () => {
     const closedTabs = this._getClosedTabs();
-    const tabs = closedTabs.filter(tab => this.state.selectedTabs.has(tab));
-    const sessionTabs = tabs.map(tab => ({
+    const sessionTabs = closedTabs.filter(tab => this.state.selectedTabs.has(tab)).map(tab => ({
       session: this.props.sessions.find(session => sessionFuzzyMatchesTab(session, tab)),
       tab,
     }));

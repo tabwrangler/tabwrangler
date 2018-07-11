@@ -54,14 +54,17 @@ type State = {
   totalTabsWrangled: number,
 };
 
-const initialState = {
-  installDate: Date.now(),
-  savedTabs: [],
-  totalTabsRemoved: 0,
-  totalTabsUnwrangled: 0,
-  totalTabsWrangled: 0,
-};
+export function createInitialState() {
+  return {
+    installDate: Date.now(),
+    savedTabs: [],
+    totalTabsRemoved: 0,
+    totalTabsUnwrangled: 0,
+    totalTabsWrangled: 0,
+  };
+}
 
+const initialState = createInitialState();
 export default function localStorage(state: State = initialState, action: Action) {
   switch (action.type) {
     case 'REMOVE_ALL_SAVED_TABS':
@@ -70,13 +73,10 @@ export default function localStorage(state: State = initialState, action: Action
         savedTabs: [],
       };
     case 'REMOVE_SAVED_TAB_ID': {
-      let tabIndex;
-      for (let i = 0; i < state.savedTabs.length; i++) {
-        if (state.savedTabs[i].id === action.tabId) {
-          tabIndex = i;
-        }
-      }
-      if (tabIndex == null) return state;
+      // Extract `tabId` to preserve type refinement inside `findIndex` callback.
+      const actionTabId = action.tabId;
+      const tabIndex = state.savedTabs.findIndex(tab => tab.id === actionTabId);
+      if (tabIndex === -1) return state;
 
       // * Annotate `nextSavedTabs` to appease Flow. It's unclear why this annotation is required
       //   and can't be inferred.

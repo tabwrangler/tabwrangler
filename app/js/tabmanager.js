@@ -3,6 +3,7 @@
 
 import {
   removeAllSavedTabs,
+  removeSavedTabId,
   setSavedTabs,
   setTotalTabsRemoved,
   setTotalTabsUnwrangled,
@@ -35,7 +36,7 @@ const TabManager = {
       return null;
     },
 
-    findPositionByURL(url: string = ''): number {
+    findPositionByURL(url: ?string = ''): number {
       return _.findIndex(TW.store.getState().localStorage.savedTabs, item => {
         return item.url === url && !_.isUndefined(url);
       });
@@ -54,12 +55,17 @@ const TabManager = {
       const installDate = localStorage.installDate;
       let countableTabsUnwrangled = 0;
       sessionTabs.forEach(sessionTab => {
+        // TODO: What should actually happen if there's no tab ID? Is this even a possible use case
+        // at this point?
+        const tabId = sessionTab.tab.id;
+        if (tabId == null) return;
+
         if (sessionTab.session == null || sessionTab.session.tab == null) {
           chrome.tabs.create({ active: false, url: sessionTab.tab.url });
         } else {
           chrome.sessions.restore(sessionTab.session.tab.sessionId);
         }
-        this.removeTab(sessionTab.tab.id);
+        TW.store.dispatch(removeSavedTabId(tabId));
 
         // Count only those tabs closed after install date because users who upgrade will not have
         // an accurate count of all tabs closed. The updaters' install dates will be the date of

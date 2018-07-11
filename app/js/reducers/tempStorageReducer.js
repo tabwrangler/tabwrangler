@@ -17,11 +17,14 @@ type State = {
   sessions: Array<chrome$Session>,
 };
 
-const initialState = {
-  commands: [],
-  sessions: [],
-};
+export function createInitialState() {
+  return {
+    commands: [],
+    sessions: [],
+  };
+}
 
+const initialState = createInitialState();
 export default function tempStorage(state: State = initialState, action: Action) {
   switch (action.type) {
     case 'SET_COMMANDS':

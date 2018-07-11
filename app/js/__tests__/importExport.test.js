@@ -1,7 +1,12 @@
 import { exportData, exportFileName, importData } from '../importExport';
 import FileSaver from 'file-saver';
+import configureMockStore from '../__mocks__/configureMockStore';
 
 beforeEach(() => {
+  const TW = (window.TW = {
+    store: configureMockStore(),
+  });
+
   window.chrome = {
     storage: {
       local: {},
@@ -9,7 +14,7 @@ beforeEach(() => {
     extension: {
       getBackgroundPage: () => {
         return {
-          TW: { store: {} },
+          TW,
         };
       },
     },
@@ -21,39 +26,31 @@ afterEach(() => {
 });
 
 test('should export the bookmark data', () => {
-  const mockValues = {
-    totalTabsRemoved: 256,
-    totalTabsUnwrangled: 120,
-    totalTabsWrangled: 100,
-  };
+  window.TW.store = configureMockStore({
+    tempStorage: {
+      totalTabsRemoved: 256,
+      totalTabsUnwrangled: 120,
+      totalTabsWrangled: 100,
+    },
+  });
 
   // provide some mock functions
-  const localStorageGet = jest.fn(key => mockValues[key]);
   const fileSaveMock = jest.fn();
 
   window.chrome.storage.local.get = (t, func) => {
     func({ test: 2 });
   };
 
-  const storageLocal = {
-    get: localStorageGet,
-  };
-
   FileSaver.saveAs = fileSaveMock;
 
-  exportData(storageLocal);
-  expect(localStorageGet.mock.calls.length).toBe(3);
+  exportData(window.TW.store);
   expect(fileSaveMock.mock.calls.length).toBe(1);
   const result = fileSaveMock.mock.calls[0][0];
   expect(result.type).toBe('application/json;charset=utf-8');
 });
 
 test('should import the bookmark data', done => {
-  // provide a mock function
-  const localStorageSetMock = jest.fn();
-  window.chrome.storage.local.set = localStorageSetMock;
   const tabManagerInit = jest.fn();
-
   const expectedImportData = {
     savedTabs: [
       {
@@ -89,8 +86,15 @@ test('should import the bookmark data', done => {
   });
 
   importData(
-    storageLocal,
-    { closedTabs: { init: tabManagerInit } },
+    window.TW.store,
+    {
+      closedTabs: { init: tabManagerInit },
+      filters: {},
+      getAll() {},
+      initTabs() {},
+      getOlderThen() {},
+      getWhitelistMatch() {},
+    },
     {
       target: {
         files: [blob],
@@ -98,23 +102,42 @@ test('should import the bookmark data', done => {
     }
   )
     .then(() => {
-      expect(localStorageSetMock.mock.calls.length).toBe(4);
-      expect(localStorageSetMock.mock.calls[3][0]).toEqual({
-        savedTabs: expectedImportData.savedTabs,
-      });
-      expect(localStorageSetMock.mock.calls[0][0]).toEqual({
-        totalTabsRemoved: expectedImportData.totalTabsRemoved,
-      });
-      expect(localStorageSetMock.mock.calls[1][0]).toEqual({
-        totalTabsUnwrangled: expectedImportData.totalTabsUnwrangled,
-      });
-      expect(localStorageSetMock.mock.calls[2][0]).toEqual({
-        totalTabsWrangled: expectedImportData.totalTabsWrangled,
-      });
-
+      expect(window.TW.store.getActions()).toEqual([
+        { totalTabsRemoved: 256, type: 'SET_TOTAL_TABS_REMOVED' },
+        { totalTabsUnwrangled: 16, type: 'SET_TOTAL_TABS_UNWRANGLED' },
+        { totalTabsWrangled: 32, type: 'SET_TOTAL_TABS_WRANGLED' },
+        {
+          savedTabs: [
+            {
+              active: false,
+              audible: false,
+              autoDiscardable: true,
+              closedAt: 1493418190099,
+              discarded: false,
+              height: 175,
+              highlighted: false,
+              id: 36,
+              incognito: false,
+              index: 1,
+              mutedInfo: { muted: false },
+              pinned: false,
+              selected: false,
+              status: 'complete',
+              title: 'fish: Tutorial',
+              url: 'https://fishshell.com/docs/current/tutorial.html',
+              width: 400,
+              windowId: 33,
+            },
+          ],
+          type: 'SET_SAVED_TABS',
+        },
+      ]);
       done();
     })
-    .catch(e => console.error(e));
+    .catch(e => {
+      console.error(e);
+      done();
+    });
 });
 
 test('should fail to import non existent backup', done => {
@@ -123,7 +146,7 @@ test('should fail to import non existent backup', done => {
   window.chrome.storage.local.set = mockFunction;
 
   importData(
-    storageLocal,
+    window.TW.store,
     {},
     {
       target: {
@@ -154,7 +177,7 @@ test('should fail import of incomplete backup data', done => {
   });
 
   importData(
-    storageLocal,
+    window.TW.store,
     {},
     {
       target: {
@@ -178,7 +201,7 @@ test('should fail import of corrupt backup data', done => {
   });
 
   importData(
-    storageLocal,
+    window.TW.store,
     {},
     {
       target: {

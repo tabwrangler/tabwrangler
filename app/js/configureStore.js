@@ -30,6 +30,7 @@ const rootReducer = combineReducers({
 });
 
 export default function() {
+  // $FlowFixMe Something about `StoreEnhancer` from react-redux?
   const store = createStore(rootReducer, applyMiddleware(logger));
   return {
     persistor: persistStore(store),

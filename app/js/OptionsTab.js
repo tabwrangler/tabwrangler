@@ -2,6 +2,7 @@
 
 import { exportData, importData } from './importExport';
 import Button from './Button';
+import type { Dispatch } from './Types';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import TabWrangleOption from './TabWrangleOption';
@@ -26,7 +27,7 @@ function isValidPattern(pattern) {
 
 type OptionsTabProps = {
   commands: ?Array<chrome$Command>,
-  dispatch: Function,
+  dispatch: Dispatch,
 };
 
 type OptionsTabState = {

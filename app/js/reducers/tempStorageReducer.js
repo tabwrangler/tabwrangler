@@ -10,7 +10,7 @@ type SetSessionsAction = {
   type: 'SET_SESSIONS',
 };
 
-type Action = SetCommandsAction | SetSessionsAction;
+export type Action = SetCommandsAction | SetSessionsAction;
 
 type State = {
   commands: Array<chrome$Command>,

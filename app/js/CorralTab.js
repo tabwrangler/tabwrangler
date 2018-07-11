@@ -4,6 +4,7 @@ import './CorralTab.css';
 import { Sticky, StickyContainer } from 'react-sticky';
 import { Table, WindowScroller } from 'react-virtualized';
 import ClosedTabRow from './ClosedTabRow';
+import type { Dispatch } from './Types';
 import React from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
@@ -146,7 +147,7 @@ function rowRenderer({ key, rowData, style }) {
 }
 
 type Props = {
-  dispatch: Function,
+  dispatch: Dispatch,
   savedTabs: Array<chrome$Tab>,
   sessions: Array<chrome$Session>,
   totalTabsRemoved: number,

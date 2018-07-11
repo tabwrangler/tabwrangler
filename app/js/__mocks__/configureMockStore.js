@@ -1,8 +1,8 @@
 /* @flow */
 
 import configureStore from 'redux-mock-store';
-import { createInitialState as localStorageCreateInitialState } from '../reducers/localStorageReducer';
-import { createInitialState as tempStorageCreateInitialState } from '../reducers/tempStorageReducer';
+import { createInitialState as lsCreateInitialState } from '../reducers/localStorageReducer';
+import { createInitialState as tsCreateInitialState } from '../reducers/tempStorageReducer';
 
 type MockInitialState = {
   localStorage?: Object,
@@ -12,11 +12,11 @@ type MockInitialState = {
 export default function configureMockStore(initialState: MockInitialState = {}) {
   return configureStore()({
     localStorage: {
-      ...localStorageCreateInitialState(),
+      ...lsCreateInitialState(),
       ...(initialState.localStorage == null ? {} : initialState.localStorage),
     },
     tempStorage: {
-      ...tempStorageCreateInitialState(),
+      ...tsCreateInitialState(),
       ...(initialState.tempStorage == null ? {} : initialState.tempStorage),
     },
   });

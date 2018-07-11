@@ -4,7 +4,6 @@ import * as tempStorageActions from './js/actions/tempStorageActions';
 import _ from 'lodash';
 import configureStore from './js/configureStore';
 import menus from './js/menus';
-import { removeSavedTabId } from './js/actions/localStorageActions';
 import settings from './js/settings';
 import tabmanager from './js/tabmanager';
 import updater from './js/updater';
@@ -108,17 +107,7 @@ const closeTab = function(tab) {
 };
 
 const onNewTab = function(tab) {
-  // Check if it exists in corral already. The 2nd argument is an array of filters, we add one
-  // filter which checks for an exact URL match. If we match, throw the old entry away.
-  if (tab.url != null) {
-    const matchingTabs = tabmanager.searchTabs([tabmanager.filters.exactUrl(tab.url)]);
-    matchingTabs.forEach(t => {
-      if (t.id == null) return;
-      TW.store.dispatch(removeSavedTabId(t.id));
-    });
-  }
-
-  // Add the new one;
+  // Track new tab's time to close.
   if (tab.id != null) tabmanager.updateLastAccessed(tab.id);
 };
 

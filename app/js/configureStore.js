@@ -10,14 +10,30 @@ import syncStorageReducer from './reducers/syncStorageReducer';
 import tempStorageReducer from './reducers/tempStorageReducer';
 
 const localStoragePersistConfig = {
-  debug: true,
   key: 'localStorage',
+  migrate(state, currentVersion) {
+    if (!state) {
+      return Promise.resolve(undefined);
+    } else if (state._persist.version >= currentVersion) {
+      return Promise.resolve(state);
+    } else {
+      return new Promise(resolve => {
+        // $FlowFixMe `chrome.storage.local.get` accepts `null`, but the types are incorrect.
+        chrome.storage.local.get(null, items => {
+          resolve({
+            ...state,
+            ...items,
+          });
+        });
+      });
+    }
+  },
   serialize: false,
   storage: localStorage,
+  version: 1,
 };
 
 const syncStoragePersistConfig = {
-  debug: true,
   key: 'syncStorage',
   serialize: false,
   storage: syncStorage,
@@ -30,7 +46,7 @@ const rootReducer = combineReducers({
 });
 
 export default function() {
-  // $FlowFixMe Something about `StoreEnhancer` from react-redux?
+  // $FlowFixMe
   const store = createStore(rootReducer, applyMiddleware(logger));
   return {
     persistor: persistStore(store),

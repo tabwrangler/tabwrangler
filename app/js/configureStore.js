@@ -10,22 +10,21 @@ import syncStorageReducer from './reducers/syncStorageReducer';
 import tempStorageReducer from './reducers/tempStorageReducer';
 
 const localStoragePersistConfig = {
+  debug: true,
   key: 'localStorage',
   migrate(state, currentVersion) {
-    if (!state) {
-      return Promise.resolve(undefined);
-    } else if (state._persist.version >= currentVersion) {
-      return Promise.resolve(state);
-    } else {
+    // The first time this code is run there will be no redux-persist version of the state, and the
+    // `currentVersion` will be a bogus -1. In that case, return the full contents of storage to be
+    // the initial state.
+    if (currentVersion === -1) {
       return new Promise(resolve => {
         // $FlowFixMe `chrome.storage.local.get` accepts `null`, but the types are incorrect.
         chrome.storage.local.get(null, items => {
-          resolve({
-            ...state,
-            ...items,
-          });
+          resolve(items);
         });
       });
+    } else {
+      return Promise.resolve(state);
     }
   },
   serialize: false,

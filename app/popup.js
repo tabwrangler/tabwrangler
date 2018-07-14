@@ -4,29 +4,53 @@ import './lib/bootstrap/css/bootstrap.min.css';
 import './css/popup.css';
 import 'react-virtualized/styles.css';
 import NavBar, { type NavBarTabID } from './js/NavBar';
+import { clearTempStorage, fetchSessions } from './js/actions/tempStorageActions';
 import AboutTab from './js/AboutTab';
 import CorralTab from './js/CorralTab';
+import type { Dispatch } from './js/Types';
 import LockTab from './js/LockTab';
 import OptionsTab from './js/OptionsTab';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { connect } from 'react-redux';
+
+type Props = {
+  dispatch: Dispatch,
+};
 
 type State = {
   activeTabId: NavBarTabID,
 };
 
-class Popup extends React.PureComponent<{}, State> {
-  constructor(props: {}) {
+class Popup extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       activeTabId: 'corral',
     };
   }
 
+  componentDidMount() {
+    chrome.sessions.onChanged.addListener(this._updateSessionsRecentlyClosed);
+    this._updateSessionsRecentlyClosed();
+  }
+
+  componentWillUnmount() {
+    // Ensure the temp storage is cleared when the popup is closed to prevent holding references to
+    // objects that may be cleaned up. In Firefox, this can lead to ["DeadObject" errors][1], which
+    // throw exceptions and prevent the popup from displaying.
+    this.props.dispatch(clearTempStorage());
+    chrome.sessions.onChanged.removeListener(this._updateSessionsRecentlyClosed);
+  }
+
   _handleClickTab = tabId => {
     this.setState({ activeTabId: tabId });
+  };
+
+  _updateSessionsRecentlyClosed = () => {
+    this.props.dispatch(fetchSessions());
   };
 
   render() {
@@ -55,13 +79,14 @@ class Popup extends React.PureComponent<{}, State> {
   }
 }
 
+const ConnectedPopup = connect()(Popup);
 const TW = chrome.extension.getBackgroundPage().TW;
 const popupElement = document.getElementById('popup');
 if (popupElement != null) {
   ReactDOM.render(
     <Provider store={TW.store}>
       <PersistGate loading={null} persistor={TW.persistor}>
-        <Popup />
+        <ConnectedPopup />
       </PersistGate>
     </Provider>,
     popupElement
@@ -75,3 +100,5 @@ if (popupElement != null) {
   };
   window.addEventListener('pagehide', unmountPopup);
 }
+
+// [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Dead_object

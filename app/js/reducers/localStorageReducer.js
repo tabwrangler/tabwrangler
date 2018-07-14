@@ -37,7 +37,7 @@ export type Action =
   | SetTotalTabsUnwrangledAction
   | SetTotalTabsWrangledAction;
 
-type State = {
+export type State = {
   // Date of installation of Tab Wrangler
   installDate: number,
 

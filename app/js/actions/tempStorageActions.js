@@ -1,15 +1,20 @@
 /* @flow */
 
-export function setCommands(commands: Array<chrome$Command>) {
-  return {
-    commands,
-    type: 'SET_COMMANDS',
-  };
+import type { Dispatch } from '../Types';
+
+export function clearTempStorage() {
+  return { type: 'CLEAR_TEMP_STORAGE' };
 }
 
-export function setSessions(sessions: Array<chrome$Session>) {
-  return {
-    sessions,
-    type: 'SET_SESSIONS',
+export function setCommands(commands: Array<chrome$Command>) {
+  return { commands, type: 'SET_COMMANDS' };
+}
+
+export function fetchSessions() {
+  return (dispatch: Dispatch) => {
+    dispatch({ type: 'FETCH_SESSIONS_REQUEST' });
+    chrome.sessions.getRecentlyClosed(sessions => {
+      dispatch({ sessions, type: 'FETCH_SESSIONS_SUCCESS' });
+    });
   };
 }

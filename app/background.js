@@ -1,6 +1,5 @@
 /* @flow */
 
-import * as tempStorageActions from './js/actions/tempStorageActions';
 import _ from 'lodash';
 import configureStore from './js/configureStore';
 import menus from './js/menus';
@@ -170,14 +169,6 @@ const startup = function() {
         break;
     }
   });
-
-  function updateSessionsRecentlyClosed() {
-    chrome.sessions.getRecentlyClosed(sessions => {
-      store.dispatch(tempStorageActions.setSessions(sessions));
-    });
-  }
-  chrome.sessions.onChanged.addListener(updateSessionsRecentlyClosed);
-  updateSessionsRecentlyClosed();
 };
 
 startup();

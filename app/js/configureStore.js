@@ -7,6 +7,7 @@ import localStorageReducer from './reducers/localStorageReducer';
 import logger from 'redux-logger';
 import syncStorageReducer from './reducers/syncStorageReducer';
 import tempStorageReducer from './reducers/tempStorageReducer';
+import thunk from 'redux-thunk';
 
 const localStoragePersistConfig = {
   key: 'localStorage',
@@ -43,7 +44,7 @@ const rootReducer = combineReducers({
 
 export default function() {
   // $FlowFixMe
-  const store = createStore(rootReducer, applyMiddleware(logger));
+  const store = createStore(rootReducer, applyMiddleware(thunk, logger));
   return {
     persistor: persistStore(store),
     store,

@@ -16,17 +16,17 @@ type SetSavedTabsAction = {
 
 type SetTotalTabsRemovedAction = {
   totalTabsRemoved: number,
-  type: 'SET_TOTAL_TABS_REMOVED_SUCCESS',
+  type: 'SET_TOTAL_TABS_REMOVED',
 };
 
 type SetTotalTabsUnwrangledAction = {
   totalTabsUnwrangled: number,
-  type: 'SET_TOTAL_TABS_UNWRANGLED_SUCCESS',
+  type: 'SET_TOTAL_TABS_UNWRANGLED',
 };
 
 type SetTotalTabsWrangledAction = {
   totalTabsWrangled: number,
-  type: 'SET_TOTAL_TABS_WRANGLED_SUCCESS',
+  type: 'SET_TOTAL_TABS_WRANGLED',
 };
 
 export type Action =
@@ -93,17 +93,17 @@ export default function localStorage(state: State = initialState, action: Action
         ...state,
         savedTabs: action.savedTabs,
       };
-    case 'SET_TOTAL_TABS_REMOVED_SUCCESS':
+    case 'SET_TOTAL_TABS_REMOVED':
       return {
         ...state,
         totalTabsRemoved: action.totalTabsRemoved,
       };
-    case 'SET_TOTAL_TABS_UNWRANGLED_SUCCESS':
+    case 'SET_TOTAL_TABS_UNWRANGLED':
       return {
         ...state,
         totalTabsUnwrangled: action.totalTabsUnwrangled,
       };
-    case 'SET_TOTAL_TABS_WRANGLED_SUCCESS':
+    case 'SET_TOTAL_TABS_WRANGLED':
       return {
         ...state,
         totalTabsWrangled: action.totalTabsWrangled,

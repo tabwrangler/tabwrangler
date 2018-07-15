@@ -18,7 +18,14 @@ const localStoragePersistConfig = {
       return new Promise(resolve => {
         // $FlowFixMe `chrome.storage.local.get` accepts `null`, but the types are incorrect.
         chrome.storage.local.get(null, items => {
-          resolve(items);
+          // THIS CANNOT BE INTERRUPTED! This is a bit scary, but the full contents of Tab
+          // Wrangler's storage is held in memory between removing and resolving the outer Promise.
+          // This is necessary to ensure Tab Wrangler doesn't go over its storage limit because
+          // during this migration all items are moved to new locations, and without first removing
+          // the old location Tab Wrangler would temporarily double its storage usage.
+          chrome.storage.local.remove(Object.keys(items), () => {
+            resolve(items);
+          });
         });
       });
     } else {

@@ -16,7 +16,6 @@ const localStoragePersistConfig = {
     // case, return the full contents of storage to be the initial state.
     if (state == null) {
       return new Promise(resolve => {
-        // $FlowFixMe `chrome.storage.local.get` accepts `null`, but the types are incorrect.
         chrome.storage.local.get(null, items => {
           // THIS CANNOT BE INTERRUPTED! This is a bit scary, but the full contents of Tab
           // Wrangler's storage is held in memory between removing and resolving the outer Promise.

@@ -1,10 +1,9 @@
 /* @flow */
 
 import { applyMiddleware, combineReducers, createStore } from 'redux';
-import { localStorage, syncStorage } from 'redux-persist-webextension-storage';
 import { persistReducer, persistStore } from 'redux-persist';
+import { localStorage } from 'redux-persist-webextension-storage';
 import localStorageReducer from './reducers/localStorageReducer';
-import syncStorageReducer from './reducers/syncStorageReducer';
 import tempStorageReducer from './reducers/tempStorageReducer';
 import thunk from 'redux-thunk';
 
@@ -35,15 +34,8 @@ const localStoragePersistConfig = {
   version: 1,
 };
 
-const syncStoragePersistConfig = {
-  key: 'syncStorage',
-  serialize: false,
-  storage: syncStorage,
-};
-
 const rootReducer = combineReducers({
   localStorage: persistReducer(localStoragePersistConfig, localStorageReducer),
-  syncStorage: persistReducer(syncStoragePersistConfig, syncStorageReducer),
   tempStorage: tempStorageReducer,
 });
 

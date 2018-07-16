@@ -14,15 +14,15 @@ import typeof tabManagerType from './tabmanager';
  * If any of the required keys in the backup object is missing, the backup will abort without
  * importing the data.
  *
- * @param storageLocal is needed to restore the accounting information
+ * @param store is needed to restore the accounting information
  * @param tabManager is required to initialize it with the imported saved tabs
  * @param event contains the path of the backup file
  */
-const importData = (
+function importData(
   store: Object,
   tabManager: tabManagerType,
   event: SyntheticInputEvent<HTMLInputElement>
-): Promise<void> => {
+): Promise<void> {
   const files = event.target.files;
 
   if (files[0]) {
@@ -59,7 +59,7 @@ const importData = (
   } else {
     return Promise.reject('Nothing to import');
   }
-};
+}
 
 /**
  * Export all saved tabs and some accounting information in one object. The object has 4 keys
@@ -70,23 +70,22 @@ const importData = (
  *
  * savedTabs is acquired by reading it directly from localstorage.
  *
- * @param storageLocal to retrieve all the accounting information
+ * @param store to retrieve all the accounting information
  */
-const exportData = (store: Object) => {
-  chrome.storage.local.get('savedTabs', savedTabs => {
-    const { localStorage } = store.getState();
-    savedTabs['totalTabsRemoved'] = localStorage.totalTabsRemoved;
-    savedTabs['totalTabsUnwrangled'] = localStorage.totalTabsUnwrangled;
-    savedTabs['totalTabsWrangled'] = localStorage.totalTabsWrangled;
-
-    const exportData = JSON.stringify(savedTabs);
-
-    const blob = new Blob([exportData], {
-      type: 'application/json;charset=utf-8',
-    });
-    FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
+function exportData(store: Object) {
+  const { localStorage } = store.getState();
+  const exportObject = {
+    savedTabs: localStorage.savedTabs,
+    totalTabsRemoved: localStorage.totalTabsRemoved,
+    totalTabsUnwrangled: localStorage.totalTabsUnwrangled,
+    totalTabsWrangled: localStorage.totalTabsWrangled,
+  };
+  const exportData = JSON.stringify(exportObject);
+  const blob = new Blob([exportData], {
+    type: 'application/json;charset=utf-8',
   });
-};
+  FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
+}
 
 const exportFileName = (date: Date) => {
   const localeDateString = date.toLocaleDateString('en-US').replace(/\//g, '-');

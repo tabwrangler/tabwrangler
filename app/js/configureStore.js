@@ -4,7 +4,6 @@ import { applyMiddleware, combineReducers, createStore } from 'redux';
 import { localStorage, syncStorage } from 'redux-persist-webextension-storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import localStorageReducer from './reducers/localStorageReducer';
-import logger from 'redux-logger';
 import syncStorageReducer from './reducers/syncStorageReducer';
 import tempStorageReducer from './reducers/tempStorageReducer';
 import thunk from 'redux-thunk';
@@ -50,7 +49,7 @@ const rootReducer = combineReducers({
 
 export default function() {
   // $FlowFixMe
-  const store = createStore(rootReducer, applyMiddleware(thunk, logger));
+  const store = createStore(rootReducer, applyMiddleware(thunk));
   return {
     persistor: persistStore(store),
     store,

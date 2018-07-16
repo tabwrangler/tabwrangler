@@ -42,7 +42,6 @@ const Updater = {
     });
   },
   runUpdates(currentVersion: number, manifestVersion: number) {
-    const self = this;
     if (!currentVersion) {
       chrome.storage.sync.set({
         version: manifestVersion,
@@ -58,10 +57,6 @@ const Updater = {
           // Post 2.0 updates.
           chrome.storage.sync.set({
             version: manifestVersion,
-          }, function() {
-            if (typeof self.updates[i].finished == 'function') {
-              self.updates[i].finished();
-            }
           });
         }
       });
@@ -74,14 +69,14 @@ const Updater = {
 Updater.updates[2.1] = {
   fx() {
     const map = {
-      minutes_inactive : 'minutesInactive',
-      closed_tab_ids : null,
+      minutes_inactive: 'minutesInactive',
+      closed_tab_ids: null,
       closed_tab_titles: null,
-      closed_tab_urls : null,
-      closed_tab_icons : null,
+      closed_tab_urls: null,
+      closed_tab_icons: null,
       closed_tab_actions: null,
-      locked_ids : 'lockedIds',
-      popup_view : null,
+      locked_ids: 'lockedIds',
+      popup_view: null,
     };
 
     let oldValue;
@@ -105,11 +100,11 @@ Updater.updates[2.2] = {
     // Move localStorage to chrome.storage.sync
     const items = {};
     let val;
-    for(const i in localStorage) {
+    for (const i in localStorage) {
       val = String(localStorage[i]);
       try {
         items[i] = JSON.parse(val);
-      } catch(err) {
+      } catch (err) {
         items[i] = val;
       }
     }

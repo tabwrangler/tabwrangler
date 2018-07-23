@@ -9,7 +9,7 @@ import {
   type State as TempStorageState,
 } from './reducers/tempStorageReducer';
 
-type Action = LocalStorageAction | TempStorageAction;
+type StoreAction = LocalStorageAction | TempStorageAction;
 
 type AppState = {
   localStorage: LocalStorageState,
@@ -21,4 +21,6 @@ type AppState = {
  */
 export type GetState = () => AppState;
 type ThunkAction = (dispatch: Dispatch, getState: GetState) => any;
-export type Dispatch = (action: Action | ThunkAction) => any;
+type PromiseAction = Promise<StoreAction>;
+export type Action = PromiseAction | StoreAction | ThunkAction;
+export type Dispatch = (action: Action) => any;

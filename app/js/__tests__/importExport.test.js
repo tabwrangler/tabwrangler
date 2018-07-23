@@ -1,4 +1,4 @@
-import { exportData, exportFileName, importData } from '../importExport';
+import { exportData, exportFileName, importData } from '../actions/importExportActions';
 import FileSaver from 'file-saver';
 import configureMockStore from '../__mocks__/configureMockStore';
 
@@ -43,14 +43,13 @@ test('should export the bookmark data', () => {
 
   FileSaver.saveAs = fileSaveMock;
 
-  exportData(window.TW.store);
+  window.TW.store.dispatch(exportData());
   expect(fileSaveMock.mock.calls.length).toBe(1);
   const result = fileSaveMock.mock.calls[0][0];
   expect(result.type).toBe('application/json;charset=utf-8');
 });
 
 test('should import the bookmark data', done => {
-  const tabManagerInit = jest.fn();
   const expectedImportData = {
     savedTabs: [
       {
@@ -85,22 +84,14 @@ test('should import the bookmark data', done => {
     type: 'text/plain;charset=utf-8',
   });
 
-  importData(
-    window.TW.store,
-    {
-      closedTabs: { init: tabManagerInit },
-      filters: {},
-      getAll() {},
-      initTabs() {},
-      getOlderThen() {},
-      getWhitelistMatch() {},
-    },
-    {
-      target: {
-        files: [blob],
-      },
-    }
-  )
+  window.TW.store
+    .dispatch(
+      importData({
+        target: {
+          files: [blob],
+        },
+      })
+    )
     .then(() => {
       expect(window.TW.store.getActions()).toEqual([
         { totalTabsRemoved: 256, type: 'SET_TOTAL_TABS_REMOVED' },
@@ -145,19 +136,19 @@ test('should fail to import non existent backup', done => {
   const mockFunction = jest.fn();
   window.chrome.storage.local.set = mockFunction;
 
-  importData(
-    window.TW.store,
-    {},
-    {
-      target: {
-        files: [],
-      },
-    }
-  ).catch(() => {
-    expect(mockFunction.mock.calls.length).toBe(0);
+  window.TW.store
+    .dispatch(
+      importData({
+        target: {
+          files: [],
+        },
+      })
+    )
+    .catch(() => {
+      expect(mockFunction.mock.calls.length).toBe(0);
 
-    done();
-  });
+      done();
+    });
 });
 
 test('should fail import of incomplete backup data', done => {
@@ -176,19 +167,18 @@ test('should fail import of incomplete backup data', done => {
     type: 'text/plain;charset=utf-8',
   });
 
-  importData(
-    window.TW.store,
-    {},
-    {
-      target: {
-        files: [blob],
-      },
-    }
-  ).catch(() => {
-    expect(mockFunction.mock.calls.length).toBe(0);
-
-    done();
-  });
+  window.TW.store
+    .dispatch(
+      importData({
+        target: {
+          files: [blob],
+        },
+      })
+    )
+    .catch(() => {
+      expect(mockFunction.mock.calls.length).toBe(0);
+      done();
+    });
 });
 
 test('should fail import of corrupt backup data', done => {
@@ -200,19 +190,18 @@ test('should fail import of corrupt backup data', done => {
     type: 'text/plain;charset=utf-8',
   });
 
-  importData(
-    window.TW.store,
-    {},
-    {
-      target: {
-        files: [blob],
-      },
-    }
-  ).catch(() => {
-    expect(mockFunction.mock.calls.length).toBe(0);
-
-    done();
-  });
+  window.TW.store
+    .dispatch(
+      importData({
+        target: {
+          files: [blob],
+        },
+      })
+    )
+    .catch(() => {
+      expect(mockFunction.mock.calls.length).toBe(0);
+      done();
+    });
 });
 
 test('should generate a unique file name based on a given date', () => {

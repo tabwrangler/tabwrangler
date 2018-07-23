@@ -1,6 +1,5 @@
 /* @flow */
 
-import { exportData, importData } from './importExport';
 import Button from './Button';
 import type { Dispatch } from './Types';
 import React from 'react';
@@ -10,14 +9,8 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import { setCommands } from './actions/tempStorageActions';
 
-const TW = chrome.extension.getBackgroundPage().TW;
-
 // Unpack TW.
-const { settings, store, tabmanager } = TW;
-
-// Curry import/export function with storageLocal
-const _importData = _.partial(importData, store, tabmanager);
-const _exportData = _.partial(exportData, store);
+const { settings, store, tabmanager } = chrome.extension.getBackgroundPage().TW;
 
 function isValidPattern(pattern) {
   // some other choices such as '/' also do not make sense
@@ -146,31 +139,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     }
   }
 
-  toPromise = (func: (...args: Array<any>) => Promise<void>) => {
-    return function(...args: Array<any>): Promise<void> {
-      return new Promise((resolve, reject) => {
-        const res = func.apply(null, args);
-
-        try {
-          return res.then(resolve, reject);
-        } catch (err) {
-          if (err instanceof TypeError) {
-            resolve(res);
-          } else {
-            reject(err);
-          }
-        }
-
-        return Promise.resolve();
-      });
-    };
-  };
-
-  importExportDataWithFeedback = (
-    operationName: string,
-    func: () => Promise<void>,
-    funcArg: ?SyntheticEvent<*>
-  ) => {
+  importExportDataWithFeedback = (operationName, func, funcArg) => {
     if (this._importExportAlertTimeout != null) {
       window.clearTimeout(this._importExportAlertTimeout);
     }
@@ -181,9 +150,9 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       importExportOperationName: operationName,
     });
 
-    const result = this.toPromise(func)(funcArg);
-
-    result
+    this.props
+      // $FlowFixMe
+      .dispatch(func(funcArg))
       .then(() => {
         this._importExportAlertTimeout = window.setTimeout(() => {
           this.setState({ importExportAlertVisible: false });
@@ -198,12 +167,13 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   exportData = () =>
     this.importExportDataWithFeedback(
       chrome.i18n.getMessage('options_importExport_exporting') || '',
-      _exportData
+      tabmanager.exportData
     );
+
   importData = (event: SyntheticInputEvent<HTMLInputElement>) => {
     return this.importExportDataWithFeedback(
       chrome.i18n.getMessage('options_importExport_importing') || '',
-      _importData,
+      tabmanager.importData,
       event
     );
   };

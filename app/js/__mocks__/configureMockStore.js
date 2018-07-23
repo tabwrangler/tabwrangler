@@ -2,6 +2,7 @@
 
 import configureStore from 'redux-mock-store';
 import { createInitialState as lsCreateInitialState } from '../reducers/localStorageReducer';
+import thunk from 'redux-thunk';
 import { createInitialState as tsCreateInitialState } from '../reducers/tempStorageReducer';
 
 type MockInitialState = {
@@ -10,7 +11,7 @@ type MockInitialState = {
 };
 
 export default function configureMockStore(initialState: MockInitialState = {}) {
-  return configureStore()({
+  return configureStore([thunk])({
     localStorage: {
       ...lsCreateInitialState(),
       ...(initialState.localStorage == null ? {} : initialState.localStorage),

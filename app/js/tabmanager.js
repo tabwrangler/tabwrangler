@@ -1,6 +1,7 @@
 /* @flow */
 /* global TW */
 
+import { exportData, importData } from './actions/importExportActions';
 import {
   removeAllSavedTabs,
   removeSavedTabId,
@@ -157,6 +158,10 @@ const TabManager = {
       TabManager.updateLastAccessed(tabs[i]);
     }
   },
+
+  /* Re-export so these can be executed in the context of the Tab Manager. */
+  exportData,
+  importData,
 
   /**
    * Wrapper function to get all tab times regardless of time inactive

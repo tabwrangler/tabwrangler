@@ -1,13 +1,12 @@
 /* @flow */
 
 import typeof settings from './js/settings';
-import typeof storageLocal from './js/storageLocal';
 import typeof tabmanager from './js/tabmanager';
 import typeof updater from './js/updater';
 
 type TabWrangler = {
   settings: settings,
-  storageLocal: storageLocal,
+  store: Object,
   tabmanager: tabmanager,
   updater: updater,
 };

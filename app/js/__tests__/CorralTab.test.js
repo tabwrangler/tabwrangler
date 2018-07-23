@@ -1,7 +1,5 @@
 /* @flow */
 
-import storageLocal from '../storageLocal';
-
 let sessionFuzzyMatchesTab;
 
 beforeAll(() => {
@@ -9,13 +7,17 @@ beforeAll(() => {
     extension: {
       getBackgroundPage: () => {
         return {
-          TW: storageLocal,
+          TW: { store: {} },
         };
       },
     },
     i18n: {
-      getMessage() { return ''; },
-      getUILanguage() { return ''; },
+      getMessage() {
+        return '';
+      },
+      getUILanguage() {
+        return '';
+      },
     },
   };
 

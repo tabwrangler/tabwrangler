@@ -1,21 +1,21 @@
 /* @flow */
 
 import './CorralTab.css';
-import {Sticky, StickyContainer} from 'react-sticky';
-import {Table, WindowScroller} from 'react-virtualized';
+import { Sticky, StickyContainer } from 'react-sticky';
+import { Table, WindowScroller } from 'react-virtualized';
 import ClosedTabRow from './ClosedTabRow';
+import type { Dispatch } from './Types';
 import React from 'react';
+import { connect } from 'react-redux';
 import cx from 'classnames';
 import extractHostname from './extractHostname';
 import extractRootDomain from './extractRootDomain';
+import { removeSavedTabId } from './actions/localStorageActions';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
 // Unpack TW.
-const {
-  storageLocal,
-  tabmanager,
-} = TW;
+const { tabmanager } = TW;
 
 type Sorter = {
   label: string,
@@ -79,9 +79,11 @@ const DomainSorter: Sorter = {
       const tabBRootDomain = extractRootDomain(tabBUrl);
       // Sort by root domain, then by hostname (like the subdomain), and then by closing time. This
       // gives a predictable sorting order at each level of sort.
-      return tabARootDomain.localeCompare(tabBRootDomain) ||
+      return (
+        tabARootDomain.localeCompare(tabBRootDomain) ||
         tabAHostname.localeCompare(tabBHostname) ||
-        ReverseChronoSorter.sort(tabA, tabB);
+        ReverseChronoSorter.sort(tabA, tabB)
+      );
     }
   },
 };
@@ -106,41 +108,26 @@ const Sorters: Array<Sorter> = [
 export function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab) {
   // Sessions' `lastModified` is only accurate to the second in Chrome whereas `closedAt` is
   // accurate to the millisecond. Convert to ms if needed.
-  const lastModifiedMs = session.lastModified < 10000000000 ?
-    session.lastModified * 1000 :
-    session.lastModified;
+  const lastModifiedMs =
+    session.lastModified < 10000000000 ? session.lastModified * 1000 : session.lastModified;
 
-  return session.tab != null &&
-    (
-      // Tabs with no favIcons have the value `undefined`, but once converted into a session the tab
-      // has an empty string (`''`) as its favIcon value. Account for that case for "equality".
-      session.tab.favIconUrl === tab.favIconUrl ||
-      (session.tab.favIconUrl === '' && tab.favIconUrl == null)
-    ) &&
+  return (
+    session.tab != null &&
+    // Tabs with no favIcons have the value `undefined`, but once converted into a session the tab
+    // has an empty string (`''`) as its favIcon value. Account for that case for "equality".
+    (session.tab.favIconUrl === tab.favIconUrl ||
+      (session.tab.favIconUrl === '' && tab.favIconUrl == null)) &&
     session.tab.title === tab.title &&
     session.tab.url === tab.url &&
     // Ensure the browser's last modified time is within 1s of Tab Wrangler's close to as a fuzzy,
     // but likely always correct, match.
     // $FlowFixMe
-    Math.abs(lastModifiedMs - tab.closedAt) < 1000;
-}
-
-function noRowsRenderer() {
-  return (
-    <div aria-label="row" className="ReactVirtualized__Table__row" role="row">
-      <div
-        className="ReactVirtualized__Table__rowColumn text-center"
-        style={{flex: 1, padding: '8px'}}>
-        {tabmanager.closedTabs.tabs.length === 0 ?
-          chrome.i18n.getMessage('corral_emptyList') :
-          chrome.i18n.getMessage('corral_noTabsMatch')}
-      </div>
-    </div>
+    Math.abs(lastModifiedMs - tab.closedAt) < 1000
   );
 }
 
-function rowRenderer({key, rowData, style}) {
-  const {tab} = rowData;
+function rowRenderer({ key, rowData, style }) {
+  const { tab } = rowData;
   const tabId = tab.id;
   if (tabId == null) return null;
 
@@ -160,19 +147,22 @@ function rowRenderer({key, rowData, style}) {
 }
 
 type Props = {
+  dispatch: Dispatch,
+  savedTabs: Array<chrome$Tab>,
   sessions: Array<chrome$Session>,
+  totalTabsRemoved: number,
+  totalTabsWrangled: number,
 };
 
 type State = {
-  closedTabs: Array<chrome$Tab>,
   filter: string,
   isSortDropdownOpen: boolean,
   lastSelectedTab: ?chrome$Tab,
   selectedTabs: Set<chrome$Tab>,
   sorter: Sorter,
-}
+};
 
-export default class CorralTab extends React.Component<Props, State> {
+class CorralTab extends React.Component<Props, State> {
   _dropdownRef: ?HTMLElement;
   _searchRefFocusTimeout: TimeoutID;
   _searchRef: ?HTMLElement;
@@ -180,7 +170,6 @@ export default class CorralTab extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      closedTabs: [],
       filter: '',
       isSortDropdownOpen: false,
       lastSelectedTab: undefined,
@@ -197,9 +186,6 @@ export default class CorralTab extends React.Component<Props, State> {
       if (this._searchRef != null) this._searchRef.focus();
     }, 350);
 
-    // TODO: This is assumed to be synchronous. If it becomes async, this state needs to be
-    // hoisted so this component does not need to track whether it's mounted.
-    tabmanager.searchTabs(this.setClosedTabs);
     window.addEventListener('click', this._handleWindowClick);
     window.addEventListener('keypress', this._handleKeypress);
   }
@@ -211,8 +197,8 @@ export default class CorralTab extends React.Component<Props, State> {
   }
 
   _areAllClosedTabsSelected() {
-    return this.state.closedTabs.length > 0 &&
-      this.state.closedTabs.every(tab => this.state.selectedTabs.has(tab));
+    const closedTabs = this._getClosedTabs();
+    return closedTabs.length > 0 && closedTabs.every(tab => this.state.selectedTabs.has(tab));
   }
 
   _clearFilter = () => {
@@ -227,14 +213,18 @@ export default class CorralTab extends React.Component<Props, State> {
     if (sorter === this.state.sorter) {
       // If this is already the active sorter, close the dropdown and do no work since the state is
       // already correct.
-      this.setState({isSortDropdownOpen: false});
+      this.setState({ isSortDropdownOpen: false });
     } else {
       this.setState({
-        closedTabs: this.state.closedTabs.sort(sorter.sort),
         isSortDropdownOpen: false,
         sorter,
       });
     }
+  }
+
+  _getClosedTabs() {
+    const filteredTabs = tabmanager.searchTabs([tabmanager.filters.keyword(this.state.filter)]);
+    return filteredTabs.sort(this.state.sorter.sort);
   }
 
   _handleKeypress = (event: SyntheticKeyboardEvent<>) => {
@@ -250,9 +240,12 @@ export default class CorralTab extends React.Component<Props, State> {
   };
 
   _handleRemoveSelectedTabs = () => {
-    const tabs = this.state.closedTabs.filter(tab => this.state.selectedTabs.has(tab));
-    tabs.forEach(tab => { tabmanager.closedTabs.removeTab(tab.id); });
-    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword('')]);
+    const closedTabs = this._getClosedTabs();
+    const tabs = closedTabs.filter(tab => this.state.selectedTabs.has(tab));
+    tabs.forEach(tab => {
+      if (tab.id == null) return;
+      this.props.dispatch(removeSavedTabId(tab.id));
+    });
     this.setState({
       filter: '',
       selectedTabs: new Set(),
@@ -260,31 +253,34 @@ export default class CorralTab extends React.Component<Props, State> {
   };
 
   _handleRemoveTab = (tab: chrome$Tab) => {
-    tabmanager.closedTabs.removeTab(tab.id);
+    if (tab.id == null) return;
+    this.props.dispatch(removeSavedTabId(tab.id));
     this.state.selectedTabs.delete(tab);
     this.forceUpdate();
   };
 
   _handleToggleTab = (tab: chrome$Tab, isSelected: boolean, multiselect: boolean) => {
+    const closedTabs = this._getClosedTabs();
+
     // If this is a multiselect (done by holding the Shift key and clicking), see if the last
     // selected tab is still visible and, if it is, toggle all tabs between it and this new clicked
     // tab.
     if (multiselect && this.state.lastSelectedTab != null) {
-      const lastSelectedTabIndex = this.state.closedTabs.indexOf(this.state.lastSelectedTab);
+      const lastSelectedTabIndex = closedTabs.indexOf(this.state.lastSelectedTab);
       if (lastSelectedTabIndex >= 0) {
-        const tabIndex = this.state.closedTabs.indexOf(tab);
+        const tabIndex = closedTabs.indexOf(tab);
         for (
           let i = Math.min(lastSelectedTabIndex, tabIndex);
           i <= Math.max(lastSelectedTabIndex, tabIndex);
           i++
         ) {
           if (isSelected) {
-            this.state.selectedTabs.add(this.state.closedTabs[i]);
+            this.state.selectedTabs.add(closedTabs[i]);
           } else {
-            this.state.selectedTabs.delete(this.state.closedTabs[i]);
+            this.state.selectedTabs.delete(closedTabs[i]);
           }
         }
-        this.setState({lastSelectedTab: tab});
+        this.setState({ lastSelectedTab: tab });
         return;
       }
     }
@@ -294,18 +290,17 @@ export default class CorralTab extends React.Component<Props, State> {
     } else {
       this.state.selectedTabs.delete(tab);
     }
-    this.setState({lastSelectedTab: tab});
+    this.setState({ lastSelectedTab: tab });
   };
 
   _handleRestoreSelectedTabs = () => {
-    const tabs = this.state.closedTabs.filter(tab => this.state.selectedTabs.has(tab));
-    const sessionTabs = tabs.map(tab => ({
+    const closedTabs = this._getClosedTabs();
+    const sessionTabs = closedTabs.filter(tab => this.state.selectedTabs.has(tab)).map(tab => ({
       session: this.props.sessions.find(session => sessionFuzzyMatchesTab(session, tab)),
       tab,
     }));
 
     tabmanager.closedTabs.unwrangleTabs(sessionTabs);
-    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword('')]);
     this.setState({
       filter: '',
       selectedTabs: new Set(),
@@ -315,7 +310,7 @@ export default class CorralTab extends React.Component<Props, State> {
   _handleSearchChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
     const filter = event.target.value;
     this._setFilter(filter);
-  }
+  };
 
   _handleWindowClick = (event: MouseEvent) => {
     if (
@@ -324,34 +319,42 @@ export default class CorralTab extends React.Component<Props, State> {
       event.target instanceof Node && // Type refinement for Flow
       !this._dropdownRef.contains(event.target)
     ) {
-      this.setState({isSortDropdownOpen: false});
+      this.setState({ isSortDropdownOpen: false });
     }
   };
 
   openTab = (tab: chrome$Tab, session: ?chrome$Session) => {
-    tabmanager.closedTabs.unwrangleTabs([{session, tab}]);
-    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(this.state.filter)]);
+    tabmanager.closedTabs.unwrangleTabs([{ session, tab }]);
     this.state.selectedTabs.delete(tab);
     this.forceUpdate();
   };
 
-  setClosedTabs = (closedTabs: Array<chrome$Tab>) => {
-    closedTabs.sort(this.state.sorter.sort);
-    this.setState({closedTabs});
+  _renderNoRows = () => {
+    return (
+      <div aria-label="row" className="ReactVirtualized__Table__row" role="row">
+        <div
+          className="ReactVirtualized__Table__rowColumn text-center"
+          style={{ flex: 1, padding: '8px' }}>
+          {this.props.savedTabs.length === 0
+            ? chrome.i18n.getMessage('corral_emptyList')
+            : chrome.i18n.getMessage('corral_noTabsMatch')}
+        </div>
+      </div>
+    );
   };
 
   _setFilter(filter: string): void {
-    this.setState({filter});
-    tabmanager.searchTabs(this.setClosedTabs, [tabmanager.filters.keyword(filter)]);
+    this.setState({ filter });
   }
 
   _toggleAllTabs = () => {
+    const closedTabs = this._getClosedTabs();
     let selectedTabs;
     if (this._areAllClosedTabsSelected()) {
       selectedTabs = this.state.selectedTabs;
-      this.state.closedTabs.forEach(tab => this.state.selectedTabs.delete(tab));
+      closedTabs.forEach(tab => this.state.selectedTabs.delete(tab));
     } else {
-      selectedTabs = new Set(this.state.closedTabs);
+      selectedTabs = new Set(closedTabs);
     }
 
     this.setState({
@@ -361,38 +364,39 @@ export default class CorralTab extends React.Component<Props, State> {
   };
 
   _toggleSortDropdown = () => {
-    this.setState({isSortDropdownOpen: !this.state.isSortDropdownOpen});
+    this.setState({ isSortDropdownOpen: !this.state.isSortDropdownOpen });
   };
 
   render() {
+    const closedTabs = this._getClosedTabs();
     const areAllClosedTabsSelected = this._areAllClosedTabsSelected();
-    const totalTabsRemoved = storageLocal.get('totalTabsRemoved');
-    const percentClosed = totalTabsRemoved === 0
-      ? 0
-      : Math.trunc(
-        storageLocal.get('totalTabsWrangled') / storageLocal.get('totalTabsRemoved') * 100
-      );
+    const { totalTabsRemoved, totalTabsWrangled } = this.props;
+    const percentClosed =
+      totalTabsRemoved === 0 ? 0 : Math.trunc((totalTabsWrangled / totalTabsRemoved) * 100);
 
     return (
       <div className="tab-pane active">
         <div className="row">
           <form className="form-search col-xs-6">
-            <div className="form-group" style={{marginBottom: 0}}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <input
                 className="form-control"
                 name="search"
                 onChange={this._handleSearchChange}
                 placeholder={chrome.i18n.getMessage('corral_searchTabs')}
-                ref={(_searchRef: ?HTMLElement) => { this._searchRef = _searchRef; }}
+                ref={(_searchRef: ?HTMLElement) => {
+                  this._searchRef = _searchRef;
+                }}
                 type="search"
                 value={this.state.filter}
               />
             </div>
           </form>
-          <div className="col-xs-6" style={{lineHeight: '30px', textAlign: 'right'}}>
-            <small style={{color: '#999'}}>{chrome.i18n.getMessage('corral_tabsWrangled')}</small>
-            {' '}{storageLocal.get('totalTabsWrangled')}
-            {' '}{chrome.i18n.getMessage('corral_tabsWrangled_or')}{' '}
+          <div className="col-xs-6" style={{ lineHeight: '30px', textAlign: 'right' }}>
+            <small style={{ color: '#999999' }}>
+              {chrome.i18n.getMessage('corral_tabsWrangled')}
+            </small>{' '}
+            {totalTabsWrangled} {chrome.i18n.getMessage('corral_tabsWrangled_or')}{' '}
             <abbr title={chrome.i18n.getMessage('corral_tabsWrangled_formula')}>
               {percentClosed}%
             </abbr>
@@ -401,30 +405,34 @@ export default class CorralTab extends React.Component<Props, State> {
 
         <StickyContainer>
           <Sticky>
-            {({style}) => (
-              <div style={Object.assign(
-                {
-                  // Ensure this element is always positioned so its z-index stacks it on top of the
-                  // virtual table below.
-                  position: 'relative',
-                },
-                style,
-                {
-                  background: 'white',
-                  borderBottom: '1px solid #ddd',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  paddingBottom: '10px',
-                  paddingTop: '10px',
-                  zIndex: 100,
-                })}>
+            {({ style }) => (
+              <div
+                style={Object.assign(
+                  {
+                    // Ensure this element is always positioned so its z-index stacks it on top of
+                    // the virtual table below.
+                    position: 'relative',
+                  },
+                  style,
+                  {
+                    background: 'white',
+                    borderBottom: '1px solid #ddd',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    paddingBottom: '10px',
+                    paddingTop: '10px',
+                    zIndex: 100,
+                  }
+                )}>
                 <div>
                   <button
                     className="btn btn-default btn-xs btn-chunky btn-chunky"
                     onClick={this._toggleAllTabs}
-                    title={areAllClosedTabsSelected ?
-                      chrome.i18n.getMessage('corral_toggleAllTabs_deselectAll') :
-                      chrome.i18n.getMessage('corral_toggleAllTabs_selectAll')}>
+                    title={
+                      areAllClosedTabsSelected
+                        ? chrome.i18n.getMessage('corral_toggleAllTabs_deselectAll')
+                        : chrome.i18n.getMessage('corral_toggleAllTabs_selectAll')
+                    }>
                     <input
                       checked={areAllClosedTabsSelected}
                       readOnly
@@ -433,38 +441,37 @@ export default class CorralTab extends React.Component<Props, State> {
                     />
                   </button>
 
-                  {this.state.closedTabs.some(tab => this.state.selectedTabs.has(tab)) ? [
-                    <button
-                      className="btn btn-default btn-xs btn-chunky btn-chunky"
-                      key="remove"
-                      onClick={this._handleRemoveSelectedTabs}
-                      style={{marginLeft: '10px'}}
-                      title={chrome.i18n.getMessage('corral_removeSelectedTabs')}>
-                      <span className="sr-only">
-                        {chrome.i18n.getMessage('corral_removeSelectedTabs')}
-                      </span>
-                      <span className="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                    </button>,
-                    <button
-                      className="btn btn-default btn-xs btn-chunky btn-chunky"
-                      key="restore"
-                      onClick={this._handleRestoreSelectedTabs}
-                      style={{marginLeft: '10px'}}
-                      title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}>
-                      <span className="sr-only">
-                        {chrome.i18n.getMessage('corral_removeSelectedTabs')}
-                      </span>
-                      <span className="glyphicon glyphicon-new-window" aria-hidden="true"></span>
-                    </button>,
-                  ] : null}
+                  {closedTabs.some(tab => this.state.selectedTabs.has(tab))
+                    ? [
+                        <button
+                          className="btn btn-default btn-xs btn-chunky btn-chunky"
+                          key="remove"
+                          onClick={this._handleRemoveSelectedTabs}
+                          style={{ marginLeft: '10px' }}
+                          title={chrome.i18n.getMessage('corral_removeSelectedTabs')}>
+                          <span className="sr-only">
+                            {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                          </span>
+                          <span className="glyphicon glyphicon-trash" aria-hidden="true" />
+                        </button>,
+                        <button
+                          className="btn btn-default btn-xs btn-chunky btn-chunky"
+                          key="restore"
+                          onClick={this._handleRestoreSelectedTabs}
+                          style={{ marginLeft: '10px' }}
+                          title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}>
+                          <span className="sr-only">
+                            {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                          </span>
+                          <span className="glyphicon glyphicon-new-window" aria-hidden="true" />
+                        </button>,
+                      ]
+                    : null}
                 </div>
                 <div style={{ alignItems: 'center', display: 'flex' }}>
-                  {this.state.filter.length > 0 ?
+                  {this.state.filter.length > 0 ? (
                     <span className="label label-info" style={{ marginRight: '5px' }}>
-                      {chrome.i18n.getMessage(
-                        'corral_searchResults_label',
-                        `${this.state.closedTabs.length}`
-                      )}
+                      {chrome.i18n.getMessage('corral_searchResults_label', `${closedTabs.length}`)}
                       <span
                         className="close close-xs"
                         onClick={this._clearFilter}
@@ -472,11 +479,13 @@ export default class CorralTab extends React.Component<Props, State> {
                         title={chrome.i18n.getMessage('corral_searchResults_clear')}>
                         x
                       </span>
-                    </span> :
-                    null}
+                    </span>
+                  ) : null}
                   <div
-                    className={cx('dropdown', {open: this.state.isSortDropdownOpen})}
-                    ref={(dropdown) => { this._dropdownRef = dropdown; }}>
+                    className={cx('dropdown', { open: this.state.isSortDropdownOpen })}
+                    ref={dropdown => {
+                      this._dropdownRef = dropdown;
+                    }}>
                     <button
                       aria-haspopup="true"
                       className="btn btn-default btn-xs btn-chunky"
@@ -484,8 +493,7 @@ export default class CorralTab extends React.Component<Props, State> {
                       onClick={this._toggleSortDropdown}
                       title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
                       <span className="text-muted">{chrome.i18n.getMessage('corral_sortBy')}</span>
-                      {' '}{this.state.sorter.shortLabel}{' '}
-                      <span className="caret" />
+                      <span> {this.state.sorter.shortLabel}</span> <span className="caret" />
                     </button>
                     <ul
                       aria-labelledby="sort-dropdown"
@@ -493,7 +501,7 @@ export default class CorralTab extends React.Component<Props, State> {
                       {Sorters.map(sorter => {
                         const active = this.state.sorter === sorter;
                         return (
-                          <li className={cx({active})} key={sorter.label}>
+                          <li className={cx({ active })} key={sorter.label}>
                             <a href="#" onClick={this._clickSorter.bind(this, sorter)}>
                               {sorter.label}
                             </a>
@@ -508,20 +516,21 @@ export default class CorralTab extends React.Component<Props, State> {
           </Sticky>
 
           <WindowScroller>
-            {({height, isScrolling, onChildScroll, scrollTop}) => (
+            {({ height, isScrolling, onChildScroll, scrollTop }) => (
               <Table
                 autoHeight
                 className="table table-hover"
                 headerHeight={0}
                 height={height}
                 isScrolling={isScrolling}
-                noRowsRenderer={noRowsRenderer}
+                noRowsRenderer={this._renderNoRows}
                 onScroll={onChildScroll}
-                rowCount={this.state.closedTabs.length}
-                rowGetter={({index}) => {
-                  const tab = this.state.closedTabs[index];
-                  const session =
-                    this.props.sessions.find(session => sessionFuzzyMatchesTab(session, tab));
+                rowCount={closedTabs.length}
+                rowGetter={({ index }) => {
+                  const tab = closedTabs[index];
+                  const session = this.props.sessions.find(session =>
+                    sessionFuzzyMatchesTab(session, tab)
+                  );
                   return {
                     isSelected: this.state.selectedTabs.has(tab),
                     onOpenTab: this.openTab,
@@ -544,3 +553,10 @@ export default class CorralTab extends React.Component<Props, State> {
     );
   }
 }
+
+export default connect(state => ({
+  savedTabs: state.localStorage.savedTabs,
+  sessions: state.tempStorage.sessions,
+  totalTabsRemoved: state.localStorage.totalTabsRemoved,
+  totalTabsWrangled: state.localStorage.totalTabsWrangled,
+}))(CorralTab);

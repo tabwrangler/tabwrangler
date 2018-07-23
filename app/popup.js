@@ -3,17 +3,21 @@
 import './lib/bootstrap/css/bootstrap.min.css';
 import './css/popup.css';
 import 'react-virtualized/styles.css';
-import NavBar, {type NavBarTabID} from './js/NavBar';
+import NavBar, { type NavBarTabID } from './js/NavBar';
+import { clearTempStorage, fetchSessions } from './js/actions/tempStorageActions';
 import AboutTab from './js/AboutTab';
 import CorralTab from './js/CorralTab';
+import type { Dispatch } from './js/Types';
 import LockTab from './js/LockTab';
 import OptionsTab from './js/OptionsTab';
+import { PersistGate } from 'redux-persist/integration/react';
+import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { connect } from 'react-redux';
 
 type Props = {
-  commands: Array<chrome$Command>,
-  sessions: Array<chrome$Session>,
+  dispatch: Dispatch,
 };
 
 type State = {
@@ -28,64 +32,73 @@ class Popup extends React.PureComponent<Props, State> {
     };
   }
 
-  _handleClickTab = (tabId) => {
-    this.setState({activeTabId: tabId});
+  componentDidMount() {
+    chrome.sessions.onChanged.addListener(this._updateSessionsRecentlyClosed);
+    this._updateSessionsRecentlyClosed();
+  }
+
+  componentWillUnmount() {
+    // Ensure the temp storage is cleared when the popup is closed to prevent holding references to
+    // objects that may be cleaned up. In Firefox, this can lead to ["DeadObject" errors][1], which
+    // throw exceptions and prevent the popup from displaying.
+    this.props.dispatch(clearTempStorage());
+    chrome.sessions.onChanged.removeListener(this._updateSessionsRecentlyClosed);
+  }
+
+  _handleClickTab = tabId => {
+    this.setState({ activeTabId: tabId });
+  };
+
+  _updateSessionsRecentlyClosed = () => {
+    this.props.dispatch(fetchSessions());
   };
 
   render() {
     let activeTab;
     switch (this.state.activeTabId) {
-    case 'about':
-      activeTab = <AboutTab />;
-      break;
-    case 'corral':
-      activeTab = <CorralTab sessions={this.props.sessions} />;
-      break;
-    case 'lock':
-      activeTab = <LockTab />;
-      break;
-    case 'options':
-      activeTab = <OptionsTab commands={this.props.commands} />;
-      break;
+      case 'about':
+        activeTab = <AboutTab />;
+        break;
+      case 'corral':
+        activeTab = <CorralTab />;
+        break;
+      case 'lock':
+        activeTab = <LockTab />;
+        break;
+      case 'options':
+        activeTab = <OptionsTab />;
+        break;
     }
 
     return (
       <div>
         <NavBar activeTabId={this.state.activeTabId} onClickTab={this._handleClickTab} />
-        <div className="tab-content container">
-          {activeTab}
-        </div>
+        <div className="tab-content container">{activeTab}</div>
       </div>
     );
   }
 }
 
-function render(props) {
-  const popupElement = document.getElementById('popup');
-  if (popupElement == null) return;
-  ReactDOM.render(<Popup {...props} />, popupElement);
+const ConnectedPopup = connect()(Popup);
+const TW = chrome.extension.getBackgroundPage().TW;
+const popupElement = document.getElementById('popup');
+if (popupElement != null) {
+  ReactDOM.render(
+    <Provider store={TW.store}>
+      <PersistGate loading={null} persistor={TW.persistor}>
+        <ConnectedPopup />
+      </PersistGate>
+    </Provider>,
+    popupElement
+  );
+
+  // The popup fires `pagehide` when the popup is going away. Make sure to unmount the component so
+  // it can unsubscribe from the Store events.
+  const unmountPopup = function unmountPopup() {
+    ReactDOM.unmountComponentAtNode(popupElement);
+    window.removeEventListener('pagehide', unmountPopup);
+  };
+  window.addEventListener('pagehide', unmountPopup);
 }
 
-let state = {
-  commands: [],
-  sessions: [],
-};
-
-render(state);
-
-// TODO: Move into a Redux store rather than use one-off render calls.
-// See https://github.com/tabwrangler/tabwrangler/issues/113
-chrome.commands.getAll(commands => {
-  state = Object.assign({}, state, {commands});
-  render(state);
-});
-
-function updateSessionsRecentlyClosed() {
-  chrome.sessions.getRecentlyClosed(sessions => {
-    state = Object.assign({}, state, {sessions});
-    render(state);
-  });
-}
-
-chrome.sessions.onChanged.addListener(updateSessionsRecentlyClosed);
-updateSessionsRecentlyClosed();
+// [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Dead_object

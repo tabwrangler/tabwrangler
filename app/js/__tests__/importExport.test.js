@@ -1,17 +1,20 @@
-import { exportData, exportFileName, importData } from '../importExport';
+import { exportData, exportFileName, importData } from '../actions/importExportActions';
 import FileSaver from 'file-saver';
-import storageLocal from '../storageLocal';
+import configureMockStore from '../__mocks__/configureMockStore';
 
 beforeEach(() => {
+  const TW = (window.TW = {
+    store: configureMockStore(),
+  });
+
   window.chrome = {
     storage: {
-      local: {
-      },
+      local: {},
     },
     extension: {
       getBackgroundPage: () => {
         return {
-          TW: storageLocal,
+          TW,
         };
       },
     },
@@ -23,39 +26,30 @@ afterEach(() => {
 });
 
 test('should export the bookmark data', () => {
-  const mockValues = {
-    totalTabsRemoved: 256,
-    totalTabsUnwrangled: 120,
-    totalTabsWrangled: 100,
-  };
+  window.TW.store = configureMockStore({
+    tempStorage: {
+      totalTabsRemoved: 256,
+      totalTabsUnwrangled: 120,
+      totalTabsWrangled: 100,
+    },
+  });
 
   // provide some mock functions
-  const localStorageGet = jest.fn((key) => mockValues[key]);
   const fileSaveMock = jest.fn();
 
   window.chrome.storage.local.get = (t, func) => {
-    func({test: 2});
-  };
-
-  const storageLocal = {
-    get: localStorageGet,
+    func({ test: 2 });
   };
 
   FileSaver.saveAs = fileSaveMock;
 
-  exportData(storageLocal);
-  expect(localStorageGet.mock.calls.length).toBe(3);
+  window.TW.store.dispatch(exportData());
   expect(fileSaveMock.mock.calls.length).toBe(1);
   const result = fileSaveMock.mock.calls[0][0];
   expect(result.type).toBe('application/json;charset=utf-8');
 });
 
-test('should import the bookmark data', (done) => {
-  // provide a mock function
-  const localStorageSetMock = jest.fn();
-  window.chrome.storage.local.set = localStorageSetMock;
-  const tabManagerInit = jest.fn();
-
+test('should import the bookmark data', done => {
   const expectedImportData = {
     savedTabs: [
       {
@@ -90,23 +84,51 @@ test('should import the bookmark data', (done) => {
     type: 'text/plain;charset=utf-8',
   });
 
-  importData(storageLocal, {closedTabs: {init: tabManagerInit}}, {target: {
-    files: [blob],
-  }}).then(() => {
-    expect(localStorageSetMock.mock.calls.length).toBe(4);
-    expect(localStorageSetMock.mock.calls[3][0]).toEqual({savedTabs: expectedImportData.savedTabs});
-    expect(localStorageSetMock.mock.calls[0][0]).toEqual(
-      {totalTabsRemoved: expectedImportData.totalTabsRemoved}
-    );
-    expect(localStorageSetMock.mock.calls[1][0]).toEqual(
-      {totalTabsUnwrangled: expectedImportData.totalTabsUnwrangled}
-    );
-    expect(localStorageSetMock.mock.calls[2][0]).toEqual(
-      {totalTabsWrangled: expectedImportData.totalTabsWrangled}
-    );
-
-    done();
-  }).catch((e) => console.error(e));
+  window.TW.store
+    .dispatch(
+      importData({
+        target: {
+          files: [blob],
+        },
+      })
+    )
+    .then(() => {
+      expect(window.TW.store.getActions()).toEqual([
+        { totalTabsRemoved: 256, type: 'SET_TOTAL_TABS_REMOVED' },
+        { totalTabsUnwrangled: 16, type: 'SET_TOTAL_TABS_UNWRANGLED' },
+        { totalTabsWrangled: 32, type: 'SET_TOTAL_TABS_WRANGLED' },
+        {
+          savedTabs: [
+            {
+              active: false,
+              audible: false,
+              autoDiscardable: true,
+              closedAt: 1493418190099,
+              discarded: false,
+              height: 175,
+              highlighted: false,
+              id: 36,
+              incognito: false,
+              index: 1,
+              mutedInfo: { muted: false },
+              pinned: false,
+              selected: false,
+              status: 'complete',
+              title: 'fish: Tutorial',
+              url: 'https://fishshell.com/docs/current/tutorial.html',
+              width: 400,
+              windowId: 33,
+            },
+          ],
+          type: 'SET_SAVED_TABS',
+        },
+      ]);
+      done();
+    })
+    .catch(e => {
+      console.error(e);
+      done();
+    });
 });
 
 test('should fail to import non existent backup', done => {
@@ -114,19 +136,19 @@ test('should fail to import non existent backup', done => {
   const mockFunction = jest.fn();
   window.chrome.storage.local.set = mockFunction;
 
-  importData(
-    storageLocal,
-    {},
-    {
-      target: {
-        files: [],
-      },
-    }
-  ).catch(() => {
-    expect(mockFunction.mock.calls.length).toBe(0);
+  window.TW.store
+    .dispatch(
+      importData({
+        target: {
+          files: [],
+        },
+      })
+    )
+    .catch(() => {
+      expect(mockFunction.mock.calls.length).toBe(0);
 
-    done();
-  });
+      done();
+    });
 });
 
 test('should fail import of incomplete backup data', done => {
@@ -145,15 +167,18 @@ test('should fail import of incomplete backup data', done => {
     type: 'text/plain;charset=utf-8',
   });
 
-  importData(storageLocal, {}, {
-    target: {
-      files: [blob],
-    },
-  }).catch(() => {
-    expect(mockFunction.mock.calls.length).toBe(0);
-
-    done();
-  });
+  window.TW.store
+    .dispatch(
+      importData({
+        target: {
+          files: [blob],
+        },
+      })
+    )
+    .catch(() => {
+      expect(mockFunction.mock.calls.length).toBe(0);
+      done();
+    });
 });
 
 test('should fail import of corrupt backup data', done => {
@@ -165,19 +190,18 @@ test('should fail import of corrupt backup data', done => {
     type: 'text/plain;charset=utf-8',
   });
 
-  importData(
-    storageLocal,
-    {},
-    {
-      target: {
-        files: [blob],
-      },
-    }
-  ).catch(() => {
-    expect(mockFunction.mock.calls.length).toBe(0);
-
-    done();
-  });
+  window.TW.store
+    .dispatch(
+      importData({
+        target: {
+          files: [blob],
+        },
+      })
+    )
+    .catch(() => {
+      expect(mockFunction.mock.calls.length).toBe(0);
+      done();
+    });
 });
 
 test('should generate a unique file name based on a given date', () => {

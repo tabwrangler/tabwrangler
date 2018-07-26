@@ -46,5 +46,5 @@ test('should throw an exception when maxTabs is < 1', () => {
 });
 
 test('should throw an exception when maxTabs is > 1000', () => {
-  expect(() => Settings.setmaxTabs(600)).toThrowError();
+  expect(() => Settings.setmaxTabs(1100)).toThrowError();
 });

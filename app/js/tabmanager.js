@@ -135,13 +135,6 @@ const TabManager = {
   },
 
   filters: {
-    // Matches when the URL is exactly matching
-    exactUrl(url: string) {
-      return function(tab: chrome$Tab) {
-        return tab.url === url;
-      };
-    },
-
     // Matches either the title or URL containing "keyword"
     keyword(keyword: string) {
       return function(tab: chrome$Tab) {

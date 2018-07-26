@@ -15,6 +15,9 @@ const Settings = {
     // wait 1 second before updating an active tab
     debounceOnActivated: false,
 
+    // Don't close tabs that are playing audio.
+    filterAudio: true,
+
     // An array of tabids which have been explicitly locked by the user.
     lockedIds: [],
 
@@ -36,7 +39,7 @@ const Settings = {
     // How many seconds (+ minutesInactive) before a tab is "stale" and ready to close.
     secondsInactive: 0,
 
-    // Save closed tabs in between browser sessions.
+    // When true, shows the number of closed tabs in the list as a badge on the browser icon.
     showBadgeCount: true,
 
     // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
@@ -44,9 +47,6 @@ const Settings = {
 
     // We allow duplicate entries in the closed/wrangled tabs list
     wrangleOption: 'withDupes',
-
-    // Don't close tabs that are playing audio.
-    filterAudio: false,
   },
 
   // Gets all settings from sync and stores them locally.
@@ -120,10 +120,9 @@ const Settings = {
    * @see Settings.set
    */
   setminTabs(value: string) {
-    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0 ) {
+    if (isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0) {
       throw Error(
-        chrome.i18n.getMessage('settings_setminTabs_error') ||
-        'Error: settings.setminTabs'
+        chrome.i18n.getMessage('settings_setminTabs_error') || 'Error: settings.setminTabs'
       );
     }
     Settings.setValue('minTabs', value);
@@ -139,13 +138,13 @@ const Settings = {
     if (isNaN(minutes) || minutes < 0) {
       throw Error(
         chrome.i18n.getMessage('settings_setminutesInactive_error') ||
-        'Error: settings.setminutesInactive'
+          'Error: settings.setminutesInactive'
       );
     }
 
     // Reset the tabTimes since we changed the setting
     tabmanager.tabTimes = {};
-    chrome.tabs.query({windowType: 'normal'}, tabmanager.initTabs);
+    chrome.tabs.query({ windowType: 'normal' }, tabmanager.initTabs);
     Settings.setValue('minutesInactive', value);
   },
 
@@ -156,16 +155,15 @@ const Settings = {
    */
   setsecondsInactive(value: string): void {
     const seconds = parseInt(value, 10);
-    if ( isNaN(seconds) || seconds < 0 || seconds > 59 ) {
+    if (isNaN(seconds) || seconds < 0 || seconds > 59) {
       throw Error(
-        chrome.i18n.getMessage('settings_setsecondsInactive_error') ||
-        'Error: setsecondsInactive'
+        chrome.i18n.getMessage('settings_setsecondsInactive_error') || 'Error: setsecondsInactive'
       );
     }
 
     // Reset the tabTimes since we changed the setting
     tabmanager.tabTimes = {};
-    chrome.tabs.query({windowType: 'normal'}, tabmanager.initTabs);
+    chrome.tabs.query({ windowType: 'normal' }, tabmanager.initTabs);
     Settings.setValue('secondsInactive', value);
   },
 
@@ -173,9 +171,12 @@ const Settings = {
     if (value === false) {
       // The user has just unpaused, immediately set all tabs to the current time
       // so they will not be closed.
-      chrome.tabs.query({
-        windowType: 'normal',
-      }, tabmanager.initTabs);
+      chrome.tabs.query(
+        {
+          windowType: 'normal',
+        },
+        tabmanager.initTabs
+      );
     }
     Settings.setValue('paused', value);
   },
@@ -183,7 +184,7 @@ const Settings = {
   setshowBadgeCount(value: boolean) {
     if (value === false) {
       // Clear out the current badge setting
-      chrome.browserAction.setBadgeText({text: ''});
+      chrome.browserAction.setBadgeText({ text: '' });
     }
     Settings.setValue('showBadgeCount', value);
     tabmanager.updateClosedCount();
@@ -191,7 +192,7 @@ const Settings = {
 
   setValue(key: string, value: mixed, fx?: () => void) {
     this.cache[key] = value;
-    chrome.storage.sync.set({[key]: value}, fx);
+    chrome.storage.sync.set({ [key]: value }, fx);
   },
 
   /**

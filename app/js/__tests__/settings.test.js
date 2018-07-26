@@ -6,11 +6,12 @@ let mockFunctionSet;
 beforeEach(() => {
   window.chrome = {
     i18n: {
-      getMessage() { return ''; },
+      getMessage() {
+        return '';
+      },
     },
     storage: {
-      local: {
-      },
+      local: {},
       sync: {},
     },
   };
@@ -28,9 +29,9 @@ afterEach(() => {
   window.chrome = {};
 });
 
-test('should set maxTabs to 500', () => {
-  Settings.setmaxTabs(500);
-  expect(Settings.get('maxTabs')).toBe(500);
+test('should set maxTabs to 1000', () => {
+  Settings.setmaxTabs(1000);
+  expect(Settings.get('maxTabs')).toBe(1000);
   expect(mockFunctionSet.mock.calls.length).toBe(1);
 });
 
@@ -44,6 +45,6 @@ test('should throw an exception when maxTabs is < 1', () => {
   expect(() => Settings.setmaxTabs(0)).toThrowError();
 });
 
-test('should throw an exception when maxTabs is > 500', () => {
+test('should throw an exception when maxTabs is > 1000', () => {
   expect(() => Settings.setmaxTabs(600)).toThrowError();
 });

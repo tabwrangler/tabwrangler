@@ -325,7 +325,7 @@
   },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",
-    "message": "최대 탭은 1에서 500 사이의 숫자여야 합니다. 너무 높게 설정하면 성능 문제가 발생할 수 있습니다."
+    "message": "최대 탭은 1에서 1000 사이의 숫자여야 합니다."
   },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",

@@ -325,7 +325,7 @@
   },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",
-    "message": "Максимальное число вкладок должно быть между 1 и 500. Установка большего значения может замедлить работу"
+    "message": "Максимальное число вкладок должно быть между 1 и 1000."
   },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",

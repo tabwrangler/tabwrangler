@@ -18,8 +18,8 @@ const Settings = {
     // An array of tabids which have been explicitly locked by the user.
     lockedIds: [],
 
-    // Just to keep memory / UI in check. No UI for this.
     maxTabs: 100,
+    // Max number of tabs stored before the list starts getting truncated.
 
     // Stop acting if there are only minTabs tabs open.
     minTabs: 5,
@@ -106,10 +106,9 @@ const Settings = {
    * @see Settings.set
    */
   setmaxTabs(value: string) {
-    if ( isNaN(parseInt(value, 10)) || parseInt(value, 10) < 1 || parseInt(value, 10) > 500 ) {
+    if (isNaN(parseInt(value, 10)) || parseInt(value, 10) < 1 || parseInt(value, 10) > 1000) {
       throw Error(
-        chrome.i18n.getMessage('settings_setmaxTabs_error') ||
-        'Error: settings.setmaxTabs'
+        chrome.i18n.getMessage('settings_setmaxTabs_error') || 'Error: settings.setmaxTabs'
       );
     }
     Settings.setValue('maxTabs', value);

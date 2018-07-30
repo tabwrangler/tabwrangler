@@ -7,6 +7,13 @@ import localStorageReducer from './reducers/localStorageReducer';
 import tempStorageReducer from './reducers/tempStorageReducer';
 import thunk from 'redux-thunk';
 
+const PRE_V6_LOCAL_STORAGE_KEYS = [
+  'installDate',
+  'savedTabs',
+  'totalTabsRemoved',
+  'totalTabsUnwrangled',
+  'totalTabsWrangled',
+];
 const localStoragePersistConfig = {
   key: 'localStorage',
   migrate(state) {
@@ -15,8 +22,6 @@ const localStoragePersistConfig = {
     if (state == null) {
       return new Promise(resolve => {
         chrome.storage.local.get(null, items => {
-          // THIS CANNOT BE INTERRUPTED! This is a bit scary, but the full contents of Tab
-          // Wrangler's storage is held in memory between removing and resolving the outer Promise.
           // This is necessary to ensure Tab Wrangler doesn't go over its storage limit because
           // during this migration all items are moved to new locations, and without first removing
           // the old location Tab Wrangler would temporarily double its storage usage.
@@ -26,12 +31,48 @@ const localStoragePersistConfig = {
         });
       });
     } else {
-      return Promise.resolve(state);
+      const inboundVersion =
+        state._persist && state._persist.version !== undefined ? state._persist.version : -1;
+      if (inboundVersion < 2) {
+        return new Promise(resolve => {
+          chrome.storage.local.get(PRE_V6_LOCAL_STORAGE_KEYS, data => {
+            const nextState = { ...state };
+            Object.keys(data).forEach(key => {
+              const value = data[key];
+              if (value != null) {
+                switch (key) {
+                  case 'installDate':
+                    // $FlowFixMe
+                    nextState.installDate = value;
+                    break;
+                  case 'savedTabs':
+                    // $FlowFixMe
+                    nextState.savedTabs =
+                      // $FlowFixMe
+                      nextState.savedTabs == null ? value : nextState.savedTabs.concat(value);
+                    break;
+                  case 'totalTabsRemoved':
+                  case 'totalTabsUnwrangled':
+                  case 'totalTabsWrangled':
+                    // $FlowFixMe
+                    nextState[key] = nextState[key] == null ? value : nextState[key] + value;
+                    break;
+                }
+              }
+            });
+            chrome.storage.local.remove(PRE_V6_LOCAL_STORAGE_KEYS, () => {
+              resolve(nextState);
+            });
+          });
+        });
+      } else {
+        return Promise.resolve(state);
+      }
     }
   },
   serialize: false,
   storage: localStorage,
-  version: 1,
+  version: 2,
 };
 
 const rootReducer = combineReducers({

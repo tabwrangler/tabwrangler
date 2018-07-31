@@ -134,18 +134,6 @@ const TabManager = {
     },
   },
 
-  filters: {
-    // Matches either the title or URL containing "keyword"
-    keyword(keyword: string) {
-      return function(tab: chrome$Tab) {
-        const test = new RegExp(keyword, 'i');
-        return (
-          (tab.title != null && test.exec(tab.title)) || (tab.url != null && test.exec(tab.url))
-        );
-      };
-    },
-  },
-
   initTabs(tabs: Array<chrome$Tab>) {
     for (let i = 0; i < tabs.length; i++) {
       TabManager.updateLastAccessed(tabs[i]);
@@ -226,16 +214,6 @@ const TabManager = {
   replaceTab(addedTabId: number, removedTabId: number) {
     TabManager.removeTab(removedTabId);
     TabManager.updateLastAccessed(addedTabId);
-  },
-
-  searchTabs(filters: Array<(tab: chrome$Tab) => boolean>): Array<chrome$Tab> {
-    let tabs = TW.store.getState().localStorage.savedTabs;
-    if (filters) {
-      for (let i = 0; i < filters.length; i++) {
-        tabs = _.filter(tabs, filters[i]);
-      }
-    }
-    return tabs;
   },
 
   unlockTab(tabId: number) {

@@ -17,6 +17,13 @@ const TW = chrome.extension.getBackgroundPage().TW;
 // Unpack TW.
 const { tabmanager } = TW;
 
+function keywordFilter(keyword: string) {
+  return function(tab: chrome$Tab) {
+    const test = new RegExp(keyword, 'i');
+    return (tab.title != null && test.exec(tab.title)) || (tab.url != null && test.exec(tab.url));
+  };
+}
+
 type Sorter = {
   label: string,
   shortLabel: string,
@@ -223,7 +230,7 @@ class CorralTab extends React.Component<Props, State> {
   }
 
   _getClosedTabs() {
-    const filteredTabs = tabmanager.searchTabs([tabmanager.filters.keyword(this.state.filter)]);
+    const filteredTabs = this._searchTabs();
     return filteredTabs.sort(this.state.sorter.sort);
   }
 
@@ -246,10 +253,7 @@ class CorralTab extends React.Component<Props, State> {
       if (tab.id == null) return;
       this.props.dispatch(removeSavedTabId(tab.id));
     });
-    this.setState({
-      filter: '',
-      selectedTabs: new Set(),
-    });
+    this.setState({ selectedTabs: new Set() });
   };
 
   _handleRemoveTab = (tab: chrome$Tab) => {
@@ -342,6 +346,10 @@ class CorralTab extends React.Component<Props, State> {
       </div>
     );
   };
+
+  _searchTabs(): Array<chrome$Tab> {
+    return this.props.savedTabs.filter(keywordFilter(this.state.filter));
+  }
 
   _setFilter(filter: string): void {
     this.setState({ filter });

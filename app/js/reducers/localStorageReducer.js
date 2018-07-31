@@ -4,9 +4,9 @@ type RemoveAllSavedTabsAction = {
   type: 'REMOVE_ALL_SAVED_TABS',
 };
 
-type RemoveSavedTabIdAction = {
-  tabId: number,
-  type: 'REMOVE_SAVED_TAB_ID',
+type RemoveSavedTabAction = {
+  tab: chrome$Tab,
+  type: 'REMOVE_SAVED_TAB',
 };
 
 type SetSavedTabsAction = {
@@ -31,7 +31,7 @@ type SetTotalTabsWrangledAction = {
 
 export type Action =
   | RemoveAllSavedTabsAction
-  | RemoveSavedTabIdAction
+  | RemoveSavedTabAction
   | SetSavedTabsAction
   | SetTotalTabsRemovedAction
   | SetTotalTabsUnwrangledAction
@@ -72,10 +72,8 @@ export default function localStorage(state: State = initialState, action: Action
         ...state,
         savedTabs: [],
       };
-    case 'REMOVE_SAVED_TAB_ID': {
-      // Extract `tabId` to preserve type refinement inside `findIndex` callback.
-      const actionTabId = action.tabId;
-      const tabIndex = state.savedTabs.findIndex(tab => tab.id === actionTabId);
+    case 'REMOVE_SAVED_TAB': {
+      const tabIndex = state.savedTabs.indexOf(action.tab);
       if (tabIndex === -1) return state;
 
       // * Annotate `nextSavedTabs` to appease Flow. It's unclear why this annotation is required

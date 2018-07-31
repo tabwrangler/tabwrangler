@@ -26,7 +26,6 @@ type State = {
 };
 
 export default class ClosedTabRow extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -35,15 +34,12 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
   }
 
   _handleClickAnchor = (event: SyntheticMouseEvent<HTMLElement>) => {
-    const {tab} = this.props;
+    const { tab } = this.props;
     event.preventDefault();
     this.props.onOpenTab(tab, this.props.session);
   };
 
   _handleClickCheckbox = (event: SyntheticMouseEvent<HTMLInputElement>) => {
-    // TODO: Handle tabs with no IDs in a predicatble way.
-    if (this.props.tab.id == null) return;
-
     // Dynamic type check to ensure target is an input element.
     if (!(event.target instanceof HTMLInputElement)) return;
 
@@ -55,30 +51,31 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
   };
 
   _handleClickTd = (event: SyntheticMouseEvent<HTMLElement>) => {
-    if (event.currentTarget.nodeName === 'input' || this.props.tab.id == null) return;
+    if (event.currentTarget.nodeName === 'input') return;
     this.props.onToggleTab(this.props.tab, !this.props.isSelected, event.shiftKey);
   };
 
   _handleMouseOut = () => {
-    this.setState({hovered: false});
+    this.setState({ hovered: false });
   };
 
   _handleMouseOver = () => {
-    this.setState({hovered: true});
+    this.setState({ hovered: true });
   };
 
   render() {
-    const {isSelected, session, style, tab} = this.props;
+    const { isSelected, session, style, tab } = this.props;
 
     return (
       <div
         aria-label="row"
-        className={cx('ReactVirtualized__Table__row', {'bg-warning': isSelected})}
+        className={cx('ReactVirtualized__Table__row', { 'bg-warning': isSelected })}
         role="row"
         style={style}>
         <div
           className="ReactVirtualized__Table__rowColumn"
-          onClick={this._handleClickTd} style={{verticalAlign: 'middle'}}>
+          onClick={this._handleClickTd}
+          style={{ verticalAlign: 'middle' }}>
           <input
             checked={isSelected}
             className="checkbox--td"
@@ -88,7 +85,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
         </div>
         <div
           className="faviconCol ReactVirtualized__Table__rowColumn"
-          style={{verticalAlign: 'middle'}}>
+          style={{ verticalAlign: 'middle' }}>
           <LazyImage
             alt=""
             className="faviconCol--hover-hidden favicon"
@@ -99,14 +96,14 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
           <span
             className="faviconCol--hover-shown glyphicon glyphicon-trash"
             onClick={this._handleClickRemove}
-            style={{cursor: 'pointer', height: 16, width: 16}}
+            style={{ cursor: 'pointer', height: 16, width: 16 }}
             title="Remove this tab"
           />
         </div>
         <div
           className="ReactVirtualized__Table__rowColumn"
-          style={{flex: 1, paddingBottom: '4px', paddingTop: '4px'}}>
-          <div style={{display: 'flex'}}>
+          style={{ flex: 1, paddingBottom: '4px', paddingTop: '4px' }}>
+          <div style={{ display: 'flex' }}>
             <div
               style={{
                 flex: 1,
@@ -119,7 +116,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
                 href={tab.url}
                 onClick={this._handleClickAnchor}
                 rel="noopener noreferrer"
-                style={{flex: 1}}
+                style={{ flex: 1 }}
                 target="_blank"
                 title={tab.url}>
                 {tab.title}
@@ -133,7 +130,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
         </div>
         <div
           className="ReactVirtualized__Table__rowColumn text-right"
-          style={{verticalAlign: 'middle'}}
+          style={{ verticalAlign: 'middle' }}
           title={
             /* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */
             new Date(tab.closedAt).toLocaleString()
@@ -141,15 +138,14 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
           {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
           <TimeAgo datetime={tab.closedAt} locale={uiLanguage} />
         </div>
-        <div className="ReactVirtualized__Table__rowColumn" style={{width: '11px'}}>
-          {session == null ?
-            null :
+        <div className="ReactVirtualized__Table__rowColumn" style={{ width: '11px' }}>
+          {session == null ? null : (
             <abbr title={chrome.i18n.getMessage('corral_tabSessionFresh')}>
               <i className="glyphicon glyphicon-leaf text-success" />
-            </abbr>}
+            </abbr>
+          )}
         </div>
       </div>
     );
   }
-
 }

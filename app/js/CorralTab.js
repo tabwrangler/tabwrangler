@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import extractHostname from './extractHostname';
 import extractRootDomain from './extractRootDomain';
-import { removeSavedTabId } from './actions/localStorageActions';
+import { removeSavedTab } from './actions/localStorageActions';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
@@ -134,10 +134,6 @@ export function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab)
 }
 
 function rowRenderer({ key, rowData, style }) {
-  const { tab } = rowData;
-  const tabId = tab.id;
-  if (tabId == null) return null;
-
   return (
     <ClosedTabRow
       isSelected={rowData.isSelected}
@@ -148,7 +144,7 @@ function rowRenderer({ key, rowData, style }) {
       onToggleTab={rowData.onToggleTab}
       session={rowData.session}
       style={style}
-      tab={tab}
+      tab={rowData.tab}
     />
   );
 }
@@ -250,15 +246,13 @@ class CorralTab extends React.Component<Props, State> {
     const closedTabs = this._getClosedTabs();
     const tabs = closedTabs.filter(tab => this.state.selectedTabs.has(tab));
     tabs.forEach(tab => {
-      if (tab.id == null) return;
-      this.props.dispatch(removeSavedTabId(tab.id));
+      this.props.dispatch(removeSavedTab(tab));
     });
     this.setState({ selectedTabs: new Set() });
   };
 
   _handleRemoveTab = (tab: chrome$Tab) => {
-    if (tab.id == null) return;
-    this.props.dispatch(removeSavedTabId(tab.id));
+    this.props.dispatch(removeSavedTab(tab));
     this.state.selectedTabs.delete(tab);
     this.forceUpdate();
   };

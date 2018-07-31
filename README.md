@@ -85,17 +85,23 @@ usages are described in the following table:
 
 ### Translators
 
+Tab Wrangler would greatly appreciate any translation help. You can contribute on the
+[Tab Wrangler Crowdin Project][1], which makes it easy for anyone to contribute.
+
 * 🇩🇪 German translation by [ingorichter](https://github.com/ingorichter)
 * 🇰🇷 Korean translation by [simple-is-best](https://github.com/simple-is-best)
 * 🇷🇺 Russian translation by [Voknehzyr](https://github.com/Voknehzyr)
 
-See "[Contributing Translations](CONTRIBUTING.md#contributing-translations)" for how you can help
-make Tab Wrangler available in more languages.
-
 ### Developers
+
+Pull requests for bug fixes and features are more than welcome. Please check out the
+["Developing" section][2] of the CONTRIBUTING doc to see how to get started. Once your code is
+working and tested, submit a pull request to this primary project and we'll get going.
 
 * Modernized and maintained by [ssorallen](https://github.com/ssorallen) in 2017
 * Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012
 * Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010
 
 [0]: https://chrome.google.com/sync
+[1]: https://crowdin.com/project/tab-wrangler
+[2]: CONTRIBUTING.md#developing

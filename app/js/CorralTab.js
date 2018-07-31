@@ -297,10 +297,7 @@ class CorralTab extends React.Component<Props, State> {
     }));
 
     tabmanager.closedTabs.unwrangleTabs(sessionTabs);
-    this.setState({
-      filter: '',
-      selectedTabs: new Set(),
-    });
+    this.setState({ selectedTabs: new Set() });
   };
 
   _handleSearchChange = (event: SyntheticInputEvent<HTMLInputElement>) => {

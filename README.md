@@ -81,7 +81,7 @@ usages are described in the following table:
 | `whitelist`           | `['about:', 'chrome://']` |                                                             | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed |
 | `wrangleOption`       | `'withDupes'`             | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'` | How to handle duplicate entries in the closed tabs list                                             |
 
-## Credits
+## Contributing
 
 ### Translators
 

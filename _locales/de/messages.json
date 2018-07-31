@@ -254,7 +254,7 @@
     "message": "Muss eine Nummer zwischen 0 und 60 sein"
   },
   "options_saving": {
-    "desciption": "Message displayed when options are being saved",
+    "description": "Message displayed when options are being saved",
     "message": "Speichern..."
   },
   "options_section_autoLock": {

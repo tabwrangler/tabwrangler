@@ -250,7 +250,7 @@
     "message": "0보다 크고 60보다 작은 숫자여야 합니다."
   },
   "options_saving": {
-    "desciption": "Message displayed when options are being saved",
+    "description": "Message displayed when options are being saved",
     "message": "저장중..."
   },
   "options_section_autoLock": {

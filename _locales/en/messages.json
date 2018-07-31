@@ -254,7 +254,7 @@
     "message": "Must be a number greater than 0 and less than 60"
   },
   "options_saving": {
-    "desciption": "Message displayed when options are being saved",
+    "description": "Message displayed when options are being saved",
     "message": "Saving..."
   },
   "options_section_autoLock": {

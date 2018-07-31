@@ -250,7 +250,7 @@
     "message": "Здесь должно быть число которое больше 0 и меньше чем 60"
   },
   "options_saving": {
-    "desciption": "Message displayed when options are being saved",
+    "description": "Message displayed when options are being saved",
     "message": "Сохраняем..."
   },
   "options_section_autoLock": {

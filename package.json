@@ -9,8 +9,8 @@
     "coverage": "jest --coverage",
     "lint": "eslint .",
     "release": "gulp release",
-    "test": "gulp test",
-    "watch": "gulp watch"
+    "start": "gulp watch",
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",

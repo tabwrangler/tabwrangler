@@ -4,7 +4,7 @@
 import { exportData, importData } from './actions/importExportActions';
 import {
   removeAllSavedTabs,
-  removeSavedTab,
+  removeSavedTabs,
   setSavedTabs,
   setTotalTabsRemoved,
   setTotalTabsUnwrangled,
@@ -61,7 +61,6 @@ const TabManager = {
         } else {
           chrome.sessions.restore(sessionTab.session.tab.sessionId);
         }
-        TW.store.dispatch(removeSavedTab(sessionTab.tab));
 
         // Count only those tabs closed after install date because users who upgrade will not have
         // an accurate count of all tabs closed. The updaters' install dates will be the date of
@@ -69,6 +68,9 @@ const TabManager = {
         // $FlowFixMe
         if (sessionTab.tab.closedAt >= installDate) countableTabsUnwrangled++;
       });
+
+      // Done opening them all, now get all of the restored tabs out of the store.
+      TW.store.dispatch(removeSavedTabs(sessionTabs.map(sessionTab => sessionTab.tab)));
 
       const totalTabsUnwrangled = localStorage.totalTabsUnwrangled;
       TW.store.dispatch(setTotalTabsUnwrangled(totalTabsUnwrangled + countableTabsUnwrangled));

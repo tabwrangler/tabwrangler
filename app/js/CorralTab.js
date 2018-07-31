@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import extractHostname from './extractHostname';
 import extractRootDomain from './extractRootDomain';
-import { removeSavedTab } from './actions/localStorageActions';
+import { removeSavedTabs } from './actions/localStorageActions';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
@@ -245,14 +245,12 @@ class CorralTab extends React.Component<Props, State> {
   _handleRemoveSelectedTabs = () => {
     const closedTabs = this._getClosedTabs();
     const tabs = closedTabs.filter(tab => this.state.selectedTabs.has(tab));
-    tabs.forEach(tab => {
-      this.props.dispatch(removeSavedTab(tab));
-    });
+    this.props.dispatch(removeSavedTabs(tabs));
     this.setState({ selectedTabs: new Set() });
   };
 
   _handleRemoveTab = (tab: chrome$Tab) => {
-    this.props.dispatch(removeSavedTab(tab));
+    this.props.dispatch(removeSavedTabs([tab]));
     this.state.selectedTabs.delete(tab);
     this.forceUpdate();
   };

@@ -4,8 +4,8 @@ export function removeAllSavedTabs() {
   return { type: 'REMOVE_ALL_SAVED_TABS' };
 }
 
-export function removeSavedTab(tab: chrome$Tab) {
-  return { tab, type: 'REMOVE_SAVED_TAB' };
+export function removeSavedTabs(tabs: Array<chrome$Tab>) {
+  return { tabs, type: 'REMOVE_SAVED_TABS' };
 }
 
 export function setSavedTabs(savedTabs: Array<chrome$Tab>) {

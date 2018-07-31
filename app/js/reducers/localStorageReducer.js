@@ -4,9 +4,9 @@ type RemoveAllSavedTabsAction = {
   type: 'REMOVE_ALL_SAVED_TABS',
 };
 
-type RemoveSavedTabAction = {
-  tab: chrome$Tab,
-  type: 'REMOVE_SAVED_TAB',
+type RemoveSavedTabsAction = {
+  tabs: Array<chrome$Tab>,
+  type: 'REMOVE_SAVED_TABS',
 };
 
 type SetSavedTabsAction = {
@@ -31,7 +31,7 @@ type SetTotalTabsWrangledAction = {
 
 export type Action =
   | RemoveAllSavedTabsAction
-  | RemoveSavedTabAction
+  | RemoveSavedTabsAction
   | SetSavedTabsAction
   | SetTotalTabsRemovedAction
   | SetTotalTabsUnwrangledAction
@@ -72,15 +72,14 @@ export default function localStorage(state: State = initialState, action: Action
         ...state,
         savedTabs: [],
       };
-    case 'REMOVE_SAVED_TAB': {
-      const tabIndex = state.savedTabs.indexOf(action.tab);
-      if (tabIndex === -1) return state;
-
+    case 'REMOVE_SAVED_TABS': {
+      const removedTabsSet = new Set(action.tabs);
       // * Annotate `nextSavedTabs` to appease Flow. It's unclear why this annotation is required
       //   and can't be inferred.
-      // * Copy the Array first (using `slice`) to achieve pseudo-immutability.
-      const nextSavedTabs: Array<chrome$Tab> = state.savedTabs.slice();
-      nextSavedTabs.splice(tabIndex, 1);
+      // * Remove any tabs that are not in the action's array of tabs.
+      const nextSavedTabs: Array<chrome$Tab> = state.savedTabs.filter(
+        tab => !removedTabsSet.has(tab)
+      );
       return {
         ...state,
         savedTabs: nextSavedTabs,

@@ -38,14 +38,14 @@ const TabManager = {
     },
 
     findPositionByURL(url: ?string = ''): number {
-      return _.findIndex(TW.store.getState().localStorage.savedTabs, item => {
         return item.url === url && !_.isUndefined(url);
+      return TW.store.getState().localStorage.savedTabs.findIndex(item => {
       });
     },
 
     findPositionByHostnameAndTitle(url: string = '', title: string = ''): number {
       const hostB = new URL(url).hostname;
-      return _.findIndex(TW.store.getState().localStorage.savedTabs, tab => {
+      return TW.store.getState().localStorage.savedTabs.findIndex(tab => {
         const hostA = new URL(tab.url || '').hostname;
         return hostA === hostB && tab.title === title;
       });

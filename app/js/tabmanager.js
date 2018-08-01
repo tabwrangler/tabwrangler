@@ -10,7 +10,6 @@ import {
   setTotalTabsUnwrangled,
   setTotalTabsWrangled,
 } from './actions/localStorageActions';
-import _ from 'lodash';
 
 type WrangleOption = 'exactURLMatch' | 'hostnameAndTitleMatch' | 'withDuplicates';
 
@@ -38,8 +37,8 @@ const TabManager = {
     },
 
     findPositionByURL(url: ?string = ''): number {
-        return item.url === url && !_.isUndefined(url);
       return TW.store.getState().localStorage.savedTabs.findIndex(item => {
+        return item.url === url && url != null;
       });
     },
 

@@ -5,8 +5,8 @@ import type { Dispatch } from './Types';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import TabWrangleOption from './TabWrangleOption';
-import _ from 'lodash';
 import { connect } from 'react-redux';
+import debounce from 'lodash.debounce';
 import { setCommands } from './actions/tempStorageActions';
 
 // Unpack TW.
@@ -57,7 +57,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       store.dispatch(this.props.dispatch(setCommands(commands)));
     });
 
-    const debounced = _.debounce(this.handleSettingsChange, 150);
+    const debounced = debounce(this.handleSettingsChange, 150);
     this._debouncedHandleSettingsChange = event => {
       // Prevent React's [Event Pool][1] from nulling the event.
       //

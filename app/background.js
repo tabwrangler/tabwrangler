@@ -1,7 +1,7 @@
 /* @flow */
 
-import _ from 'lodash';
 import configureStore from './js/configureStore';
+import debounce from 'lodash.debounce';
 import menus from './js/menus';
 import settings from './js/settings';
 import tabmanager from './js/tabmanager';
@@ -135,7 +135,7 @@ const startup = function() {
   }
   settings.set('lockedIds', []);
 
-  const debouncedUpdateLastAccessed = _.debounce(
+  const debouncedUpdateLastAccessed = debounce(
     tabmanager.updateLastAccessed.bind(tabmanager),
     1000
   );

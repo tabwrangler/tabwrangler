@@ -7,13 +7,6 @@ import localStorageReducer from './reducers/localStorageReducer';
 import tempStorageReducer from './reducers/tempStorageReducer';
 import thunk from 'redux-thunk';
 
-const PRE_V6_LOCAL_STORAGE_KEYS = [
-  'installDate',
-  'savedTabs',
-  'totalTabsRemoved',
-  'totalTabsUnwrangled',
-  'totalTabsWrangled',
-];
 const localStoragePersistConfig = {
   key: 'localStorage',
   migrate(state) {
@@ -31,43 +24,7 @@ const localStoragePersistConfig = {
         });
       });
     } else {
-      const inboundVersion =
-        state._persist && state._persist.version !== undefined ? state._persist.version : -1;
-      if (inboundVersion < 2) {
-        return new Promise(resolve => {
-          chrome.storage.local.get(PRE_V6_LOCAL_STORAGE_KEYS, data => {
-            const nextState = { ...state };
-            Object.keys(data).forEach(key => {
-              const value = data[key];
-              if (value != null) {
-                switch (key) {
-                  case 'installDate':
-                    // $FlowFixMe
-                    nextState.installDate = value;
-                    break;
-                  case 'savedTabs':
-                    // $FlowFixMe
-                    nextState.savedTabs =
-                      // $FlowFixMe
-                      nextState.savedTabs == null ? value : nextState.savedTabs.concat(value);
-                    break;
-                  case 'totalTabsRemoved':
-                  case 'totalTabsUnwrangled':
-                  case 'totalTabsWrangled':
-                    // $FlowFixMe
-                    nextState[key] = nextState[key] == null ? value : nextState[key] + value;
-                    break;
-                }
-              }
-            });
-            chrome.storage.local.remove(PRE_V6_LOCAL_STORAGE_KEYS, () => {
-              resolve(nextState);
-            });
-          });
-        });
-      } else {
-        return Promise.resolve(state);
-      }
+      return Promise.resolve(state);
     }
   },
   serialize: false,

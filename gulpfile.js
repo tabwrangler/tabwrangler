@@ -1,14 +1,16 @@
 /* eslint-env node */
 
+const CrowdinApi = require('crowdin-api');
 const eslint = require('gulp-eslint');
 const gulp = require('gulp');
 const gutil = require('gulp-util');
+const ignore = require('gulp-ignore');
 const jest = require('gulp-jest').default;
 const rimraf = require('rimraf');
 const runSequence = require('run-sequence');
+const unzip = require('gulp-unzip');
 const watch = require('gulp-watch');
 const webpack = require('webpack');
-
 const webpackConfig = require('./webpack.config.js');
 const webpackProductionConfig = require('./webpack.production.config.js');
 
@@ -17,6 +19,38 @@ const DIST_DIRECTORY = 'dist';
 // Clean all release artifacts
 gulp.task('clean', function(done) {
   rimraf(`${__dirname}/${DIST_DIRECTORY}`, done);
+});
+
+// Import all translations from the [Crowdin Tab Wrangler project][0]. Languages with no
+// translations are excluded from the import because they will use the default language's file. This
+// Prevents having a bunch of empty directories inside './_locales' that would only be confusing.
+//
+// * The `CROWDIN_API_KEY` env variable must be set with project's API key. Contact a maintainer of
+//   Tab Wrangler if you want to run this locally and get access to the API key.
+//
+// [0]: https://crowdin.com/project/tab-wrangler
+gulp.task('l10n:import', function() {
+  const crowdinApi = new CrowdinApi({ apiKey: process.env.CROWDIN_API_KEY });
+  return crowdinApi.downloadAllTranslations('tab-wrangler').then(allTranslationsZip => {
+    return gulp
+      .src(allTranslationsZip)
+      .pipe(unzip())
+      .pipe(
+        ignore(function(file) {
+          const contents = JSON.parse(file.contents.toString('utf8'));
+          if (contents != null) {
+            // Files with translations contain Objects, files with no translations contain Arrays.
+            // `Object.keys(array)` returns an empty Array, so empty files will be excluded.
+            const keys = Object.keys(contents);
+            if (keys.length > 0) {
+              return false;
+            }
+          }
+          return true;
+        })
+      )
+      .pipe(gulp.dest(`${__dirname}/_locales/`));
+  });
 });
 
 gulp.task('lint', function() {

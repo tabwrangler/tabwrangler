@@ -3,6 +3,15 @@
 A Chrome & Firefox extension that automatically closes tabs you haven't used in a while so you can
 focus on the tabs that matter
 
+* [Installation](#installation)
+* [Features](#features)
+* [Usage](#usage)
+  * [Backup & Restore](#back-up--restore)
+  * [Settings](#settings)
+* [Contributing](#contributing)
+  * [Translation](#translation)
+  * [Development](#development)
+
 ## Installation
 
 * Tab Wrangler for Chrome:
@@ -84,16 +93,16 @@ usages are described in the following table:
 
 ## Contributing
 
-### Translators
+### Translation
 
-Tab Wrangler would greatly appreciate any translation help. You can contribute on the
+Help translating Tab Wrangler is greatly appreciated. You can contribute on the
 [Tab Wrangler Crowdin Project][1], which makes it easy for anyone to contribute.
 
 * 🇩🇪 German translation by [ingorichter](https://github.com/ingorichter)
 * 🇰🇷 Korean translation by [simple-is-best](https://github.com/simple-is-best)
 * 🇷🇺 Russian translation by [Voknehzyr](https://github.com/Voknehzyr)
 
-### Developers
+### Development
 
 Pull requests for bug fixes and features are more than welcome. Please check out the
 ["Developing" section][2] of the CONTRIBUTING doc to see how to get started. Once your code is

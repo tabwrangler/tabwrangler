@@ -43,7 +43,7 @@
     "placeholders": {
       "sort_order": {
         "content": "$1",
-        "example": "등록 역순"
+        "example": "Reverse Chrono"
       }
     }
   },
@@ -56,7 +56,7 @@
     "message": "선택한 탭 삭제"
   },
   "corral_restoreSelectedTabs": {
-    "description": "Button title for restoring / re-opening all selected tabs from the corral",
+    "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
     "message": "선택한 탭 복구"
   },
   "corral_searchResults_clear": {
@@ -84,10 +84,6 @@
   "corral_toggleAllTabs_selectAll": {
     "description": "Button title for selecting all tabs in the tab corral",
     "message": "모든 탭 선택"
-  },
-  "extName": {
-    "description": "The name of this extension",
-    "message": "Tab Wrangler"
   },
   "extension_pause": {
     "description": "Label for button that pauses the extension",
@@ -138,7 +134,7 @@
     "message": "하지않음"
   },
   "options_importExport_description": {
-    "description": "Description of the import/export feature shown next to import/export buttons",
+    "description": "Description of the import\/export feature shown next to import\/export buttons",
     "message": "보관 중인 탭에 대한 모든 정보를 내보냅니다. 확장 프로그램을 다시 설치한 후 이전 상태로 복원하는 편리한 방법입니다."
   },
   "options_importExport_export": {
@@ -183,7 +179,7 @@
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
-    "message": "예: \"cnn\"은 \"https://www.cnn.com\"의 모든 페이지와 \"cnn\"이 있는 모든 URL과 일치합니다."
+    "message": "예: \"cnn\"은 \"https:\/\/www.cnn.com\"의 모든 페이지와 \"cnn\"이 있는 모든 URL과 일치합니다."
   },
   "options_option_autoLock_label": {
     "description": "Label preceeding input for adding URL to whitelist",
@@ -258,8 +254,8 @@
     "message": "자동잠금"
   },
   "options_section_importExport": {
-    "description": "Header for the import/export feature section of the options tab",
-    "message": "가져오기 / 내보내기"
+    "description": "Header for the import\/export feature section of the options tab",
+    "message": "가져오기 \/ 내보내기"
   },
   "options_section_keyboardShortcuts": {
     "description": "Header for the section containing keyboard shortcut configuration",
@@ -276,16 +272,6 @@
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "잠금"
-  },
-  "tabLock_lockedReason_matches": {
-    "description": "Label for a tab that is locked because it matches the whitelist",
-    "message": "Matches '$pattern$'",
-    "placeholders": {
-      "pattern": {
-        "content": "$1",
-        "example": "chrome://"
-      }
-    }
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",
@@ -317,7 +303,7 @@
   },
   "corral_tabsWrangled_formula": {
     "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "Tab Wrangler에 의해 탭이 닫힘 / 모든 탭이 닫힘"
+    "message": "Tab Wrangler에 의해 탭이 닫힘 \/ 모든 탭이 닫힘"
   },
   "corral_tabsWrangled_or": {
     "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",

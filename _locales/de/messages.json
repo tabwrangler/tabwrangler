@@ -3,18 +3,6 @@
     "description": "Name of the 'About' section, where users can see information about the extension",
     "message": "Über"
   },
-  "about_changeLog": {
-    "description": "Link to the extension's list of changes per release",
-    "message": "Change Log"
-  },
-  "about_sourceCode": {
-    "description": "Link to the extension's source code and its license type (MIT)",
-    "message": "Source Code (MIT)"
-  },
-  "about_support": {
-    "description": "Link to the extension's support site",
-    "message": "Support"
-  },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
     "message": "Tab schließen und URL sichern"
@@ -43,7 +31,7 @@
     "placeholders": {
       "sort_order": {
         "content": "$1",
-        "example": "Chronologisch Rückwärts"
+        "example": "Reverse Chrono"
       }
     }
   },
@@ -56,11 +44,11 @@
     "message": "Ausgewählte Tabs löschen"
   },
   "corral_restoreSelectedTabs": {
-    "description": "Button title for restoring / re-opening all selected tabs from the corral",
+    "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
     "message": "Ausgewählte Tabs wiederherstellen"
   },
   "corral_searchResults_clear": {
-    "description": "Button title for clearing the search valü and resetting results",
+    "description": "Button title for clearing the search value and resetting results",
     "message": "Suchfeld löschen"
   },
   "corral_searchResults_label": {
@@ -84,10 +72,6 @@
   "corral_toggleAllTabs_selectAll": {
     "description": "Button title for selecting all tabs in the tab corral",
     "message": "Alle Tabs auswählen"
-  },
-  "extName": {
-    "description": "The name of this extension",
-    "message": "Tab Wrangler"
   },
   "extension_pause": {
     "description": "Label for button that pauses the extension",
@@ -138,20 +122,12 @@
     "message": "Niemals"
   },
   "options_importExport_description": {
-    "description": "Description of the import/export feature shown next to import/export buttons",
+    "description": "Description of the import\/export feature shown next to import\/export buttons",
     "message": "Alle geschlossenen Tabs aus der Tab Liste exportieren. Das ist die einzige Möglichkeit ein Backup der geschlossen Tabs herzustellen und nach einer erneuten Installation der Extension den alten Zustand wiederherzustellen."
-  },
-  "options_importExport_export": {
-    "description": "Button label to begin exporting closed tabs",
-    "message": "Export"
   },
   "options_importExport_exporting": {
     "description": "Label displayed when exporting closed tabs",
     "message": "Exportieren..."
-  },
-  "options_importExport_import": {
-    "description": "Button label to begin importing closed tabs",
-    "message": "Import"
   },
   "options_importExport_importing": {
     "description": "Label displayed when importing closed tabs",
@@ -183,7 +159,7 @@
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
-    "message": "Beispiel: \"cnn\" entspricht jeder Seite auf \"https://www.cnn.com\" und jeder URL mit \"cnn\" im Namen."
+    "message": "Beispiel: \"cnn\" entspricht jeder Seite auf \"https:\/\/www.cnn.com\" und jeder URL mit \"cnn\" im Namen."
   },
   "options_option_autoLock_label": {
     "description": "Label preceeding input for adding URL to whitelist",
@@ -261,10 +237,6 @@
     "description": "Header for the auto-lock section of the options tab",
     "message": "Automatischer Schutz"
   },
-  "options_section_importExport": {
-    "description": "Header for the import/export feature section of the options tab",
-    "message": "Import / Export"
-  },
   "options_section_keyboardShortcuts": {
     "description": "Header for the section containing keyboard shortcut configuration",
     "message": "Tastatenkombination"
@@ -287,7 +259,7 @@
     "placeholders": {
       "pattern": {
         "content": "$1",
-        "example": "chrome://"
+        "example": "chrome:\/\/"
       }
     }
   },
@@ -321,7 +293,7 @@
   },
   "corral_tabsWrangled_formula": {
     "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "Tabs von Tab Wrangler geschlossen/ alle geschlossenen Tabs"
+    "message": "Tabs von Tab Wrangler geschlossen\/ alle geschlossenen Tabs"
   },
   "corral_tabsWrangled_or": {
     "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
@@ -343,7 +315,6 @@
     "description": "Error shown when invalid seconds inactive setting is supplied.",
     "message": "Inaktive Minuten muss zwischen 0 und 60 liegen"
   },
-
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
     "message": "Sortieren nach:"
@@ -380,14 +351,6 @@
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time in descending order",
     "message": "Zeitpunkt geschlosen (absteigend)"
   },
-  "corral_sortDomain": {
-    "description": "Label for sorting the tab corral list by domain",
-    "message": "Domain"
-  },
-  "corral_sortDomain_short": {
-    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain",
-    "message": "Domain"
-  },
   "corral_sortDomain_descending": {
     "description": "Label for sorting the tab corral list by domain in descending order",
     "message": "Domain (absteigend)"
@@ -396,12 +359,10 @@
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "Domain (absteigend)"
   },
-
   "extDescription": {
     "description": "Brief description of the extension",
     "message": "Automatisches schliessen von inaktiven Tabs und eine einfache Möglichkeit sie wieder zu öffnen"
   },
-
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",
     "message": "Öffnen des Tabs stellt die gesamte Session dieses Tabs wieder her: Verlauf, Scroll Position, etc. Diese Funktion ist auf die letzten 25 geschlossenen Tabs durch den Browser beschränkt."

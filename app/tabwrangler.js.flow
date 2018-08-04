@@ -2,13 +2,11 @@
 
 import typeof settings from './js/settings';
 import typeof tabmanager from './js/tabmanager';
-import typeof updater from './js/updater';
 
 type TabWrangler = {
   settings: settings,
   store: Object,
   tabmanager: tabmanager,
-  updater: updater,
 };
 
 declare var EXTENSION_URL: string;

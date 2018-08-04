@@ -5,7 +5,6 @@ import debounce from 'lodash.debounce';
 import menus from './js/menus';
 import settings from './js/settings';
 import tabmanager from './js/tabmanager';
-import updater from './js/updater';
 import watch from 'redux-watch';
 
 // Declare this global namespace so it can be used from popup.js
@@ -124,10 +123,8 @@ const startup = function() {
   );
 
   settings.init();
-  updater.run();
 
   TW.settings = settings;
-  TW.updater = updater;
   TW.tabmanager = tabmanager;
 
   if (settings.get('purgeClosedTabs') !== false) {

@@ -85,6 +85,10 @@
     "description": "Button title for selecting all tabs in the tab corral",
     "message": "Выбрать все вкладки"
   },
+  "extName": {
+    "description": "The name of this extension",
+    "message": "Tab Wrangler"
+  },
   "extension_pause": {
     "description": "Label for button that pauses the extension",
     "message": "Пауза"

@@ -160,13 +160,13 @@ type Props = {
 type State = {
   filter: string,
   isSortDropdownOpen: boolean,
-  lastSelectedTab: ?chrome$Tab,
   selectedTabs: Set<chrome$Tab>,
   sorter: Sorter,
 };
 
 class CorralTab extends React.Component<Props, State> {
   _dropdownRef: ?HTMLElement;
+  _lastSelectedTab: ?chrome$Tab;
   _searchRefFocusTimeout: TimeoutID;
   _searchRef: ?HTMLElement;
 
@@ -175,7 +175,6 @@ class CorralTab extends React.Component<Props, State> {
     this.state = {
       filter: '',
       isSortDropdownOpen: false,
-      lastSelectedTab: undefined,
       selectedTabs: new Set(),
       sorter: ReverseChronoSorter,
     };
@@ -256,13 +255,12 @@ class CorralTab extends React.Component<Props, State> {
   };
 
   _handleToggleTab = (tab: chrome$Tab, isSelected: boolean, multiselect: boolean) => {
-    const closedTabs = this._getClosedTabs();
-
     // If this is a multiselect (done by holding the Shift key and clicking), see if the last
     // selected tab is still visible and, if it is, toggle all tabs between it and this new clicked
     // tab.
-    if (multiselect && this.state.lastSelectedTab != null) {
-      const lastSelectedTabIndex = closedTabs.indexOf(this.state.lastSelectedTab);
+    if (multiselect && this._lastSelectedTab != null) {
+      const closedTabs = this._getClosedTabs();
+      const lastSelectedTabIndex = closedTabs.indexOf(this._lastSelectedTab);
       if (lastSelectedTabIndex >= 0) {
         const tabIndex = closedTabs.indexOf(tab);
         for (
@@ -276,17 +274,17 @@ class CorralTab extends React.Component<Props, State> {
             this.state.selectedTabs.delete(closedTabs[i]);
           }
         }
-        this.setState({ lastSelectedTab: tab });
-        return;
+      }
+    } else {
+      if (isSelected) {
+        this.state.selectedTabs.add(tab);
+      } else {
+        this.state.selectedTabs.delete(tab);
       }
     }
 
-    if (isSelected) {
-      this.state.selectedTabs.add(tab);
-    } else {
-      this.state.selectedTabs.delete(tab);
-    }
-    this.setState({ lastSelectedTab: tab });
+    this._lastSelectedTab = tab;
+    this.forceUpdate();
   };
 
   _handleRestoreSelectedTabs = () => {
@@ -354,8 +352,8 @@ class CorralTab extends React.Component<Props, State> {
       selectedTabs = new Set(closedTabs);
     }
 
+    this._lastSelectedTab = null;
     this.setState({
-      lastSelectedTab: null,
       selectedTabs,
     });
   };

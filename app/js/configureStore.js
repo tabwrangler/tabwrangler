@@ -15,12 +15,9 @@ const localStoragePersistConfig = {
     if (state == null) {
       return new Promise(resolve => {
         chrome.storage.local.get(null, items => {
-          // This is necessary to ensure Tab Wrangler doesn't go over its storage limit because
-          // during this migration all items are moved to new locations, and without first removing
-          // the old location Tab Wrangler would temporarily double its storage usage.
-          chrome.storage.local.remove(Object.keys(items), () => {
-            resolve(items);
-          });
+          // Remove old data from the store once it's been migrated.
+          chrome.storage.local.remove(Object.keys(items));
+          resolve(items);
         });
       });
     } else {

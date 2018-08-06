@@ -2983,6 +2983,10 @@ gulp-match@^1.0.3:
   dependencies:
     minimatch "^3.0.3"
 
+gulp-rename@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/gulp-rename/-/gulp-rename-1.4.0.tgz#de1c718e7c4095ae861f7296ef4f3248648240bd"
+
 gulp-unzip@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/gulp-unzip/-/gulp-unzip-1.0.0.tgz#bed2d1af846ed2af82a797087bb9ee2ac6658ca7"

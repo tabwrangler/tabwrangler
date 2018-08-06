@@ -6,6 +6,7 @@ const gulp = require('gulp');
 const gutil = require('gulp-util');
 const ignore = require('gulp-ignore');
 const jest = require('gulp-jest').default;
+const rename = require('gulp-rename');
 const rimraf = require('rimraf');
 const runSequence = require('run-sequence');
 const unzip = require('gulp-unzip');
@@ -47,6 +48,19 @@ gulp.task('l10n:import', function() {
             }
           }
           return true;
+        })
+      )
+      .pipe(
+        rename(function(path) {
+          switch (path.dirname) {
+            case 'es-ES':
+              // Crowdin names its base Spanish locale "es-ES", but Chrome only supports the
+              // non-suffixed "es" locale. Rename the file so it moves to the right place.
+              path.dirname = 'es';
+              break;
+            default:
+              break;
+          }
         })
       )
       .pipe(gulp.dest(`${__dirname}/_locales/`));

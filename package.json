@@ -43,6 +43,7 @@
     "gulp-eslint": "^4.0.2",
     "gulp-ignore": "^2.0.2",
     "gulp-jest": "^4.0.2",
+    "gulp-rename": "^1.4.0",
     "gulp-unzip": "^1.0.0",
     "gulp-util": "^3.0.8",
     "gulp-watch": "^5.0.0",

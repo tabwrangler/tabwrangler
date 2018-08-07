@@ -1,9 +1,9 @@
 /* @flow */
 
 import './LazyImage.css';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import ColorHash from 'color-hash';
 import React from 'react';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import cx from 'classnames';
 
 const loadedSrcs = new Set();
@@ -24,17 +24,17 @@ setTimeout(() => {
   checkShouldLoadLazyImages();
 }, 1000);
 
-interface Props {
-  className?: string;
-  height: number;
-  src: ?string;
-  style?: Object;
-  width: number;
-}
+type Props = {
+  className?: string,
+  height: number,
+  src: ?string,
+  style?: Object,
+  width: number,
+};
 
-interface State {
-  loaded: boolean;
-}
+type State = {
+  loaded: boolean,
+};
 
 const colorHash = new ColorHash();
 
@@ -71,7 +71,7 @@ export default class LazyImage extends React.PureComponent<Props, State> {
   checkShouldLoad() {
     if (!shouldCheck) return;
 
-    const {src} = this.props;
+    const { src } = this.props;
 
     if (src == null || !this._placeholder) return;
 
@@ -84,39 +84,39 @@ export default class LazyImage extends React.PureComponent<Props, State> {
   setLoaded = () => {
     this._img = null;
     loadedSrcs.add(this.props.src);
-    this.setState({loaded: true});
+    this.setState({ loaded: true });
   };
 
   render() {
     return (
-      <ReactCSSTransitionGroup
-        className="lazy-image-container"
-        component="div"
-        transitionEnterTimeout={250}
-        transitionLeaveTimeout={250}
-        transitionName="lazy-image">
-        {(this.props.src != null && this.state.loaded) ?
-          <img
-            className={cx('lazy-image-img', this.props.className)}
-            height={this.props.height}
-            key="img"
-            src={this.props.src}
-            style={this.props.style}
-            width={this.props.width}
-          /> :
-          <div
-            className={this.props.className}
-            key="placeholder"
-            ref={(placeholder: ?HTMLDivElement) => { this._placeholder = placeholder; }}
-            style={Object.assign({}, this.props.style, {
-              background: colorHash.hex(this.props.src),
-              borderRadius: `${this.props.height / 2}px`,
-              height: `${this.props.height}px`,
-              width: `${this.props.width}px`,
-            })}
-          />
-        }
-      </ReactCSSTransitionGroup>
+      <TransitionGroup className="lazy-image-container">
+        {this.props.src != null && this.state.loaded ? (
+          <CSSTransition classNames="lazy-image" key="img" timeout={250}>
+            <img
+              className={cx('lazy-image-img', this.props.className)}
+              height={this.props.height}
+              src={this.props.src}
+              style={this.props.style}
+              width={this.props.width}
+            />
+          </CSSTransition>
+        ) : (
+          <CSSTransition classNames="lazy-image" key="placeholder" timeout={250}>
+            <div
+              className={this.props.className}
+              ref={(placeholder: ?HTMLDivElement) => {
+                this._placeholder = placeholder;
+              }}
+              style={Object.assign({}, this.props.style, {
+                background: colorHash.hex(this.props.src),
+                borderRadius: `${this.props.height / 2}px`,
+                height: `${this.props.height}px`,
+                width: `${this.props.width}px`,
+              })}
+            />
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     );
   }
 }

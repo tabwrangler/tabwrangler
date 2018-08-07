@@ -1,9 +1,9 @@
 /* @flow */
 
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import Button from './Button';
 import type { Dispatch } from './Types';
 import React from 'react';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import TabWrangleOption from './TabWrangleOption';
 import { connect } from 'react-redux';
 import debounce from 'lodash.debounce';
@@ -186,11 +186,13 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     if (this.state.errors.length === 0) {
       if (this.state.saveAlertVisible) {
         saveAlert = [
-          <div className="alert-sticky" key="alert">
-            <div className="alert alert-success pull-right" style={{ display: 'inline-block' }}>
-              {chrome.i18n.getMessage('options_saving')}
+          <CSSTransition classNames="alert" key="alert" timeout={400}>
+            <div className="alert-sticky" key="alert">
+              <div className="alert alert-success pull-right" style={{ display: 'inline-block' }}>
+                {chrome.i18n.getMessage('options_saving')}
+              </div>
             </div>
-          </div>,
+          </CSSTransition>,
         ];
       }
     } else {
@@ -207,9 +209,9 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     if (this.state.importExportErrors.length === 0) {
       if (this.state.importExportAlertVisible) {
         importExportAlert = [
-          <div className="alert alert-success" key="importExportAlert">
-            {this.state.importExportOperationName}
-          </div>,
+          <CSSTransition classNames="alert" key="importExportAlert" timeout={400}>
+            <div className="alert alert-success">{this.state.importExportOperationName}</div>
+          </CSSTransition>,
         ];
       }
     } else {
@@ -456,12 +458,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           </div>
         </div>
         {this.state.importExportErrors.length === 0 ? (
-          <ReactCSSTransitionGroup
-            transitionEnter={false}
-            transitionLeaveTimeout={400}
-            transitionName="alert">
-            {importExportAlert}
-          </ReactCSSTransitionGroup>
+          <TransitionGroup appear={false}>{importExportAlert}</TransitionGroup>
         ) : (
           importExportAlert
         )}
@@ -498,12 +495,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             })}
 
         {this.state.errors.length === 0 ? (
-          <ReactCSSTransitionGroup
-            transitionEnter={false}
-            transitionLeaveTimeout={400}
-            transitionName="alert">
-            {saveAlert}
-          </ReactCSSTransitionGroup>
+          <TransitionGroup appear={false}>{saveAlert}</TransitionGroup>
         ) : (
           errorAlert
         )}

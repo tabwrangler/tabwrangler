@@ -37,7 +37,7 @@
     "eslint-plugin-react": "^7.10.0",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.11",
-    "flow-bin": "^0.76.0",
+    "flow-bin": "^0.78.0",
     "flow-interfaces-chrome": "^0.5.1",
     "gulp": "^3.9.1",
     "gulp-eslint": "^5.0.0",

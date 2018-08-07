@@ -45,6 +45,7 @@ const localStoragePersistConfig = {
   },
   serialize: false,
   storage: localStorage,
+  timeout: 60000,
   version: 2,
 };
 

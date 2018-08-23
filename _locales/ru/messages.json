@@ -49,7 +49,7 @@
   },
   "corral_emptyList": {
     "description": "Message displayed in the tab corral when the extension has not yet closed any tabs",
-    "message": "Пока закрытых вкладок нет. Когда Tab Wrangler их закроет они появятся здесь. Можете оставлять свои вкладки открытыми!"
+    "message": "Пока закрытых вкладок нет, когда Tab Wrangler их закроет, они появятся здесь. Можете оставлять свои вкладки открытыми!"
   },
   "corral_removeSelectedTabs": {
     "description": "Button title for removing all selected tabs from the corral",
@@ -95,7 +95,7 @@
   },
   "extension_resume": {
     "description": "Label for button that resumes (unpauses) the extension",
-    "message": "Возобнов."
+    "message": "Возобновить"
   },
   "options_dedupe_label": {
     "description": "Label for the de-duplicating option",
@@ -107,7 +107,7 @@
   },
   "options_dedupe_option_exactURLMatch_description": {
     "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "Когда вкладка будет закрыта она будет добавлена в список вкладок и все предыдущие вкладки с совпадающим URL будут удалены из списка."
+    "message": "Когда вкладка будет закрыта, она будет добавлена в список вкладок, и все предыдущие вкладки с совпадающим URL будут удалены из списка."
   },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
@@ -119,7 +119,7 @@
   },
   "options_dedupe_option_hostnameAndTitleMatch_description": {
     "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "Когда вкладка будет закрыта она будет добавлена в список вкладок и все предыдущие вкладки с совпадающим доменом (по типу \"wikipedia.org\") и названием страницы будут удалены из списка."
+    "message": "Когда вкладка будет закрыта, она будет добавлена в список вкладок, и все предыдущие вкладки с совпадающим доменом (по типу \"wikipedia.org\") и названием страницы будут удалены из списка."
   },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
@@ -131,7 +131,7 @@
   },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
-    "message": "Когда вкладка будет закрыта она будет добавлена в список вкладок."
+    "message": "Когда вкладка будет закрыта, она будет добавлена в список вкладок. Никаких других изменений в списке вкладок не будет."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -159,7 +159,7 @@
   },
   "options_importExport_importWarning": {
     "description": "Description of the destructiveness of importing; current tabs are overwritten",
-    "message": "Внимение: Импортируемые данные удалят все предыдущие. У вас нет пути назад (конечно же если у вас нет бекапа)."
+    "message": "Внимение: Импортируемые данные удалят все предыдущие. У вас нет пути назад (конечно же, если у вас нет бекапа)."
   },
   "options_keyboardShortcuts_configure": {
     "description": "Link text for navigating to keyboard shortcut configuration",
@@ -167,7 +167,7 @@
   },
   "options_keyboardShortcuts_notSet": {
     "description": "Message shown for a shortcut when it has not been configured",
-    "message": "Вы не добавляли комбинаций для клавиш"
+    "message": "Вы не добавляли комбинации для клавиш"
   },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",
@@ -179,15 +179,15 @@
   },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
-    "message": "Вы ещё не добавили ссылок в список незакрываемых вкладок. Используйте форму выше для их добавления."
+    "message": "Автоматически блокируемые ссылки отсутствуют. Используйте форму выше, чтобы добавить их в белый список."
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
-    "message": "Например: \"cnn\" будет относится к каждой странице с адресом \"https:\/\/www.cnn.com\" и каждой ссылке в которой присутствует \"cnn\"."
+    "message": "Например: \"cnn\" будет относится к каждой странице с адресом \"https:\/\/www.cnn.com\" и каждой ссылке, в которой присутствует \"cnn\"."
   },
   "options_option_autoLock_label": {
     "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Не закрывать вкладки вкладки с URL содержащим:"
+    "message": "Не закрывать вкладки с адресами, содержащими:"
   },
   "options_option_autoLock_remove": {
     "description": "Button label for removing a URL from the whitelist",
@@ -195,7 +195,7 @@
   },
   "options_option_autoLock_urlHeader": {
     "description": "Table column header for list of whitelisted URL strings",
-    "message": "Добавленные URL"
+    "message": "Добавленные адреса"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting Chrome",
@@ -205,17 +205,21 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Перезапускать таймер вкладки только если она была активна на 1 секунду"
   },
+  "options_option_filterAudio_label": {
+    "description": "Label for checkbox to filter tabs that are playing audio",
+    "message": "Не закрывать вкладки, которые проигрывают звук"
+  },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Автоматически закрывать вкладки если их больше чем:"
+    "message": "Автоматически закрывать вкладки, если больше:"
   },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
-    "message": "вкладок открыто (не включая закрепленные и незакрываемые вкладки)."
+    "message": "вкладок открыто (не включая закрепленные и зафиксированные вкладки)."
   },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
-    "message": "Здесь должно быть число которое больше или равно 0"
+    "message": "Здесь должно быть число, которое больше или равно 0"
   },
   "options_option_rememberTabs_label": {
     "description": "Label preceeding input for number of tabs to remember",
@@ -227,11 +231,11 @@
   },
   "options_option_rememberTabs_tabs": {
     "description": "Input title for number of tabs to remember",
-    "message": "Здесь должно быть число которое больше или равно 0"
+    "message": "Здесь должно быть число, которое больше или равно 0"
   },
   "options_option_showBadgeCount_label": {
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
-    "message": "Показывать # закрытых вкладок в списке вкладок"
+    "message": "Показывать количество закрытых вкладок на значке расширения"
   },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
@@ -255,7 +259,7 @@
   },
   "options_section_autoLock": {
     "description": "Header for the auto-lock section of the options tab",
-    "message": "Незакрываемые вкладки"
+    "message": "Зафиксированные вкладки"
   },
   "options_section_importExport": {
     "description": "Header for the import\/export feature section of the options tab",
@@ -275,7 +279,7 @@
   },
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
-    "message": "Заблокировано"
+    "message": "Зафиксировано"
   },
   "tabLock_lockedReason_matches": {
     "description": "Label for a tab that is locked because it matches the whitelist",
@@ -301,11 +305,11 @@
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
-    "message": "Выберите вкладки которые надо заблокировать(предотвратить их автоматическое закрытие)."
+    "message": "Выберите вкладки которые надо зафиксировать (предотвратить их автоматическое закрытие)."
   },
   "tabLock_name": {
     "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
-    "message": "Блок вкладок"
+    "message": "Открытые вкладки"
   },
   "tabLock_remainingTimeLabel": {
     "description": "Explanation of time remaining before tab is closed",
@@ -345,7 +349,7 @@
   },
   "corral_sortPageTitle": {
     "description": "Label for sorting the tab corral list by page title",
-    "message": "Название страницы"
+    "message": "Названию страницы"
   },
   "corral_sortPageTitle_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title",
@@ -353,7 +357,7 @@
   },
   "corral_sortPageTitle_descending": {
     "description": "Label for sorting the tab corral list by page title in descending order",
-    "message": "Название страницы (убывающее)"
+    "message": "Названию страницы (убывание)"
   },
   "corral_sortPageTitle_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title in descending order",
@@ -361,7 +365,7 @@
   },
   "corral_sortTimeClosed": {
     "description": "Label for sorting the tab corral list by tab closed time",
-    "message": "Время закрытия"
+    "message": "Времени закрытия"
   },
   "corral_sortTimeClosed_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time",
@@ -369,7 +373,7 @@
   },
   "corral_sortTimeClosed_descending": {
     "description": "Label for sorting the tab corral list by tab closed time in descending order",
-    "message": "Время закрытия (убывающее)"
+    "message": "Времени закрытия (убывание)"
   },
   "corral_sortTimeClosed_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time in descending order",
@@ -377,7 +381,7 @@
   },
   "corral_sortDomain": {
     "description": "Label for sorting the tab corral list by domain",
-    "message": "Домен"
+    "message": "Домену"
   },
   "corral_sortDomain_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain",
@@ -385,7 +389,7 @@
   },
   "corral_sortDomain_descending": {
     "description": "Label for sorting the tab corral list by domain in descending order",
-    "message": "Домен (убывающее)"
+    "message": "Домену (убывание)"
   },
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
@@ -394,5 +398,13 @@
   "extDescription": {
     "description": "Brief description of the extension",
     "message": "Автоматически закрывает неактивные вкладки и упрощает их возврат"
+  },
+  "corral_tabSessionFresh": {
+    "description": "Tooltip describing why certain tabs will have their full session restored",
+    "message": "Восстановление данной вкладки также восстановит всю её сессию: историю, позицию прокрутки и так далее. Эта особенность ограничена браузером для 25 последних закрытых вкладок."
+  },
+  "corral_noTabsMatch": {
+    "description": "Message shown when no tabs match the user's search query",
+    "message": "Вкладок по вашему запросу не найдено. Попробуйте другой запрос или сделайте его менее конкретным."
   }
 }

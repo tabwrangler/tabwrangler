@@ -116,5 +116,295 @@
   "options_dedupe_option_hostnameAndTitleMatch": {
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "Si coincide con el nombre de host y la página de título"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_description": {
+    "description": "Extended description for option to de-duplicate when hostname and page title match",
+    "message": "Cuando una pestaña se cierre, esta se añadirá al registro, y cualquier otra pestaña con el mismo dominio (i.e: \"wikipedia.org\") y título se eliminaran de este."
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_label": {
+    "description": "Extended label for option to de-duplicate when hostname and page title match",
+    "message": "Si el dominio y el título de la página coinciden"
+  },
+  "options_dedupe_option_withDupes": {
+    "description": "Label for option to never de-duplicate the tab corral",
+    "message": "Nunca (Por defecto)"
+  },
+  "options_dedupe_option_withDupes_description": {
+    "description": "Description of the never de-duplicating tabs option",
+    "message": "Cuando una pestaña se cierre, se añadirá al registro. No se hará ningún otro cambio al registro."
+  },
+  "options_dedupe_option_withDupes_label": {
+    "description": "Label for never de-duplicating option",
+    "message": "Nunca"
+  },
+  "options_importExport_description": {
+    "description": "Description of the import\/export feature shown next to import\/export buttons",
+    "message": "Exportar toda la información sobre pestañas cerradas. Es una opción útil para restaurar un antiguo estado después de reinstalar la extensión."
+  },
+  "options_importExport_export": {
+    "description": "Button label to begin exporting closed tabs",
+    "message": "Exportar"
+  },
+  "options_importExport_exporting": {
+    "description": "Label displayed when exporting closed tabs",
+    "message": "Exportando..."
+  },
+  "options_importExport_import": {
+    "description": "Button label to begin importing closed tabs",
+    "message": "Importar"
+  },
+  "options_importExport_importing": {
+    "description": "Label displayed when importing closed tabs",
+    "message": "Importando..."
+  },
+  "options_importExport_importWarning": {
+    "description": "Description of the destructiveness of importing; current tabs are overwritten",
+    "message": "Advertencia: Al importar datos se sobrescribirán todos los datos existentes. No habrá vuelta atrás ( a no ser que disponga de una copia de seguridad)."
+  },
+  "options_keyboardShortcuts_configure": {
+    "description": "Link text for navigating to keyboard shortcut configuration",
+    "message": "Configure estos atajos"
+  },
+  "options_keyboardShortcuts_notSet": {
+    "description": "Message shown for a shortcut when it has not been configured",
+    "message": "No hay un conjunto de accesos directos"
+  },
+  "options_name": {
+    "description": "Name of the 'Options' section, where users can configure the extension",
+    "message": "Opciones"
+  },
+  "options_option_autoLock_add": {
+    "description": "Button label for adding to whitelist",
+    "message": "Añadir"
+  },
+  "options_option_autoLock_empty": {
+    "description": "Message shown when there are no whitelisted URLs",
+    "message": "No hay URLs auto-bloqueadas todavía. Utilice el formulario superior para añadir alguna a la lista blanca."
+  },
+  "options_option_autoLock_example": {
+    "description": "Example describing how the whitelist works",
+    "message": "Ejemplo: \"cnn\" detectaría todas las páginas en el dominio \"https:\/\/www.cnn.com\" y cualquier URL que contenga \"cnn\"."
+  },
+  "options_option_autoLock_label": {
+    "description": "Label preceeding input for adding URL to whitelist",
+    "message": "Auto-bloquear las pestañas que contengan:"
+  },
+  "options_option_autoLock_remove": {
+    "description": "Button label for removing a URL from the whitelist",
+    "message": "Eliminar"
+  },
+  "options_option_autoLock_urlHeader": {
+    "description": "Table column header for list of whitelisted URL strings",
+    "message": "Cadena URL"
+  },
+  "options_option_clearOnQuit_label": {
+    "description": "Label for checkbox to clear the tab list after quitting Chrome",
+    "message": "Eliminar pestañas cerradas al salir"
+  },
+  "options_option_debounceOnActivated_label": {
+    "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
+    "message": "Restablecer el temporizador de una pestaña solo cuando este activa durante 1 segundo"
+  },
+  "options_option_filterAudio_label": {
+    "description": "Label for checkbox to filter tabs that are playing audio",
+    "message": "No cerrar pestañas que estén reproduciendo audio"
+  },
+  "options_option_minTabs_label": {
+    "description": "Label preceeding input for setting minimum number of tabs",
+    "message": "Auto-cerrar pestañas sólo si tengo más de:"
+  },
+  "options_option_minTabs_postLabel": {
+    "description": "Label following input for setting minimum number of tabs",
+    "message": "pestañas abiertas (no incluye las pestañas bloqueadas o ancladas)."
+  },
+  "options_option_minTabs_tabs": {
+    "description": "Input title for minimum number of tabs",
+    "message": "Debe ser un número mayor o igual que cero"
+  },
+  "options_option_rememberTabs_label": {
+    "description": "Label preceeding input for number of tabs to remember",
+    "message": "Recordar hasta:"
+  },
+  "options_option_rememberTabs_postLabel": {
+    "description": "Label following input for number of tabs to remember",
+    "message": "pestañas cerradas."
+  },
+  "options_option_rememberTabs_tabs": {
+    "description": "Input title for number of tabs to remember",
+    "message": "Debe ser un número mayor o igual que cero"
+  },
+  "options_option_showBadgeCount_label": {
+    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
+    "message": "Mostrar número de pestañas cerradas en la barra de navegación"
+  },
+  "options_option_timeInactive_label": {
+    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
+    "message": "Cerrar pestañas inactivas después de:"
+  },
+  "options_option_timeInactive_minutes": {
+    "description": "Input title for number of minutes before closing tabs",
+    "message": "Deber ser un número mayor que 0 y menor que 7200"
+  },
+  "options_option_timeInactive_postLabel": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "minutos : segundos"
+  },
+  "options_option_timeInactive_seconds": {
+    "description": "Input title for number of seconds before closing tabs",
+    "message": "Deber ser un número mayor que cero y menor que 60"
+  },
+  "options_saving": {
+    "description": "Message displayed when options are being saved",
+    "message": "Guardando..."
+  },
+  "options_section_autoLock": {
+    "description": "Header for the auto-lock section of the options tab",
+    "message": "Auto-bloquear"
+  },
+  "options_section_importExport": {
+    "description": "Header for the import\/export feature section of the options tab",
+    "message": "Importar \/ Exportar"
+  },
+  "options_section_keyboardShortcuts": {
+    "description": "Header for the section containing keyboard shortcut configuration",
+    "message": "Atajos de Teclado"
+  },
+  "options_section_settings": {
+    "description": "Header for settings section of the options tab",
+    "message": "Ajustes"
+  },
+  "tabCorral_name": {
+    "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
+    "message": "Registro"
+  },
+  "tabLock_lockedReason_locked": {
+    "description": "Label for tab that is locked because the user locked it",
+    "message": "Bloqueado"
+  },
+  "tabLock_lockedReason_matches": {
+    "description": "Label for a tab that is locked because it matches the whitelist",
+    "message": "Coincide con el patrón '$pattern$'",
+    "placeholders": {
+      "pattern": {
+        "content": "$1",
+        "example": "chrome:\/\/"
+      }
+    }
+  },
+  "tabLock_lockedReason_paused": {
+    "description": "Label for a tab when the extension is paused",
+    "message": "Pausa"
+  },
+  "tabLock_lockedReason_pinned": {
+    "description": "Label for a tab that is locked because it's pinned",
+    "message": "Anclado"
+  },
+  "tabLock_lockedReason_audible": {
+    "description": "Label for a tab that is locked because it's audible",
+    "message": "Las pestañas que estén reproduciendo audio no se cerrarán"
+  },
+  "tabLock_lockLabel": {
+    "description": "Explanation of the lock checkbox's functionality",
+    "message": "Marque la casilla de una pestaña para bloquearla (evitará que se cierre automáticamente)."
+  },
+  "tabLock_name": {
+    "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
+    "message": "Bloqueadas"
+  },
+  "tabLock_remainingTimeLabel": {
+    "description": "Explanation of time remaining before tab is closed",
+    "message": "Cerrando en..."
+  },
+  "corral_tabsWrangled": {
+    "description": "Label preceeding the number of tabs wrangled by this extension",
+    "message": "pestañas cerradas"
+  },
+  "corral_tabsWrangled_formula": {
+    "description": "Title describing how % of tabs wrangled is calculated",
+    "message": "pestañas cerradas por Tab Wrangler \/ todas las pestañas cerradas"
+  },
+  "corral_tabsWrangled_or": {
+    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
+    "message": "o"
+  },
+  "settings_setmaxTabs_error": {
+    "description": "Error shown when invalid max tabs setting is supplied.",
+    "message": "El número máximo de pestañas deber ser un número entre 1 y 1000"
+  },
+  "settings_setminTabs_error": {
+    "description": "Error shown when invalid min tabs setting is supplied.",
+    "message": "El número mínimo de pestañas deber ser mayor o igual a 0"
+  },
+  "settings_setminutesInactive_error": {
+    "description": "Error shown when invalid minutes inactive setting is supplied.",
+    "message": "El número de minutos inactivos deber ser mayor o igual que 0"
+  },
+  "settings_setsecondsInactive_error": {
+    "description": "Error shown when invalid seconds inactive setting is supplied.",
+    "message": "El número de segundos inactivos deber ser mayor o igual que 0 y menor de 60"
+  },
+  "corral_sortBy": {
+    "description": "Label prefixing sort order of the tab corral",
+    "message": "Ordenar por:"
+  },
+  "corral_sortPageTitle": {
+    "description": "Label for sorting the tab corral list by page title",
+    "message": "Título de la página"
+  },
+  "corral_sortPageTitle_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title",
+    "message": "Título de la página"
+  },
+  "corral_sortPageTitle_descending": {
+    "description": "Label for sorting the tab corral list by page title in descending order",
+    "message": "Título de la página (descendente)"
+  },
+  "corral_sortPageTitle_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title in descending order",
+    "message": "Título de la página (desc.)"
+  },
+  "corral_sortTimeClosed": {
+    "description": "Label for sorting the tab corral list by tab closed time",
+    "message": "Tiempo cerrado"
+  },
+  "corral_sortTimeClosed_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time",
+    "message": "Tiempo cerrado"
+  },
+  "corral_sortTimeClosed_descending": {
+    "description": "Label for sorting the tab corral list by tab closed time in descending order",
+    "message": "Tiempo cerrado (descendente)"
+  },
+  "corral_sortTimeClosed_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time in descending order",
+    "message": "Tiempo cerrado (desc.)"
+  },
+  "corral_sortDomain": {
+    "description": "Label for sorting the tab corral list by domain",
+    "message": "Dominio"
+  },
+  "corral_sortDomain_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain",
+    "message": "Dominio"
+  },
+  "corral_sortDomain_descending": {
+    "description": "Label for sorting the tab corral list by domain in descending order",
+    "message": "Dominio (descendente)"
+  },
+  "corral_sortDomain_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
+    "message": "Dominio (desc.)"
+  },
+  "extDescription": {
+    "description": "Brief description of the extension",
+    "message": "Cierra las pestañas inactivas automáticamente y facilita recuperarlas"
+  },
+  "corral_tabSessionFresh": {
+    "description": "Tooltip describing why certain tabs will have their full session restored",
+    "message": "Restaurar esta pestaña restaurará la sesión completa: historial, posición del scroll, etc. Esta opción esta limitada por el navegador a las 25 últimas pestañas."
+  },
+  "corral_noTabsMatch": {
+    "description": "Message shown when no tabs match the user's search query",
+    "message": "Ninguna pestaña coincide con tu consulta. Prueba con una consulta nueva o menos específica."
   }
 }

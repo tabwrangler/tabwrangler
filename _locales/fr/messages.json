@@ -1,0 +1,410 @@
+{
+  "about_name": {
+    "description": "Name of the 'About' section, where users can see information about the extension",
+    "message": "À propos"
+  },
+  "about_changeLog": {
+    "description": "Link to the extension's list of changes per release",
+    "message": "Historique des changements"
+  },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "Code source (MIT)"
+  },
+  "about_support": {
+    "description": "Link to the extension's support site",
+    "message": "Support"
+  },
+  "contextMenu_corralTab": {
+    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
+    "message": "Fermer l’onglet et enregistrer les URL immédiatement"
+  },
+  "contextMenu_lockDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "Ne jamais fermer quoi que ce soit sur ce domaine"
+  },
+  "contextMenu_lockSpecificDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "Ne jamais fermer quoi que ce soit sur $domain$",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "www.wikipedia.org"
+      }
+    }
+  },
+  "contextMenu_lockTab": {
+    "description": "Label for context menu item that locks the clicked tab",
+    "message": "Ne jamais fermer cet onglet"
+  },
+  "corral_currentSort": {
+    "description": "Button title for showing current sort order",
+    "message": "Actuellement trié $sort_order$",
+    "placeholders": {
+      "sort_order": {
+        "content": "$1",
+        "example": "Reverse Chrono"
+      }
+    }
+  },
+  "corral_emptyList": {
+    "description": "Message displayed in the tab corral when the extension has not yet closed any tabs",
+    "message": "Aucun onglet fermé jusqu'à maintenant. Quand Tab Wrangler ferme des onglets, ils apparaîtront ici. Allez laisser vos onglets ouverts!"
+  },
+  "corral_removeSelectedTabs": {
+    "description": "Button title for removing all selected tabs from the corral",
+    "message": "Supprimer les onglets sélectionnés"
+  },
+  "corral_restoreSelectedTabs": {
+    "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
+    "message": "Restaurer les onglets sélectionnés"
+  },
+  "corral_searchResults_clear": {
+    "description": "Button title for clearing the search value and resetting results",
+    "message": "Effacer la recherche"
+  },
+  "corral_searchResults_label": {
+    "description": "Label showing number of tab search results",
+    "message": "$count$ résultats de recherche",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "33"
+      }
+    }
+  },
+  "corral_searchTabs": {
+    "description": "Text input placeholder for searching list of closed tabs",
+    "message": "Chercher les onglets..."
+  },
+  "corral_toggleAllTabs_deselectAll": {
+    "description": "Button title for deselecting all tabs in the tab corral",
+    "message": "Désélectionner tous les onglets"
+  },
+  "corral_toggleAllTabs_selectAll": {
+    "description": "Button title for selecting all tabs in the tab corral",
+    "message": "Sélectionnez tous les onglets"
+  },
+  "extName": {
+    "description": "The name of this extension",
+    "message": "Tab Wrangler"
+  },
+  "extension_pause": {
+    "description": "Label for button that pauses the extension",
+    "message": "Suspendre"
+  },
+  "extension_resume": {
+    "description": "Label for button that resumes (unpauses) the extension",
+    "message": "Reprendre"
+  },
+  "options_dedupe_label": {
+    "description": "Label for the de-duplicating option",
+    "message": "Prévenir les onglets en double dans le Corail :"
+  },
+  "options_dedupe_option_exactURLMatch": {
+    "description": "Label for option to de-duplicate when URL matches exactly",
+    "message": "Si l’URL correspond exactement"
+  },
+  "options_dedupe_option_exactURLMatch_description": {
+    "description": "Description for option to de-duplicate when URL matches exactly",
+    "message": "Lorsqu’un onglet est enlevé, il sera ajouté au Corail et les onglets avec le même URL seront retirés du Corail."
+  },
+  "options_dedupe_option_exactURLMatch_label": {
+    "description": "Extended label of the de-duplicate when tab URL matches exactly option",
+    "message": "Si l’URL correspond exactement"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch": {
+    "description": "Label for option to de-duplicate when hostname and page title match",
+    "message": "Si le nom d'hôte et le titre correspondent"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_description": {
+    "description": "Extended description for option to de-duplicate when hostname and page title match",
+    "message": "Lorsqu’un onglet est enlevé, il est ajouté au Corail et tout ancien onglet avec le même URL (comme \"wikipedia.org\") sera retiré du Corail."
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_label": {
+    "description": "Extended label for option to de-duplicate when hostname and page title match",
+    "message": "Si le nom d'hôte et le titre correspondent"
+  },
+  "options_dedupe_option_withDupes": {
+    "description": "Label for option to never de-duplicate the tab corral",
+    "message": "Jamais (par défaut)"
+  },
+  "options_dedupe_option_withDupes_description": {
+    "description": "Description of the never de-duplicating tabs option",
+    "message": "Quand un onglet est enlevé, il est ajouté au Corail. Aucun autre changement ne sera fait au Corail."
+  },
+  "options_dedupe_option_withDupes_label": {
+    "description": "Label for never de-duplicating option",
+    "message": "Jamais"
+  },
+  "options_importExport_description": {
+    "description": "Description of the import\/export feature shown next to import\/export buttons",
+    "message": "Exporter toutes les informations sur les onglets supprimés. Il s'agit d'un moyen pratique pour restaurant un ancien état après la réinstallation de l'extension."
+  },
+  "options_importExport_export": {
+    "description": "Button label to begin exporting closed tabs",
+    "message": "Exporter "
+  },
+  "options_importExport_exporting": {
+    "description": "Label displayed when exporting closed tabs",
+    "message": "Exportation..."
+  },
+  "options_importExport_import": {
+    "description": "Button label to begin importing closed tabs",
+    "message": "Importer"
+  },
+  "options_importExport_importing": {
+    "description": "Label displayed when importing closed tabs",
+    "message": "Import en cours..."
+  },
+  "options_importExport_importWarning": {
+    "description": "Description of the destructiveness of importing; current tabs are overwritten",
+    "message": "AVERTISSEMENT : L'importation de données écrasera toutes les données existantes. Il n’y a aucun moyen de retour (sauf si vous avez une sauvegarde)."
+  },
+  "options_keyboardShortcuts_configure": {
+    "description": "Link text for navigating to keyboard shortcut configuration",
+    "message": "Configurez ces raccourcis"
+  },
+  "options_keyboardShortcuts_notSet": {
+    "description": "Message shown for a shortcut when it has not been configured",
+    "message": "Aucun raccourci"
+  },
+  "options_name": {
+    "description": "Name of the 'Options' section, where users can configure the extension",
+    "message": "Paramètres"
+  },
+  "options_option_autoLock_add": {
+    "description": "Button label for adding to whitelist",
+    "message": "Ajouter"
+  },
+  "options_option_autoLock_empty": {
+    "description": "Message shown when there are no whitelisted URLs",
+    "message": "Il n'y a pas encore de verrouillage automatique. Utilisez le formulaire ci-dessus pour ajouter à la liste de souhaits."
+  },
+  "options_option_autoLock_example": {
+    "description": "Example describing how the whitelist works",
+    "message": "Exemple : « cnn » correspondrait à toutes les pages « https:\/\/www.cnn.com » et n’importe quelle URL contenant « cnn » n'importe où."
+  },
+  "options_option_autoLock_label": {
+    "description": "Label preceeding input for adding URL to whitelist",
+    "message": "Verrouillage automatique des onglets avec des URLs contenant :"
+  },
+  "options_option_autoLock_remove": {
+    "description": "Button label for removing a URL from the whitelist",
+    "message": "Supprimer"
+  },
+  "options_option_autoLock_urlHeader": {
+    "description": "Table column header for list of whitelisted URL strings",
+    "message": "Texte d'URL"
+  },
+  "options_option_clearOnQuit_label": {
+    "description": "Label for checkbox to clear the tab list after quitting Chrome",
+    "message": "Nettoyer la liste d'onglets fermés en quittant"
+  },
+  "options_option_debounceOnActivated_label": {
+    "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
+    "message": "Réinitialiser la minuterie de l’onglet qu’après qu'il soit actif pendant 1 seconde"
+  },
+  "options_option_filterAudio_label": {
+    "description": "Label for checkbox to filter tabs that are playing audio",
+    "message": "Ne fermez pas les onglets qui sont en lecture audio"
+  },
+  "options_option_minTabs_label": {
+    "description": "Label preceeding input for setting minimum number of tabs",
+    "message": "Fermer automatiquement les onglets si j'en ai plus que:"
+  },
+  "options_option_minTabs_postLabel": {
+    "description": "Label following input for setting minimum number of tabs",
+    "message": "onglets ouverts (n’inclut pas les onglets épinglés ou verrouillés)."
+  },
+  "options_option_minTabs_tabs": {
+    "description": "Input title for minimum number of tabs",
+    "message": "Doit être un nombre supérieur ou égal à 0"
+  },
+  "options_option_rememberTabs_label": {
+    "description": "Label preceeding input for number of tabs to remember",
+    "message": "Se souvenir jusqu'à:"
+  },
+  "options_option_rememberTabs_postLabel": {
+    "description": "Label following input for number of tabs to remember",
+    "message": "onglets fermés."
+  },
+  "options_option_rememberTabs_tabs": {
+    "description": "Input title for number of tabs to remember",
+    "message": "Doit être un nombre supérieur ou égal à 0"
+  },
+  "options_option_showBadgeCount_label": {
+    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
+    "message": "Afficher le nombre d’onglets fermés dans la barre d’URL"
+  },
+  "options_option_timeInactive_label": {
+    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
+    "message": "Fermer les onglets inactifs après :"
+  },
+  "options_option_timeInactive_minutes": {
+    "description": "Input title for number of minutes before closing tabs",
+    "message": "Doit être un nombre supérieur à 0 et inférieur à 7200"
+  },
+  "options_option_timeInactive_postLabel": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "minutes : secondes"
+  },
+  "options_option_timeInactive_seconds": {
+    "description": "Input title for number of seconds before closing tabs",
+    "message": "Doit être un nombre supérieur à 0 et inférieur à 60"
+  },
+  "options_saving": {
+    "description": "Message displayed when options are being saved",
+    "message": "Enregistrement en cours..."
+  },
+  "options_section_autoLock": {
+    "description": "Header for the auto-lock section of the options tab",
+    "message": "Vérouillage automatique"
+  },
+  "options_section_importExport": {
+    "description": "Header for the import\/export feature section of the options tab",
+    "message": "Importer \/ Exporter"
+  },
+  "options_section_keyboardShortcuts": {
+    "description": "Header for the section containing keyboard shortcut configuration",
+    "message": "Raccourcis clavier"
+  },
+  "options_section_settings": {
+    "description": "Header for settings section of the options tab",
+    "message": "Paramètres"
+  },
+  "tabCorral_name": {
+    "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
+    "message": "Le Corail d'Onglets"
+  },
+  "tabLock_lockedReason_locked": {
+    "description": "Label for tab that is locked because the user locked it",
+    "message": "Verrouillé"
+  },
+  "tabLock_lockedReason_matches": {
+    "description": "Label for a tab that is locked because it matches the whitelist",
+    "message": "Correspond à '$pattern$'",
+    "placeholders": {
+      "pattern": {
+        "content": "$1",
+        "example": "chrome:\/\/"
+      }
+    }
+  },
+  "tabLock_lockedReason_paused": {
+    "description": "Label for a tab when the extension is paused",
+    "message": "Interrompu"
+  },
+  "tabLock_lockedReason_pinned": {
+    "description": "Label for a tab that is locked because it's pinned",
+    "message": "Épinglé"
+  },
+  "tabLock_lockedReason_audible": {
+    "description": "Label for a tab that is locked because it's audible",
+    "message": "Les onglets en lecture audio ne seront pas fermés"
+  },
+  "tabLock_lockLabel": {
+    "description": "Explanation of the lock checkbox's functionality",
+    "message": "Cocher l’onglet pour le verrouiller (empêchez sa fermeture automatique)."
+  },
+  "tabLock_name": {
+    "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
+    "message": "Verrouillage de l’onglet"
+  },
+  "tabLock_remainingTimeLabel": {
+    "description": "Explanation of time remaining before tab is closed",
+    "message": "Fermeture en..."
+  },
+  "corral_tabsWrangled": {
+    "description": "Label preceeding the number of tabs wrangled by this extension",
+    "message": "onglets archivés"
+  },
+  "corral_tabsWrangled_formula": {
+    "description": "Title describing how % of tabs wrangled is calculated",
+    "message": "onglets fermés par Tab Wrangler \/ tous les onglets fermés"
+  },
+  "corral_tabsWrangled_or": {
+    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
+    "message": "ou"
+  },
+  "settings_setmaxTabs_error": {
+    "description": "Error shown when invalid max tabs setting is supplied.",
+    "message": "Onglets maximum doit être un nombre entre 1 et 1000"
+  },
+  "settings_setminTabs_error": {
+    "description": "Error shown when invalid min tabs setting is supplied.",
+    "message": "Onglets minimum doit être un nombre supérieur ou égal à 0"
+  },
+  "settings_setminutesInactive_error": {
+    "description": "Error shown when invalid minutes inactive setting is supplied.",
+    "message": "Minutes inactif doit être supérieur ou égal à 0"
+  },
+  "settings_setsecondsInactive_error": {
+    "description": "Error shown when invalid seconds inactive setting is supplied.",
+    "message": "Secondes inactif doit être supérieur ou égal à 0 et inférieur à 60"
+  },
+  "corral_sortBy": {
+    "description": "Label prefixing sort order of the tab corral",
+    "message": "Trié par :"
+  },
+  "corral_sortPageTitle": {
+    "description": "Label for sorting the tab corral list by page title",
+    "message": "Titre de la page"
+  },
+  "corral_sortPageTitle_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title",
+    "message": "Titre de la page"
+  },
+  "corral_sortPageTitle_descending": {
+    "description": "Label for sorting the tab corral list by page title in descending order",
+    "message": "Titre de la page (décroissant)"
+  },
+  "corral_sortPageTitle_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title in descending order",
+    "message": "Titre de la page (déc.)"
+  },
+  "corral_sortTimeClosed": {
+    "description": "Label for sorting the tab corral list by tab closed time",
+    "message": "Temps fermé"
+  },
+  "corral_sortTimeClosed_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time",
+    "message": "Temps fermé"
+  },
+  "corral_sortTimeClosed_descending": {
+    "description": "Label for sorting the tab corral list by tab closed time in descending order",
+    "message": "Temps fermé (décroissant)"
+  },
+  "corral_sortTimeClosed_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time in descending order",
+    "message": "Temps fermé (déc.)"
+  },
+  "corral_sortDomain": {
+    "description": "Label for sorting the tab corral list by domain",
+    "message": "Domaine"
+  },
+  "corral_sortDomain_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain",
+    "message": "Domaine"
+  },
+  "corral_sortDomain_descending": {
+    "description": "Label for sorting the tab corral list by domain in descending order",
+    "message": "Domaine (décroissant)"
+  },
+  "corral_sortDomain_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
+    "message": "Domaine (déc.)"
+  },
+  "extDescription": {
+    "description": "Brief description of the extension",
+    "message": "Enlève les onglets inactifs automatiquement, pour les récupérer facilement plus tard"
+  },
+  "corral_tabSessionFresh": {
+    "description": "Tooltip describing why certain tabs will have their full session restored",
+    "message": "Restaurer cet onglet va restaurant sa session entière: historique, position du curseur, etc. Ceci est limité par le navigateur au 25 derniers onglets fermés."
+  },
+  "corral_noTabsMatch": {
+    "description": "Message shown when no tabs match the user's search query",
+    "message": "Aucun onglet ne correspond à votre requête. Essayez une nouvelle requête ou une requête moins spécifique."
+  }
+}

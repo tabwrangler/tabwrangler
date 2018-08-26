@@ -21,8 +21,8 @@ const Settings = {
     // An array of tabids which have been explicitly locked by the user.
     lockedIds: [],
 
-    maxTabs: 100,
     // Max number of tabs stored before the list starts getting truncated.
+    maxTabs: 100,
 
     // Stop acting if there are only minTabs tabs open.
     minTabs: 5,
@@ -62,6 +62,11 @@ const Settings = {
       for (const i in items) {
         if (items.hasOwnProperty(i)) {
           this.cache[i] = items[i];
+
+          // Because the badge count is external state, this side effect must be run once the value
+          // is read from storage. This could more elequently be handled in a reducer, but place it
+          // here to make minimal changes while correctly updating the badge count.
+          if (i === 'showBadgeCount') tabmanager.updateClosedCount();
         }
       }
     });
@@ -182,12 +187,8 @@ const Settings = {
   },
 
   setshowBadgeCount(value: boolean) {
-    if (value === false) {
-      // Clear out the current badge setting
-      chrome.browserAction.setBadgeText({ text: '' });
-    }
-    Settings.setValue('showBadgeCount', value);
     tabmanager.updateClosedCount();
+    Settings.setValue('showBadgeCount', value);
   },
 
   setValue(key: string, value: mixed, fx?: () => void) {

@@ -221,11 +221,14 @@ const TabManager = {
   },
 
   updateClosedCount() {
-    if (TW.settings.get('showBadgeCount') === false) return;
-    const savedTabsLength = TW.store.getState().localStorage.savedTabs.length;
-    chrome.browserAction.setBadgeText({
-      text: savedTabsLength.length === 0 ? '' : savedTabsLength.toString(),
-    });
+    let text;
+    if (TW.settings.get('showBadgeCount')) {
+      const savedTabsLength = TW.store.getState().localStorage.savedTabs.length;
+      text = savedTabsLength.length === 0 ? '' : savedTabsLength.toString();
+    } else {
+      text = '';
+    }
+    chrome.browserAction.setBadgeText({ text });
   },
 
   // `addListener` intersection results in incorrect function type

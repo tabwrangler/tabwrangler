@@ -1,15 +1,13 @@
 /* @flow */
 
+import { isLocked, isManuallyLockable } from './tab';
 import LazyImage from './LazyImage';
 import React from 'react';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
 // Unpack TW.
-const {
-  settings,
-  tabmanager,
-} = TW;
+const { settings, tabmanager } = TW;
 
 function secondsToMinutes(seconds) {
   let s = seconds % 60;
@@ -17,30 +15,22 @@ function secondsToMinutes(seconds) {
   return `${String(Math.floor(seconds / 60))}:${s}`;
 }
 
-interface OpenTabRowProps {
-  isLocked: boolean;
-  onLockTab: (tabId: number) => void;
-  onUnlockTab: (tabId: number) => void;
-  tab: chrome$Tab;
-}
+type Props = {
+  onToggleTab: (tab: chrome$Tab, selected: boolean, multiselect: boolean) => void,
+  tab: chrome$Tab,
+};
 
-export default class OpenTabRow extends React.Component<OpenTabRowProps> {
-  handleLockedOnChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
-    const {tab} = this.props;
-    if (tab.id == null) return;
-
-    if (event.target.checked) {
-      this.props.onLockTab(tab.id);
-    } else {
-      this.props.onUnlockTab(tab.id);
-    }
+export default class OpenTabRow extends React.Component<Props> {
+  handleLockedOnClick = (event: SyntheticMouseEvent<HTMLInputElement>) => {
+    // Dynamic type check to ensure target is an input element.
+    if (!(event.target instanceof HTMLInputElement)) return;
+    this.props.onToggleTab(this.props.tab, event.target.checked, event.shiftKey);
   };
 
   render() {
-    const {tab} = this.props;
+    const { tab } = this.props;
     const tabWhitelistMatch = tabmanager.getWhitelistMatch(tab.url);
-    const tabIsLocked = tab.pinned || tabWhitelistMatch || this.props.isLocked
-     || tab.audible && settings.get('filterAudio');
+    const tabIsLocked = isLocked(tab);
 
     let lockStatusElement;
     if (tabIsLocked) {
@@ -48,11 +38,7 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
       if (tab.pinned) {
         reason = chrome.i18n.getMessage('tabLock_lockedReason_pinned');
       } else if (settings.get('filterAudio') && tab.audible) {
-        reason = (
-          <abbr title={chrome.i18n.getMessage('tabLock_lockedReason_audible')}>
-            Locked
-          </abbr>
-        );
+        reason = <abbr title={chrome.i18n.getMessage('tabLock_lockedReason_audible')}>Locked</abbr>;
       } else if (tabWhitelistMatch) {
         reason = (
           <abbr title={chrome.i18n.getMessage('tabLock_lockedReason_matches', tabWhitelistMatch)}>
@@ -64,7 +50,9 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
       }
 
       lockStatusElement = (
-        <td className="text-center muted" style={{verticalAlign: 'middle'}}>{reason}</td>
+        <td className="text-center muted" style={{ verticalAlign: 'middle' }}>
+          {reason}
+        </td>
       );
     } else {
       let timeLeftContent;
@@ -82,32 +70,33 @@ export default class OpenTabRow extends React.Component<OpenTabRowProps> {
       }
 
       lockStatusElement = (
-        <td className="text-center" style={{verticalAlign: 'middle'}}>{timeLeftContent}</td>
+        <td className="text-center" style={{ verticalAlign: 'middle' }}>
+          {timeLeftContent}
+        </td>
       );
     }
 
     return (
       <tr>
-        <td className="text-center" style={{verticalAlign: 'middle', width: '1px'}}>
+        <td className="text-center" style={{ verticalAlign: 'middle', width: '1px' }}>
           <input
             checked={tabIsLocked}
-            disabled={tab.pinned || tabWhitelistMatch
-             || tab.audible && settings.get('filterAudio')}
-            onChange={this.handleLockedOnChange}
+            disabled={!isManuallyLockable(tab)}
+            onClick={this.handleLockedOnClick}
             type="checkbox"
           />
         </td>
-        <td className="text-center" style={{verticalAlign: 'middle', width: '32px'}}>
+        <td className="text-center" style={{ verticalAlign: 'middle', width: '32px' }}>
           <LazyImage
             alt=""
             height={16}
             src={tab.favIconUrl}
-            style={{height: '16px', maxWidth: 'none'}}
+            style={{ height: '16px', maxWidth: 'none' }}
             width={16}
           />
         </td>
-        <td style={{paddingBottom: '4px', paddingTop: '4px', width: '75%'}}>
-          <div style={{display: 'flex'}}>
+        <td style={{ paddingBottom: '4px', paddingTop: '4px', width: '75%' }}>
+          <div style={{ display: 'flex' }}>
             <div
               style={{
                 flex: 1,

@@ -2,17 +2,19 @@
 
 import OpenTabRow from './OpenTabRow';
 import React from 'react';
+import { isManuallyLockable } from './tab';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
 // Unpack TW.
-const { settings, tabmanager } = TW;
+const { tabmanager } = TW;
 
 interface State {
   tabs: Array<chrome$Tab>;
 }
 
 export default class LockTab extends React.PureComponent<{}, State> {
+  _lastSelectedTab: ?chrome$Tab;
   _timeLeftInterval: ?number;
 
   constructor() {
@@ -36,19 +38,30 @@ export default class LockTab extends React.PureComponent<{}, State> {
     window.clearInterval(this._timeLeftInterval);
   }
 
-  handleLockTab = (tabId: number) => {
-    tabmanager.lockTab(tabId);
-    this.forceUpdate();
-  };
+  handleToggleTab = (tab: chrome$Tab, selected: boolean, multiselect: boolean) => {
+    let tabsToToggle = [tab];
+    if (multiselect && this._lastSelectedTab != null) {
+      const lastSelectedTabIndex = this.state.tabs.indexOf(this._lastSelectedTab);
+      if (lastSelectedTabIndex >= 0) {
+        const tabIndex = this.state.tabs.indexOf(tab);
+        tabsToToggle = this.state.tabs.slice(
+          Math.min(tabIndex, lastSelectedTabIndex),
+          Math.max(tabIndex, lastSelectedTabIndex) + 1
+        );
+      }
+    }
 
-  handleUnlockTab = (tabId: number) => {
-    tabmanager.unlockTab(tabId);
+    // Toggle only the tabs that are manually lockable.
+    tabsToToggle.filter(tab => isManuallyLockable(tab)).forEach(tab => {
+      if (selected) tabmanager.lockTab(tab.id);
+      else tabmanager.unlockTab(tab.id);
+    });
+
+    this._lastSelectedTab = tab;
     this.forceUpdate();
   };
 
   render() {
-    const lockedIds = settings.get('lockedIds');
-
     return (
       <div className="tab-pane active">
         <table className="table table-hover">
@@ -71,13 +84,7 @@ export default class LockTab extends React.PureComponent<{}, State> {
           </thead>
           <tbody>
             {this.state.tabs.map(tab => (
-              <OpenTabRow
-                isLocked={lockedIds.indexOf(tab.id) !== -1}
-                key={tab.id}
-                onLockTab={this.handleLockTab}
-                onUnlockTab={this.handleUnlockTab}
-                tab={tab}
-              />
+              <OpenTabRow key={tab.id} onToggleTab={this.handleToggleTab} tab={tab} />
             ))}
           </tbody>
         </table>

@@ -187,8 +187,8 @@ const Settings = {
   },
 
   setshowBadgeCount(value: boolean) {
-    tabmanager.updateClosedCount();
     Settings.setValue('showBadgeCount', value);
+    tabmanager.updateClosedCount();
   },
 
   setValue(key: string, value: mixed, fx?: () => void) {

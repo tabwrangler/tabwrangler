@@ -34,7 +34,13 @@ const COMMON_CONFIG = {
   },
   optimization: {
     splitChunks: {
-      name: 'commons',
+      cacheGroups: {
+        commons: {
+          chunks: 'initial',
+          minChunks: 2,
+          name: 'commons',
+        },
+      },
     },
   },
   plugins: [

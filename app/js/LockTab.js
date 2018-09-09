@@ -64,21 +64,20 @@ export default class LockTab extends React.PureComponent<{}, State> {
   render() {
     return (
       <div className="tab-pane active">
-        <table className="table table-hover">
+        <table className="table table-hover table-th-unbordered">
           <thead>
             <tr>
               <th className="text-center">
                 <abbr title={chrome.i18n.getMessage('tabLock_lockLabel')}>
-                  <i className="glyphicon glyphicon-lock" />
+                  <i className="fas fa-lock" />
                 </abbr>
               </th>
               <th />
               <th style={{ width: '75%' }} />
               <th className="text-center">
-                <i
-                  className="glyphicon glyphicon-time"
-                  title={chrome.i18n.getMessage('tabLock_remainingTimeLabel')}
-                />
+                <abbr title={chrome.i18n.getMessage('tabLock_remainingTimeLabel')}>
+                  <i className="fas fa-stopwatch" />
+                </abbr>
               </th>
             </tr>
           </thead>

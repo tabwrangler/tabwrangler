@@ -2,6 +2,7 @@
 
 import PauseButton from './PauseButton';
 import React from 'react';
+import cx from 'classnames';
 
 export type NavBarTabID = 'about' | 'corral' | 'lock' | 'options';
 
@@ -34,27 +35,39 @@ export default class NavBar extends React.PureComponent<Props> {
   render() {
     return (
       <div>
-        <div className="pull-right nav-buttons">
+        <div className="float-right nav-buttons">
           <PauseButton />
         </div>
         <ul className="nav nav-tabs">
-          <li className={this.props.activeTabId === 'corral' ? 'active' : null}>
-            <a href="#corral" onClick={this.handleClickCorralTab}>
+          <li className="nav-item">
+            <a
+              className={cx('nav-link', { active: this.props.activeTabId === 'corral' })}
+              href="#corral"
+              onClick={this.handleClickCorralTab}>
               {chrome.i18n.getMessage('tabCorral_name')}
             </a>
           </li>
-          <li className={this.props.activeTabId === 'lock' ? 'active' : null}>
-            <a href="#lock" onClick={this.handleClickLockTab}>
+          <li className="nav-item">
+            <a
+              className={cx('nav-link', { active: this.props.activeTabId === 'lock' })}
+              href="#lock"
+              onClick={this.handleClickLockTab}>
               {chrome.i18n.getMessage('tabLock_name')}
             </a>
           </li>
-          <li className={this.props.activeTabId === 'options' ? 'active' : null}>
-            <a href="#options" onClick={this.handleClickOptionsTab}>
+          <li className="nav-item">
+            <a
+              className={cx('nav-link', { active: this.props.activeTabId === 'options' })}
+              href="#options"
+              onClick={this.handleClickOptionsTab}>
               {chrome.i18n.getMessage('options_name')}
             </a>
           </li>
-          <li className={this.props.activeTabId === 'about' ? 'active' : null}>
-            <a href="#about" onClick={this.handleClickAboutTab}>
+          <li className="nav-item">
+            <a
+              className={cx('nav-link', { active: this.props.activeTabId === 'about' })}
+              href="#about"
+              onClick={this.handleClickAboutTab}>
               {chrome.i18n.getMessage('about_name')}
             </a>
           </li>

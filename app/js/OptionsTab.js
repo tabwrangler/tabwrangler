@@ -188,7 +188,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         saveAlert = [
           <CSSTransition classNames="alert" key="alert" timeout={400}>
             <div className="alert-sticky" key="alert">
-              <div className="alert alert-success pull-right" style={{ display: 'inline-block' }}>
+              <div className="alert alert-success float-right" style={{ display: 'inline-block' }}>
                 {chrome.i18n.getMessage('options_saving')}
               </div>
             </div>
@@ -198,7 +198,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     } else {
       errorAlert = (
         <div className="alert alert-danger alert-sticky">
-          <ul className="pull-right" style={{ display: 'inline-block' }}>
+          <ul className="float-right" style={{ display: 'inline-block' }}>
             {this.state.errors.map((error, i) => <li key={i}>{error.message}</li>)}
           </ul>
         </div>
@@ -376,7 +376,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                 />
                 <span className="input-group-btn">
                   <button
-                    className="btn btn-default"
+                    className="btn btn-outline-secondary"
                     disabled={!isValidPattern(this.state.newPattern)}
                     id="addToWL"
                     type="submit">
@@ -412,7 +412,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                   <td>{pattern}</td>
                   <td>
                     <button
-                      className="btn btn-default btn-xs"
+                      className="btn btn-outline-secondary btn-sm"
                       onClick={this.handleClickRemovePattern.bind(this, pattern)}
                       style={{ marginBottom: '-4px', marginTop: '-4px' }}>
                       {chrome.i18n.getMessage('options_option_autoLock_remove')}
@@ -427,11 +427,14 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         <h4 className="page-header">{chrome.i18n.getMessage('options_section_importExport')}</h4>
         <div className="row">
           <div className="col-xs-8">
-            <Button className="btn btn-default btn-xs" glyph="export" onClick={this.exportData}>
+            <Button
+              className="btn btn-outline-secondary btn-sm"
+              glyph="export"
+              onClick={this.exportData}>
               {chrome.i18n.getMessage('options_importExport_export')}
             </Button>{' '}
             <Button
-              className="btn btn-default btn-xs"
+              className="btn btn-outline-secondary btn-sm"
               glyph="import"
               onClick={() => {
                 if (this._fileselector != null) this._fileselector.click();

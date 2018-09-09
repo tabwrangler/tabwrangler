@@ -372,10 +372,10 @@ class CorralTab extends React.Component<Props, State> {
     return (
       <div className="tab-pane active">
         <div className="row">
-          <form className="form-search col-xs-6">
+          <form className="form-search col">
             <div className="form-group" style={{ marginBottom: 0 }}>
               <input
-                className="form-control"
+                className="form-control form-control-sm"
                 name="search"
                 onChange={this._handleSearchChange}
                 placeholder={chrome.i18n.getMessage('corral_searchTabs')}
@@ -387,7 +387,7 @@ class CorralTab extends React.Component<Props, State> {
               />
             </div>
           </form>
-          <div className="col-xs-6" style={{ lineHeight: '30px', textAlign: 'right' }}>
+          <div className="col" style={{ lineHeight: '30px', textAlign: 'right' }}>
             <small style={{ color: '#999999' }}>
               {chrome.i18n.getMessage('corral_tabsWrangled')}
             </small>{' '}
@@ -421,7 +421,7 @@ class CorralTab extends React.Component<Props, State> {
                 )}>
                 <div>
                   <button
-                    className="btn btn-default btn-xs btn-chunky btn-chunky"
+                    className="btn btn-outline-secondary btn-sm"
                     onClick={this._toggleAllTabs}
                     title={
                       areAllClosedTabsSelected
@@ -439,7 +439,7 @@ class CorralTab extends React.Component<Props, State> {
                   {closedTabs.some(tab => this.state.selectedTabs.has(tab))
                     ? [
                         <button
-                          className="btn btn-default btn-xs btn-chunky btn-chunky"
+                          className="btn btn-outline-secondary btn-sm"
                           key="remove"
                           onClick={this._handleRemoveSelectedTabs}
                           style={{ marginLeft: '10px' }}
@@ -447,10 +447,10 @@ class CorralTab extends React.Component<Props, State> {
                           <span className="sr-only">
                             {chrome.i18n.getMessage('corral_removeSelectedTabs')}
                           </span>
-                          <span className="glyphicon glyphicon-trash" aria-hidden="true" />
+                          <i className="fas fa-trash-alt" />
                         </button>,
                         <button
-                          className="btn btn-default btn-xs btn-chunky btn-chunky"
+                          className="btn btn-outline-secondary btn-sm"
                           key="restore"
                           onClick={this._handleRestoreSelectedTabs}
                           style={{ marginLeft: '10px' }}
@@ -458,7 +458,7 @@ class CorralTab extends React.Component<Props, State> {
                           <span className="sr-only">
                             {chrome.i18n.getMessage('corral_removeSelectedTabs')}
                           </span>
-                          <span className="glyphicon glyphicon-new-window" aria-hidden="true" />
+                          <i className="fas fa-external-link-alt" />
                         </button>,
                       ]
                     : null}
@@ -477,33 +477,35 @@ class CorralTab extends React.Component<Props, State> {
                     </span>
                   ) : null}
                   <div
-                    className={cx('dropdown', { open: this.state.isSortDropdownOpen })}
+                    className="dropdown"
                     ref={dropdown => {
                       this._dropdownRef = dropdown;
                     }}>
                     <button
                       aria-haspopup="true"
-                      className="btn btn-default btn-xs btn-chunky"
+                      className="btn btn-outline-secondary btn-sm"
                       id="sort-dropdown"
                       onClick={this._toggleSortDropdown}
                       title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
-                      <span className="text-muted">{chrome.i18n.getMessage('corral_sortBy')}</span>
-                      <span> {this.state.sorter.shortLabel}</span> <span className="caret" />
+                      <span>{chrome.i18n.getMessage('corral_sortBy')}</span>
+                      <span> {this.state.sorter.shortLabel}</span>{' '}
+                      <i className="fas fa-caret-down" />
                     </button>
-                    <ul
+                    <div
                       aria-labelledby="sort-dropdown"
-                      className="dropdown-menu dropdown-menu-right">
-                      {Sorters.map(sorter => {
-                        const active = this.state.sorter === sorter;
-                        return (
-                          <li className={cx({ active })} key={sorter.label}>
-                            <a href="#" onClick={this._clickSorter.bind(this, sorter)}>
-                              {sorter.label}
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
+                      className={cx('dropdown-menu dropdown-menu-right', {
+                        show: this.state.isSortDropdownOpen,
+                      })}>
+                      {Sorters.map(sorter => (
+                        <a
+                          className={cx('dropdown-item', { active: this.state.sorter === sorter })}
+                          href="#"
+                          key={sorter.label}
+                          onClick={this._clickSorter.bind(this, sorter)}>
+                          {sorter.label}
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

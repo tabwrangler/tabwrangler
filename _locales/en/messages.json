@@ -235,7 +235,7 @@
   },
   "options_option_showBadgeCount_label": {
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
-    "message": "Show # of closed tabs in URL bar"
+    "message": "Show # of closed tabs on the toolbar button"
   },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",

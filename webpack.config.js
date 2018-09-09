@@ -1,29 +1,30 @@
 /* eslint-env node */
 
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 const webpack = require('webpack');
 
 const COMMON_CONFIG = {
+  devtool: 'cheap-module-source-map',
   entry: {
     background: './app/background.js',
     popup: './app/popup.js',
   },
+  mode: 'development',
   module: {
     rules: [
       {
         exclude: /node_modules/,
-        loader: 'babel-loader',
         test: /\.js$/,
+        use: {
+          loader: 'babel-loader',
+        },
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: 'css-loader',
-        }),
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
@@ -31,16 +32,22 @@ const COMMON_CONFIG = {
       },
     ],
   },
+  optimization: {
+    splitChunks: {
+      name: 'commons',
+    },
+  },
   plugins: [
     new CopyWebpackPlugin([
       { from: '_locales/**' },
       { from: 'app/img/', to: 'img/' },
       { from: 'app/manifest.json' },
-      { from: 'MIT-LICENSE.txt'} ,
+      { from: 'MIT-LICENSE.txt' },
       { from: 'README.md' },
     ]),
-    new ExtractTextPlugin('popup.css'),
-    new webpack.optimize.CommonsChunkPlugin('commons'),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+    }),
     new HtmlWebpackPlugin({
       cache: false, // Disable cache to ensure file is always created in multi-compiler build
       chunks: ['commons', 'popup'],
@@ -65,7 +72,9 @@ module.exports = [
     },
     plugins: COMMON_CONFIG.plugins.concat([
       new webpack.DefinePlugin({
-        EXTENSION_URL: JSON.stringify('https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/'),
+        EXTENSION_URL: JSON.stringify(
+          'https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/'
+        ),
       }),
     ]),
   }),
@@ -77,7 +86,9 @@ module.exports = [
     },
     plugins: COMMON_CONFIG.plugins.concat([
       new webpack.DefinePlugin({
-        EXTENSION_URL: JSON.stringify('https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/'),
+        EXTENSION_URL: JSON.stringify(
+          'https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/'
+        ),
       }),
     ]),
   }),

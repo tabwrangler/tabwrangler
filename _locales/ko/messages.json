@@ -229,10 +229,6 @@
     "description": "Input title for number of tabs to remember",
     "message": "0보다 크거나 같은 숫자여야 합니다."
   },
-  "options_option_showBadgeCount_label": {
-    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
-    "message": "URL 표시한 줄에 닫힌 탭 수 표시합니다"
-  },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "다음시간 후 탭 비활성화:"

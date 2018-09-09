@@ -213,10 +213,6 @@
     "description": "Input title for number of tabs to remember",
     "message": "Muss eine Nummer größer oder gleich 0 sein"
   },
-  "options_option_showBadgeCount_label": {
-    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
-    "message": "Anzahl geschlossener Tabs in der URL Zeile anzeigen"
-  },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "Schließen von inaktiven Tabs nach:"

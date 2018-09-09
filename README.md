@@ -10,6 +10,7 @@ focus on the tabs that matter
 * [Usage](#usage)
   * [Backup & Restore](#back-up--restore)
   * [Settings](#settings)
+* [Privacy Policy](#privacy-policy)
 * [Contributing](#contributing)
   * [Translation](#translation)
   * [Development](#development)
@@ -92,6 +93,11 @@ usages are described in the following table:
 | `showBadgeCount`      | `true`                    |                                                             | Whether to show the length of the closed tab list as a badge on the URL bar icon                    |
 | `whitelist`           | `['about:', 'chrome://']` |                                                             | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed |
 | `wrangleOption`       | `'withDupes'`             | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'` | How to handle duplicate entries in the closed tabs list                                             |
+
+## Privacy Policy
+
+Tab Wrangler does not transmit any data about you or your usage of Tab Wrangler. There is no
+tracking, there are no analytics, and there are no advertisements.
 
 ## Contributing
 

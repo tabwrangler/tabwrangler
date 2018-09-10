@@ -10,7 +10,7 @@ export function isLocked(tab: chrome$Tab): boolean {
     tab.pinned ||
     tabWhitelistMatch ||
     lockedIds.indexOf(tab.id) !== -1 ||
-    (tab.audible && settings.get('filterAudio'))
+    !!(tab.audible && settings.get('filterAudio'))
   );
 }
 

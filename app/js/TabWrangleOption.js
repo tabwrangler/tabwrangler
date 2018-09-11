@@ -24,26 +24,26 @@ export default class TabWrangleOption extends React.Component<Props> {
     ];
 
     return (
-      <div>
+      <React.Fragment>
         <label htmlFor="wrangleOption">{chrome.i18n.getMessage('options_dedupe_label')}</label>
         {OPTIONS.map(option => (
-          <div className="radio" key={option.name}>
-            <label>
-              <input
-                checked={this.props.selectedOption === option.name}
-                className="form-check-input"
-                id={option.name}
-                name="wrangleOption"
-                onChange={this.props.onChange}
-                type="radio"
-                value={option.name}
-              />{' '}
+          <div className="form-check" key={option.name}>
+            <input
+              checked={this.props.selectedOption === option.name}
+              className="form-check-input"
+              id={option.name}
+              name="wrangleOption"
+              onChange={this.props.onChange}
+              type="radio"
+              value={option.name}
+            />
+            <label className="form-check-label" htmlFor={option.name}>
               {option.text}
             </label>
           </div>
         ))}
         <div className="row">
-          <div className="col-xs-8 help-block" style={{ marginBottom: 0 }}>
+          <div className="col-8 help-block" style={{ marginBottom: 0 }}>
             <dl style={{ marginBottom: 0 }}>
               <dt>{chrome.i18n.getMessage('options_dedupe_option_withDupes_label')}</dt>
               <dd>{chrome.i18n.getMessage('options_dedupe_option_withDupes_description')}</dd>
@@ -60,7 +60,7 @@ export default class TabWrangleOption extends React.Component<Props> {
             </dl>
           </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }

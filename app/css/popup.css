@@ -42,3 +42,13 @@ body {
   top: 15px;
   right: 10px;
 }
+
+/**
+ * Override Bootstrap responsive because Tab Wrangler is not a mobile UI.
+ */
+
+@media (min-width: 576px) {
+  .form-inline .form-check {
+    justify-content: flex-start;
+  }
+}

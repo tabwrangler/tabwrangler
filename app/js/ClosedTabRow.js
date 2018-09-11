@@ -1,5 +1,6 @@
 /* @flow */
 
+import './CoralTabRow.css';
 import LazyImage from './LazyImage';
 import React from 'react';
 import TimeAgo from 'timeago-react';
@@ -103,18 +104,9 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
             <i className="fas fa-trash-alt" />
           </span>
         </div>
-        <div
-          className="ReactVirtualized__Table__rowColumn"
-          style={{ flex: 1, paddingBottom: '4px', paddingTop: '4px' }}>
+        <div className="ReactVirtualized__Table__rowColumn py-1" style={{ flex: 1 }}>
           <div style={{ display: 'flex' }}>
-            <div
-              style={{
-                flex: 1,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                width: '1px',
-              }}>
+            <div className="CorralTabRow-content">
               <a
                 href={tab.url}
                 onClick={this._handleClickAnchor}

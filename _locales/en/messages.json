@@ -198,7 +198,7 @@
     "message": "URL String"
   },
   "options_option_clearOnQuit_label": {
-    "description": "Label for checkbox to clear the tab list after quitting Chrome",
+    "description": "Label for checkbox to clear the tab list after quitting the Browser",
     "message": "Clear closed tabs list on quit"
   },
   "options_option_debounceOnActivated_label": {

@@ -198,7 +198,7 @@
     "message": "URL 주소"
   },
   "options_option_clearOnQuit_label": {
-    "description": "Label for checkbox to clear the tab list after quitting Chrome",
+    "description": "Label for checkbox to clear the tab list after quitting the Browser",
     "message": "종료 시 닫힌 탭 목록 지우기"
   },
   "options_option_debounceOnActivated_label": {

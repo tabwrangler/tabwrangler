@@ -178,8 +178,8 @@
     "message": "URL"
   },
   "options_option_clearOnQuit_label": {
-    "description": "Label for checkbox to clear the tab list after quitting Chrome",
-    "message": "Liste der geschlossenen Tabs beim beenden von Chrome löschen"
+    "description": "Label for checkbox to clear the tab list after quitting the Browser",
+    "message": "Liste der geschlossenen Tabs beim beenden des Browsers löschen"
   },
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",

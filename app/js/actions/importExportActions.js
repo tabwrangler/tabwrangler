@@ -17,7 +17,7 @@ import FileSaver from 'file-saver';
  * @param event contains the path of the backup file
  */
 function importData(event: SyntheticInputEvent<HTMLInputElement>) {
-  return function(dispatch: Dispatch) {
+  return function(dispatch: Dispatch): Promise<void> {
     const files = event.target.files;
     if (files[0]) {
       return new Promise((resolve, reject) => {

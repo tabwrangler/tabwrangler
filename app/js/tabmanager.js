@@ -197,16 +197,12 @@ const TabManager = {
     TW.settings.set('lockedIds', lockedIds);
   },
 
-  // `addListener` intersection results in incorrect function type
-  // $FlowFixMe
   removeTab(tabId: number) {
     const totalTabsRemoved = TW.store.getState().localStorage.totalTabsRemoved;
     TW.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
     delete TabManager.tabTimes[tabId];
   },
 
-  // `addListener` intersection results in incorrect function type
-  // $FlowFixMe
   replaceTab(addedTabId: number, removedTabId: number) {
     TabManager.removeTab(removedTabId);
     TabManager.updateLastAccessed(addedTabId);
@@ -231,8 +227,6 @@ const TabManager = {
     chrome.browserAction.setBadgeText({ text });
   },
 
-  // `addListener` intersection results in incorrect function type
-  // $FlowFixMe
   updateLastAccessed(tabOrTabId: chrome$Tab | number | Array<chrome$Tab>) {
     let tabId;
     if (Array.isArray(tabOrTabId)) {

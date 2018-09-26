@@ -151,7 +151,6 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     });
 
     this.props
-      // $FlowFixMe
       .dispatch(func(funcArg))
       .then(() => {
         this._importExportAlertTimeout = window.setTimeout(() => {

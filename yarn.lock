@@ -2817,9 +2817,9 @@ flow-bin@^0.81.0:
   version "0.81.0"
   resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.81.0.tgz#7f0a733dce1dad3cb1447c692639292dc3d60bf5"
 
-flow-interfaces-chrome@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/flow-interfaces-chrome/-/flow-interfaces-chrome-0.5.1.tgz#1cc54818ffd94aa2ec895e20d3ba9c541e2f6073"
+flow-interfaces-chrome@^0.5.2:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/flow-interfaces-chrome/-/flow-interfaces-chrome-0.5.2.tgz#2181e35e664f3f2f4870310cfeb55bae7b91af28"
 
 flush-write-stream@^1.0.0:
   version "1.0.3"

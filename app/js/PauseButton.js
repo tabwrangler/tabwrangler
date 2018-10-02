@@ -43,11 +43,10 @@ export default class PauseButton extends React.PureComponent<{}, State> {
     );
 
     return (
-      <button
-        className="btn btn-outline-secondary btn-sm"
+      <a
         onClick={this.state.paused ? this.play : this.pause}>
         {content}
-      </button>
+      </a>
     );
   }
 }

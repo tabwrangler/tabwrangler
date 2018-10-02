@@ -198,7 +198,7 @@
     "message": "URL String"
   },
   "options_option_clearOnQuit_label": {
-    "description": "Label for checkbox to clear the tab list after quitting Chrome",
+    "description": "Label for checkbox to clear the tab list after quitting the Browser",
     "message": "Clear closed tabs list on quit"
   },
   "options_option_debounceOnActivated_label": {
@@ -272,6 +272,10 @@
   "options_section_settings": {
     "description": "Header for settings section of the options tab",
     "message": "Settings"
+  },
+  "options_tab_actions": {
+    "description": "Header for actions with tabs in settings",
+    "message": "Actions with tabs:"
   },
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",

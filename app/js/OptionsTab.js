@@ -225,16 +225,20 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
 
     return (
       <div className="tab-pane active">
-        <h4 className="page-header" style={{ marginTop: 0 }}>
+      <div className="tw-settings-section">
+        <h4 className="section-header" style={{ marginTop: 0 }}>
           {chrome.i18n.getMessage('options_section_settings')}
         </h4>
-        <form className="form-inline" style={{ display: 'block' }}>
+        <hr/>
+        <form style={{ display: 'block' }}>
+        <div id="tw_tab-settings">
           <div className="form-group mb-2">
-            <label className="mr-1" htmlFor="minutesInactive">
-              {chrome.i18n.getMessage('options_option_timeInactive_label')}
+          <label className="mr-1" htmlFor="minutesInactive">
+              <b> {chrome.i18n.getMessage('options_option_timeInactive_label')} </b>
             </label>
+            <div>
             <input
-              className="form-control form-control--time"
+              className="tw-form tw-form_time"
               defaultValue={settings.get('minutesInactive')}
               id="minutesInactive"
               max="7200"
@@ -244,9 +248,9 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               title={chrome.i18n.getMessage('options_option_timeInactive_minutes')}
               type="number"
             />
-            <span className="mx-1"> : </span>
+            <span className="mx-1">:</span>
             <input
-              className="form-control form-control--time"
+              className="tw-form tw-form_time"
               defaultValue={settings.get('secondsInactive')}
               id="secondsInactive"
               max="59"
@@ -256,17 +260,18 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               title={chrome.i18n.getMessage('options_option_timeInactive_seconds')}
               type="number"
             />
-            <span className="form-control-static ml-1">
+            <span className="form-control-static mx-1">
               {chrome.i18n.getMessage('options_option_timeInactive_postLabel')}
             </span>
+            </div>
           </div>
           <div className="form-group mb-2">
             <label htmlFor="minTabs">
-              {chrome.i18n.getMessage('options_option_minTabs_label')}
+               <b>{chrome.i18n.getMessage('options_option_minTabs_label')}</b>
             </label>
             <div>
               <input
-                className="form-control form-control--time m-r"
+                className="tw-form tw-form_time"
                 defaultValue={settings.get('minTabs')}
                 id="minTabs"
                 min="0"
@@ -274,19 +279,19 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                 onChange={this._debouncedHandleSettingsChange}
                 title={chrome.i18n.getMessage('options_option_minTabs_tabs')}
                 type="number"
-              />
-              <span className="form-control-static">
+              /><span className="form-control-static mx-1">
                 {chrome.i18n.getMessage('options_option_minTabs_postLabel')}
               </span>
-            </div>
+              </div>
+            
           </div>
           <div className="form-group mb-2">
             <label htmlFor="maxTabs">
-              {chrome.i18n.getMessage('options_option_rememberTabs_label')}
+              <b>{chrome.i18n.getMessage('options_option_rememberTabs_label')}</b>
             </label>
             <div>
               <input
-                className="form-control form-control--time m-r"
+                className="tw-form tw-form_time"
                 defaultValue={settings.get('maxTabs')}
                 id="maxTabs"
                 min="0"
@@ -295,11 +300,15 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                 title={chrome.i18n.getMessage('options_option_rememberTabs_tabs')}
                 type="number"
               />
-              <span className="form-control-static">
+              <span className="form-control-static mx-1">
                 {chrome.i18n.getMessage('options_option_rememberTabs_postLabel')}
               </span>
             </div>
           </div>
+          </div>
+          <div>          <label className="mr-1" htmlFor="purgeClosedTabs">
+              <b>{chrome.i18n.getMessage('options_tab_actions')}</b>
+            </label></div>
           <div className="form-check mb-1">
             <input
               className="form-check-input"
@@ -357,8 +366,13 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             selectedOption={settings.get('wrangleOption')}
           />
         </form>
+        </div>
 
-        <h4 className="page-header">{chrome.i18n.getMessage('options_section_autoLock')}</h4>
+      <div className="tw-settings-section">
+        <h4 className="section-header" style={{ marginTop: 0 }}>
+        {chrome.i18n.getMessage('options_section_autoLock')}
+        </h4>
+        <hr/>
         <div className="row">
           <div className="col-8">
             <form onSubmit={this.handleAddPatternSubmit} style={{ marginBottom: '20px' }}>
@@ -367,7 +381,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               </label>
               <div className="input-group">
                 <input
-                  className="form-control"
+                  className="tw-form"
                   id="wl-add"
                   onChange={this.handleNewPatternChange}
                   type="text"
@@ -375,7 +389,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                 />
                 <span className="input-group-btn">
                   <button
-                    className="btn btn-outline-secondary"
+                    className="tw-button"
                     disabled={!isValidPattern(this.state.newPattern)}
                     id="addToWL"
                     type="submit">
@@ -411,7 +425,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                   <td>{pattern}</td>
                   <td>
                     <button
-                      className="btn btn-outline-secondary btn-sm"
+                      className="tw-button_danger btn-sm"
                       onClick={this.handleClickRemovePattern.bind(this, pattern)}
                       style={{ marginBottom: '-4px', marginTop: '-4px' }}>
                       {chrome.i18n.getMessage('options_option_autoLock_remove')}
@@ -422,16 +436,18 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             )}
           </tbody>
         </table>
-
-        <h4 className="page-header">{chrome.i18n.getMessage('options_section_importExport')}</h4>
+</div>
+<div className="tw-settings-section">
+        <h4 className="section-header">{chrome.i18n.getMessage('options_section_importExport')}</h4>
+        <hr/>
         <div className="row">
           <div className="col-8">
-            <button className="btn btn-outline-secondary btn-sm" onClick={this.exportData}>
+            <button className="tw-button btn-sm" onClick={this.exportData}>
               <i className="fas fa-file-export mr-1" />
               {chrome.i18n.getMessage('options_importExport_export')}
             </button>{' '}
             <button
-              className="btn btn-outline-secondary btn-sm"
+              className="tw-button btn-sm"
               onClick={() => {
                 if (this._fileselector != null) this._fileselector.click();
               }}>
@@ -462,8 +478,9 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         ) : (
           importExportAlert
         )}
-
-        <h4 className="page-header">
+</div>
+<div className="tw-settings-section">
+        <h4 className="section-header">
           {chrome.i18n.getMessage('options_section_keyboardShortcuts')}
           <small style={{ marginLeft: '10px' }}>
             <a
@@ -475,6 +492,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             </a>
           </small>
         </h4>
+        <hr/>
         {this.props.commands == null
           ? null
           : this.props.commands.map(command => {
@@ -499,6 +517,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         ) : (
           errorAlert
         )}
+      </div>
       </div>
     );
   }

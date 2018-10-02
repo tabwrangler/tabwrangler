@@ -1,8 +1,7 @@
 /* @flow */
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
-import './css/fontawesome-free-solid-woff-only.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'react-virtualized/styles.css';
 import './css/popup.css';
 import NavBar, { type NavBarTabID } from './js/NavBar';

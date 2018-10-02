@@ -159,7 +159,7 @@
   },
   "options_importExport_importWarning": {
     "description": "Description of the destructiveness of importing; current tabs are overwritten",
-    "message": "Внимение: Импортируемые данные удалят все предыдущие. У вас нет пути назад (конечно же, если у вас нет бекапа)."
+    "message": "Внимание: Импортируемые данные удалят все предыдущие. У вас нет пути назад (конечно же, если у вас нет бекапа)."
   },
   "options_keyboardShortcuts_configure": {
     "description": "Link text for navigating to keyboard shortcut configuration",
@@ -168,6 +168,10 @@
   "options_keyboardShortcuts_notSet": {
     "description": "Message shown for a shortcut when it has not been configured",
     "message": "Вы не добавляли комбинации для клавиш"
+  }, 
+  "options_tab_actions": {
+    "description": "Header for actions with tabs in settings",
+    "message": "Действия с вкладками:"
   },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",
@@ -198,7 +202,7 @@
     "message": "Добавленные адреса"
   },
   "options_option_clearOnQuit_label": {
-    "description": "Label for checkbox to clear the tab list after quitting Chrome",
+    "description": "Label for checkbox to clear the tab list after quitting the Browser",
     "message": "Очищать список закрытых вкладок при выходе"
   },
   "options_option_debounceOnActivated_label": {
@@ -232,6 +236,10 @@
   "options_option_rememberTabs_tabs": {
     "description": "Input title for number of tabs to remember",
     "message": "Здесь должно быть число, которое больше или равно 0"
+  },
+  "options_option_showBadgeCount_label": {
+    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
+    "message": "Показывать кол-во закрытых вкладок на иконке расширения"
   },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",

@@ -375,7 +375,7 @@ class CorralTab extends React.Component<Props, State> {
           <form className="form-search col">
             <div className="form-group" style={{ marginBottom: 0 }}>
               <input
-                className="form-control form-control-sm"
+                className="tw-form"
                 name="search"
                 onChange={this._handleSearchChange}
                 placeholder={chrome.i18n.getMessage('corral_searchTabs')}
@@ -385,6 +385,7 @@ class CorralTab extends React.Component<Props, State> {
                 type="search"
                 value={this.state.filter}
               />
+              
             </div>
           </form>
           <div className="col" style={{ lineHeight: '30px', textAlign: 'right' }}>
@@ -401,7 +402,7 @@ class CorralTab extends React.Component<Props, State> {
         <StickyContainer>
           <Sticky>
             {({ style }) => (
-              <div
+              <div className="tw-corral-header"
                 style={Object.assign(
                   {
                     // Ensure this element is always positioned so its z-index stacks it on top of
@@ -409,19 +410,10 @@ class CorralTab extends React.Component<Props, State> {
                     position: 'relative',
                   },
                   style,
-                  {
-                    background: 'white',
-                    borderBottom: '1px solid #ddd',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    paddingBottom: '10px',
-                    paddingTop: '10px',
-                    zIndex: 100,
-                  }
                 )}>
                 <div>
                   <button
-                    className="btn btn-outline-secondary btn-sm"
+                    className="tw-button btn-sm"
                     onClick={this._toggleAllTabs}
                     title={
                       areAllClosedTabsSelected
@@ -439,7 +431,7 @@ class CorralTab extends React.Component<Props, State> {
                   {closedTabs.some(tab => this.state.selectedTabs.has(tab))
                     ? [
                         <button
-                          className="btn btn-outline-secondary btn-sm"
+                          className="tw-button_danger btn-sm"
                           key="remove"
                           onClick={this._handleRemoveSelectedTabs}
                           style={{ marginLeft: '10px' }}
@@ -447,10 +439,10 @@ class CorralTab extends React.Component<Props, State> {
                           <span className="sr-only">
                             {chrome.i18n.getMessage('corral_removeSelectedTabs')}
                           </span>
-                          <i className="fas fa-trash-alt" />
+                          <i className="fas fa-trash" />
                         </button>,
                         <button
-                          className="btn btn-outline-secondary btn-sm"
+                          className="tw-button btn-sm"
                           key="restore"
                           onClick={this._handleRestoreSelectedTabs}
                           style={{ marginLeft: '10px' }}
@@ -458,7 +450,7 @@ class CorralTab extends React.Component<Props, State> {
                           <span className="sr-only">
                             {chrome.i18n.getMessage('corral_removeSelectedTabs')}
                           </span>
-                          <i className="fas fa-external-link-alt" />
+                          <i className="fas fa-window-restore" />
                         </button>,
                       ]
                     : null}
@@ -483,13 +475,13 @@ class CorralTab extends React.Component<Props, State> {
                     }}>
                     <button
                       aria-haspopup="true"
-                      className="btn btn-outline-secondary btn-sm"
+                      className="tw-button btn-sm dropdown-toggle"
                       id="sort-dropdown"
                       onClick={this._toggleSortDropdown}
                       title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
                       <span>{chrome.i18n.getMessage('corral_sortBy')}</span>
                       <span> {this.state.sorter.shortLabel}</span>{' '}
-                      <i className="fas fa-caret-down" />
+                      
                     </button>
                     <div
                       aria-labelledby="sort-dropdown"

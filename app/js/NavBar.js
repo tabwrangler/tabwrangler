@@ -34,42 +34,46 @@ export default class NavBar extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div>
-        <div className="float-right nav-buttons">
-          <PauseButton />
-        </div>
-        <ul className="nav nav-tabs">
-          <li className="nav-item">
+      <div className="tw-nav__container">
+        <ul className="tw-nav">
+          <li className={cx({ active: this.props.activeTabId === 'corral' })}>
             <a
-              className={cx('nav-link', { active: this.props.activeTabId === 'corral' })}
+              
               href="#corral"
               onClick={this.handleClickCorralTab}>
-              {chrome.i18n.getMessage('tabCorral_name')}
+              <span>
+                {chrome.i18n.getMessage('tabCorral_name')}
+              </span>
             </a>
+            
           </li>
-          <li className="nav-item">
+          <li className={cx({ active: this.props.activeTabId === 'lock' })}>
             <a
-              className={cx('nav-link', { active: this.props.activeTabId === 'lock' })}
+              
               href="#lock"
               onClick={this.handleClickLockTab}>
               {chrome.i18n.getMessage('tabLock_name')}
             </a>
           </li>
-          <li className="nav-item">
+          <li className={cx({ active: this.props.activeTabId === 'options' })}>
             <a
-              className={cx('nav-link', { active: this.props.activeTabId === 'options' })}
+              
               href="#options"
               onClick={this.handleClickOptionsTab}>
               {chrome.i18n.getMessage('options_name')}
             </a>
           </li>
-          <li className="nav-item">
+          <li className={cx({ active: this.props.activeTabId === 'about' })}>
             <a
-              className={cx('nav-link', { active: this.props.activeTabId === 'about' })}
+              
               href="#about"
               onClick={this.handleClickAboutTab}>
               {chrome.i18n.getMessage('about_name')}
+              
             </a>
+          </li>
+          <li className="btn-pause">
+          <PauseButton />
           </li>
         </ul>
       </div>

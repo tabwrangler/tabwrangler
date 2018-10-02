@@ -70,7 +70,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
     return (
       <div
         aria-label="row"
-        className={cx('ReactVirtualized__Table__row', { 'bg-warning': isSelected })}
+        className={cx('ReactVirtualized__Table__row', { 'item-selected': isSelected })}
         role="row"
         style={style}>
         <div
@@ -101,7 +101,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
             style={{ cursor: 'pointer', height: 16, width: 16 }}
             tabIndex={0}
             title="Remove this tab">
-            <i className="fas fa-trash-alt" />
+            <i className="far fa-trash-alt"/>
           </span>
         </div>
         <div className="ReactVirtualized__Table__rowColumn py-1" style={{ flex: 1 }}>

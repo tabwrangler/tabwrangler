@@ -1,6 +1,15 @@
+/**
+ * 
+ *  Tab Wrangler Stylesheet
+ *     By @ssorallen and @Voknehzyr
+ * 
+ */
 body {
-  min-height: 300px;
-  width: 700px;
+  overflow: overlay;
+  min-width: 700px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
@@ -24,15 +33,48 @@ body {
 }
 
 /**
+ * Alerts
+ */
+.alert-success {
+  color: rgba(255, 255, 255, 0.9);
+  background: #56bd2d;
+  border: none;
+  border-radius: 4px;
+}
+
+@-webkit-keyframes alert-enter-animation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes alert-enter-animation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.alert {
+  -webkit-animation: alert-enter-animation 0.2s ease-in-out;
+          animation: alert-enter-animation 0.2s ease-in-out;
+}
+
+/**
  * Alert animations for ReactCSSTransitionGroup
  */
-
 .alert-exit {
   opacity: 1;
 }
 
 .alert-exit.alert-exit-active {
   opacity: 0.01;
+  -webkit-transition: opacity 400ms ease-in;
   transition: opacity 400ms ease-in;
 }
 
@@ -46,9 +88,344 @@ body {
 /**
  * Override Bootstrap responsive because Tab Wrangler is not a mobile UI.
  */
-
 @media (min-width: 576px) {
   .form-inline .form-check {
-    justify-content: flex-start;
+    -webkit-box-pack: start;
+        -ms-flex-pack: start;
+            justify-content: flex-start;
   }
+}
+
+/**
+ * Extension buttons
+ */
+.tw-button {
+  border: 1px solid #4d8cff;
+  border-radius: 4px;
+  background: transparent;
+  color: #4d8cff;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  font-weight: 500;
+  margin: 0;
+  text-decoration: none;
+  text-transform: none;
+  -webkit-transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.tw-button:hover {
+  border: 1px solid #80adff;
+  background: rgba(102, 157, 255, 0.05);
+}
+
+.tw-button:focus {
+  outline: none;
+  border: 1px solid #80adff;
+  background: rgba(102, 157, 255, 0.05);
+  -webkit-box-shadow: 0px 6px 20px 0px rgba(0, 91, 255, 0.2);
+          box-shadow: 0px 6px 20px 0px rgba(0, 91, 255, 0.2);
+}
+
+.tw-button_danger {
+  border: 1px solid #eb4040;
+  border-radius: 4px;
+  background: transparent;
+  color: #eb4040;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  font-weight: 500;
+  margin: 0;
+  text-decoration: none;
+  text-transform: none;
+  -webkit-transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.tw-button_danger:hover {
+  border: 1px solid #f06e6e;
+  background: rgba(237, 87, 87, 0.05);
+}
+
+.tw-button_danger:focus {
+  outline: none;
+  border: 1px solid #f06e6e;
+  background: rgba(237, 87, 87, 0.05);
+  -webkit-box-shadow: 0px 6px 20px 0px rgba(201, 21, 21, 0.2);
+          box-shadow: 0px 6px 20px 0px rgba(201, 21, 21, 0.2);
+}
+
+.tw-button_sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.tw-button_md {
+  padding: 10px 15px;
+  font-size: 14px;
+}
+
+.tw-button_lg {
+  padding: 15px 20px;
+  font-size: 16px;
+}
+
+.btn-xs {
+  padding: 2px 10px;
+}
+
+.dropdown-menu {
+  -webkit-transition: all 0.3s;
+  -webkit-transition: all 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 0;
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.dropdown-menu.show {
+  max-height: 250px;
+  visibility: visible;
+  opacity: 1;
+}
+
+a {
+  color: #337cff;
+  -webkit-transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-box-shadow: 0 0px 0 0 transparent;
+          box-shadow: 0 0px 0 0 transparent;
+  padding-bottom: 1px;
+}
+
+a:hover, a:active {
+  color: #005bff;
+}
+
+a:focus {
+  color: #0049cc;
+}
+
+::-moz-selection {
+  background: #337cff;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+::selection {
+  background: #337cff;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.section-header {
+  color: #005bff;
+  font-size: 22px;
+  font-weight: bold;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+.tw-settings-section {
+  margin: 15px auto;
+  margin-top: 0;
+  padding: 10px;
+}
+
+.tw-corral-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  z-index: 100;
+}
+
+.fa, .far, .fas {
+  font-size: 14px;
+}
+
+/**
+ * Updated navbar for TabWrangler
+ */
+div.tw-nav__container {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 91, 255, 0.1);
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+div.tw-nav__container ul.tw-nav {
+  list-style-type: none;
+  -webkit-padding-start: 0;
+          padding-inline-start: 0;
+}
+
+div.tw-nav__container ul.tw-nav li {
+  float: left;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  -webkit-box-shadow: inset 0 0px 0 0 transparent;
+          box-shadow: inset 0 0px 0 0 transparent;
+  -webkit-transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+div.tw-nav__container ul.tw-nav li.btn-pause {
+  float: right;
+  cursor: pointer;
+}
+
+div.tw-nav__container ul.tw-nav li.btn-pause a:hover {
+  color: #005bff;
+}
+
+div.tw-nav__container ul.tw-nav li a {
+  position: relative;
+  display: block;
+  color: #005bff;
+  text-align: center;
+  font-size: 14px;
+  padding: 14px 16px;
+  text-decoration: none;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+div.tw-nav__container ul.tw-nav li:hover, div.tw-nav__container ul.tw-nav li:active {
+  background-color: rgba(0, 91, 255, 0.04);
+}
+
+div.tw-nav__container ul.tw-nav li.active::after {
+  background-color: #1a6bff;
+  width: 90%;
+}
+
+div.tw-nav__container ul.tw-nav li::after {
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, 0%);
+  width: 0;
+  bottom: 0;
+  height: 3px;
+  content: "";
+  display: block;
+  position: absolute;
+  border-radius: 4px 4px 0 0;
+  background-color: #005bff;
+  -webkit-transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tw-nav > li {
+  position: relative;
+  display: block;
+}
+
+/**
+ * Custom scrollbar
+ */
+/* width */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #005bff;
+  border-radius: 4px;
+}
+
+/**
+ * Custom checkboxes
+ */
+/**
+ * Forms
+ */
+.tw-form {
+  display: inline-block;
+  width: 100%;
+  height: 36px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: rgba(0, 0, 0, 0.4);
+  background-color: transparent;
+  border-radius: 4px;
+  font-weight: 600;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  -webkit-transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tw-form:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.tw-form:focus {
+  outline: none;
+  background-color: rgba(0, 0, 0, 0.03);
+  -webkit-box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.05);
+          box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.05);
+}
+
+.tw-form::-webkit-input-placeholder {
+  color: rgba(102, 120, 153, 0.5);
+}
+
+.tw-form:-ms-input-placeholder {
+  color: rgba(102, 120, 153, 0.5);
+}
+
+.tw-form::-ms-input-placeholder {
+  color: rgba(102, 120, 153, 0.5);
+}
+
+.tw-form::placeholder {
+  color: rgba(102, 120, 153, 0.5);
+}
+
+.tw-form_sm {
+  width: 70px;
+  display: inline-block;
+}
+
+.tw-form_time {
+  width: 10%;
+}
+
+/**
+ * React virtualized table
+ */
+.table-hover .ReactVirtualized__Table__row, .table-hover tbody tr {
+  -webkit-transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-box-shadow: inset 0px 0px 0 0 #005bff;
+          box-shadow: inset 0px 0px 0 0 #005bff;
+}
+
+.table-hover .ReactVirtualized__Table__row:hover, .table-hover tbody tr:hover {
+  -webkit-box-shadow: inset 3px 0px 0 0 #005bff;
+          box-shadow: inset 3px 0px 0 0 #005bff;
+}
+
+.table-hover .ReactVirtualized__Table__row.item-selected, .table-hover tbody tr.item-selected {
+  background: rgba(102, 157, 255, 0.05);
 }

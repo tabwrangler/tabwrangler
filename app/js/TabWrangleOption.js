@@ -25,7 +25,7 @@ export default class TabWrangleOption extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <label htmlFor="wrangleOption">{chrome.i18n.getMessage('options_dedupe_label')}</label>
+        <label htmlFor="wrangleOption"><b>{chrome.i18n.getMessage('options_dedupe_label')}</b></label>
         {OPTIONS.map(option => (
           <div className="form-check" key={option.name}>
             <input

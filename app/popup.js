@@ -3,6 +3,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'react-virtualized/styles.css';
+import 'react-tippy/dist/tippy.css';
 import './css/popup.css';
 import NavBar, { type NavBarTabID } from './js/NavBar';
 import { clearTempStorage, fetchSessions } from './js/actions/tempStorageActions';

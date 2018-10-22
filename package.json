@@ -72,6 +72,7 @@
     "react-dom": "^16.3.1",
     "react-redux": "^5.0.7",
     "react-sticky": "^6.0.2",
+    "react-tippy": "^1.2.3",
     "react-transition-group": "^2.4.0",
     "react-virtualized": "^9.20.1",
     "redux": "^4.0.0",

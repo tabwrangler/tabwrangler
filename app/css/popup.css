@@ -222,7 +222,7 @@ a:focus {
 
 .section-header {
   color: #005bff;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: bold;
   -webkit-user-select: none;
      -moz-user-select: none;
@@ -335,25 +335,6 @@ div.tw-nav__container ul.tw-nav li::after {
 }
 
 /**
- * Custom scrollbar
- */
-/* width */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #005bff;
-  border-radius: 4px;
-}
-
-/**
  * Custom checkboxes
  */
 /**
@@ -366,7 +347,7 @@ div.tw-nav__container ul.tw-nav li::after {
   padding: 6px 12px;
   font-size: 14px;
   line-height: 1.42857143;
-  color: rgba(0, 0, 0, 0.4);
+  color: #3a3a3a;
   background-color: transparent;
   border-radius: 4px;
   font-weight: 600;
@@ -376,14 +357,16 @@ div.tw-nav__container ul.tw-nav li::after {
 }
 
 .tw-form:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 91, 255, 0.2);
+  background-color: rgba(0, 91, 255, 0.02);
 }
 
 .tw-form:focus {
   outline: none;
-  background-color: rgba(0, 0, 0, 0.03);
-  -webkit-box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.05);
-          box-shadow: 0px 3px 10px 0px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 91, 255, 0.2);
+  background-color: rgba(0, 91, 255, 0.03);
+  -webkit-box-shadow: 0px 3px 10px 0px rgba(0, 91, 255, 0.1);
+          box-shadow: 0px 3px 10px 0px rgba(0, 91, 255, 0.1);
 }
 
 .tw-form::-webkit-input-placeholder {

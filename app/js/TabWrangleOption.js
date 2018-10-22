@@ -1,7 +1,9 @@
 /* @flow */
 
 import React from 'react';
-
+import {
+  Tooltip,
+} from 'react-tippy';
 interface Props {
   onChange: (event: SyntheticInputEvent<HTMLInputElement>) => void;
   selectedOption: string;
@@ -37,12 +39,27 @@ export default class TabWrangleOption extends React.Component<Props> {
               type="radio"
               value={option.name}
             />
+            
             <label className="form-check-label" htmlFor={option.name}>
-              {option.text}
+              {option.text} {" "}
+              <Tooltip
+            html={(
+            <div>
+              <b>{chrome.i18n.getMessage(`options_dedupe_option_${option.name}_label`)}</b>
+            <p>{chrome.i18n.getMessage(`options_dedupe_option_${option.name}_description`)}</p>
+            </div>
+            )}
+            position="top"
+            arrow="true"
+            trigger="mouseenter"
+            inertia="true"
+            size="small"
+            > <i className="fas fa-question-circle" /></Tooltip>
             </label>
+            
           </div>
         ))}
-        <div className="row">
+        {/* <div className="row">
           <div className="col-8 help-block" style={{ marginBottom: 0 }}>
             <dl style={{ marginBottom: 0 }}>
               <dt>{chrome.i18n.getMessage('options_dedupe_option_withDupes_label')}</dt>
@@ -59,7 +76,7 @@ export default class TabWrangleOption extends React.Component<Props> {
               </dd>
             </dl>
           </div>
-        </div>
+        </div> */}
       </React.Fragment>
     );
   }

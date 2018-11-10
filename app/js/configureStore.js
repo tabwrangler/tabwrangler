@@ -45,7 +45,12 @@ const localStoragePersistConfig = {
   },
   serialize: false,
   storage: localStorage,
-  timeout: 60000,
+
+  // Disable redux-persist timeout functionality so it never erroneously wipes out the store. That's
+  // never desired no matter how long the timeout lasts.
+  //
+  // See https://github.com/rt2zz/redux-persist/issues/809#issuecomment-437589932
+  timeout: 0,
   version: 2,
 };
 

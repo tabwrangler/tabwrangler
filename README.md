@@ -103,9 +103,12 @@ tracking, there are no analytics, and there are no advertisements.
 
 ### Translation
 
-Help translating Tab Wrangler is greatly appreciated. You can contribute on the
-[Tab Wrangler Crowdin Project][1], which makes it easy for anyone to contribute.
+[Tab Wrangler's Crowdin Project][1]: the place to contribute and view translations
 
+Tab Wrangler is available in other languages thanks to generous translation help. Any help
+translating Tab Wrangler is greatly appreciated and can be done via Crowdin.
+
+* 🇫🇷 French translation by [orpheuslummis](https://orpheuslummis.info)
 * 🇩🇪 German translation by [ingorichter](https://github.com/ingorichter)
 * 🇰🇷 Korean translation by [simple-is-best](https://github.com/simple-is-best)
 * 🇷🇺 Russian translation by [Voknehzyr](https://github.com/Voknehzyr)

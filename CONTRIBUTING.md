@@ -40,6 +40,13 @@
 
 ## Contributing Translations
 
+### Recommended
+
+1. Contribute on [Tab Wrangler's Crowdin Project][3], and your translations will be automatically
+   added to the project.
+
+### Custom (more complex)
+
 1. Follow the instructions for [Developing](#developing) the Tab Wrangler extension
 2. Find or create the appropriate "messages.json" file
     - For a new locale, create a new directory in the "\_locales" directory with the locale code.
@@ -55,10 +62,10 @@ Note: For further details on Chrome extension i18n, check out the Chrome extensi
 on [i18n messages][0].
 
 Making Tab Wrangler available in languages other than English is possible due to generous
-contributors. If you'd like to contribute and be mentioned in the
-"[Translators](README.md#translators)" section of the [README](README.md), please follow the
-instructions above and create a pull request with your updates.
+contributors. If you'd like to contribute, please follow the instructions above and create a pull
+request with your updates.
 
 [0]: https://developer.chrome.com/apps/i18n-messages
 [1]: https://developer.chrome.com/webstore/i18n?csw=1#localeTable
 [2]: https://yarnpkg.com/lang/en/docs/install/
+[3]: https://crowdin.com/project/tab-wrangler

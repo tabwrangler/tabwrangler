@@ -82,7 +82,8 @@ function exportData() {
 }
 
 const exportFileName = (date: Date) => {
-  const localeDateString = date.toLocaleDateString('en-US').replace(/\//g, '-');
+  // Use a format like YYYY-MM-DD, which is the first 10 characters of the ISO string format.
+  const localeDateString = date.toISOString().substr(0, 10);
   return `TabWranglerExport-${localeDateString}.json`;
 };
 

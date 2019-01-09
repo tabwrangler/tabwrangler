@@ -3,10 +3,12 @@
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import Button from './Button';
 import type { Dispatch } from './Types';
+import FileSaver from 'file-saver';
 import React from 'react';
 import TabWrangleOption from './TabWrangleOption';
 import { connect } from 'react-redux';
 import debounce from 'lodash.debounce';
+import { exportFileName } from './actions/importExportActions';
 import { setCommands } from './actions/tempStorageActions';
 
 // Unpack TW.
@@ -27,7 +29,7 @@ type OptionsTabState = {
   errors: Array<Object>,
   newPattern: string,
   saveAlertVisible: boolean,
-  importExportErrors: Array<Object>,
+  importExportErrors: Array<{ message: string }>,
   importExportAlertVisible: boolean,
   importExportOperationName: string,
 };
@@ -139,7 +141,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     }
   }
 
-  importExportDataWithFeedback = (operationName, func, funcArg) => {
+  importExportDataWithFeedback(operationName, func, funcArg, onSuccess) {
     if (this._importExportAlertTimeout != null) {
       window.clearTimeout(this._importExportAlertTimeout);
     }
@@ -152,7 +154,8 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
 
     this.props
       .dispatch(func(funcArg))
-      .then(() => {
+      .then(blob => {
+        if (onSuccess != null) onSuccess(blob);
         this._importExportAlertTimeout = window.setTimeout(() => {
           this.setState({ importExportAlertVisible: false });
         }, 400);
@@ -161,16 +164,21 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         this.state.importExportErrors.push(err);
         this.forceUpdate();
       });
-  };
+  }
 
-  exportData = () =>
+  exportData = (event: SyntheticMouseEvent<HTMLButtonElement>) => {
     this.importExportDataWithFeedback(
       chrome.i18n.getMessage('options_importExport_exporting') || '',
-      tabmanager.exportData
+      tabmanager.exportData,
+      event,
+      blob => {
+        FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
+      }
     );
+  };
 
   importData = (event: SyntheticInputEvent<HTMLInputElement>) => {
-    return this.importExportDataWithFeedback(
+    this.importExportDataWithFeedback(
       chrome.i18n.getMessage('options_importExport_importing') || '',
       tabmanager.importData,
       event

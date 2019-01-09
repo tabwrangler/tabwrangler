@@ -1,5 +1,4 @@
 import { exportData, exportFileName, importData } from '../actions/importExportActions';
-import FileSaver from 'file-saver';
 import configureMockStore from '../__mocks__/configureMockStore';
 
 beforeEach(() => {
@@ -34,19 +33,13 @@ test('should export the bookmark data', () => {
     },
   });
 
-  // provide some mock functions
-  const fileSaveMock = jest.fn();
-
   window.chrome.storage.local.get = (t, func) => {
     func({ test: 2 });
   };
 
-  FileSaver.saveAs = fileSaveMock;
-
-  window.TW.store.dispatch(exportData());
-  expect(fileSaveMock.mock.calls.length).toBe(1);
-  const result = fileSaveMock.mock.calls[0][0];
-  expect(result.type).toBe('application/json;charset=utf-8');
+  window.TW.store.dispatch(exportData()).then(blob => {
+    expect(blob.type).toBe('application/json;charset=utf-8');
+  });
 });
 
 test('should import the bookmark data', done => {

@@ -7,7 +7,6 @@ import {
   setTotalTabsUnwrangled,
   setTotalTabsWrangled,
 } from './localStorageActions';
-import FileSaver from 'file-saver';
 
 /**
  * Import the backup of saved tabs and the accounting information.
@@ -66,7 +65,7 @@ function importData(event: SyntheticInputEvent<HTMLInputElement>) {
  * `savedTabs` is acquired by reading it directly from the Store.
  */
 function exportData() {
-  return function(dispatch: Dispatch, getState: GetState) {
+  return function(dispatch: Dispatch, getState: GetState): Promise<mixed> {
     const { localStorage } = getState();
     const exportObject = {
       savedTabs: localStorage.savedTabs,
@@ -78,7 +77,7 @@ function exportData() {
     const blob = new Blob([exportData], {
       type: 'application/json;charset=utf-8',
     });
-    FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
+    return Promise.resolve(blob);
   };
 }
 

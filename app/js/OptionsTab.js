@@ -199,7 +199,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         saveAlert = [
           <CSSTransition classNames="alert" key="alert" timeout={400}>
             <div className="alert-sticky" key="alert">
-              <div className="alert alert-success float-right" style={{ display: 'inline-block' }}>
+              <div className="alert alert-success float-right">
                 {chrome.i18n.getMessage('options_saving')}
               </div>
             </div>
@@ -208,10 +208,12 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       }
     } else {
       errorAlert = (
-        <div className="alert alert-danger alert-sticky">
-          <ul className="float-right" style={{ display: 'inline-block' }}>
-            {this.state.errors.map((error, i) => <li key={i}>{error.message}</li>)}
-          </ul>
+        <div className="alert-sticky">
+          <div className="alert alert-danger float-right">
+            <ul className="mb-0">
+              {this.state.errors.map((error, i) => <li key={i}>{error.message}</li>)}
+            </ul>
+          </div>
         </div>
       );
     }

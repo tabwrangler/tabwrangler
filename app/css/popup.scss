@@ -49,6 +49,8 @@ body {
   transition: opacity 400ms ease-in;
 }
 
+@import '../../node_modules/bootstrap/scss/bootstrap';
+
 .alert-sticky {
   position: fixed;
   left: 10px;
@@ -65,6 +67,3 @@ body {
     justify-content: flex-start;
   }
 }
-
-@import '../../node_modules/bootstrap/scss/bootstrap';
-

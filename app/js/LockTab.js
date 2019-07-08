@@ -64,7 +64,7 @@ export default class LockTab extends React.PureComponent<{}, State> {
   render() {
     return (
       <div className="tab-pane active">
-        <table className="table table-hover table-th-unbordered">
+        <table className="table table-hover table-sm table-th-unbordered">
           <thead>
             <tr>
               <th className="text-center">

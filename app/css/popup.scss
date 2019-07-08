@@ -1,3 +1,16 @@
+// Variables
+//
+// Variables should follow the `$component-state-property-size` formula for
+// consistent naming. Ex: $nav-link-disabled-color and $modal-content-box-shadow-xs.
+
+$enable-print-styles: false;
+
+// Typography
+//
+// Font, line-height, and color for body text, headings, and more.
+
+$font-size-base: 0.875rem;
+
 body {
   min-height: 300px;
   width: 700px;
@@ -52,3 +65,6 @@ body {
     justify-content: flex-start;
   }
 }
+
+@import '../../node_modules/bootstrap/scss/bootstrap';
+

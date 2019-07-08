@@ -1,5 +1,6 @@
 /* @flow */
 
+import './NavBar.css';
 import PauseButton from './PauseButton';
 import React from 'react';
 import cx from 'classnames';
@@ -34,8 +35,8 @@ export default class NavBar extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div>
-        <div className="float-right nav-buttons">
+      <>
+        <div className="nav-bar--buttons">
           <PauseButton />
         </div>
         <ul className="nav nav-tabs">
@@ -72,7 +73,7 @@ export default class NavBar extends React.PureComponent<Props> {
             </a>
           </li>
         </ul>
-      </div>
+      </>
     );
   }
 }

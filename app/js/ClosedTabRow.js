@@ -70,7 +70,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
     return (
       <div
         aria-label="row"
-        className={cx('ReactVirtualized__Table__row', { 'bg-warning': isSelected })}
+        className={cx('ReactVirtualized__Table__row', { 'table-warning': isSelected })}
         role="row"
         style={style}>
         <div
@@ -117,7 +117,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
                 {tab.title}
               </a>
               <br />
-              <small className="text-muted">
+              <small className={cx({ 'text-muted': !isSelected })}>
                 ({tab.url == null ? '???' : extractHostname(tab.url)})
               </small>
             </div>

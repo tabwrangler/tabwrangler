@@ -3,6 +3,7 @@
 import { isLocked, isManuallyLockable } from './tab';
 import LazyImage from './LazyImage';
 import React from 'react';
+import cx from 'classnames';
 
 const TW = chrome.extension.getBackgroundPage().TW;
 
@@ -77,10 +78,11 @@ export default class OpenTabRow extends React.Component<Props> {
     }
 
     return (
-      <tr>
+      <tr className={cx({ 'table-warning': tabIsLocked })}>
         <td className="text-center" style={{ verticalAlign: 'middle', width: '1px' }}>
           <input
             checked={tabIsLocked}
+            className="mx-1"
             disabled={!isManuallyLockable(tab)}
             onClick={this.handleLockedOnClick}
             type="checkbox"
@@ -96,18 +98,11 @@ export default class OpenTabRow extends React.Component<Props> {
           />
         </td>
         <td style={{ paddingBottom: '4px', paddingTop: '4px', width: '75%' }}>
-          <div style={{ display: 'flex' }}>
-            <div
-              style={{
-                flex: 1,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                width: '1px',
-              }}>
+          <div className="d-flex" style={{ lineHeight: '1.3' }}>
+            <div className="flex-fill text-truncate" style={{ width: '1px' }}>
               {tab.title}
               <br />
-              <small className="text-muted">({tab.url})</small>
+              <small className={cx({ 'text-muted': !tabIsLocked })}>({tab.url})</small>
             </div>
           </div>
         </td>

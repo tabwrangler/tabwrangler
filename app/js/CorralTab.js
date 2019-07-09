@@ -420,7 +420,7 @@ class CorralTab extends React.Component<Props, State> {
                 )}>
                 <div>
                   <button
-                    className="btn btn-secondary btn-sm"
+                    className="btn btn-outline-dark btn-sm"
                     disabled={closedTabs.length === 0}
                     onClick={this._toggleAllTabs}
                     title={
@@ -436,7 +436,7 @@ class CorralTab extends React.Component<Props, State> {
                     />
                   </button>
                   <button
-                    className="btn btn-secondary btn-sm ml-1 px-3"
+                    className="btn btn-outline-dark btn-sm ml-1 px-3"
                     disabled={!hasVisibleSelectedTabs}
                     onClick={this._handleRemoveSelectedTabs}
                     title={chrome.i18n.getMessage('corral_removeSelectedTabs')}>
@@ -446,7 +446,7 @@ class CorralTab extends React.Component<Props, State> {
                     <i className="fas fa-trash-alt" />
                   </button>
                   <button
-                    className="btn btn-secondary btn-sm ml-1 px-3"
+                    className="btn btn-outline-dark btn-sm ml-1 px-3"
                     disabled={!hasVisibleSelectedTabs}
                     onClick={this._handleRestoreSelectedTabs}
                     title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}>
@@ -479,7 +479,7 @@ class CorralTab extends React.Component<Props, State> {
                     }}>
                     <button
                       aria-haspopup="true"
-                      className="btn btn-secondary btn-sm"
+                      className="btn btn-outline-dark btn-sm"
                       id="sort-dropdown"
                       onClick={this._toggleSortDropdown}
                       title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>

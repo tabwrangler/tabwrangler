@@ -395,7 +395,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                 />
                 <span className="input-group-append">
                   <button
-                    className="btn btn-secondary"
+                    className="btn btn-outline-dark"
                     disabled={!isValidPattern(this.state.newPattern)}
                     id="addToWL"
                     type="submit">
@@ -448,12 +448,12 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         <h4 className="mt-3">{chrome.i18n.getMessage('options_section_importExport')}</h4>
         <div className="row">
           <div className="col-8 mb-1">
-            <button className="btn btn-secondary btn-sm" onClick={this.exportData}>
+            <button className="btn btn-outline-dark btn-sm" onClick={this.exportData}>
               <i className="fas fa-file-export mr-1" />
               {chrome.i18n.getMessage('options_importExport_export')}
             </button>{' '}
             <button
-              className="btn btn-secondary btn-sm"
+              className="btn btn-outline-dark btn-sm"
               onClick={() => {
                 if (this._fileselector != null) this._fileselector.click();
               }}>

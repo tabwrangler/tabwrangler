@@ -72,10 +72,10 @@ class Popup extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div>
+      <>
         <NavBar activeTabId={this.state.activeTabId} onClickTab={this._handleClickTab} />
         <div className="tab-content container-fluid">{activeTab}</div>
-      </div>
+      </>
     );
   }
 }

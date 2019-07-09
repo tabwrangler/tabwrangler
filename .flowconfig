@@ -8,4 +8,5 @@ node_modules/flow-interfaces-chrome/interfaces/
 
 [options]
 emoji=true
+module.name_mapper.extension='scss' -> '<PROJECT_ROOT>/app/__mocks__/styleMock.js'
 suppress_comment=.*\\$FlowFixMe.*

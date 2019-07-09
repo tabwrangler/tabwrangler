@@ -1,0 +1,410 @@
+{
+  "about_name": {
+    "description": "Name of the 'About' section, where users can see information about the extension",
+    "message": "關於本軟體"
+  },
+  "about_changeLog": {
+    "description": "Link to the extension's list of changes per release",
+    "message": "更新紀錄"
+  },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "原始碼 (MIT)"
+  },
+  "about_support": {
+    "description": "Link to the extension's support site",
+    "message": "技術支援"
+  },
+  "contextMenu_corralTab": {
+    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
+    "message": "立即儲存網址並關閉分頁"
+  },
+  "contextMenu_lockDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "不對此網域關閉任何分頁"
+  },
+  "contextMenu_lockSpecificDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "不對 $domain$ 關閉任何分頁",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "www.wikipedia.org"
+      }
+    }
+  },
+  "contextMenu_lockTab": {
+    "description": "Label for context menu item that locks the clicked tab",
+    "message": "不關閉此分頁"
+  },
+  "corral_currentSort": {
+    "description": "Button title for showing current sort order",
+    "message": "目前排序方式 $sort_order$",
+    "placeholders": {
+      "sort_order": {
+        "content": "$1",
+        "example": "Reverse Chrono"
+      }
+    }
+  },
+  "corral_emptyList": {
+    "description": "Message displayed in the tab corral when the extension has not yet closed any tabs",
+    "message": "還沒有關閉的分頁。當 Tab Wrangler 關閉分頁時會放置於此。"
+  },
+  "corral_removeSelectedTabs": {
+    "description": "Button title for removing all selected tabs from the corral",
+    "message": "移除選取的分頁"
+  },
+  "corral_restoreSelectedTabs": {
+    "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
+    "message": "還原選取的分頁"
+  },
+  "corral_searchResults_clear": {
+    "description": "Button title for clearing the search value and resetting results",
+    "message": "清除搜尋"
+  },
+  "corral_searchResults_label": {
+    "description": "Label showing number of tab search results",
+    "message": "搜尋結果 $count$ 筆",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "33"
+      }
+    }
+  },
+  "corral_searchTabs": {
+    "description": "Text input placeholder for searching list of closed tabs",
+    "message": "搜尋分頁 ..."
+  },
+  "corral_toggleAllTabs_deselectAll": {
+    "description": "Button title for deselecting all tabs in the tab corral",
+    "message": "取消選取所有分頁"
+  },
+  "corral_toggleAllTabs_selectAll": {
+    "description": "Button title for selecting all tabs in the tab corral",
+    "message": "選取所有分頁"
+  },
+  "extName": {
+    "description": "The name of this extension",
+    "message": "Tab Wrangler"
+  },
+  "extension_pause": {
+    "description": "Label for button that pauses the extension",
+    "message": "暫停"
+  },
+  "extension_resume": {
+    "description": "Label for button that resumes (unpauses) the extension",
+    "message": "恢復"
+  },
+  "options_dedupe_label": {
+    "description": "Label for the de-duplicating option",
+    "message": "避免重複的分頁在擱置區"
+  },
+  "options_dedupe_option_exactURLMatch": {
+    "description": "Label for option to de-duplicate when URL matches exactly",
+    "message": "如果網址完全符合"
+  },
+  "options_dedupe_option_exactURLMatch_description": {
+    "description": "Description for option to de-duplicate when URL matches exactly",
+    "message": "如果分頁被移出，它會被置於擱置區。如果過往有相同網址的分頁，則會將之移除。"
+  },
+  "options_dedupe_option_exactURLMatch_label": {
+    "description": "Extended label of the de-duplicate when tab URL matches exactly option",
+    "message": "如果網址完全符合"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch": {
+    "description": "Label for option to de-duplicate when hostname and page title match",
+    "message": "如果網域名稱及標題符合"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_description": {
+    "description": "Extended description for option to de-duplicate when hostname and page title match",
+    "message": "如果分頁被移出，它會被置於擱置區。如果過往有相同網域名稱(如 \"wikipedia.org\") 及標題的分頁，則會將之移除。"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_label": {
+    "description": "Extended label for option to de-duplicate when hostname and page title match",
+    "message": "如果網域名稱及標題符合"
+  },
+  "options_dedupe_option_withDupes": {
+    "description": "Label for option to never de-duplicate the tab corral",
+    "message": "永遠不要 (預設)"
+  },
+  "options_dedupe_option_withDupes_description": {
+    "description": "Description of the never de-duplicating tabs option",
+    "message": "如果分頁被移出，它會被置於擱置區。不再有其他變更。"
+  },
+  "options_dedupe_option_withDupes_label": {
+    "description": "Label for never de-duplicating option",
+    "message": "永遠不要"
+  },
+  "options_importExport_description": {
+    "description": "Description of the import\/export feature shown next to import\/export buttons",
+    "message": "匯出所有關於移出分頁的資訊。方便在重新安裝擴充套件後恢復先前的紀錄。"
+  },
+  "options_importExport_export": {
+    "description": "Button label to begin exporting closed tabs",
+    "message": "匯出"
+  },
+  "options_importExport_exporting": {
+    "description": "Label displayed when exporting closed tabs",
+    "message": "正在匯出 ..."
+  },
+  "options_importExport_import": {
+    "description": "Button label to begin importing closed tabs",
+    "message": "匯入"
+  },
+  "options_importExport_importing": {
+    "description": "Label displayed when importing closed tabs",
+    "message": "正在匯入 ..."
+  },
+  "options_importExport_importWarning": {
+    "description": "Description of the destructiveness of importing; current tabs are overwritten",
+    "message": "注意：現有的資料會被匯入的資料覆蓋。這是不可恢復的操作。(除非你有備份)"
+  },
+  "options_keyboardShortcuts_configure": {
+    "description": "Link text for navigating to keyboard shortcut configuration",
+    "message": "設定快捷鍵"
+  },
+  "options_keyboardShortcuts_notSet": {
+    "description": "Message shown for a shortcut when it has not been configured",
+    "message": "沒有快捷鍵"
+  },
+  "options_name": {
+    "description": "Name of the 'Options' section, where users can configure the extension",
+    "message": "選項"
+  },
+  "options_option_autoLock_add": {
+    "description": "Button label for adding to whitelist",
+    "message": "新增"
+  },
+  "options_option_autoLock_empty": {
+    "description": "Message shown when there are no whitelisted URLs",
+    "message": "還沒有自動鎖定的網址。請使用上方的表單新增至名單中。"
+  },
+  "options_option_autoLock_example": {
+    "description": "Example describing how the whitelist works",
+    "message": "範例：\"cnn\" 將會符合任何 \"https:\/\/www.cnn.com\" 的頁面以及所有出現 \"cnn\" 關鍵字的網址。"
+  },
+  "options_option_autoLock_label": {
+    "description": "Label preceeding input for adding URL to whitelist",
+    "message": "自動鎖定分頁包含以下這些網址："
+  },
+  "options_option_autoLock_remove": {
+    "description": "Button label for removing a URL from the whitelist",
+    "message": "移除"
+  },
+  "options_option_autoLock_urlHeader": {
+    "description": "Table column header for list of whitelisted URL strings",
+    "message": "網址"
+  },
+  "options_option_clearOnQuit_label": {
+    "description": "Label for checkbox to clear the tab list after quitting the Browser",
+    "message": "結束時清除擱置分頁列表"
+  },
+  "options_option_debounceOnActivated_label": {
+    "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
+    "message": "在操作分頁 1 秒後重設分頁計時器"
+  },
+  "options_option_filterAudio_label": {
+    "description": "Label for checkbox to filter tabs that are playing audio",
+    "message": "不要關閉正在播放媒體的分頁"
+  },
+  "options_option_minTabs_label": {
+    "description": "Label preceeding input for setting minimum number of tabs",
+    "message": "只在分頁數超過這個數量時自動關閉分頁："
+  },
+  "options_option_minTabs_postLabel": {
+    "description": "Label following input for setting minimum number of tabs",
+    "message": "分頁數量 (不包含釘選及鎖定的分頁)"
+  },
+  "options_option_minTabs_tabs": {
+    "description": "Input title for minimum number of tabs",
+    "message": "必須是一個大於等於 0 的數字"
+  },
+  "options_option_rememberTabs_label": {
+    "description": "Label preceeding input for number of tabs to remember",
+    "message": "記住最多"
+  },
+  "options_option_rememberTabs_postLabel": {
+    "description": "Label following input for number of tabs to remember",
+    "message": "個關閉的分頁。"
+  },
+  "options_option_rememberTabs_tabs": {
+    "description": "Input title for number of tabs to remember",
+    "message": "必須是一個大於等於 0 的數字"
+  },
+  "options_option_showBadgeCount_label": {
+    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
+    "message": "在工具列按鈕上顯示擱置的分頁數目"
+  },
+  "options_option_timeInactive_label": {
+    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
+    "message": "關閉靜止的分頁於"
+  },
+  "options_option_timeInactive_minutes": {
+    "description": "Input title for number of minutes before closing tabs",
+    "message": "必須是一個大於 0 且小於 7200 的數字"
+  },
+  "options_option_timeInactive_postLabel": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "分 : 秒"
+  },
+  "options_option_timeInactive_seconds": {
+    "description": "Input title for number of seconds before closing tabs",
+    "message": "必須是一個大於 0 且小於 60 的數字"
+  },
+  "options_saving": {
+    "description": "Message displayed when options are being saved",
+    "message": "儲存中 ..."
+  },
+  "options_section_autoLock": {
+    "description": "Header for the auto-lock section of the options tab",
+    "message": "自動鎖定"
+  },
+  "options_section_importExport": {
+    "description": "Header for the import\/export feature section of the options tab",
+    "message": "匯入 \/ 匯出"
+  },
+  "options_section_keyboardShortcuts": {
+    "description": "Header for the section containing keyboard shortcut configuration",
+    "message": "鍵盤快捷鍵"
+  },
+  "options_section_settings": {
+    "description": "Header for settings section of the options tab",
+    "message": "設定"
+  },
+  "tabCorral_name": {
+    "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
+    "message": "擱置區"
+  },
+  "tabLock_lockedReason_locked": {
+    "description": "Label for tab that is locked because the user locked it",
+    "message": "已鎖定"
+  },
+  "tabLock_lockedReason_matches": {
+    "description": "Label for a tab that is locked because it matches the whitelist",
+    "message": "符合 \"$pattern$\"",
+    "placeholders": {
+      "pattern": {
+        "content": "$1",
+        "example": "chrome:\/\/"
+      }
+    }
+  },
+  "tabLock_lockedReason_paused": {
+    "description": "Label for a tab when the extension is paused",
+    "message": "已暫停"
+  },
+  "tabLock_lockedReason_pinned": {
+    "description": "Label for a tab that is locked because it's pinned",
+    "message": "已釘選"
+  },
+  "tabLock_lockedReason_audible": {
+    "description": "Label for a tab that is locked because it's audible",
+    "message": "正在播放媒體的分頁不會被關閉"
+  },
+  "tabLock_lockLabel": {
+    "description": "Explanation of the lock checkbox's functionality",
+    "message": "勾選分頁以鎖定分頁 (避免被自動關閉)"
+  },
+  "tabLock_name": {
+    "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
+    "message": "鎖定的分頁"
+  },
+  "tabLock_remainingTimeLabel": {
+    "description": "Explanation of time remaining before tab is closed",
+    "message": "即將關閉 ..."
+  },
+  "corral_tabsWrangled": {
+    "description": "Label preceeding the number of tabs wrangled by this extension",
+    "message": "分頁擱置中"
+  },
+  "corral_tabsWrangled_formula": {
+    "description": "Title describing how % of tabs wrangled is calculated",
+    "message": "由 Tab Wrangler 關閉的分頁 \/ 所有關閉的分頁"
+  },
+  "corral_tabsWrangled_or": {
+    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
+    "message": "或"
+  },
+  "settings_setmaxTabs_error": {
+    "description": "Error shown when invalid max tabs setting is supplied.",
+    "message": "最大分頁數必須是一個介於 1 至 1000 之間的數字"
+  },
+  "settings_setminTabs_error": {
+    "description": "Error shown when invalid min tabs setting is supplied.",
+    "message": "最小分頁數必須是一個大於等於 0 的數字"
+  },
+  "settings_setminutesInactive_error": {
+    "description": "Error shown when invalid minutes inactive setting is supplied.",
+    "message": "靜置的分鐘數必須大於等於 0"
+  },
+  "settings_setsecondsInactive_error": {
+    "description": "Error shown when invalid seconds inactive setting is supplied.",
+    "message": "靜置的秒數必須大於等於 0 且小於 60"
+  },
+  "corral_sortBy": {
+    "description": "Label prefixing sort order of the tab corral",
+    "message": "排序方式"
+  },
+  "corral_sortPageTitle": {
+    "description": "Label for sorting the tab corral list by page title",
+    "message": "網頁標題"
+  },
+  "corral_sortPageTitle_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title",
+    "message": "網頁標題"
+  },
+  "corral_sortPageTitle_descending": {
+    "description": "Label for sorting the tab corral list by page title in descending order",
+    "message": "網頁標題 (倒序)"
+  },
+  "corral_sortPageTitle_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title in descending order",
+    "message": "網頁標題 (倒序)"
+  },
+  "corral_sortTimeClosed": {
+    "description": "Label for sorting the tab corral list by tab closed time",
+    "message": "關閉時間"
+  },
+  "corral_sortTimeClosed_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time",
+    "message": "關閉時間"
+  },
+  "corral_sortTimeClosed_descending": {
+    "description": "Label for sorting the tab corral list by tab closed time in descending order",
+    "message": "關閉時間 (倒序)"
+  },
+  "corral_sortTimeClosed_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time in descending order",
+    "message": "關閉時間 (倒序)"
+  },
+  "corral_sortDomain": {
+    "description": "Label for sorting the tab corral list by domain",
+    "message": "網域"
+  },
+  "corral_sortDomain_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain",
+    "message": "網域"
+  },
+  "corral_sortDomain_descending": {
+    "description": "Label for sorting the tab corral list by domain in descending order",
+    "message": "網域 (倒序)"
+  },
+  "corral_sortDomain_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
+    "message": "網域 (倒序)"
+  },
+  "extDescription": {
+    "description": "Brief description of the extension",
+    "message": "自動關閉靜置的分頁並輕鬆喚回它們"
+  },
+  "corral_tabSessionFresh": {
+    "description": "Tooltip describing why certain tabs will have their full session restored",
+    "message": "恢復這個分頁將會還原整個 Session 包含頁面歷程、捲軸位置等。但由於瀏覽器的限制只能恢復最後關閉的 25 個分頁。"
+  },
+  "corral_noTabsMatch": {
+    "description": "Message shown when no tabs match the user's search query",
+    "message": "沒有符合搜尋的分頁。試試其他關鍵字。"
+  }
+}

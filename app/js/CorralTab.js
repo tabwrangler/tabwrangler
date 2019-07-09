@@ -374,7 +374,7 @@ class CorralTab extends React.Component<Props, State> {
       <div className="tab-pane active">
         <div className="row mb-1">
           <form className="form-search col">
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group mb-0">
               <input
                 className="form-control"
                 name="search"
@@ -388,7 +388,7 @@ class CorralTab extends React.Component<Props, State> {
               />
             </div>
           </form>
-          <div className="col" style={{ lineHeight: '30px', textAlign: 'right' }}>
+          <div className="col text-right" style={{ lineHeight: '30px' }}>
             <span className="text-muted">{chrome.i18n.getMessage('corral_tabsWrangled')}</span>{' '}
             {totalTabsWrangled} {chrome.i18n.getMessage('corral_tabsWrangled_or')}{' '}
             <abbr title={chrome.i18n.getMessage('corral_tabsWrangled_formula')}>

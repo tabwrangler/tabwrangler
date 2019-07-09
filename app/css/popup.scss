@@ -50,7 +50,7 @@ body {
   transition: opacity 400ms ease-in;
 }
 
-@import '../../node_modules/bootstrap/scss/bootstrap';
+@import './_bootstrap.scss';
 
 .alert-sticky {
   position: fixed;

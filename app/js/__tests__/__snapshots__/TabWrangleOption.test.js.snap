@@ -1,68 +1,76 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render options with exactURLMatch selected 1`] = `
-<div>
+Array [
   <label
     htmlFor="wrangleOption"
   >
-    
-  </label>
+    <strong>
+      
+    </strong>
+  </label>,
   <div
-    className="radio"
+    className="form-check"
   >
-    <label>
-      <input
-        checked={false}
-        className="form-check-input"
-        id="withDupes"
-        name="wrangleOption"
-        onChange={[MockFunction]}
-        type="radio"
-        value="withDupes"
-      />
-       
+    <input
+      checked={false}
+      className="form-check-input"
+      id="withDupes"
+      name="wrangleOption"
+      onChange={[MockFunction]}
+      type="radio"
+      value="withDupes"
+    />
+    <label
+      className="form-check-label"
+      htmlFor="withDupes"
+    >
       
     </label>
-  </div>
+  </div>,
   <div
-    className="radio"
+    className="form-check"
   >
-    <label>
-      <input
-        checked={true}
-        className="form-check-input"
-        id="exactURLMatch"
-        name="wrangleOption"
-        onChange={[MockFunction]}
-        type="radio"
-        value="exactURLMatch"
-      />
-       
+    <input
+      checked={true}
+      className="form-check-input"
+      id="exactURLMatch"
+      name="wrangleOption"
+      onChange={[MockFunction]}
+      type="radio"
+      value="exactURLMatch"
+    />
+    <label
+      className="form-check-label"
+      htmlFor="exactURLMatch"
+    >
       
     </label>
-  </div>
+  </div>,
   <div
-    className="radio"
+    className="form-check"
   >
-    <label>
-      <input
-        checked={false}
-        className="form-check-input"
-        id="hostnameAndTitleMatch"
-        name="wrangleOption"
-        onChange={[MockFunction]}
-        type="radio"
-        value="hostnameAndTitleMatch"
-      />
-       
+    <input
+      checked={false}
+      className="form-check-input"
+      id="hostnameAndTitleMatch"
+      name="wrangleOption"
+      onChange={[MockFunction]}
+      type="radio"
+      value="hostnameAndTitleMatch"
+    />
+    <label
+      className="form-check-label"
+      htmlFor="hostnameAndTitleMatch"
+    >
       
     </label>
-  </div>
+  </div>,
   <div
     className="row"
   >
     <div
-      className="col-xs-8 help-block"
+      className="col-8 form-text text-muted"
       style={
         Object {
           "marginBottom": 0,
@@ -108,73 +116,81 @@ exports[`should render options with exactURLMatch selected 1`] = `
         </dd>
       </dl>
     </div>
-  </div>
-</div>
+  </div>,
+]
 `;
 
 exports[`should render options with hostnameAndTitleMatch selected 1`] = `
-<div>
+Array [
   <label
     htmlFor="wrangleOption"
   >
-    
-  </label>
+    <strong>
+      
+    </strong>
+  </label>,
   <div
-    className="radio"
+    className="form-check"
   >
-    <label>
-      <input
-        checked={false}
-        className="form-check-input"
-        id="withDupes"
-        name="wrangleOption"
-        onChange={[MockFunction]}
-        type="radio"
-        value="withDupes"
-      />
-       
+    <input
+      checked={false}
+      className="form-check-input"
+      id="withDupes"
+      name="wrangleOption"
+      onChange={[MockFunction]}
+      type="radio"
+      value="withDupes"
+    />
+    <label
+      className="form-check-label"
+      htmlFor="withDupes"
+    >
       
     </label>
-  </div>
+  </div>,
   <div
-    className="radio"
+    className="form-check"
   >
-    <label>
-      <input
-        checked={false}
-        className="form-check-input"
-        id="exactURLMatch"
-        name="wrangleOption"
-        onChange={[MockFunction]}
-        type="radio"
-        value="exactURLMatch"
-      />
-       
+    <input
+      checked={false}
+      className="form-check-input"
+      id="exactURLMatch"
+      name="wrangleOption"
+      onChange={[MockFunction]}
+      type="radio"
+      value="exactURLMatch"
+    />
+    <label
+      className="form-check-label"
+      htmlFor="exactURLMatch"
+    >
       
     </label>
-  </div>
+  </div>,
   <div
-    className="radio"
+    className="form-check"
   >
-    <label>
-      <input
-        checked={true}
-        className="form-check-input"
-        id="hostnameAndTitleMatch"
-        name="wrangleOption"
-        onChange={[MockFunction]}
-        type="radio"
-        value="hostnameAndTitleMatch"
-      />
-       
+    <input
+      checked={true}
+      className="form-check-input"
+      id="hostnameAndTitleMatch"
+      name="wrangleOption"
+      onChange={[MockFunction]}
+      type="radio"
+      value="hostnameAndTitleMatch"
+    />
+    <label
+      className="form-check-label"
+      htmlFor="hostnameAndTitleMatch"
+    >
       
     </label>
-  </div>
+  </div>,
   <div
     className="row"
   >
     <div
-      className="col-xs-8 help-block"
+      className="col-8 form-text text-muted"
       style={
         Object {
           "marginBottom": 0,
@@ -220,73 +236,81 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
         </dd>
       </dl>
     </div>
-  </div>
-</div>
+  </div>,
+]
 `;
 
 exports[`should render options with withDupes selected 1`] = `
-<div>
+Array [
   <label
     htmlFor="wrangleOption"
   >
-    
-  </label>
+    <strong>
+      
+    </strong>
+  </label>,
   <div
-    className="radio"
+    className="form-check"
   >
-    <label>
-      <input
-        checked={true}
-        className="form-check-input"
-        id="withDupes"
-        name="wrangleOption"
-        onChange={[MockFunction]}
-        type="radio"
-        value="withDupes"
-      />
-       
+    <input
+      checked={true}
+      className="form-check-input"
+      id="withDupes"
+      name="wrangleOption"
+      onChange={[MockFunction]}
+      type="radio"
+      value="withDupes"
+    />
+    <label
+      className="form-check-label"
+      htmlFor="withDupes"
+    >
       
     </label>
-  </div>
+  </div>,
   <div
-    className="radio"
+    className="form-check"
   >
-    <label>
-      <input
-        checked={false}
-        className="form-check-input"
-        id="exactURLMatch"
-        name="wrangleOption"
-        onChange={[MockFunction]}
-        type="radio"
-        value="exactURLMatch"
-      />
-       
+    <input
+      checked={false}
+      className="form-check-input"
+      id="exactURLMatch"
+      name="wrangleOption"
+      onChange={[MockFunction]}
+      type="radio"
+      value="exactURLMatch"
+    />
+    <label
+      className="form-check-label"
+      htmlFor="exactURLMatch"
+    >
       
     </label>
-  </div>
+  </div>,
   <div
-    className="radio"
+    className="form-check"
   >
-    <label>
-      <input
-        checked={false}
-        className="form-check-input"
-        id="hostnameAndTitleMatch"
-        name="wrangleOption"
-        onChange={[MockFunction]}
-        type="radio"
-        value="hostnameAndTitleMatch"
-      />
-       
+    <input
+      checked={false}
+      className="form-check-input"
+      id="hostnameAndTitleMatch"
+      name="wrangleOption"
+      onChange={[MockFunction]}
+      type="radio"
+      value="hostnameAndTitleMatch"
+    />
+    <label
+      className="form-check-label"
+      htmlFor="hostnameAndTitleMatch"
+    >
       
     </label>
-  </div>
+  </div>,
   <div
     className="row"
   >
     <div
-      className="col-xs-8 help-block"
+      className="col-8 form-text text-muted"
       style={
         Object {
           "marginBottom": 0,
@@ -332,6 +356,6 @@ exports[`should render options with withDupes selected 1`] = `
         </dd>
       </dl>
     </div>
-  </div>
-</div>
+  </div>,
+]
 `;

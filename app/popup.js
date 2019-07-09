@@ -1,7 +1,8 @@
 /* @flow */
 
-import './lib/bootstrap/css/bootstrap.min.css';
-import './css/popup.css';
+import './css/popup.scss';
+import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
+import './css/fontawesome-free-solid-woff-only.css';
 import 'react-virtualized/styles.css';
 import NavBar, { type NavBarTabID } from './js/NavBar';
 import { clearTempStorage, fetchSessions } from './js/actions/tempStorageActions';
@@ -71,10 +72,10 @@ class Popup extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div>
+      <>
         <NavBar activeTabId={this.state.activeTabId} onClickTab={this._handleClickTab} />
-        <div className="tab-content container">{activeTab}</div>
-      </div>
+        <div className="tab-content container-fluid">{activeTab}</div>
+      </>
     );
   }
 }

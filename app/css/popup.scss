@@ -1,0 +1,70 @@
+// Variables
+//
+// Variables should follow the `$component-state-property-size` formula for
+// consistent naming. Ex: $nav-link-disabled-color and $modal-content-box-shadow-xs.
+
+$enable-print-styles: false;
+
+// Typography
+//
+// Font, line-height, and color for body text, headings, and more.
+
+$font-size-base: 0.875rem;
+
+body {
+  min-height: 300px;
+  position: relative;
+  width: 700px;
+}
+
+.container {
+  /* Override any @media queries inside Bootstrap */
+  width: auto !important;
+}
+
+/* Beat specificity of Bootstrap since this CSS file comes before CSS from JS. */
+.table-th-unbordered thead th {
+  border-top: none;
+}
+
+.favicon {
+  height: 16px;
+  width: 16px;
+}
+
+.tab-pane {
+  padding-bottom: 20px;
+  padding-top: 20px;
+}
+
+/**
+ * Alert animations for ReactCSSTransitionGroup
+ */
+
+.alert-exit {
+  opacity: 1;
+}
+
+.alert-exit.alert-exit-active {
+  opacity: 0.01;
+  transition: opacity 400ms ease-in;
+}
+
+@import './_bootstrap.scss';
+
+.alert-sticky {
+  position: fixed;
+  left: 10px;
+  top: 15px;
+  right: 10px;
+}
+
+/**
+ * Override Bootstrap responsive because Tab Wrangler is not a mobile UI.
+ */
+
+@media (min-width: 576px) {
+  .form-inline .form-check {
+    justify-content: flex-start;
+  }
+}

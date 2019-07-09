@@ -1,5 +1,6 @@
 /* @flow */
 
+import './CoralTabRow.css';
 import LazyImage from './LazyImage';
 import React from 'react';
 import TimeAgo from 'timeago-react';
@@ -69,7 +70,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
     return (
       <div
         aria-label="row"
-        className={cx('ReactVirtualized__Table__row', { 'bg-warning': isSelected })}
+        className={cx('ReactVirtualized__Table__row', { 'table-warning': isSelected })}
         role="row"
         style={style}>
         <div
@@ -94,24 +95,18 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
             width={16}
           />
           <span
-            className="faviconCol--hover-shown glyphicon glyphicon-trash"
+            className="faviconCol--hover-shown"
             onClick={this._handleClickRemove}
+            role="button"
             style={{ cursor: 'pointer', height: 16, width: 16 }}
-            title="Remove this tab"
-          />
+            tabIndex={0}
+            title="Remove this tab">
+            <i className="fas fa-trash-alt" />
+          </span>
         </div>
-        <div
-          className="ReactVirtualized__Table__rowColumn"
-          style={{ flex: 1, paddingBottom: '4px', paddingTop: '4px' }}>
+        <div className="ReactVirtualized__Table__rowColumn py-1" style={{ flex: 1 }}>
           <div style={{ display: 'flex' }}>
-            <div
-              style={{
-                flex: 1,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                width: '1px',
-              }}>
+            <div className="CorralTabRow-content">
               <a
                 href={tab.url}
                 onClick={this._handleClickAnchor}
@@ -122,7 +117,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
                 {tab.title}
               </a>
               <br />
-              <small className="text-muted">
+              <small className={cx({ 'text-muted': !isSelected })}>
                 ({tab.url == null ? '???' : extractHostname(tab.url)})
               </small>
             </div>
@@ -141,7 +136,7 @@ export default class ClosedTabRow extends React.PureComponent<Props, State> {
         <div className="ReactVirtualized__Table__rowColumn" style={{ width: '11px' }}>
           {session == null ? null : (
             <abbr title={chrome.i18n.getMessage('corral_tabSessionFresh')}>
-              <i className="glyphicon glyphicon-leaf text-success" />
+              <i className="fas fa-leaf text-success" />
             </abbr>
           )}
         </div>

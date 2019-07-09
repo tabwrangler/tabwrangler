@@ -5,7 +5,9 @@ Array [
   <label
     htmlFor="wrangleOption"
   >
-    
+    <strong>
+      
+    </strong>
   </label>,
   <div
     className="form-check"
@@ -68,7 +70,7 @@ Array [
     className="row"
   >
     <div
-      className="col-8 help-block"
+      className="col-8 form-text text-muted"
       style={
         Object {
           "marginBottom": 0,
@@ -123,7 +125,9 @@ Array [
   <label
     htmlFor="wrangleOption"
   >
-    
+    <strong>
+      
+    </strong>
   </label>,
   <div
     className="form-check"
@@ -186,7 +190,7 @@ Array [
     className="row"
   >
     <div
-      className="col-8 help-block"
+      className="col-8 form-text text-muted"
       style={
         Object {
           "marginBottom": 0,
@@ -241,7 +245,9 @@ Array [
   <label
     htmlFor="wrangleOption"
   >
-    
+    <strong>
+      
+    </strong>
   </label>,
   <div
     className="form-check"
@@ -304,7 +310,7 @@ Array [
     className="row"
   >
     <div
-      className="col-8 help-block"
+      className="col-8 form-text text-muted"
       style={
         Object {
           "marginBottom": 0,

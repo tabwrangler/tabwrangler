@@ -435,26 +435,30 @@ class CorralTab extends React.Component<Props, State> {
                       type="checkbox"
                     />
                   </button>
-                  <button
-                    className="btn btn-outline-dark btn-sm ml-1 px-3"
-                    disabled={!hasVisibleSelectedTabs}
-                    onClick={this._handleRemoveSelectedTabs}
-                    title={chrome.i18n.getMessage('corral_removeSelectedTabs')}>
-                    <span className="sr-only">
-                      {chrome.i18n.getMessage('corral_removeSelectedTabs')}
-                    </span>
-                    <i className="fas fa-trash-alt" />
-                  </button>
-                  <button
-                    className="btn btn-outline-dark btn-sm ml-1 px-3"
-                    disabled={!hasVisibleSelectedTabs}
-                    onClick={this._handleRestoreSelectedTabs}
-                    title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}>
-                    <span className="sr-only">
-                      {chrome.i18n.getMessage('corral_removeSelectedTabs')}
-                    </span>
-                    <i className="fas fa-external-link-alt" />
-                  </button>
+                  {hasVisibleSelectedTabs ? (
+                    <>
+                      <button
+                        className="btn btn-outline-dark btn-sm ml-1 px-3"
+                        onClick={this._handleRemoveSelectedTabs}
+                        title={chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                        type="button">
+                        <span className="sr-only">
+                          {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                        </span>
+                        <i className="fas fa-trash-alt" />
+                      </button>
+                      <button
+                        className="btn btn-outline-dark btn-sm ml-1 px-3"
+                        onClick={this._handleRestoreSelectedTabs}
+                        title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}
+                        type="button">
+                        <span className="sr-only">
+                          {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                        </span>
+                        <i className="fas fa-external-link-alt" />
+                      </button>
+                    </>
+                  ) : null}
                 </div>
                 <div className="d-flex">
                   {this.state.filter.length > 0 ? (

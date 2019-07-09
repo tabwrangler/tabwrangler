@@ -53,7 +53,7 @@
   },
   "corral_removeSelectedTabs": {
     "description": "Button title for removing all selected tabs from the corral",
-    "message": "Eliminar los elementos seleccionados"
+    "message": "Eliminar las pestañas seleccionadas"
   },
   "corral_restoreSelectedTabs": {
     "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
@@ -79,11 +79,11 @@
   },
   "corral_toggleAllTabs_deselectAll": {
     "description": "Button title for deselecting all tabs in the tab corral",
-    "message": "Anular todas las selecciones"
+    "message": "Deseleccionar pestañas"
   },
   "corral_toggleAllTabs_selectAll": {
     "description": "Button title for selecting all tabs in the tab corral",
-    "message": "Seleccione todas las ventanas"
+    "message": "Seleccionar todas las pestañas"
   },
   "extName": {
     "description": "The name of this extension",
@@ -99,7 +99,7 @@
   },
   "options_dedupe_label": {
     "description": "Label for the de-duplicating option",
-    "message": "Evitar duplicar URL en el registro:"
+    "message": "Evitar pestañas duplicadas en el registro:"
   },
   "options_dedupe_option_exactURLMatch": {
     "description": "Label for option to de-duplicate when URL matches exactly",
@@ -115,7 +115,7 @@
   },
   "options_dedupe_option_hostnameAndTitleMatch": {
     "description": "Label for option to de-duplicate when hostname and page title match",
-    "message": "Si coincide con el nombre de host y la página de título"
+    "message": "Si coinciden el dominio y título de la página"
   },
   "options_dedupe_option_hostnameAndTitleMatch_description": {
     "description": "Extended description for option to de-duplicate when hostname and page title match",

@@ -53,14 +53,14 @@ const Settings = {
   init() {
     const keys = [];
     for (const i in this.defaults) {
-      if (this.defaults.hasOwnProperty(i)) {
+      if (Object.prototype.hasOwnProperty.call(this.defaults, i)) {
         this.cache[i] = this.defaults[i];
         keys.push(i);
       }
     }
     chrome.storage.sync.get(keys, items => {
       for (const i in items) {
-        if (items.hasOwnProperty(i)) {
+        if (Object.prototype.hasOwnProperty.call(items, i)) {
           this.cache[i] = items[i];
 
           // Because the badge count is external state, this side effect must be run once the value

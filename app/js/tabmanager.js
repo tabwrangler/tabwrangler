@@ -157,7 +157,7 @@ const TabManager = {
   getOlderThen(time?: number) {
     const ret = [];
     for (const i in this.tabTimes) {
-      if (this.tabTimes.hasOwnProperty(i)) {
+      if (Object.prototype.hasOwnProperty.call(this.tabTimes, i)) {
         if (!time || this.tabTimes[i] < time) {
           ret.push(parseInt(i, 10));
         }

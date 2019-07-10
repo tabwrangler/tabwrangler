@@ -2,52 +2,36 @@
 
 import React from 'react';
 
-const TW = chrome.extension.getBackgroundPage().TW;
-
 // Unpack TW.
-const { settings } = TW;
+const { settings } = chrome.extension.getBackgroundPage().TW;
 
-type State = {
-  paused: boolean,
-};
+export default function PauseButton() {
+  // $FlowFixMe Upgrade Flow to get latest React types
+  const [paused, setPaused] = React.useState(settings.get('paused'));
 
-export default class PauseButton extends React.PureComponent<{}, State> {
-  constructor() {
-    super();
-    this.state = {
-      paused: settings.get('paused'),
-    };
-  }
-
-  pause = () => {
+  function pause() {
     chrome.browserAction.setIcon({ path: 'img/icon-paused.png' });
     settings.set('paused', true);
-    this.setState({ paused: true });
-  };
+    setPaused(true);
+  }
 
-  play = () => {
+  function play() {
     chrome.browserAction.setIcon({ path: 'img/icon.png' });
     settings.set('paused', false);
-    this.setState({ paused: false });
-  };
-
-  render() {
-    const content = this.state.paused ? (
-      <span>
-        <i className="fas fa-play" /> {chrome.i18n.getMessage('extension_resume')}
-      </span>
-    ) : (
-      <span>
-        <i className="fas fa-pause" /> {chrome.i18n.getMessage('extension_pause')}
-      </span>
-    );
-
-    return (
-      <button
-        className="btn btn-outline-dark btn-sm"
-        onClick={this.state.paused ? this.play : this.pause}>
-        {content}
-      </button>
-    );
+    setPaused(false);
   }
+
+  return (
+    <button className="btn btn-outline-dark btn-sm" onClick={paused ? play : pause} type="button">
+      {paused ? (
+        <>
+          <i className="fas fa-play" /> {chrome.i18n.getMessage('extension_resume')}
+        </>
+      ) : (
+        <>
+          <i className="fas fa-pause" /> {chrome.i18n.getMessage('extension_pause')}
+        </>
+      )}
+    </button>
+  );
 }

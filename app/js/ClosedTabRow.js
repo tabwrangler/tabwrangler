@@ -58,7 +58,7 @@ export default function ClosedTabRow(props: Props) {
         <input
           checked={isSelected}
           className="checkbox--td"
-          onClick={_handleClickCheckbox}
+          onChange={_handleClickCheckbox}
           type="checkbox"
         />
       </div>

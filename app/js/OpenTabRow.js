@@ -83,7 +83,7 @@ export default function OpenTabRow(props: Props) {
           checked={tabIsLocked}
           className="mx-1"
           disabled={!isManuallyLockable(tab)}
-          onClick={handleLockedOnClick}
+          onChange={handleLockedOnClick}
           type="checkbox"
         />
       </td>

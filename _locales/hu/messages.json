@@ -36,5 +36,9 @@
   "contextMenu_lockTab": {
     "description": "Label for context menu item that locks the clicked tab",
     "message": "Soha ne zárja be ezt a lapot"
+  },
+  "extName": {
+    "description": "The name of this extension",
+    "message": "Tab Wrangler"
   }
 }

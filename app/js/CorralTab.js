@@ -493,7 +493,7 @@ class CorralTab extends React.Component<Props, State> {
                     </button>
                     <div
                       aria-labelledby="sort-dropdown"
-                      className={cx('dropdown-menu dropdown-menu-right', {
+                      className={cx('dropdown-menu dropdown-menu-right shadow-sm', {
                         show: this.state.isSortDropdownOpen,
                       })}>
                       {Sorters.map(sorter => (

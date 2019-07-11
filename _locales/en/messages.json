@@ -315,6 +315,38 @@
     "description": "Explanation of time remaining before tab is closed",
     "message": "Closing in..."
   },
+  "tabLock_sort_tabOrder": {
+    "description": "Description for sorting tabs by how they appear in browser",
+    "message": "Tab order"
+  },
+  "tabLock_sort_tabOrder_short": {
+    "description": "Short version of tabLock_sort_tabOrder",
+    "message": "Tab order"
+  },
+  "tabLock_sort_tabOrder_desc": {
+    "description": "Description for sorting tabs by how they appear in browser, in reverse",
+    "message": "Tab order (reverse)"
+  },
+  "tabLock_sort_tabOrder_desc_short": {
+    "description": "Short version of tabLock_sort_tabOrder_desc",
+    "message": "Tab order (rev.)"
+  },
+  "tabLock_sort_timeUntilClose": {
+    "description": "Description for sorting tabs by how much time until TW closes them",
+    "message": "Time until close"
+  },
+  "tabLock_sort_timeUntilClose_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose",
+    "message": "Time until close"
+  },
+  "tabLock_sort_timeUntilClose_desc": {
+    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
+    "message": "Time until close (descending)"
+  },
+  "tabLock_sort_timeUntilClose_desc_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose_desc",
+    "message": "Time until close (desc.)"
+  },
   "corral_tabsWrangled": {
     "description": "Label preceeding the number of tabs wrangled by this extension",
     "message": "tabs wrangled"

@@ -46,13 +46,7 @@ const TabOrderSorter: Sorter = {
   shortLabel: chrome.i18n.getMessage('tabLock_sort_tabOrder_short') || '',
   sort(tabA, tabB) {
     if (tabA == null || tabB == null) {
-      if (tabA != null && tabB == null) {
-        return 1;
-      } else if (tabA == null && tabB != null) {
-        return -1;
-      } else {
-        return 0;
-      }
+      return 0;
     } else if (tabA.windowId === tabB.windowId) {
       return tabA.index - tabB.index;
     } else {

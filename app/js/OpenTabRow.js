@@ -5,10 +5,8 @@ import LazyImage from './LazyImage';
 import React from 'react';
 import cx from 'classnames';
 
-const TW = chrome.extension.getBackgroundPage().TW;
-
 // Unpack TW.
-const { settings, tabmanager } = TW;
+const { settings, tabmanager } = chrome.extension.getBackgroundPage().TW;
 
 function secondsToMinutes(seconds) {
   let s = seconds % 60;
@@ -83,7 +81,7 @@ export default function OpenTabRow(props: Props) {
           checked={tabIsLocked}
           className="mx-1"
           disabled={!isManuallyLockable(tab)}
-          onChange={handleLockedOnClick}
+          onClick={handleLockedOnClick}
           type="checkbox"
         />
       </td>

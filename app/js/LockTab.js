@@ -115,11 +115,12 @@ export default class LockTab extends React.PureComponent<{}, State> {
 
   _handleToggleTab = (tab: chrome$Tab, selected: boolean, multiselect: boolean) => {
     let tabsToToggle = [tab];
+    const tabs = this._getSortedTabs(this.state.tabs, this.state.sorter);
     if (multiselect && this._lastSelectedTab != null) {
-      const lastSelectedTabIndex = this.state.tabs.indexOf(this._lastSelectedTab);
+      const lastSelectedTabIndex = tabs.indexOf(this._lastSelectedTab);
       if (lastSelectedTabIndex >= 0) {
-        const tabIndex = this.state.tabs.indexOf(tab);
-        tabsToToggle = this.state.tabs.slice(
+        const tabIndex = tabs.indexOf(tab);
+        tabsToToggle = tabs.slice(
           Math.min(tabIndex, lastSelectedTabIndex),
           Math.max(tabIndex, lastSelectedTabIndex) + 1
         );

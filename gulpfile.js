@@ -61,6 +61,10 @@ gulp.task('l10n:import', function() {
             default:
               break;
           }
+
+          // Crowdin names its locales with dashes, like "zh-TW", but Chrome expects those same
+          // locale names to use underscores, like "zh_TW".
+          path.dirname = path.dirname.replace('-', '_');
         })
       )
       .pipe(gulp.dest(`${__dirname}/_locales/`));

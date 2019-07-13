@@ -90,7 +90,7 @@
       "chrome": true
     },
     "moduleNameMapper": {
-      "\\.(css|less)$": "<rootDir>/app/__mocks__/styleMock.js"
+      "\\.(s?css)$": "<rootDir>/app/__mocks__/styleMock.js"
     }
   }
 }

@@ -1,16 +1,3 @@
-// Variables
-//
-// Variables should follow the `$component-state-property-size` formula for
-// consistent naming. Ex: $nav-link-disabled-color and $modal-content-box-shadow-xs.
-
-$enable-print-styles: false;
-
-// Typography
-//
-// Font, line-height, and color for body text, headings, and more.
-
-$font-size-base: 0.875rem;
-
 body {
   min-height: 300px;
   position: relative;
@@ -50,7 +37,8 @@ body {
   transition: opacity 400ms ease-in;
 }
 
-@import './_bootstrap.scss';
+@import './_includes';
+@import './_bootstrap';
 
 .alert-sticky {
   position: fixed;

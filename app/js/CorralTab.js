@@ -1,7 +1,6 @@
 /* @flow */
 
-import './CorralTab.css';
-import { Sticky, StickyContainer } from 'react-sticky';
+import './CorralTab.scss';
 import { Table, WindowScroller } from 'react-virtualized';
 import ClosedTabRow from './ClosedTabRow';
 import type { Dispatch } from './Types';
@@ -397,155 +396,129 @@ class CorralTab extends React.Component<Props, State> {
           </div>
         </div>
 
-        <StickyContainer>
-          <Sticky>
-            {({ style }) => (
-              <div
-                style={Object.assign(
-                  {
-                    // Ensure this element is always positioned so its z-index stacks it on top of
-                    // the virtual table below.
-                    position: 'relative',
-                  },
-                  style,
-                  {
-                    background: 'white',
-                    borderBottom: '1px solid #ddd',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    paddingBottom: '10px',
-                    paddingTop: '10px',
-                    zIndex: 100,
-                  }
-                )}>
-                <div>
-                  <button
-                    className="btn btn-outline-dark btn-sm"
-                    disabled={closedTabs.length === 0}
-                    onClick={this._toggleAllTabs}
-                    title={
-                      areAllClosedTabsSelected
-                        ? chrome.i18n.getMessage('corral_toggleAllTabs_deselectAll')
-                        : chrome.i18n.getMessage('corral_toggleAllTabs_selectAll')
-                    }>
-                    <input
-                      checked={areAllClosedTabsSelected}
-                      readOnly
-                      style={{ margin: 0 }}
-                      type="checkbox"
-                    />
-                  </button>
-                  {hasVisibleSelectedTabs ? (
-                    <>
-                      <button
-                        className="btn btn-outline-dark btn-sm ml-1 px-3"
-                        onClick={this._handleRemoveSelectedTabs}
-                        title={chrome.i18n.getMessage('corral_removeSelectedTabs')}
-                        type="button">
-                        <span className="sr-only">
-                          {chrome.i18n.getMessage('corral_removeSelectedTabs')}
-                        </span>
-                        <i className="fas fa-trash-alt" />
-                      </button>
-                      <button
-                        className="btn btn-outline-dark btn-sm ml-1 px-3"
-                        onClick={this._handleRestoreSelectedTabs}
-                        title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}
-                        type="button">
-                        <span className="sr-only">
-                          {chrome.i18n.getMessage('corral_removeSelectedTabs')}
-                        </span>
-                        <i className="fas fa-external-link-alt" />
-                      </button>
-                    </>
-                  ) : null}
-                </div>
-                <div className="d-flex">
-                  {this.state.filter.length > 0 ? (
-                    <span
-                      className={
-                        'badge badge-pill badge-primary d-flex align-items-center px-2 mr-1'
-                      }>
-                      {chrome.i18n.getMessage('corral_searchResults_label', `${closedTabs.length}`)}
-                      <button
-                        className="close close-xs ml-1"
-                        onClick={this._clearFilter}
-                        style={{ marginTop: '-2px' }}
-                        title={chrome.i18n.getMessage('corral_searchResults_clear')}>
-                        &times;
-                      </button>
-                    </span>
-                  ) : null}
-                  <div
-                    className="dropdown"
-                    ref={dropdown => {
-                      this._dropdownRef = dropdown;
-                    }}>
-                    <button
-                      aria-haspopup="true"
-                      className="btn btn-outline-dark btn-sm"
-                      id="sort-dropdown"
-                      onClick={this._toggleSortDropdown}
-                      title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
-                      <span>{chrome.i18n.getMessage('corral_sortBy')}</span>
-                      <span> {this.state.sorter.shortLabel}</span>{' '}
-                      <i className="fas fa-caret-down" />
-                    </button>
-                    <div
-                      aria-labelledby="sort-dropdown"
-                      className={cx('dropdown-menu dropdown-menu-right shadow-sm', {
-                        show: this.state.isSortDropdownOpen,
-                      })}>
-                      {Sorters.map(sorter => (
-                        <a
-                          className={cx('dropdown-item', { active: this.state.sorter === sorter })}
-                          href="#"
-                          key={sorter.label}
-                          onClick={this._clickSorter.bind(this, sorter)}>
-                          {sorter.label}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </Sticky>
-
-          <WindowScroller>
-            {({ height, isScrolling, onChildScroll, scrollTop }) => (
-              <Table
-                autoHeight
-                className="table table-hover"
-                headerHeight={0}
-                height={height}
-                isScrolling={isScrolling}
-                noRowsRenderer={this._renderNoRows}
-                onScroll={onChildScroll}
-                rowCount={closedTabs.length}
-                rowGetter={({ index }) => {
-                  const tab = closedTabs[index];
-                  const session = this.props.sessions.find(session =>
-                    sessionFuzzyMatchesTab(session, tab)
-                  );
-                  return {
-                    isSelected: this.state.selectedTabs.has(tab),
-                    onOpenTab: this.openTab,
-                    onRemoveTab: this._handleRemoveTab,
-                    onToggleTab: this._handleToggleTab,
-                    session,
-                    tab,
-                  };
-                }}
-                rowHeight={38}
-                rowRenderer={rowRenderer}
-                scrollTop={scrollTop}
-                tabIndex={null}
-                width={670}
+        <div className="corral-tab--control-bar py-2 border-bottom">
+          <div>
+            <button
+              className="btn btn-outline-dark btn-sm"
+              disabled={closedTabs.length === 0}
+              onClick={this._toggleAllTabs}
+              title={
+                areAllClosedTabsSelected
+                  ? chrome.i18n.getMessage('corral_toggleAllTabs_deselectAll')
+                  : chrome.i18n.getMessage('corral_toggleAllTabs_selectAll')
+              }>
+              <input
+                checked={areAllClosedTabsSelected}
+                readOnly
+                style={{ margin: 0 }}
+                type="checkbox"
               />
-            )}
-          </WindowScroller>
-        </StickyContainer>
+            </button>
+            {hasVisibleSelectedTabs ? (
+              <>
+                <button
+                  className="btn btn-outline-dark btn-sm ml-1 px-3"
+                  onClick={this._handleRemoveSelectedTabs}
+                  title={chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                  type="button">
+                  <span className="sr-only">
+                    {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                  </span>
+                  <i className="fas fa-trash-alt" />
+                </button>
+                <button
+                  className="btn btn-outline-dark btn-sm ml-1 px-3"
+                  onClick={this._handleRestoreSelectedTabs}
+                  title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}
+                  type="button">
+                  <span className="sr-only">
+                    {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                  </span>
+                  <i className="fas fa-external-link-alt" />
+                </button>
+              </>
+            ) : null}
+          </div>
+          <div className="d-flex">
+            {this.state.filter.length > 0 ? (
+              <span
+                className={'badge badge-pill badge-primary d-flex align-items-center px-2 mr-1'}>
+                {chrome.i18n.getMessage('corral_searchResults_label', `${closedTabs.length}`)}
+                <button
+                  className="close close-xs ml-1"
+                  onClick={this._clearFilter}
+                  style={{ marginTop: '-2px' }}
+                  title={chrome.i18n.getMessage('corral_searchResults_clear')}>
+                  &times;
+                </button>
+              </span>
+            ) : null}
+            <div
+              className="dropdown"
+              ref={dropdown => {
+                this._dropdownRef = dropdown;
+              }}>
+              <button
+                aria-haspopup="true"
+                className="btn btn-outline-dark btn-sm"
+                id="sort-dropdown"
+                onClick={this._toggleSortDropdown}
+                title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
+                <span>{chrome.i18n.getMessage('corral_sortBy')}</span>
+                <span> {this.state.sorter.shortLabel}</span> <i className="fas fa-caret-down" />
+              </button>
+              <div
+                aria-labelledby="sort-dropdown"
+                className={cx('dropdown-menu dropdown-menu-right shadow-sm', {
+                  show: this.state.isSortDropdownOpen,
+                })}>
+                {Sorters.map(sorter => (
+                  <a
+                    className={cx('dropdown-item', { active: this.state.sorter === sorter })}
+                    href="#"
+                    key={sorter.label}
+                    onClick={this._clickSorter.bind(this, sorter)}>
+                    {sorter.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <WindowScroller>
+          {({ height, isScrolling, onChildScroll, scrollTop }) => (
+            <Table
+              autoHeight
+              className="table table-hover"
+              headerHeight={0}
+              height={height}
+              isScrolling={isScrolling}
+              noRowsRenderer={this._renderNoRows}
+              onScroll={onChildScroll}
+              rowCount={closedTabs.length}
+              rowGetter={({ index }) => {
+                const tab = closedTabs[index];
+                const session = this.props.sessions.find(session =>
+                  sessionFuzzyMatchesTab(session, tab)
+                );
+                return {
+                  isSelected: this.state.selectedTabs.has(tab),
+                  onOpenTab: this.openTab,
+                  onRemoveTab: this._handleRemoveTab,
+                  onToggleTab: this._handleToggleTab,
+                  session,
+                  tab,
+                };
+              }}
+              rowHeight={38}
+              rowRenderer={rowRenderer}
+              scrollTop={scrollTop}
+              tabIndex={null}
+              width={670}
+            />
+          )}
+        </WindowScroller>
       </div>
     );
   }

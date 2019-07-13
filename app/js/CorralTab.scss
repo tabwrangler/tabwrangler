@@ -1,3 +1,14 @@
+@import '../css/_includes';
+
+.corral-tab--control-bar {
+  background: $body-bg;
+  display: flex;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
 /*
  * Table (the virtual one)
  */

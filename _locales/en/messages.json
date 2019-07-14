@@ -233,6 +233,10 @@
     "description": "Input title for number of tabs to remember",
     "message": "Must be a number greater than or equal to 0"
   },
+  "options_option_saveSortOrder": {
+    "description": "Label for toggling saving sort order in Corral and Lock Tabs",
+    "message": "Save sort order"
+  },
   "options_option_showBadgeCount_label": {
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
     "message": "Show # of closed tabs on the toolbar button"

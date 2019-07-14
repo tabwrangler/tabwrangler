@@ -11,10 +11,8 @@ import extractHostname from './extractHostname';
 import extractRootDomain from './extractRootDomain';
 import { removeSavedTabs } from './actions/localStorageActions';
 
-const TW = chrome.extension.getBackgroundPage().TW;
-
 // Unpack TW.
-const { tabmanager } = TW;
+const { settings, tabmanager } = chrome.extension.getBackgroundPage().TW;
 
 function keywordFilter(keyword: string) {
   return function(tab: chrome$Tab) {
@@ -24,12 +22,14 @@ function keywordFilter(keyword: string) {
 }
 
 type Sorter = {
+  key: string,
   label: string,
   shortLabel: string,
   sort: (a: ?chrome$Tab, b: ?chrome$Tab) => number,
 };
 
 const AlphaSorter: Sorter = {
+  key: 'alpha',
   label: chrome.i18n.getMessage('corral_sortPageTitle') || '',
   shortLabel: chrome.i18n.getMessage('corral_sortPageTitle_short') || '',
   sort(tabA, tabB) {
@@ -42,6 +42,7 @@ const AlphaSorter: Sorter = {
 };
 
 const ReverseAlphaSorter: Sorter = {
+  key: 'reverseAlpha',
   label: chrome.i18n.getMessage('corral_sortPageTitle_descending') || '',
   shortLabel: chrome.i18n.getMessage('corral_sortPageTitle_descending_short') || '',
   sort(tabA, tabB) {
@@ -50,6 +51,7 @@ const ReverseAlphaSorter: Sorter = {
 };
 
 const ChronoSorter: Sorter = {
+  key: 'chrono',
   label: chrome.i18n.getMessage('corral_sortTimeClosed') || '',
   shortLabel: chrome.i18n.getMessage('corral_sortTimeClosed_short') || '',
   sort(tabA, tabB) {
@@ -63,6 +65,7 @@ const ChronoSorter: Sorter = {
 };
 
 const ReverseChronoSorter: Sorter = {
+  key: 'reverseChrono',
   label: chrome.i18n.getMessage('corral_sortTimeClosed_descending') || '',
   shortLabel: chrome.i18n.getMessage('corral_sortTimeClosed_descending_short') || '',
   sort(tabA, tabB) {
@@ -71,6 +74,7 @@ const ReverseChronoSorter: Sorter = {
 };
 
 const DomainSorter: Sorter = {
+  key: 'domain',
   label: chrome.i18n.getMessage('corral_sortDomain') || '',
   shortLabel: chrome.i18n.getMessage('corral_sortDomain_short') || '',
   sort(tabA, tabB) {
@@ -95,6 +99,7 @@ const DomainSorter: Sorter = {
 };
 
 const ReverseDomainSorter: Sorter = {
+  key: 'reverseDomain',
   label: chrome.i18n.getMessage('corral_sortDomain_descending') || '',
   shortLabel: chrome.i18n.getMessage('corral_sortDomain_descending_short') || '',
   sort(tabA, tabB) {
@@ -102,6 +107,7 @@ const ReverseDomainSorter: Sorter = {
   },
 };
 
+const DEFAULT_SORTER = ReverseChronoSorter;
 const Sorters: Array<Sorter> = [
   DomainSorter,
   ReverseDomainSorter,
@@ -159,6 +165,7 @@ type Props = {
 type State = {
   filter: string,
   isSortDropdownOpen: boolean,
+  savedSortOrder: ?string,
   selectedTabs: Set<chrome$Tab>,
   sorter: Sorter,
 };
@@ -171,11 +178,21 @@ class CorralTab extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    const savedSortOrder = settings.get('corralTabSortOrder');
+    let sorter =
+      savedSortOrder == null
+        ? DEFAULT_SORTER
+        : Sorters.find(sorter => sorter.key === savedSortOrder);
+
+    // If settings somehow stores a bad value, always fall back to default order.
+    if (sorter == null) sorter = DEFAULT_SORTER;
+
     this.state = {
       filter: '',
       isSortDropdownOpen: false,
+      savedSortOrder,
       selectedTabs: new Set(),
-      sorter: ReverseChronoSorter,
+      sorter,
     };
   }
 
@@ -211,11 +228,18 @@ class CorralTab extends React.Component<Props, State> {
     // style. Prevent default on the event in order to prevent scrolling to the top of the window
     // (the default action for an empty anchor "#").
     event.preventDefault();
+
     if (sorter === this.state.sorter) {
       // If this is already the active sorter, close the dropdown and do no work since the state is
       // already correct.
       this.setState({ isSortDropdownOpen: false });
     } else {
+      // When the saved sort order is not null then the user wants to preserve it. Update to the
+      // new sort order and persist it.
+      if (settings.get('corralTabSortOrder') != null) {
+        settings.set('corralTabSortOrder', sorter.key);
+      }
+
       this.setState({
         isSortDropdownOpen: false,
         sorter,
@@ -227,6 +251,16 @@ class CorralTab extends React.Component<Props, State> {
     const filteredTabs = this._searchTabs();
     return filteredTabs.sort(this.state.sorter.sort);
   }
+
+  _handleChangeSaveSortOrder = (event: SyntheticInputEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      settings.set('corralTabSortOrder', this.state.sorter.key);
+      this.setState({ savedSortOrder: this.state.sorter.key });
+    } else {
+      settings.set('corralTabSortOrder', null);
+      this.setState({ savedSortOrder: null });
+    }
+  };
 
   _handleKeypress = (event: SyntheticKeyboardEvent<>) => {
     if (event.key !== '/') return;
@@ -481,6 +515,23 @@ class CorralTab extends React.Component<Props, State> {
                     {sorter.label}
                   </a>
                 ))}
+                <div className="dropdown-divider" />
+                <form className="px-4 pb-1">
+                  <div className="form-group mb-0">
+                    <div className="form-check">
+                      <input
+                        checked={this.state.savedSortOrder != null}
+                        className="form-check-input"
+                        id="corral-tab--save-sort-order"
+                        onChange={this._handleChangeSaveSortOrder}
+                        type="checkbox"
+                      />
+                      <label className="form-check-label" htmlFor="corral-tab--save-sort-order">
+                        {chrome.i18n.getMessage('options_option_saveSortOrder')}
+                      </label>
+                    </div>
+                  </div>
+                </form>
               </div>
             </div>
           </div>

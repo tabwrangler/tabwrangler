@@ -12,6 +12,9 @@ const Settings = {
     // How often we check for old tabs.
     checkInterval: 5000,
 
+    // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
+    corralTabSortOrder: null,
+
     // wait 1 second before updating an active tab
     debounceOnActivated: false,
 
@@ -20,6 +23,9 @@ const Settings = {
 
     // An array of tabids which have been explicitly locked by the user.
     lockedIds: [],
+
+    // Saved sort order for list of open tabs. When null, default sort is used (tab order)
+    lockTabSortOrder: null,
 
     // Max number of tabs stored before the list starts getting truncated.
     maxTabs: 100,

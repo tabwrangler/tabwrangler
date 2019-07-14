@@ -7,15 +7,17 @@ import cx from 'classnames';
 import memoize from 'memoize-one';
 
 // Unpack TW.
-const { tabmanager } = chrome.extension.getBackgroundPage().TW;
+const { settings, tabmanager } = chrome.extension.getBackgroundPage().TW;
 
 type Sorter = {
+  key: string,
   label: string,
   shortLabel: string,
   sort: (a: ?chrome$Tab, b: ?chrome$Tab) => number,
 };
 
 const ChronoSorter: Sorter = {
+  key: 'chrono',
   label: chrome.i18n.getMessage('tabLock_sort_timeUntilClose') || '',
   shortLabel: chrome.i18n.getMessage('tabLock_sort_timeUntilClose_short') || '',
   sort(tabA, tabB) {
@@ -34,6 +36,7 @@ const ChronoSorter: Sorter = {
 };
 
 const ReverseChronoSorter: Sorter = {
+  key: 'reverseChrono',
   label: chrome.i18n.getMessage('tabLock_sort_timeUntilClose_desc') || '',
   shortLabel: chrome.i18n.getMessage('tabLock_sort_timeUntilClose_desc_short') || '',
   sort(tabA, tabB) {
@@ -42,6 +45,7 @@ const ReverseChronoSorter: Sorter = {
 };
 
 const TabOrderSorter: Sorter = {
+  key: 'tabOrder',
   label: chrome.i18n.getMessage('tabLock_sort_tabOrder') || '',
   shortLabel: chrome.i18n.getMessage('tabLock_sort_tabOrder_short') || '',
   sort(tabA, tabB) {
@@ -56,6 +60,7 @@ const TabOrderSorter: Sorter = {
 };
 
 const ReverseTabOrderSorter: Sorter = {
+  key: 'reverseTabOrder',
   label: chrome.i18n.getMessage('tabLock_sort_tabOrder_desc') || '',
   shortLabel: chrome.i18n.getMessage('tabLock_sort_tabOrder_desc_short') || '',
   sort(tabA, tabB) {
@@ -63,10 +68,12 @@ const ReverseTabOrderSorter: Sorter = {
   },
 };
 
+const DEFAULT_SORTER = TabOrderSorter;
 const Sorters = [TabOrderSorter, ReverseTabOrderSorter, ChronoSorter, ReverseChronoSorter];
 
 type State = {
   isSortDropdownOpen: boolean,
+  savedSortOrder: ?string,
   sorter: Sorter,
   tabs: Array<chrome$Tab>,
 };
@@ -78,9 +85,19 @@ export default class LockTab extends React.PureComponent<{}, State> {
 
   constructor() {
     super();
+    const savedSortOrder = settings.get('lockTabSortOrder');
+    let sorter =
+      savedSortOrder == null
+        ? DEFAULT_SORTER
+        : Sorters.find(sorter => sorter.key === savedSortOrder);
+
+    // If settings somehow stores a bad value, always fall back to default order.
+    if (sorter == null) sorter = DEFAULT_SORTER;
+
     this.state = {
       isSortDropdownOpen: false,
-      sorter: TabOrderSorter,
+      savedSortOrder,
+      sorter,
       tabs: [],
     };
   }
@@ -107,17 +124,34 @@ export default class LockTab extends React.PureComponent<{}, State> {
     // style. Prevent default on the event in order to prevent scrolling to the top of the window
     // (the default action for an empty anchor "#").
     event.preventDefault();
+
     if (sorter === this.state.sorter) {
       // If this is already the active sorter, close the dropdown and do no work since the state is
       // already correct.
       this.setState({ isSortDropdownOpen: false });
     } else {
+      // When the saved sort order is not null then the user wants to preserve it. Update to the
+      // new sort order and persist it.
+      if (settings.get('lockTabSortOrder') != null) {
+        settings.set('lockTabSortOrder', sorter.key);
+      }
+
       this.setState({
         isSortDropdownOpen: false,
         sorter,
       });
     }
   }
+
+  _handleChangeSaveSortOrder = (event: SyntheticInputEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      settings.set('lockTabSortOrder', this.state.sorter.key);
+      this.setState({ savedSortOrder: this.state.sorter.key });
+    } else {
+      settings.set('lockTabSortOrder', null);
+      this.setState({ savedSortOrder: null });
+    }
+  };
 
   _handleToggleTab = (tab: chrome$Tab, selected: boolean, multiselect: boolean) => {
     let tabsToToggle = [tab];
@@ -199,6 +233,23 @@ export default class LockTab extends React.PureComponent<{}, State> {
                   {sorter.label}
                 </a>
               ))}
+              <div className="dropdown-divider" />
+              <form className="px-4 pb-1">
+                <div className="form-group mb-0">
+                  <div className="form-check">
+                    <input
+                      checked={this.state.savedSortOrder != null}
+                      className="form-check-input"
+                      id="lock-tab--save-sort-order"
+                      onChange={this._handleChangeSaveSortOrder}
+                      type="checkbox"
+                    />
+                    <label className="form-check-label" htmlFor="lock-tab--save-sort-order">
+                      {chrome.i18n.getMessage('options_option_saveSortOrder')}
+                    </label>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
         </div>

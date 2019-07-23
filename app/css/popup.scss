@@ -56,3 +56,114 @@ body {
     justify-content: flex-start;
   }
 }
+
+$dark-mode-bg-color: #272b30;
+$dark-mode-color: #ddd;
+$dark-mode-link-color: #67c4e0;
+$dark-mode-nav-border-color: rgba(0, 0, 0, 0.6);
+
+/**
+ * Dark mode
+ */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: $dark-mode-bg-color;
+    color: $dark-mode-color;
+  }
+
+  code {
+    color: lighten(#e83e8c, 15%);
+  }
+
+  a,
+  .btn-link {
+    color: $dark-mode-link-color;
+  }
+
+  a:hover,
+  .btn-link:hover {
+    color: lighten($dark-mode-link-color, 10%);
+  }
+
+  .btn:not(.btn-link) {
+    border-color: lighten($dark-mode-bg-color, 30%);
+  }
+
+  .btn-outline-dark {
+    color: $dark-mode-color;
+  }
+
+  .btn-outline-dark.disabled,
+  .btn-outline-dark:disabled {
+    color: darken($dark-mode-color, 15%);
+  }
+
+  .border-bottom {
+    border-bottom-color: $dark-mode-nav-border-color !important;
+  }
+
+  .dropdown-divider,
+  div.ReactVirtualized__Table__row {
+    border-top-color: $dark-mode-nav-border-color;
+  }
+
+  .dropdown-menu {
+    background-color: lighten($dark-mode-bg-color, 10%);
+    color: $dark-mode-color;
+  }
+
+  .dropdown-item {
+    color: $dark-mode-color;
+  }
+
+  .nav-tabs {
+    border-bottom-color: $dark-mode-nav-border-color;
+  }
+
+  .nav-tabs .nav-link:hover,
+  .nav-tabs .nav-link:focus {
+    border-color: $dark-mode-nav-border-color;
+  }
+
+  .nav-tabs .nav-link.active,
+  .nav-tabs .nav-item.show .nav-link {
+    background-color: $dark-mode-bg-color;
+    border-color: $dark-mode-nav-border-color $dark-mode-nav-border-color $dark-mode-bg-color;
+    color: $dark-mode-color;
+  }
+
+  #popup .corral-tab--control-bar {
+    background-color: $dark-mode-bg-color;
+  }
+
+  .table {
+    color: $dark-mode-color;
+  }
+
+  .table-warning,
+  .table-warning > th,
+  .table-warning > td {
+    background-color: #f39c12;
+  }
+
+  .table-warning th,
+  .table-warning td,
+  .table-warning thead th,
+  .table-warning tbody + tbody {
+    border-color: #f9cc84;
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+    color: $dark-mode-color;
+  }
+
+  .table-warning,
+  .table-warning tbody tr:hover {
+    color: $body-color;
+  }
+
+  .text-muted {
+    color: lighten(#6c757d, 40%) !important;
+  }
+}

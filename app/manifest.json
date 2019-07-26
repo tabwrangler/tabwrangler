@@ -1,8 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_extName__",
-  "version": "6.6.4",
-
+  "version": "6.7.0",
   "default_locale": "en",
   "description": "__MSG_extDescription__",
   "icons": {
@@ -10,13 +9,11 @@
     "48": "img/icon48.png",
     "16": "img/icon16.png"
   },
-
   "browser_action": {
     "default_title": "__MSG_extName__",
     "default_icon": "img/icon.png",
     "default_popup": "popup.html"
   },
-
   "background": {
     "page": "background.html"
   },

@@ -101,6 +101,26 @@ usages are described in the following table:
 Tab Wrangler does not transmit any data about you or your usage of Tab Wrangler. There is no
 tracking, there are no analytics, and there are no advertisements.
 
+Tab Wrangler **does not have** nor does it request the ability to read information on the web
+pages that you visit. Tab Wrangler is able to read the title and current location (the URL) of
+your tabs but not the content inside those tabs.
+
+### Explanation of Requested Permissions
+
+Tab Wrangler's requested permissions are listed in its [manifest.json][manifest.json] under the
+`"permissions"` key.
+
+* [`"contextMenus"`][3] Enables a "Tab Wrangler" menu item when you right click on a webpage that
+  lets you send the tab to the Tab Corral, lock that tab, or lock all tabs on that domain.
+* [`"sessions"`][4] Enables Tab Wrangler to read and restore the full history of a tab including
+  enabling the back/forward buttons and your scroll position on the page.
+* [`"storage"`][5]: Enables Tab Wrangler to sync your Tab Wrangler settings with your browser
+  account and enables saving your closed tabs to your local computer. *Note: closed tabs are not
+  synced because the "sync" storage area has only a small amount of storage.*
+* [`"tabs"`][6]: Enables Tab Wrangler to read the title and location of any current tabs as well
+  as close those tabs and open new tabs. This permission **does not** enable Tab Wrangler to
+  read information on web pages that you visit.
+
 ## Contributing
 
 ### Translation
@@ -128,3 +148,8 @@ working and tested, submit a pull request to this primary project and we'll get 
 [0]: https://chrome.google.com/sync
 [1]: https://crowdin.com/project/tab-wrangler
 [2]: CONTRIBUTING.md#developing
+[3]: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/user_interface/Context_menu_items
+[4]: https://developer.chrome.com/extensions/sessions
+[5]: https://developer.chrome.com/extensions/storage
+[6]: https://developer.chrome.com/extensions/tabs
+[manifest.json]: https://github.com/tabwrangler/tabwrangler/blob/master/app/manifest.json

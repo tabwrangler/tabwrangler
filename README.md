@@ -11,6 +11,7 @@ focus on the tabs that matter
   * [Backup & Restore](#back-up--restore)
   * [Settings](#settings)
 * [Privacy Policy](#privacy-policy)
+  * [Explanation of Requested Permissions](#explanation-of-requested-permissions)
 * [Contributing](#contributing)
   * [Translation](#translation)
   * [Development](#development)

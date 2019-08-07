@@ -188,8 +188,8 @@ export default class LockTab extends React.PureComponent<{}, State> {
     }
   };
 
-  _getSortedTabs = memoize((tabs, sorter) => {
-    return tabs.slice().sort(sorter.sort);
+  _getSortedTabs = memoize((tabs: Array<chrome$Tab>, sorter: Sorter) => {
+    return (tabs.slice(): any).sort(sorter.sort);
   });
 
   _toggleSortDropdown = () => {

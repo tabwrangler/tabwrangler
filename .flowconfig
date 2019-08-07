@@ -1,6 +1,10 @@
+[include]
+
 [ignore]
 
-[include]
+[untyped]
+<PROJECT_ROOT>/node_modules/redux-persist/lib/integration/react.js.flow
+<PROJECT_ROOT>/node_modules/redux-persist/lib/persistReducer.js.flow
 
 [libs]
 ./app/tabwrangler.js.flow

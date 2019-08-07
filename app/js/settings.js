@@ -57,7 +57,7 @@ const Settings = {
 
   // Gets all settings from sync and stores them locally.
   init() {
-    const keys = [];
+    const keys: Array<string> = [];
     for (const i in this.defaults) {
       if (Object.prototype.hasOwnProperty.call(this.defaults, i)) {
         this.cache[i] = this.defaults[i];

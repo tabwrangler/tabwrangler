@@ -11,7 +11,7 @@ import {
 
 type StoreAction = LocalStorageAction | TempStorageAction;
 
-type AppState = {
+export type AppState = {
   localStorage: LocalStorageState,
   tempStorage: TempStorageState,
 };

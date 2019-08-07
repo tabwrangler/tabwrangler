@@ -7,7 +7,7 @@ import localStorageReducer from './reducers/localStorageReducer';
 import tempStorageReducer from './reducers/tempStorageReducer';
 import thunk from 'redux-thunk';
 
-const PRE_V6_STORAGE_KEYS = [
+const PRE_V6_STORAGE_KEYS: Array<string> = [
   'installDate',
   'savedTabs',
   'totalTabsRemoved',

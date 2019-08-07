@@ -15,7 +15,6 @@ module.exports = {
     ecmaVersion: 2015,
     sourceType: 'module',
   },
-  plugins: ['flowtype', 'react'],
   rules: {
     // Rules included in ESLint
     'comma-dangle': [2, 'always-multiline'],

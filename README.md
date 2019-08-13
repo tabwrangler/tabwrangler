@@ -1,6 +1,8 @@
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/tab-wrangler/localized.svg)](https://crowdin.com/project/tab-wrangler)
+ [![Crowdin](https://d322cqt584bo4o.cloudfront.net/tab-wrangler/localized.svg)](https://crowdin.com/project/tab-wrangler)
 
-# Tab Wrangler
+<h1 align="center">
+ Tab Wrangler
+</h1>
 
 A Chrome & Firefox extension that automatically closes tabs you haven't used in a while so you can
 focus on the tabs that matter

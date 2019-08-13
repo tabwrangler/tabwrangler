@@ -550,9 +550,19 @@ class CorralTab extends React.Component<Props, State> {
               rowCount={closedTabs.length}
               rowGetter={({ index }) => {
                 const tab = closedTabs[index];
-                const session = this.props.sessions.find(session =>
-                  sessionFuzzyMatchesTab(session, tab)
-                );
+
+                // The Chrome extension API claims [`getRecentlyClosed`][0] always returns an
+                // Array<chrome$Session>, but in at least one case a user is getting an exception
+                // where `this.props.sessions` is null. Because it's safe to continue without
+                // Sessions, do a null check and continue on unless a more thorough solution is
+                // eventually found.
+                //
+                // See https://github.com/tabwrangler/tabwrangler/issues/275
+                const session =
+                  this.props.sessions == null
+                    ? null
+                    : this.props.sessions.find(session => sessionFuzzyMatchesTab(session, tab));
+
                 return {
                   isSelected: this.state.selectedTabs.has(tab),
                   onOpenTab: this.openTab,
@@ -581,3 +591,5 @@ export default connect(state => ({
   totalTabsRemoved: state.localStorage.totalTabsRemoved,
   totalTabsWrangled: state.localStorage.totalTabsWrangled,
 }))(CorralTab);
+
+// [0]: https://developer.chrome.com/extensions/sessions#method-getRecentlyClosed

@@ -1,12 +1,12 @@
-/* @flow */
 /* eslint-env node */
 
 const CrowdinApi = require('crowdin-api');
+const PluginError = require('plugin-error');
 const eslint = require('gulp-eslint');
 const gulp = require('gulp');
-const gutil = require('gulp-util');
 const ignore = require('gulp-ignore');
 const jest = require('gulp-jest').default;
+const log = require('fancy-log');
 const rename = require('gulp-rename');
 const rimraf = require('rimraf');
 const unzip = require('gulp-unzip');
@@ -108,7 +108,7 @@ gulp.task('test', function() {
 });
 
 function webpackLog(stats) {
-  gutil.log(
+  log(
     '[webpack]',
     stats.toString({
       chunks: false, // Limit chunk information output; it's slow and not too useful
@@ -120,7 +120,7 @@ function webpackLog(stats) {
 
 gulp.task('webpack', function(done) {
   return webpack(webpackConfig, function(err, stats) {
-    if (err) throw new gutil.PluginError('webpack', err);
+    if (err) throw new PluginError('webpack', err);
     webpackLog(stats);
     done();
   });
@@ -128,7 +128,7 @@ gulp.task('webpack', function(done) {
 
 gulp.task('webpack:production', function(done) {
   return webpack(webpackProductionConfig, function(err, stats) {
-    if (err) throw new gutil.PluginError('webpack', err);
+    if (err) throw new PluginError('webpack', err);
     webpackLog(stats);
     done();
   });
@@ -141,7 +141,7 @@ gulp.task('webpack:watch', function(done) {
       return Object.assign({}, { watch: true }, platformConfig);
     }),
     function(err, stats) {
-      if (err) throw new gutil.PluginError('webpack', err);
+      if (err) throw new PluginError('webpack', err);
       webpackLog(stats);
 
       // Call Gulp's `done` callback only once per watch. Calling it more than once is an error.

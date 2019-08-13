@@ -1,3 +1,4 @@
+/* @flow */
 /* eslint-env node */
 
 const CrowdinApi = require('crowdin-api');
@@ -8,9 +9,7 @@ const ignore = require('gulp-ignore');
 const jest = require('gulp-jest').default;
 const rename = require('gulp-rename');
 const rimraf = require('rimraf');
-const runSequence = require('run-sequence');
 const unzip = require('gulp-unzip');
-const watch = require('gulp-watch');
 const webpack = require('webpack');
 const webpackConfig = require('./webpack.config.js');
 const webpackProductionConfig = require('./webpack.production.config.js');
@@ -155,25 +154,21 @@ gulp.task('webpack:watch', function(done) {
 });
 
 // Watch and re-compile / re-lint when in development.
-// eslint-disable-next-line no-unused-vars
-gulp.task('watch', function(done) {
-  watch('app/**/*.js', function() {
-    gulp.start('lint');
-    gulp.start('test');
-  });
-  watch('__tests__/**/*.js', function() {
-    gulp.start('lint');
-    gulp.start('test');
-  });
-  gulp.start(['lint', 'test', 'webpack:watch']);
-});
+gulp.task(
+  'watch',
+  gulp.series(
+    'clean',
+    function lintAndTest(done) {
+      // Run lint and test on first execution to get results, but don't prevent Webpack from
+      // starting up. This way you need to run `yarn start` at most 1 time to get compilation
+      // started.
+      gulp.watch('app/**/*.js', { ignoreInitial: false }, gulp.parallel('lint', 'test'));
+      gulp.watch('__tests__/**/*.js', gulp.parallel('lint', 'test'));
+      done();
+    },
+    'webpack:watch'
+  )
+);
 
-gulp.task('release', function(done) {
-  runSequence('clean', 'lint', 'test', 'webpack:production', function() {
-    done();
-  });
-});
-
-gulp.task('default', function(done) {
-  runSequence('lint', 'webpack', done);
-});
+gulp.task('release', gulp.series('clean', gulp.parallel('lint', 'test'), 'webpack:production'));
+gulp.task('default', gulp.series('lint', 'webpack'));

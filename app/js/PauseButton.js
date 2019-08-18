@@ -6,7 +6,6 @@ import React from 'react';
 const { settings } = chrome.extension.getBackgroundPage().TW;
 
 export default function PauseButton() {
-  // $FlowFixMe Upgrade Flow to get latest React types
   const [paused, setPaused] = React.useState(settings.get('paused'));
 
   function pause() {

@@ -1,10 +1,14 @@
+[declarations]
+<PROJECT_ROOT>/node_modules/redux-persist/lib/createTransform.js.flow
+<PROJECT_ROOT>/node_modules/redux-persist/lib/persistReducer.js.flow
+
 [include]
 
 [ignore]
 
 [untyped]
 <PROJECT_ROOT>/node_modules/redux-persist/lib/integration/react.js.flow
-<PROJECT_ROOT>/node_modules/redux-persist/lib/persistReducer.js.flow
+<PROJECT_ROOT>/node_modules/redux-persist/lib/persistStore.js.flow
 
 [libs]
 ./app/tabwrangler.js.flow
@@ -12,4 +16,5 @@ node_modules/flow-interfaces-chrome/interfaces/
 
 [options]
 emoji=true
+exact_by_default=true
 module.name_mapper.extension='scss' -> '<PROJECT_ROOT>/app/__mocks__/styleMock.js'

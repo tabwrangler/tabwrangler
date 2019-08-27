@@ -145,7 +145,6 @@ function rowRenderer({ key, rowData, style }) {
       key={key}
       onOpenTab={rowData.onOpenTab}
       onRemoveTab={rowData.onRemoveTab}
-      onRestoreSession={rowData.onRestoreSession}
       onToggleTab={rowData.onToggleTab}
       session={rowData.session}
       style={style}

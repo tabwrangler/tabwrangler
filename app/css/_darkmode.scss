@@ -1,9 +1,9 @@
 @import './_includes';
 
-$dark-mode-bg-color: rgb(51, 54, 57);
-$dark-mode-color: #ddd;
-$dark-mode-danger: rgba(255, 197, 0, 0.21);
-$dark-mode-link-color: #67c4e0;
+$dark-mode-bg-color: rgb(44, 44, 46);
+$dark-mode-color: #fff;
+$dark-mode-danger: darken(rgb(255, 159, 10), 20%);
+$dark-mode-link-color: rgb(64, 156, 255);
 $dark-mode-nav-border-color: rgba(0, 0, 0, 0.45);
 
 /**
@@ -60,6 +60,19 @@ $dark-mode-nav-border-color: rgba(0, 0, 0, 0.45);
     color: $dark-mode-color;
   }
 
+  .form-control {
+    background-color: rgb(28, 28, 30);
+    border-color: #101012;
+    color: $dark-mode-color;
+
+    &:focus {
+      background-color: rgb(28, 28, 30);
+      border-color: darken(#80bdff, 30%);
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+      color: $dark-mode-color;
+    }
+  }
+
   .nav-tabs {
     border-bottom-color: $dark-mode-nav-border-color;
   }
@@ -111,6 +124,11 @@ $dark-mode-nav-border-color: rgba(0, 0, 0, 0.45);
   .table-warning thead th,
   .table-warning tbody + tbody {
     border-color: lighten($dark-mode-danger, 10%);
+  }
+
+  .table-warning a {
+    color: $dark-mode-color;
+    text-decoration: underline;
   }
 
   .table-hover tbody tr:hover {

@@ -1,8 +1,8 @@
 @import './_includes';
 
 $dark-mode-bg-color: rgb(44, 44, 46);
-$dark-mode-color: #fff;
-$dark-mode-danger: darken(rgb(255, 159, 10), 20%);
+$dark-mode-color: #ffffff;
+$dark-mode-table-warning: rgba(255, 255, 255, 0.075);
 $dark-mode-link-color: rgb(64, 156, 255);
 $dark-mode-nav-border-color: rgba(0, 0, 0, 0.45);
 
@@ -106,42 +106,45 @@ $dark-mode-nav-border-color: rgba(0, 0, 0, 0.45);
     border-bottom-color: $dark-mode-nav-border-color;
   }
 
-  .table-warning,
+  .table-warning {
+    background-color: transparent;
+  }
+
   .table-warning > th,
   .table-warning > td {
-    background-color: $dark-mode-danger;
+    background-color: $dark-mode-table-warning;
     color: $dark-mode-color;
   }
 
   .table-hover .table-warning:hover,
   .table-hover .table-warning:hover > th,
   .table-hover .table-warning:hover > td {
-    background-color: lighten($dark-mode-danger, 5%);
+    background-color: lighten($dark-mode-table-warning, 5%);
   }
 
   .table-warning th,
   .table-warning td,
   .table-warning thead th,
   .table-warning tbody + tbody {
-    border-color: lighten($dark-mode-danger, 10%);
-  }
-
-  .table-warning a {
-    color: $dark-mode-color;
-    text-decoration: underline;
+    border-color: lighten($dark-mode-table-warning, 10%);
   }
 
   .table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.075);
+    background-color: $dark-mode-table-warning;
     color: $dark-mode-color;
   }
 
   .table-hover .ReactVirtualized__Table__row.table-warning {
-    border-color: darken($dark-mode-danger, 5%);
+    background-color: $dark-mode-table-warning;
+    border-color: lighten($dark-mode-table-warning, 10%);
+  }
+
+  .table-hover .ReactVirtualized__Table__row.table-warning:hover {
+    background-color: rgba(255, 255, 255, 0.15);
   }
 
   .table-hover .ReactVirtualized__Table__row:not(.table-warning):hover {
-    background-color: rgba(255, 255, 255, 0.075) !important;
+    background-color: $dark-mode-table-warning !important;
   }
 
   .text-muted {

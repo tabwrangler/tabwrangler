@@ -1,0 +1,153 @@
+@import './_includes';
+
+$dark-mode-bg-color: rgb(44, 44, 46);
+$dark-mode-color: #ffffff;
+$dark-mode-table-warning: rgba(255, 255, 255, 0.075);
+$dark-mode-link-color: rgb(64, 156, 255);
+$dark-mode-nav-border-color: rgba(0, 0, 0, 0.45);
+
+/**
+ * Dark mode
+ */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: $dark-mode-bg-color;
+    color: $dark-mode-color;
+  }
+
+  code {
+    color: lighten(#e83e8c, 15%);
+  }
+
+  a,
+  .btn-link {
+    color: $dark-mode-link-color;
+  }
+
+  a:hover,
+  .btn-link:hover {
+    color: lighten($dark-mode-link-color, 10%);
+  }
+
+  .btn:not(.btn-link) {
+    border-color: lighten($dark-mode-bg-color, 30%);
+  }
+
+  .btn-outline-dark {
+    color: $dark-mode-color;
+  }
+
+  .btn-outline-dark.disabled,
+  .btn-outline-dark:disabled {
+    color: darken($dark-mode-color, 15%);
+  }
+
+  .border-bottom {
+    border-bottom-color: $dark-mode-nav-border-color !important;
+  }
+
+  .dropdown-divider,
+  div.ReactVirtualized__Table__row {
+    border-top-color: $dark-mode-nav-border-color;
+  }
+
+  .dropdown-menu {
+    background-color: lighten($dark-mode-bg-color, 10%);
+    color: $dark-mode-color;
+  }
+
+  .dropdown-item {
+    color: $dark-mode-color;
+  }
+
+  .form-control {
+    background-color: rgb(28, 28, 30);
+    border-color: #101012;
+    color: $dark-mode-color;
+
+    &:focus {
+      background-color: rgb(28, 28, 30);
+      border-color: darken(#80bdff, 30%);
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+      color: $dark-mode-color;
+    }
+  }
+
+  .nav-tabs {
+    border-bottom-color: $dark-mode-nav-border-color;
+  }
+
+  .nav-tabs .nav-link:hover,
+  .nav-tabs .nav-link:focus {
+    border-color: $dark-mode-nav-border-color;
+  }
+
+  .nav-tabs .nav-link.active,
+  .nav-tabs .nav-item.show .nav-link {
+    background-color: $dark-mode-bg-color;
+    border-color: $dark-mode-nav-border-color $dark-mode-nav-border-color $dark-mode-bg-color;
+    color: $dark-mode-color;
+  }
+
+  #popup .corral-tab--control-bar {
+    background-color: $dark-mode-bg-color;
+  }
+
+  .table {
+    color: $dark-mode-color;
+  }
+
+  .table td,
+  .table th {
+    border-top-color: $dark-mode-nav-border-color;
+  }
+
+  .table thead th {
+    border-bottom-color: $dark-mode-nav-border-color;
+  }
+
+  .table-warning {
+    background-color: transparent;
+  }
+
+  .table-warning > th,
+  .table-warning > td {
+    background-color: $dark-mode-table-warning;
+    color: $dark-mode-color;
+  }
+
+  .table-hover .table-warning:hover,
+  .table-hover .table-warning:hover > th,
+  .table-hover .table-warning:hover > td {
+    background-color: lighten($dark-mode-table-warning, 5%);
+  }
+
+  .table-warning th,
+  .table-warning td,
+  .table-warning thead th,
+  .table-warning tbody + tbody {
+    border-color: lighten($dark-mode-table-warning, 10%);
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: $dark-mode-table-warning;
+    color: $dark-mode-color;
+  }
+
+  .table-hover .ReactVirtualized__Table__row.table-warning {
+    background-color: $dark-mode-table-warning;
+    border-color: lighten($dark-mode-table-warning, 10%);
+  }
+
+  .table-hover .ReactVirtualized__Table__row.table-warning:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .table-hover .ReactVirtualized__Table__row:not(.table-warning):hover {
+    background-color: $dark-mode-table-warning !important;
+  }
+
+  .text-muted {
+    color: lighten(#6c757d, 40%) !important;
+  }
+}

@@ -83,6 +83,7 @@ export default function OpenTabRow(props: Props) {
           disabled={!isManuallyLockable(tab)}
           onClick={handleLockedOnClick}
           type="checkbox"
+          readOnly
         />
       </td>
       <td className="text-center" style={{ verticalAlign: 'middle', width: '32px' }}>

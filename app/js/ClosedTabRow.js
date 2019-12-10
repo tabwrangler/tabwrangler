@@ -60,6 +60,7 @@ export default function ClosedTabRow(props: Props) {
           className="checkbox--td"
           onClick={_handleClickCheckbox}
           type="checkbox"
+          readOnly
         />
       </div>
       <div

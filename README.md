@@ -95,7 +95,7 @@ usages are described in the following table:
 | `paused`              | `false`                   |                                                             | Whether TabWrangler is paused (shouldn't count down)                                                   |
 | `purgeClosedTabs`     | `false`                   |                                                             | Whether to empty the closed tab list when the browser closes                                           |
 | `secondsInactive`     | `0`                       | `0` <= `secondsInactive`                                    | How much time (+ `minutesInactive`) before a tab is considered "stale" and ready to close              |
-| `showBadgeCount`      | `true`                    |                                                             | Whether to show the length of the closed tab list as a badge on the URL bar icon                       |
+| `showBadgeCount`      | `false`                   |                                                             | Whether to show the length of the closed tab list as a badge on the URL bar icon                       |
 | `whitelist`           | `['about:', 'chrome://']` |                                                             | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed    |
 | `wrangleOption`       | `'withDupes'`             | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'` | How to handle duplicate entries in the closed tabs list                                                |
 

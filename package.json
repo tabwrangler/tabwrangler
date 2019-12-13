@@ -33,7 +33,7 @@
     "babel-jest": "^24.8.0",
     "babel-loader": "^8.0.2",
     "copy-webpack-plugin": "^4.5.1",
-    "core-js": "^3.1.4",
+    "core-js": "3",
     "crowdin-api": "^2.0.2",
     "css-loader": "^1.0.0",
     "eslint": "^6.1.0",
@@ -83,8 +83,8 @@
     "redux-persist-webextension-storage": "^1.0.0",
     "redux-thunk": "^2.3.0",
     "redux-watch": "^1.1.1",
-    "timeago-react": "2.0.0",
-    "timeago.js": "^3.0.2"
+    "timeago-react": "3.0.0",
+    "timeago.js": "4.0.1"
   },
   "jest": {
     "globals": {

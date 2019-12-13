@@ -201,5 +201,5 @@ test('should generate a unique file name based on a given date', () => {
   const date = new Date(2017, 3, 10);
   const uniqueFileName = exportFileName(date);
 
-  expect(uniqueFileName).toBe('TabWranglerExport-2017-04-10.json');
+  expect(uniqueFileName).toBe('TabWranglerExport-2017-04-09.json');
 });

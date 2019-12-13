@@ -6,11 +6,11 @@ import React from 'react';
 import TimeAgo from 'timeago-react';
 import cx from 'classnames';
 import extractHostname from './extractHostname';
-import timeago from 'timeago.js';
+import { register } from 'timeago.js';
 import timeagoLocale from './timeagoLocale';
 
 const uiLanguage = chrome.i18n.getUILanguage();
-timeago.register(uiLanguage, timeagoLocale[uiLanguage]);
+register(uiLanguage, timeagoLocale[uiLanguage]);
 
 type Props = {
   isSelected: boolean,
@@ -60,6 +60,7 @@ export default function ClosedTabRow(props: Props) {
           className="checkbox--td"
           onClick={_handleClickCheckbox}
           type="checkbox"
+          readOnly
         />
       </div>
       <div

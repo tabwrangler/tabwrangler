@@ -83,7 +83,7 @@
     "redux-persist-webextension-storage": "^1.0.0",
     "redux-thunk": "^2.3.0",
     "redux-watch": "^1.1.1",
-    "timeago-react": "^3.0.0",
+    "timeago-react": "^2.0.0",
     "timeago.js": "^3.0.2"
   },
   "jest": {

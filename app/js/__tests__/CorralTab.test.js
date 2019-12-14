@@ -35,11 +35,9 @@ describe('sessionFuzzyMatchesTab', () => {
     active: false,
     closedAt: 1524301399048, // non-standard expando property added by Tab Wrangler
     favIconUrl: 'https://news.ycombinator.com/favicon.ico',
-    hidden: false,
     highlighted: false,
     incognito: false,
     index: 5,
-    lastAccessed: 1524301399048,
     pinned: false,
     selected: false,
     sessionId: '20',
@@ -53,6 +51,7 @@ describe('sessionFuzzyMatchesTab', () => {
       lastModified: 1524301398548, // 500ms different than `closedAt`, within 1s "fuzzy" range
       tab,
     };
+    // $FlowFixMe TW tabs have non-standard `closedAt`
     expect(sessionFuzzyMatchesTab(session, tab)).toBe(true);
   });
 
@@ -61,6 +60,7 @@ describe('sessionFuzzyMatchesTab', () => {
       lastModified: 1524301399,
       tab,
     };
+    // $FlowFixMe TW tabs have non-standard `closedAt`
     expect(sessionFuzzyMatchesTab(session, tab)).toBe(true);
   });
 });

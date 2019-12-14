@@ -12,7 +12,9 @@ type MockInitialState = {
   tempStorage?: Object,
 };
 
-export default function configureMockStore(initialState: MockInitialState = {}) {
+export default function configureMockStore(
+  initialState: MockInitialState = { localStorage: null, tempStorage: null }
+) {
   return configureStore([thunk])<AppState, Action>({
     localStorage: {
       ...lsCreateInitialState(),

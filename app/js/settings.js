@@ -46,7 +46,7 @@ const Settings = {
     secondsInactive: 0,
 
     // When true, shows the number of closed tabs in the list as a badge on the browser icon.
-    showBadgeCount: true,
+    showBadgeCount: false,
 
     // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
     whitelist: ['about:', 'chrome://'],

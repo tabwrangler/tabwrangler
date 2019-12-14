@@ -25,6 +25,7 @@ setTimeout(() => {
 }, 1000);
 
 type Props = {
+  alt?: string,
   className?: string,
   height: number,
   src: ?string,
@@ -93,6 +94,7 @@ export default class LazyImage extends React.PureComponent<Props, State> {
         {this.props.src != null && this.state.loaded ? (
           <CSSTransition classNames="lazy-image" key="img" timeout={250}>
             <img
+              alt={this.props.alt}
               className={cx('lazy-image-img', this.props.className)}
               height={this.props.height}
               src={this.props.src}

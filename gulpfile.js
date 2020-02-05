@@ -30,8 +30,12 @@ gulp.task('clean', function(done) {
 //
 // [0]: https://crowdin.com/project/tab-wrangler
 gulp.task('l10n:import', function() {
-  const crowdinApi = new CrowdinApi({ apiKey: process.env.CROWDIN_API_KEY });
-  return crowdinApi.downloadAllTranslations('tab-wrangler').then(allTranslationsZip => {
+  const crowdinApi = new CrowdinApi({
+    apiKey: process.env.CROWDIN_API_KEY,
+    projectName: 'tab-wrangler',
+  });
+
+  return crowdinApi.downloadAllTranslations().then(allTranslationsZip => {
     return gulp
       .src(allTranslationsZip)
       .pipe(unzip())

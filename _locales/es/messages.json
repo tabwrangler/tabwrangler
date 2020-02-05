@@ -56,7 +56,7 @@
     "message": "Eliminar las pestañas seleccionadas"
   },
   "corral_restoreSelectedTabs": {
-    "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
     "message": "Restaurar pestañas cerradas"
   },
   "corral_searchResults_clear": {
@@ -138,7 +138,7 @@
     "message": "Nunca"
   },
   "options_importExport_description": {
-    "description": "Description of the import\/export feature shown next to import\/export buttons",
+    "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Exportar toda la información sobre pestañas cerradas. Es una opción útil para restaurar un antiguo estado después de reinstalar la extensión."
   },
   "options_importExport_export": {
@@ -183,7 +183,7 @@
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
-    "message": "Ejemplo: \"cnn\" detectaría todas las páginas en el dominio \"https:\/\/www.cnn.com\" y cualquier URL que contenga \"cnn\"."
+    "message": "Ejemplo: \"cnn\" detectaría todas las páginas en el dominio \"https://www.cnn.com\" y cualquier URL que contenga \"cnn\"."
   },
   "options_option_autoLock_label": {
     "description": "Label preceeding input for adding URL to whitelist",
@@ -258,8 +258,8 @@
     "message": "Auto-bloquear"
   },
   "options_section_importExport": {
-    "description": "Header for the import\/export feature section of the options tab",
-    "message": "Importar \/ Exportar"
+    "description": "Header for the import/export feature section of the options tab",
+    "message": "Importar / Exportar"
   },
   "options_section_keyboardShortcuts": {
     "description": "Header for the section containing keyboard shortcut configuration",
@@ -283,7 +283,7 @@
     "placeholders": {
       "pattern": {
         "content": "$1",
-        "example": "chrome:\/\/"
+        "example": "chrome://"
       }
     }
   },
@@ -317,7 +317,7 @@
   },
   "corral_tabsWrangled_formula": {
     "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "pestañas cerradas por Tab Wrangler \/ todas las pestañas cerradas"
+    "message": "pestañas cerradas por Tab Wrangler / todas las pestañas cerradas"
   },
   "corral_tabsWrangled_or": {
     "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",

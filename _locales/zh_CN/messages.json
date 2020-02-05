@@ -56,7 +56,7 @@
     "message": "移除选中标签页"
   },
   "corral_restoreSelectedTabs": {
-    "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
     "message": "还原选中标签页"
   },
   "corral_searchResults_clear": {
@@ -138,7 +138,7 @@
     "message": "从不"
   },
   "options_importExport_description": {
-    "description": "Description of the import\/export feature shown next to import\/export buttons",
+    "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "导出已贮藏标签页相关的所有信息。这对于重新安装扩展前准备以恢复旧有状态相当有用。"
   },
   "options_importExport_export": {
@@ -183,7 +183,7 @@
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
-    "message": "例子：\"cnn\" 可以匹配 \"https:\/\/www.cnn.com\" 的每个页面，或者任何网址（URL）含有 \"cnn\" 的页面。"
+    "message": "例子：\"cnn\" 可以匹配 \"https://www.cnn.com\" 的每个页面，或者任何网址（URL）含有 \"cnn\" 的页面。"
   },
   "options_option_autoLock_label": {
     "description": "Label preceeding input for adding URL to whitelist",
@@ -262,8 +262,8 @@
     "message": "自动锁定"
   },
   "options_section_importExport": {
-    "description": "Header for the import\/export feature section of the options tab",
-    "message": "导入 \/ 导出"
+    "description": "Header for the import/export feature section of the options tab",
+    "message": "导入 / 导出"
   },
   "options_section_keyboardShortcuts": {
     "description": "Header for the section containing keyboard shortcut configuration",
@@ -287,7 +287,7 @@
     "placeholders": {
       "pattern": {
         "content": "$1",
-        "example": "chrome:\/\/"
+        "example": "chrome://"
       }
     }
   },
@@ -321,7 +321,7 @@
   },
   "corral_tabsWrangled_formula": {
     "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "由 Tab Wrangler 关闭的标签页 \/ 所有已关闭的标签页"
+    "message": "由 Tab Wrangler 关闭的标签页 / 所有已关闭的标签页"
   },
   "corral_tabsWrangled_or": {
     "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",

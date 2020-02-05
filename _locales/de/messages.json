@@ -44,7 +44,7 @@
     "message": "Ausgewählte Tabs löschen"
   },
   "corral_restoreSelectedTabs": {
-    "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
     "message": "Ausgewählte Tabs wiederherstellen"
   },
   "corral_searchResults_clear": {
@@ -126,7 +126,7 @@
     "message": "Niemals"
   },
   "options_importExport_description": {
-    "description": "Description of the import\/export feature shown next to import\/export buttons",
+    "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Alle geschlossenen Tabs aus der Tab Liste exportieren. Das ist die einzige Möglichkeit ein Backup der geschlossen Tabs herzustellen und nach einer erneuten Installation der Extension den alten Zustand wiederherzustellen."
   },
   "options_importExport_exporting": {
@@ -163,7 +163,7 @@
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
-    "message": "Beispiel: \"cnn\" entspricht jeder Seite auf \"https:\/\/www.cnn.com\" und jeder URL mit \"cnn\" im Namen."
+    "message": "Beispiel: \"cnn\" entspricht jeder Seite auf \"https://www.cnn.com\" und jeder URL mit \"cnn\" im Namen."
   },
   "options_option_autoLock_label": {
     "description": "Label preceeding input for adding URL to whitelist",
@@ -259,7 +259,7 @@
     "placeholders": {
       "pattern": {
         "content": "$1",
-        "example": "chrome:\/\/"
+        "example": "chrome://"
       }
     }
   },
@@ -293,7 +293,7 @@
   },
   "corral_tabsWrangled_formula": {
     "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "Tabs von Tab Wrangler geschlossen\/ alle geschlossenen Tabs"
+    "message": "Tabs von Tab Wrangler geschlossen/ alle geschlossenen Tabs"
   },
   "corral_tabsWrangled_or": {
     "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",

@@ -56,7 +56,7 @@
     "message": "Удалить выбранные вкладки"
   },
   "corral_restoreSelectedTabs": {
-    "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
     "message": "Восстановить выбранные вкладки"
   },
   "corral_searchResults_clear": {
@@ -138,7 +138,7 @@
     "message": "Никогда"
   },
   "options_importExport_description": {
-    "description": "Description of the import\/export feature shown next to import\/export buttons",
+    "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Экспортируйте всю информацию о закрытых вкладках. Это удобный способ восстановления данных о вкладках после переустановки расширения."
   },
   "options_importExport_export": {
@@ -183,7 +183,7 @@
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
-    "message": "Например: \"cnn\" будет относится к каждой странице с адресом \"https:\/\/www.cnn.com\" и каждой ссылке, в которой присутствует \"cnn\"."
+    "message": "Например: \"cnn\" будет относится к каждой странице с адресом \"https://www.cnn.com\" и каждой ссылке, в которой присутствует \"cnn\"."
   },
   "options_option_autoLock_label": {
     "description": "Label preceeding input for adding URL to whitelist",
@@ -233,6 +233,10 @@
     "description": "Input title for number of tabs to remember",
     "message": "Здесь должно быть число, которое больше или равно 0"
   },
+  "options_option_saveSortOrder": {
+    "description": "Label for toggling saving sort order in Corral and Lock Tabs",
+    "message": "Сохранять сортировку"
+  },
   "options_option_showBadgeCount_label": {
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
     "message": "Показывать кол-во закрытых вкладок на иконке расширения"
@@ -262,8 +266,8 @@
     "message": "Зафиксированные вкладки"
   },
   "options_section_importExport": {
-    "description": "Header for the import\/export feature section of the options tab",
-    "message": "Импорт \/ Экспорт"
+    "description": "Header for the import/export feature section of the options tab",
+    "message": "Импорт / Экспорт"
   },
   "options_section_keyboardShortcuts": {
     "description": "Header for the section containing keyboard shortcut configuration",
@@ -287,7 +291,7 @@
     "placeholders": {
       "pattern": {
         "content": "$1",
-        "example": "chrome:\/\/"
+        "example": "chrome://"
       }
     }
   },
@@ -315,13 +319,45 @@
     "description": "Explanation of time remaining before tab is closed",
     "message": "Закрывается через..."
   },
+  "tabLock_sort_tabOrder": {
+    "description": "Description for sorting tabs by how they appear in browser",
+    "message": "Порядку вкладок"
+  },
+  "tabLock_sort_tabOrder_short": {
+    "description": "Short version of tabLock_sort_tabOrder",
+    "message": "Порядку вкладок"
+  },
+  "tabLock_sort_tabOrder_desc": {
+    "description": "Description for sorting tabs by how they appear in browser, in reverse",
+    "message": "Порядку вкладок (убывание)"
+  },
+  "tabLock_sort_tabOrder_desc_short": {
+    "description": "Short version of tabLock_sort_tabOrder_desc",
+    "message": "Порядку вкладок (убыв.)"
+  },
+  "tabLock_sort_timeUntilClose": {
+    "description": "Description for sorting tabs by how much time until TW closes them",
+    "message": "Времени до закрытия"
+  },
+  "tabLock_sort_timeUntilClose_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose",
+    "message": "Времени до закрытия"
+  },
+  "tabLock_sort_timeUntilClose_desc": {
+    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
+    "message": "Времени до закрытия (убывание)"
+  },
+  "tabLock_sort_timeUntilClose_desc_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose_desc",
+    "message": "Времени до закрытия (убыв.)"
+  },
   "corral_tabsWrangled": {
     "description": "Label preceeding the number of tabs wrangled by this extension",
     "message": "вкладок закрыто"
   },
   "corral_tabsWrangled_formula": {
     "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "вкладок закрыто при помощи Tab Wrangler \/ всего закрыто вкладок"
+    "message": "вкладок закрыто при помощи Tab Wrangler / всего закрыто вкладок"
   },
   "corral_tabsWrangled_or": {
     "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",

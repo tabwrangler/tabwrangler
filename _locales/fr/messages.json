@@ -56,7 +56,7 @@
     "message": "Supprimer les onglets sélectionnés"
   },
   "corral_restoreSelectedTabs": {
-    "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
     "message": "Restaurer les onglets sélectionnés"
   },
   "corral_searchResults_clear": {
@@ -138,7 +138,7 @@
     "message": "Jamais"
   },
   "options_importExport_description": {
-    "description": "Description of the import\/export feature shown next to import\/export buttons",
+    "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Exporter toutes les informations sur les onglets supprimés. Il s'agit d'un moyen pratique pour restaurant un ancien état après la réinstallation de l'extension."
   },
   "options_importExport_export": {
@@ -183,7 +183,7 @@
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
-    "message": "Exemple : « cnn » correspondrait à toutes les pages « https:\/\/www.cnn.com » et n’importe quelle URL contenant « cnn » n'importe où."
+    "message": "Exemple : « cnn » correspondrait à toutes les pages « https://www.cnn.com » et n’importe quelle URL contenant « cnn » n'importe où."
   },
   "options_option_autoLock_label": {
     "description": "Label preceeding input for adding URL to whitelist",
@@ -262,8 +262,8 @@
     "message": "Vérouillage automatique"
   },
   "options_section_importExport": {
-    "description": "Header for the import\/export feature section of the options tab",
-    "message": "Importer \/ Exporter"
+    "description": "Header for the import/export feature section of the options tab",
+    "message": "Importer / Exporter"
   },
   "options_section_keyboardShortcuts": {
     "description": "Header for the section containing keyboard shortcut configuration",
@@ -287,7 +287,7 @@
     "placeholders": {
       "pattern": {
         "content": "$1",
-        "example": "chrome:\/\/"
+        "example": "chrome://"
       }
     }
   },
@@ -321,7 +321,7 @@
   },
   "corral_tabsWrangled_formula": {
     "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "onglets fermés par Tab Wrangler \/ tous les onglets fermés"
+    "message": "onglets fermés par Tab Wrangler / tous les onglets fermés"
   },
   "corral_tabsWrangled_or": {
     "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",

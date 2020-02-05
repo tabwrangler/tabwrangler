@@ -56,7 +56,7 @@
     "message": "移除選取的分頁"
   },
   "corral_restoreSelectedTabs": {
-    "description": "Button title for restoring \/ re-opening all selected tabs from the corral",
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
     "message": "還原選取的分頁"
   },
   "corral_searchResults_clear": {
@@ -138,7 +138,7 @@
     "message": "永遠不要"
   },
   "options_importExport_description": {
-    "description": "Description of the import\/export feature shown next to import\/export buttons",
+    "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "匯出所有關於移出分頁的資訊。方便在重新安裝擴充套件後恢復先前的紀錄。"
   },
   "options_importExport_export": {
@@ -183,7 +183,7 @@
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
-    "message": "範例：\"cnn\" 將會符合任何 \"https:\/\/www.cnn.com\" 的頁面以及所有出現 \"cnn\" 關鍵字的網址。"
+    "message": "範例：\"cnn\" 將會符合任何 \"https://www.cnn.com\" 的頁面以及所有出現 \"cnn\" 關鍵字的網址。"
   },
   "options_option_autoLock_label": {
     "description": "Label preceeding input for adding URL to whitelist",
@@ -262,8 +262,8 @@
     "message": "自動鎖定"
   },
   "options_section_importExport": {
-    "description": "Header for the import\/export feature section of the options tab",
-    "message": "匯入 \/ 匯出"
+    "description": "Header for the import/export feature section of the options tab",
+    "message": "匯入 / 匯出"
   },
   "options_section_keyboardShortcuts": {
     "description": "Header for the section containing keyboard shortcut configuration",
@@ -287,7 +287,7 @@
     "placeholders": {
       "pattern": {
         "content": "$1",
-        "example": "chrome:\/\/"
+        "example": "chrome://"
       }
     }
   },
@@ -321,7 +321,7 @@
   },
   "corral_tabsWrangled_formula": {
     "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "由 Tab Wrangler 關閉的分頁 \/ 所有關閉的分頁"
+    "message": "由 Tab Wrangler 關閉的分頁 / 所有關閉的分頁"
   },
   "corral_tabsWrangled_or": {
     "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",

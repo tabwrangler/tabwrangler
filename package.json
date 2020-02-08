@@ -39,6 +39,7 @@
     "eslint": "^6.1.0",
     "eslint-plugin-flowtype": "^4.0.0",
     "eslint-plugin-react": "^7.14.3",
+    "eslint-plugin-react-hooks": "^2.3.0",
     "fancy-log": "^1.3.3",
     "file-loader": "^5.0.0",
     "flow-bin": "^0.114.0",

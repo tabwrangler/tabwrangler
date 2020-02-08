@@ -15,6 +15,7 @@ module.exports = {
     ecmaVersion: 2015,
     sourceType: 'module',
   },
+  plugins: ['react-hooks'],
   rules: {
     // Rules included in ESLint
     'comma-dangle': [2, 'always-multiline'],
@@ -37,6 +38,10 @@ module.exports = {
 
     // React
     'react/prop-types': 0,
+
+    // React Hooks
+    'react-hooks/rules-of-hooks': 2,
+    'react-hooks/exhaustive-deps': 2,
   },
   settings: {
     react: {

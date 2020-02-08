@@ -4,80 +4,67 @@ import './css/popup.scss';
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 import './css/fontawesome-free-solid-woff-only.css';
 import 'react-virtualized/styles.css';
-import NavBar, { type NavBarTabID } from './js/NavBar';
 import { clearTempStorage, fetchSessions } from './js/actions/tempStorageActions';
+import { connect, useDispatch } from 'react-redux';
 import AboutTab from './js/AboutTab';
 import CorralTab from './js/CorralTab';
 import type { Dispatch } from './js/Types';
 import LockTab from './js/LockTab';
+import NavBar from './js/NavBar';
 import OptionsTab from './js/OptionsTab';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { connect } from 'react-redux';
 
-type Props = {
-  dispatch: Dispatch,
-};
+function Popup() {
+  const [activeTabId, setActiveTabId] = React.useState('corral');
+  const dispatch = useDispatch<Dispatch>();
 
-type State = {
-  activeTabId: NavBarTabID,
-};
-
-class Popup extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      activeTabId: 'corral',
-    };
-  }
-
-  componentDidMount() {
-    chrome.sessions.onChanged.addListener(this._updateSessionsRecentlyClosed);
-    this._updateSessionsRecentlyClosed();
-  }
-
-  componentWillUnmount() {
-    // Ensure the temp storage is cleared when the popup is closed to prevent holding references to
-    // objects that may be cleaned up. In Firefox, this can lead to ["DeadObject" errors][1], which
-    // throw exceptions and prevent the popup from displaying.
-    this.props.dispatch(clearTempStorage());
-    chrome.sessions.onChanged.removeListener(this._updateSessionsRecentlyClosed);
-  }
-
-  _handleClickTab = tabId => {
-    this.setState({ activeTabId: tabId });
-  };
-
-  _updateSessionsRecentlyClosed = () => {
-    this.props.dispatch(fetchSessions());
-  };
-
-  render() {
-    let activeTab;
-    switch (this.state.activeTabId) {
-      case 'about':
-        activeTab = <AboutTab />;
-        break;
-      case 'corral':
-        activeTab = <CorralTab />;
-        break;
-      case 'lock':
-        activeTab = <LockTab />;
-        break;
-      case 'options':
-        activeTab = <OptionsTab />;
-        break;
+  React.useEffect(() => {
+    function updateSessionsRecentlyClosed() {
+      dispatch(fetchSessions());
     }
 
-    return (
-      <>
-        <NavBar activeTabId={this.state.activeTabId} onClickTab={this._handleClickTab} />
-        <div className="tab-content container-fluid">{activeTab}</div>
-      </>
-    );
+    chrome.sessions.onChanged.addListener(updateSessionsRecentlyClosed);
+    updateSessionsRecentlyClosed();
+
+    return () => {
+      chrome.sessions.onChanged.removeListener(updateSessionsRecentlyClosed);
+    };
+  }, [dispatch]);
+
+  React.useEffect(() => {
+    return () => {
+      // Ensure the temp storage is cleared when the popup is closed to prevent holding references
+      // to objects that may be cleaned up. In Firefox, this can lead to ["DeadObject" errors][1],
+      // which throw exceptions and prevent the popup from displaying.
+      dispatch(clearTempStorage());
+    };
+  }, [dispatch]);
+
+  let activeTab;
+  switch (activeTabId) {
+    case 'about':
+      activeTab = <AboutTab />;
+      break;
+    case 'corral':
+      activeTab = <CorralTab />;
+      break;
+    case 'lock':
+      activeTab = <LockTab />;
+      break;
+    case 'options':
+      activeTab = <OptionsTab />;
+      break;
   }
+
+  return (
+    <>
+      <NavBar activeTabId={activeTabId} onClickTab={setActiveTabId} />
+      <div className="tab-content container-fluid">{activeTab}</div>
+    </>
+  );
 }
 
 const ConnectedPopup = connect()(Popup);
@@ -99,6 +86,7 @@ if (popupElement != null) {
     ReactDOM.unmountComponentAtNode(popupElement);
     window.removeEventListener('pagehide', unmountPopup);
   };
+
   window.addEventListener('pagehide', unmountPopup);
 }
 

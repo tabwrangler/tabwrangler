@@ -96,6 +96,7 @@ usages are described in the following table:
 | `purgeClosedTabs`     | `false`                   |                                                             | Whether to empty the closed tab list when the browser closes                                           |
 | `secondsInactive`     | `0`                       | `0` <= `secondsInactive`                                    | How much time (+ `minutesInactive`) before a tab is considered "stale" and ready to close              |
 | `showBadgeCount`      | `false`                   |                                                             | Whether to show the length of the closed tab list as a badge on the URL bar icon                       |
+| `theme`               | `'system'`                | `'dark'`, `'light'`, `'system'`                             | The color theme to use for Tab Wrangler's popup                                                        |
 | `whitelist`           | `['about:', 'chrome://']` |                                                             | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed    |
 | `wrangleOption`       | `'withDupes'`             | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'` | How to handle duplicate entries in the closed tabs list                                                |
 

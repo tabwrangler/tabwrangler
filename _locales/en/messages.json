@@ -241,6 +241,22 @@
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
     "message": "Show # of closed tabs on the toolbar button"
   },
+  "options_option_theme_label": {
+    "description": "Label preceding button group for choosing the color theme",
+    "message": "Theme"
+  },
+  "options_option_theme_dark": {
+    "description": "'Dark' choice for color theme. Dark background, light font",
+    "message": "Dark"
+  },
+  "options_option_theme_light": {
+    "description": "'Light' choice for color theme. Light background, dark font",
+    "message": "Light"
+  },
+  "options_option_theme_system": {
+    "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
+    "message": "System"
+  },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "Close inactive tabs after:"
@@ -379,7 +395,6 @@
     "description": "Error shown when invalid seconds inactive setting is supplied.",
     "message": "Seconds Inactive must be greater than or equal to 0 and less than 60"
   },
-
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
     "message": "Sort by:"
@@ -432,17 +447,14 @@
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "Domain (desc.)"
   },
-
   "extDescription": {
     "description": "Brief description of the extension",
     "message": "Automatically closes inactive tabs and makes it easy to get them back"
   },
-
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",
     "message": "Restoring this tab will restore its entire session: history, scroll position, etc. This is limited by the browser to the last 25 closed tabs."
   },
-
   "corral_noTabsMatch": {
     "description": "Message shown when no tabs match the user's search query",
     "message": "No tabs match your query. Try a new query or a less specific one."

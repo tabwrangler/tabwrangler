@@ -255,7 +255,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           <div className="mb-2">
             <div>
               <label htmlFor="theme">
-                <strong>Theme</strong>
+                <strong>{chrome.i18n.getMessage('options_option_theme_label')}</strong>
               </label>
             </div>
             <div className="mb-2">
@@ -266,7 +266,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                     this.setTheme('system');
                   }}
                   type="button">
-                  System
+                  {chrome.i18n.getMessage('options_option_theme_system')}
                 </button>
                 <button
                   className={cx('btn btn-outline-dark', { active: this.props.theme === 'light' })}
@@ -278,7 +278,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                     className="fas fa-sun mr-1"
                     style={{ fontSize: '11px', position: 'relative', top: '-1px' }}
                   />
-                  Light
+                  {chrome.i18n.getMessage('options_option_theme_light')}
                 </button>
                 <button
                   className={cx('btn btn-outline-dark', { active: this.props.theme === 'dark' })}
@@ -290,7 +290,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                     className="fas fa-moon mr-1"
                     style={{ fontSize: '11px', position: 'relative', top: '-1px' }}
                   />
-                  Dark
+                  {chrome.i18n.getMessage('options_option_theme_dark')}
                 </button>
               </div>
             </div>

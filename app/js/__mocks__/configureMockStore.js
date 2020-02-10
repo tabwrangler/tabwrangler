@@ -20,6 +20,9 @@ export default function configureMockStore(
       ...lsCreateInitialState(),
       ...(initialState.localStorage == null ? {} : initialState.localStorage),
     },
+    settings: {
+      theme: 'system',
+    },
     tempStorage: {
       ...tsCreateInitialState(),
       ...(initialState.tempStorage == null ? {} : initialState.tempStorage),

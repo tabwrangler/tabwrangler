@@ -1,9 +1,10 @@
 /* @flow */
 
 import { applyMiddleware, combineReducers, createStore } from 'redux';
+import { localStorage, syncStorage } from 'redux-persist-webextension-storage';
 import { persistReducer, persistStore } from 'redux-persist';
-import { localStorage } from 'redux-persist-webextension-storage';
 import localStorageReducer from './reducers/localStorageReducer';
+import settingsReducer from './reducers/settingsReducer';
 import tempStorageReducer from './reducers/tempStorageReducer';
 import thunk from 'redux-thunk';
 
@@ -54,13 +55,21 @@ const localStoragePersistConfig = {
   version: 2,
 };
 
+const settingsPersistConfig = {
+  key: 'settings',
+  serialize: false,
+  storage: syncStorage,
+  timeout: 0,
+  version: 1,
+};
+
 const rootReducer = combineReducers({
   localStorage: persistReducer(localStoragePersistConfig, localStorageReducer),
+  settings: persistReducer(settingsPersistConfig, settingsReducer),
   tempStorage: tempStorageReducer,
 });
 
 export default function() {
-  // $FlowFixMe
   const store = createStore(rootReducer, applyMiddleware(thunk));
   return {
     persistor: persistStore(store),

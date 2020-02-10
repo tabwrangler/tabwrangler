@@ -4,16 +4,11 @@ $dark-mode-bg-color: rgb(44, 44, 46);
 $dark-mode-color: #ffffff;
 $dark-mode-table-warning: rgba(255, 255, 255, 0.075);
 $dark-mode-link-color: rgb(64, 156, 255);
-$dark-mode-nav-border-color: rgba(0, 0, 0, 0.45);
+$dark-mode-nav-border-color: rgba(0, 0, 0, 0.65);
 
-/**
- * Dark mode
- */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: $dark-mode-bg-color;
-    color: $dark-mode-color;
-  }
+@mixin dark-mode {
+  background-color: $dark-mode-bg-color;
+  color: $dark-mode-color;
 
   code {
     color: lighten(#e83e8c, 15%);
@@ -35,6 +30,10 @@ $dark-mode-nav-border-color: rgba(0, 0, 0, 0.45);
 
   .btn-outline-dark {
     color: $dark-mode-color;
+  }
+
+  .btn-outline-dark:not(:disabled):not(.disabled).active {
+    background-color: rgb(28, 28, 30);
   }
 
   .btn-outline-dark.disabled,
@@ -149,5 +148,18 @@ $dark-mode-nav-border-color: rgba(0, 0, 0, 0.45);
 
   .text-muted {
     color: lighten(#6c757d, 40%) !important;
+  }
+}
+
+/**
+ * Dark mode
+ */
+body.theme-dark {
+  @include dark-mode;
+}
+
+@media (prefers-color-scheme: dark) {
+  body:not(.theme-light) {
+    @include dark-mode;
   }
 }

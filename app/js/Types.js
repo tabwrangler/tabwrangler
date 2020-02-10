@@ -5,15 +5,22 @@ import {
   type State as LocalStorageState,
 } from './reducers/localStorageReducer';
 import {
+  type Action as SettingsAction,
+  type State as SettingsState,
+} from './reducers/settingsReducer';
+import {
   type Action as TempStorageAction,
   type State as TempStorageState,
 } from './reducers/tempStorageReducer';
 
-type StoreAction = LocalStorageAction | TempStorageAction;
+export type ThemeSettingValue = 'dark' | 'light' | 'system';
+
+type StoreAction = LocalStorageAction | SettingsAction | TempStorageAction;
 
 export type AppState = {
-  localStorage: LocalStorageState,
-  tempStorage: TempStorageState,
+  +localStorage: LocalStorageState,
+  +settings: SettingsState,
+  +tempStorage: TempStorageState,
 };
 
 /*

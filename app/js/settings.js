@@ -48,7 +48,7 @@ const Settings = {
     // When true, shows the number of closed tabs in the list as a badge on the browser icon.
     showBadgeCount: false,
 
-    // An array of patterns to check against.  If a URL matches a pattern, it is never locked.
+    // An array of patterns to check against. If a URL matches a pattern, it is never locked.
     whitelist: ['about:', 'chrome://'],
 
     // We allow duplicate entries in the closed/wrangled tabs list
@@ -209,8 +209,8 @@ const Settings = {
    */
   stayOpen(): number {
     return (
-      parseInt(this.get('minutesInactive'), 10) * 60000 + // minutes
-      parseInt(this.get('secondsInactive'), 10) * 1000 // seconds
+      (parseInt(this.get('minutesInactive'), 10) * 60000 + // minutes
+      parseInt(this.get('secondsInactive'), 10) * 1000) // seconds
     );
   },
 };

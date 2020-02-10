@@ -1,27 +1,30 @@
 /* @flow */
 
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import type { Dispatch } from './Types';
+import type { Dispatch, ThemeSettingValue } from './Types';
 import FileSaver from 'file-saver';
 import React from 'react';
 import TabWrangleOption from './TabWrangleOption';
 import { connect } from 'react-redux';
+import cx from 'classnames';
 import debounce from 'lodash.debounce';
 import { exportFileName } from './actions/importExportActions';
 import { setCommands } from './actions/tempStorageActions';
+import { setTheme } from './actions/settingsActions';
 
 // Unpack TW.
 const { settings, store, tabmanager } = chrome.extension.getBackgroundPage().TW;
 
 function isValidPattern(pattern) {
-  // some other choices such as '/' also do not make sense
-  // not sure if they should be blocked as well
+  // some other choices such as '/' also do not make sense; not sure if they should be blocked as
+  // well
   return pattern != null && pattern.length > 0 && /\S/.test(pattern);
 }
 
 type OptionsTabProps = {
   commands: ?Array<chrome$Command>,
   dispatch: Dispatch,
+  theme: ThemeSettingValue,
 };
 
 type OptionsTabState = {
@@ -145,6 +148,10 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     }
   }
 
+  setTheme(nextTheme) {
+    this.props.dispatch(setTheme(nextTheme));
+  }
+
   importExportDataWithFeedback(operationName, func, funcArg, onSuccess) {
     if (this._importExportAlertTimeout != null) {
       window.clearTimeout(this._importExportAlertTimeout);
@@ -211,7 +218,9 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         <div className="alert-sticky">
           <div className="alert alert-danger float-right">
             <ul className="mb-0">
-              {this.state.errors.map((error, i) => <li key={i}>{error.message}</li>)}
+              {this.state.errors.map((error, i) => (
+                <li key={i}>{error.message}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -231,7 +240,9 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       importExportAlert = (
         <div className="alert alert-danger">
           <ul>
-            {this.state.importExportErrors.map((error, i) => <li key={i}>{error.message}</li>)}
+            {this.state.importExportErrors.map((error, i) => (
+              <li key={i}>{error.message}</li>
+            ))}
           </ul>
         </div>
       );
@@ -242,6 +253,47 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         <h4>{chrome.i18n.getMessage('options_section_settings')}</h4>
         <form>
           <div className="mb-2">
+            <div>
+              <label htmlFor="theme">
+                <strong>Theme</strong>
+              </label>
+            </div>
+            <div className="mb-2">
+              <div className="btn-group">
+                <button
+                  className={cx('btn btn-outline-dark', { active: this.props.theme === 'system' })}
+                  onClick={() => {
+                    this.setTheme('system');
+                  }}
+                  type="button">
+                  System
+                </button>
+                <button
+                  className={cx('btn btn-outline-dark', { active: this.props.theme === 'light' })}
+                  onClick={() => {
+                    this.setTheme('light');
+                  }}
+                  type="button">
+                  <i
+                    className="fas fa-sun mr-1"
+                    style={{ fontSize: '11px', position: 'relative', top: '-1px' }}
+                  />
+                  Light
+                </button>
+                <button
+                  className={cx('btn btn-outline-dark', { active: this.props.theme === 'dark' })}
+                  onClick={() => {
+                    this.setTheme('dark');
+                  }}
+                  type="button">
+                  <i
+                    className="fas fa-moon mr-1"
+                    style={{ fontSize: '11px', position: 'relative', top: '-1px' }}
+                  />
+                  Dark
+                </button>
+              </div>
+            </div>
             <div>
               <label className="mr-1" htmlFor="minutesInactive">
                 <strong>{chrome.i18n.getMessage('options_option_timeInactive_label')}</strong>
@@ -510,7 +562,8 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                       <em>{chrome.i18n.getMessage('options_keyboardShortcuts_notSet')}</em>
                     ) : (
                       <kbd>{command.shortcut}</kbd>
-                    )}: {command.description}
+                    )}
+                    : {command.description}
                   </li>
                 );
               })}
@@ -528,4 +581,5 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
 
 export default connect(state => ({
   commands: state.tempStorage.commands,
+  theme: state.settings.theme,
 }))(OptionsTab);

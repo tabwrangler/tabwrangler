@@ -70,6 +70,7 @@ const rootReducer = combineReducers({
 });
 
 export default function() {
+  // $FlowFixMe
   const store = createStore(rootReducer, applyMiddleware(thunk));
   return {
     persistor: persistStore(store),

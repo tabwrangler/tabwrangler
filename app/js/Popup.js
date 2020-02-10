@@ -15,9 +15,13 @@ export default function Popup() {
   const dispatch = useDispatch<Dispatch>();
   const theme = useSelector((state: AppState) => state.settings.theme);
 
+  // Enable overriding the color theme by applying a classname to the `body`. React does not own the
+  // `<body>` tag, so instead toggle classes on it as needed.
   React.useEffect(() => {
-    document.body.classList.toggle('theme-dark', theme === 'dark');
-    document.body.classList.toggle('theme-light', theme === 'light');
+    const body = document.body;
+    if (body == null) return;
+    body.classList.toggle('theme-dark', theme === 'dark');
+    body.classList.toggle('theme-light', theme === 'light');
   }, [theme]);
 
   React.useEffect(() => {

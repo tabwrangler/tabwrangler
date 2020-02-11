@@ -40,5 +40,21 @@
   "extName": {
     "description": "The name of this extension",
     "message": "Tab Wrangler"
+  },
+  "options_option_theme_label": {
+    "description": "Label preceding button group for choosing the color theme",
+    "message": "Téma"
+  },
+  "options_option_theme_dark": {
+    "description": "'Dark' choice for color theme. Dark background, light font",
+    "message": "Sötét"
+  },
+  "options_option_theme_light": {
+    "description": "'Light' choice for color theme. Light background, dark font",
+    "message": "Világos"
+  },
+  "options_option_theme_system": {
+    "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
+    "message": "Rendszer"
   }
 }

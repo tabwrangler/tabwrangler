@@ -36,9 +36,6 @@ const Settings = {
     // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
     minutesInactive: 20,
 
-    // If TabWrangler is paused (won't count down)
-    paused: false,
-
     // Save closed tabs in between browser sessions.
     purgeClosedTabs: false,
 
@@ -176,20 +173,6 @@ const Settings = {
     tabmanager.tabTimes = {};
     chrome.tabs.query({ windowType: 'normal' }, tabmanager.initTabs);
     Settings.setValue('secondsInactive', value);
-  },
-
-  setpaused(value: boolean) {
-    if (value === false) {
-      // The user has just unpaused, immediately set all tabs to the current time
-      // so they will not be closed.
-      chrome.tabs.query(
-        {
-          windowType: 'normal',
-        },
-        tabmanager.initTabs
-      );
-    }
-    Settings.setValue('paused', value);
   },
 
   setshowBadgeCount(value: boolean) {

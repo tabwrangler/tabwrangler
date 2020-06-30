@@ -1,23 +1,18 @@
 /* @flow */
 
+import { useDispatch, useSelector } from 'react-redux';
 import React from 'react';
 
-// Unpack TW.
-const { settings } = chrome.extension.getBackgroundPage().TW;
-
 export default function PauseButton() {
-  const [paused, setPaused] = React.useState(settings.get('paused'));
+  const dispatch = useDispatch();
+  const paused = useSelector(state => state.settings.paused);
 
   function pause() {
-    chrome.browserAction.setIcon({ path: 'img/icon-paused.png' });
-    settings.set('paused', true);
-    setPaused(true);
+    dispatch({ key: 'paused', type: 'SET_PAUSED_SETTING', value: true });
   }
 
   function play() {
-    chrome.browserAction.setIcon({ path: 'img/icon.png' });
-    settings.set('paused', false);
-    setPaused(false);
+    dispatch({ key: 'paused', type: 'SET_PAUSED_SETTING', value: false });
   }
 
   return (

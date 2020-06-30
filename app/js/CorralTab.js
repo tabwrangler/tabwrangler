@@ -1,22 +1,22 @@
 /* @flow */
 
-import './CorralTab.scss';
-import { Table, WindowScroller } from 'react-virtualized';
-import ClosedTabRow from './ClosedTabRow';
-import type { Dispatch } from './Types';
-import React from 'react';
-import { connect } from 'react-redux';
-import cx from 'classnames';
-import extractHostname from './extractHostname';
-import extractRootDomain from './extractRootDomain';
-import { removeSavedTabs } from './actions/localStorageActions';
+import "./CorralTab.scss";
+import { Table, WindowScroller } from "react-virtualized";
+import ClosedTabRow from "./ClosedTabRow";
+import type { Dispatch } from "./Types";
+import React from "react";
+import { connect } from "react-redux";
+import cx from "classnames";
+import extractHostname from "./extractHostname";
+import extractRootDomain from "./extractRootDomain";
+import { removeSavedTabs } from "./actions/localStorageActions";
 
 // Unpack TW.
 const { settings, tabmanager } = chrome.extension.getBackgroundPage().TW;
 
 function keywordFilter(keyword: string) {
-  return function(tab: chrome$Tab) {
-    const test = new RegExp(keyword, 'i');
+  return function (tab: chrome$Tab) {
+    const test = new RegExp(keyword, "i");
     return (tab.title != null && test.exec(tab.title)) || (tab.url != null && test.exec(tab.url));
   };
 }
@@ -29,9 +29,9 @@ type Sorter = {
 };
 
 const AlphaSorter: Sorter = {
-  key: 'alpha',
-  label: chrome.i18n.getMessage('corral_sortPageTitle') || '',
-  shortLabel: chrome.i18n.getMessage('corral_sortPageTitle_short') || '',
+  key: "alpha",
+  label: chrome.i18n.getMessage("corral_sortPageTitle") || "",
+  shortLabel: chrome.i18n.getMessage("corral_sortPageTitle_short") || "",
   sort(tabA, tabB) {
     if (tabA == null || tabB == null || tabA.title == null || tabB.title == null) {
       return 0;
@@ -42,18 +42,18 @@ const AlphaSorter: Sorter = {
 };
 
 const ReverseAlphaSorter: Sorter = {
-  key: 'reverseAlpha',
-  label: chrome.i18n.getMessage('corral_sortPageTitle_descending') || '',
-  shortLabel: chrome.i18n.getMessage('corral_sortPageTitle_descending_short') || '',
+  key: "reverseAlpha",
+  label: chrome.i18n.getMessage("corral_sortPageTitle_descending") || "",
+  shortLabel: chrome.i18n.getMessage("corral_sortPageTitle_descending_short") || "",
   sort(tabA, tabB) {
     return -1 * AlphaSorter.sort(tabA, tabB);
   },
 };
 
 const ChronoSorter: Sorter = {
-  key: 'chrono',
-  label: chrome.i18n.getMessage('corral_sortTimeClosed') || '',
-  shortLabel: chrome.i18n.getMessage('corral_sortTimeClosed_short') || '',
+  key: "chrono",
+  label: chrome.i18n.getMessage("corral_sortTimeClosed") || "",
+  shortLabel: chrome.i18n.getMessage("corral_sortTimeClosed_short") || "",
   sort(tabA, tabB) {
     if (tabA == null || tabB == null) {
       return 0;
@@ -65,18 +65,18 @@ const ChronoSorter: Sorter = {
 };
 
 const ReverseChronoSorter: Sorter = {
-  key: 'reverseChrono',
-  label: chrome.i18n.getMessage('corral_sortTimeClosed_descending') || '',
-  shortLabel: chrome.i18n.getMessage('corral_sortTimeClosed_descending_short') || '',
+  key: "reverseChrono",
+  label: chrome.i18n.getMessage("corral_sortTimeClosed_descending") || "",
+  shortLabel: chrome.i18n.getMessage("corral_sortTimeClosed_descending_short") || "",
   sort(tabA, tabB) {
     return -1 * ChronoSorter.sort(tabA, tabB);
   },
 };
 
 const DomainSorter: Sorter = {
-  key: 'domain',
-  label: chrome.i18n.getMessage('corral_sortDomain') || '',
-  shortLabel: chrome.i18n.getMessage('corral_sortDomain_short') || '',
+  key: "domain",
+  label: chrome.i18n.getMessage("corral_sortDomain") || "",
+  shortLabel: chrome.i18n.getMessage("corral_sortDomain_short") || "",
   sort(tabA, tabB) {
     if (tabA == null || tabB == null || tabA.url == null || tabB.url == null) {
       return 0;
@@ -99,9 +99,9 @@ const DomainSorter: Sorter = {
 };
 
 const ReverseDomainSorter: Sorter = {
-  key: 'reverseDomain',
-  label: chrome.i18n.getMessage('corral_sortDomain_descending') || '',
-  shortLabel: chrome.i18n.getMessage('corral_sortDomain_descending_short') || '',
+  key: "reverseDomain",
+  label: chrome.i18n.getMessage("corral_sortDomain_descending") || "",
+  shortLabel: chrome.i18n.getMessage("corral_sortDomain_descending_short") || "",
   sort(tabA, tabB) {
     return -1 * DomainSorter.sort(tabA, tabB);
   },
@@ -128,7 +128,7 @@ export function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab)
     // Tabs with no favIcons have the value `undefined`, but once converted into a session the tab
     // has an empty string (`''`) as its favIcon value. Account for that case for "equality".
     (session.tab.favIconUrl === tab.favIconUrl ||
-      (session.tab.favIconUrl === '' && tab.favIconUrl == null)) &&
+      (session.tab.favIconUrl === "" && tab.favIconUrl == null)) &&
     session.tab.title === tab.title &&
     session.tab.url === tab.url &&
     // Ensure the browser's last modified time is within 1s of Tab Wrangler's close to as a fuzzy,
@@ -177,17 +177,17 @@ class CorralTab extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const savedSortOrder = settings.get('corralTabSortOrder');
+    const savedSortOrder = settings.get("corralTabSortOrder");
     let sorter =
       savedSortOrder == null
         ? DEFAULT_SORTER
-        : Sorters.find(sorter => sorter.key === savedSortOrder);
+        : Sorters.find((sorter) => sorter.key === savedSortOrder);
 
     // If settings somehow stores a bad value, always fall back to default order.
     if (sorter == null) sorter = DEFAULT_SORTER;
 
     this.state = {
-      filter: '',
+      filter: "",
       isSortDropdownOpen: false,
       savedSortOrder,
       selectedTabs: new Set(),
@@ -203,23 +203,23 @@ class CorralTab extends React.Component<Props, State> {
       if (this._searchRef != null) this._searchRef.focus();
     }, 350);
 
-    window.addEventListener('click', this._handleWindowClick);
-    window.addEventListener('keypress', this._handleKeypress);
+    window.addEventListener("click", this._handleWindowClick);
+    window.addEventListener("keypress", this._handleKeypress);
   }
 
   componentWillUnmount() {
     clearTimeout(this._searchRefFocusTimeout);
-    window.removeEventListener('click', this._handleWindowClick);
-    window.removeEventListener('keypress', this._handleKeypress);
+    window.removeEventListener("click", this._handleWindowClick);
+    window.removeEventListener("keypress", this._handleKeypress);
   }
 
   _areAllClosedTabsSelected() {
     const closedTabs = this._getClosedTabs();
-    return closedTabs.length > 0 && closedTabs.every(tab => this.state.selectedTabs.has(tab));
+    return closedTabs.length > 0 && closedTabs.every((tab) => this.state.selectedTabs.has(tab));
   }
 
   _clearFilter = () => {
-    this._setFilter('');
+    this._setFilter("");
   };
 
   _clickSorter(sorter: Sorter, event: SyntheticMouseEvent<HTMLElement>) {
@@ -235,8 +235,8 @@ class CorralTab extends React.Component<Props, State> {
     } else {
       // When the saved sort order is not null then the user wants to preserve it. Update to the
       // new sort order and persist it.
-      if (settings.get('corralTabSortOrder') != null) {
-        settings.set('corralTabSortOrder', sorter.key);
+      if (settings.get("corralTabSortOrder") != null) {
+        settings.set("corralTabSortOrder", sorter.key);
       }
 
       this.setState({
@@ -253,16 +253,16 @@ class CorralTab extends React.Component<Props, State> {
 
   _handleChangeSaveSortOrder = (event: SyntheticInputEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      settings.set('corralTabSortOrder', this.state.sorter.key);
+      settings.set("corralTabSortOrder", this.state.sorter.key);
       this.setState({ savedSortOrder: this.state.sorter.key });
     } else {
-      settings.set('corralTabSortOrder', null);
+      settings.set("corralTabSortOrder", null);
       this.setState({ savedSortOrder: null });
     }
   };
 
   _handleKeypress = (event: SyntheticKeyboardEvent<>) => {
-    if (event.key !== '/') return;
+    if (event.key !== "/") return;
 
     // Focus and prevent default only if the input is not already active. This way the intial act of
     // focusing does not print a '/' character, but if the input is already active then '/' can be
@@ -275,7 +275,7 @@ class CorralTab extends React.Component<Props, State> {
 
   _handleRemoveSelectedTabs = () => {
     const closedTabs = this._getClosedTabs();
-    const tabs = closedTabs.filter(tab => this.state.selectedTabs.has(tab));
+    const tabs = closedTabs.filter((tab) => this.state.selectedTabs.has(tab));
     this.props.dispatch(removeSavedTabs(tabs));
     this.setState({ selectedTabs: new Set() });
   };
@@ -321,10 +321,12 @@ class CorralTab extends React.Component<Props, State> {
 
   _handleRestoreSelectedTabs = () => {
     const closedTabs = this._getClosedTabs();
-    const sessionTabs = closedTabs.filter(tab => this.state.selectedTabs.has(tab)).map(tab => ({
-      session: this.props.sessions.find(session => sessionFuzzyMatchesTab(session, tab)),
-      tab,
-    }));
+    const sessionTabs = closedTabs
+      .filter((tab) => this.state.selectedTabs.has(tab))
+      .map((tab) => ({
+        session: this.props.sessions.find((session) => sessionFuzzyMatchesTab(session, tab)),
+        tab,
+      }));
 
     tabmanager.closedTabs.unwrangleTabs(sessionTabs);
     this.setState({ selectedTabs: new Set() });
@@ -357,10 +359,11 @@ class CorralTab extends React.Component<Props, State> {
       <div aria-label="row" className="ReactVirtualized__Table__row" role="row">
         <div
           className="ReactVirtualized__Table__rowColumn text-center"
-          style={{ flex: 1, padding: '8px' }}>
+          style={{ flex: 1, padding: "8px" }}
+        >
           {this.props.savedTabs.length === 0
-            ? chrome.i18n.getMessage('corral_emptyList')
-            : chrome.i18n.getMessage('corral_noTabsMatch')}
+            ? chrome.i18n.getMessage("corral_emptyList")
+            : chrome.i18n.getMessage("corral_noTabsMatch")}
         </div>
       </div>
     );
@@ -379,7 +382,7 @@ class CorralTab extends React.Component<Props, State> {
     let selectedTabs;
     if (this._areAllClosedTabsSelected()) {
       selectedTabs = this.state.selectedTabs;
-      closedTabs.forEach(tab => this.state.selectedTabs.delete(tab));
+      closedTabs.forEach((tab) => this.state.selectedTabs.delete(tab));
     } else {
       selectedTabs = new Set(closedTabs);
     }
@@ -398,7 +401,7 @@ class CorralTab extends React.Component<Props, State> {
     const closedTabs = this._getClosedTabs();
     const areAllClosedTabsSelected = this._areAllClosedTabsSelected();
     const { totalTabsRemoved, totalTabsWrangled } = this.props;
-    const hasVisibleSelectedTabs = closedTabs.some(tab => this.state.selectedTabs.has(tab));
+    const hasVisibleSelectedTabs = closedTabs.some((tab) => this.state.selectedTabs.has(tab));
     const percentClosed =
       totalTabsRemoved === 0 ? 0 : Math.trunc((totalTabsWrangled / totalTabsRemoved) * 100);
 
@@ -411,7 +414,7 @@ class CorralTab extends React.Component<Props, State> {
                 className="form-control"
                 name="search"
                 onChange={this._handleSearchChange}
-                placeholder={chrome.i18n.getMessage('corral_searchTabs')}
+                placeholder={chrome.i18n.getMessage("corral_searchTabs")}
                 ref={(_searchRef: ?HTMLElement) => {
                   this._searchRef = _searchRef;
                 }}
@@ -420,10 +423,10 @@ class CorralTab extends React.Component<Props, State> {
               />
             </div>
           </form>
-          <div className="col text-right" style={{ lineHeight: '30px' }}>
-            <span className="text-muted">{chrome.i18n.getMessage('corral_tabsWrangled')}</span>{' '}
-            {totalTabsWrangled} {chrome.i18n.getMessage('corral_tabsWrangled_or')}{' '}
-            <abbr title={chrome.i18n.getMessage('corral_tabsWrangled_formula')}>
+          <div className="col text-right" style={{ lineHeight: "30px" }}>
+            <span className="text-muted">{chrome.i18n.getMessage("corral_tabsWrangled")}</span>{" "}
+            {totalTabsWrangled} {chrome.i18n.getMessage("corral_tabsWrangled_or")}{" "}
+            <abbr title={chrome.i18n.getMessage("corral_tabsWrangled_formula")}>
               {percentClosed}%
             </abbr>
           </div>
@@ -437,9 +440,10 @@ class CorralTab extends React.Component<Props, State> {
               onClick={this._toggleAllTabs}
               title={
                 areAllClosedTabsSelected
-                  ? chrome.i18n.getMessage('corral_toggleAllTabs_deselectAll')
-                  : chrome.i18n.getMessage('corral_toggleAllTabs_selectAll')
-              }>
+                  ? chrome.i18n.getMessage("corral_toggleAllTabs_deselectAll")
+                  : chrome.i18n.getMessage("corral_toggleAllTabs_selectAll")
+              }
+            >
               <input
                 checked={areAllClosedTabsSelected}
                 readOnly
@@ -452,20 +456,22 @@ class CorralTab extends React.Component<Props, State> {
                 <button
                   className="btn btn-outline-dark btn-sm ml-1 px-3"
                   onClick={this._handleRemoveSelectedTabs}
-                  title={chrome.i18n.getMessage('corral_removeSelectedTabs')}
-                  type="button">
+                  title={chrome.i18n.getMessage("corral_removeSelectedTabs")}
+                  type="button"
+                >
                   <span className="sr-only">
-                    {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                    {chrome.i18n.getMessage("corral_removeSelectedTabs")}
                   </span>
                   <i className="fas fa-trash-alt" />
                 </button>
                 <button
                   className="btn btn-outline-dark btn-sm ml-1 px-3"
                   onClick={this._handleRestoreSelectedTabs}
-                  title={chrome.i18n.getMessage('corral_restoreSelectedTabs')}
-                  type="button">
+                  title={chrome.i18n.getMessage("corral_restoreSelectedTabs")}
+                  type="button"
+                >
                   <span className="sr-only">
-                    {chrome.i18n.getMessage('corral_removeSelectedTabs')}
+                    {chrome.i18n.getMessage("corral_removeSelectedTabs")}
                   </span>
                   <i className="fas fa-external-link-alt" />
                 </button>
@@ -475,42 +481,48 @@ class CorralTab extends React.Component<Props, State> {
           <div className="d-flex">
             {this.state.filter.length > 0 ? (
               <span
-                className={'badge badge-pill badge-primary d-flex align-items-center px-2 mr-1'}>
-                {chrome.i18n.getMessage('corral_searchResults_label', `${closedTabs.length}`)}
+                className={"badge badge-pill badge-primary d-flex align-items-center px-2 mr-1"}
+              >
+                {chrome.i18n.getMessage("corral_searchResults_label", `${closedTabs.length}`)}
                 <button
                   className="close close-xs ml-1"
                   onClick={this._clearFilter}
-                  style={{ marginTop: '-2px' }}
-                  title={chrome.i18n.getMessage('corral_searchResults_clear')}>
+                  style={{ marginTop: "-2px" }}
+                  title={chrome.i18n.getMessage("corral_searchResults_clear")}
+                >
                   &times;
                 </button>
               </span>
             ) : null}
             <div
               className="dropdown"
-              ref={dropdown => {
+              ref={(dropdown) => {
                 this._dropdownRef = dropdown;
-              }}>
+              }}
+            >
               <button
                 aria-haspopup="true"
                 className="btn btn-outline-dark btn-sm"
                 id="sort-dropdown"
                 onClick={this._toggleSortDropdown}
-                title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
-                <span>{chrome.i18n.getMessage('corral_sortBy')}</span>
+                title={chrome.i18n.getMessage("corral_currentSort", this.state.sorter.label)}
+              >
+                <span>{chrome.i18n.getMessage("corral_sortBy")}</span>
                 <span> {this.state.sorter.shortLabel}</span> <i className="fas fa-caret-down" />
               </button>
               <div
                 aria-labelledby="sort-dropdown"
-                className={cx('dropdown-menu dropdown-menu-right shadow-sm', {
+                className={cx("dropdown-menu dropdown-menu-right shadow-sm", {
                   show: this.state.isSortDropdownOpen,
-                })}>
-                {Sorters.map(sorter => (
+                })}
+              >
+                {Sorters.map((sorter) => (
                   <a
-                    className={cx('dropdown-item', { active: this.state.sorter === sorter })}
+                    className={cx("dropdown-item", { active: this.state.sorter === sorter })}
                     href="#"
                     key={sorter.label}
-                    onClick={this._clickSorter.bind(this, sorter)}>
+                    onClick={this._clickSorter.bind(this, sorter)}
+                  >
                     {sorter.label}
                   </a>
                 ))}
@@ -526,7 +538,7 @@ class CorralTab extends React.Component<Props, State> {
                         type="checkbox"
                       />
                       <label className="form-check-label" htmlFor="corral-tab--save-sort-order">
-                        {chrome.i18n.getMessage('options_option_saveSortOrder')}
+                        {chrome.i18n.getMessage("options_option_saveSortOrder")}
                       </label>
                     </div>
                   </div>
@@ -560,7 +572,7 @@ class CorralTab extends React.Component<Props, State> {
                 const session =
                   this.props.sessions == null
                     ? null
-                    : this.props.sessions.find(session => sessionFuzzyMatchesTab(session, tab));
+                    : this.props.sessions.find((session) => sessionFuzzyMatchesTab(session, tab));
 
                 return {
                   isSelected: this.state.selectedTabs.has(tab),
@@ -584,7 +596,7 @@ class CorralTab extends React.Component<Props, State> {
   }
 }
 
-export default connect(state => ({
+export default connect((state) => ({
   savedTabs: state.localStorage.savedTabs,
   sessions: state.tempStorage.sessions,
   totalTabsRemoved: state.localStorage.totalTabsRemoved,

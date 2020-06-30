@@ -1,6 +1,6 @@
 /* @flow */
 
-import React from 'react';
+import React from "react";
 
 type Props = {
   children?: any,
@@ -18,7 +18,7 @@ export default function Button(props: Props) {
   return (
     <button className={props.className} onClick={props.onClick}>
       {glyph}
-      {glyph === undefined ? null : ' '}
+      {glyph === undefined ? null : " "}
       {props.children}
     </button>
   );

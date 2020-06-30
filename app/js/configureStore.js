@@ -1,30 +1,30 @@
 /* @flow */
 
-import { applyMiddleware, combineReducers, createStore } from 'redux';
-import { localStorage, syncStorage } from 'redux-persist-webextension-storage';
-import { persistReducer, persistStore } from 'redux-persist';
-import localStorageReducer from './reducers/localStorageReducer';
-import settingsReducer from './reducers/settingsReducer';
-import tempStorageReducer from './reducers/tempStorageReducer';
-import thunk from 'redux-thunk';
+import { applyMiddleware, combineReducers, createStore } from "redux";
+import { localStorage, syncStorage } from "redux-persist-webextension-storage";
+import { persistReducer, persistStore } from "redux-persist";
+import localStorageReducer from "./reducers/localStorageReducer";
+import settingsReducer from "./reducers/settingsReducer";
+import tempStorageReducer from "./reducers/tempStorageReducer";
+import thunk from "redux-thunk";
 
 const PRE_V6_STORAGE_KEYS: Array<string> = [
-  'installDate',
-  'savedTabs',
-  'totalTabsRemoved',
-  'totalTabsUnwrangled',
-  'totalTabsWrangled',
+  "installDate",
+  "savedTabs",
+  "totalTabsRemoved",
+  "totalTabsUnwrangled",
+  "totalTabsWrangled",
 ];
 
 const localStoragePersistConfig = {
-  key: 'localStorage',
+  key: "localStorage",
   migrate(state) {
     // The first time this code is run there will be no redux-persist version of the state. In that
     // case, return the full contents of storage to be the initial state.
     if (state == null) {
-      return new Promise(resolve => {
-        chrome.storage.local.get(PRE_V6_STORAGE_KEYS, items => {
-          if (PRE_V6_STORAGE_KEYS.some(key => key !== 'installDate' && items[key] == null)) {
+      return new Promise((resolve) => {
+        chrome.storage.local.get(PRE_V6_STORAGE_KEYS, (items) => {
+          if (PRE_V6_STORAGE_KEYS.some((key) => key !== "installDate" && items[key] == null)) {
             // If there's nothing left in the store, then there's something unexpected going on with
             // react-redux and/or the Chrome/Firefox store. If any of the keys are null, then do
             // nothing because we don't want to wipe out the current state if a timeout or some
@@ -56,16 +56,16 @@ const localStoragePersistConfig = {
 };
 
 const settingsPersistConfig = {
-  key: 'settings',
+  key: "settings",
   migrate(state) {
     if (state == null) return Promise.resolve(state);
     switch (state._persist.version) {
       // Migrating from v1 -> v2 moves `settings.paused` into the managed sync storage area.
       case 1:
-        return new Promise(resolve => {
-          chrome.storage.sync.get('paused', items => {
-            if (Object.prototype.hasOwnProperty.call(items, 'paused')) {
-              console.log('migrating! found paused', items.paused);
+        return new Promise((resolve) => {
+          chrome.storage.sync.get("paused", (items) => {
+            if (Object.prototype.hasOwnProperty.call(items, "paused")) {
+              console.log("migrating! found paused", items.paused);
               resolve({
                 ...state,
                 paused: items.paused,
@@ -92,7 +92,7 @@ const rootReducer = combineReducers({
   tempStorage: tempStorageReducer,
 });
 
-export default function() {
+export default function () {
   // $FlowFixMe
   const store = createStore(rootReducer, applyMiddleware(thunk));
   return {

@@ -1,6 +1,6 @@
 /* @flow */
 
-import tabmanager from './tabmanager';
+import tabmanager from "./tabmanager";
 
 /**
  * @type {Object}
@@ -46,10 +46,10 @@ const Settings = {
     showBadgeCount: false,
 
     // An array of patterns to check against. If a URL matches a pattern, it is never locked.
-    whitelist: ['about:', 'chrome://'],
+    whitelist: ["about:", "chrome://"],
 
     // We allow duplicate entries in the closed/wrangled tabs list
-    wrangleOption: 'withDupes',
+    wrangleOption: "withDupes",
   },
 
   // Gets all settings from sync and stores them locally.
@@ -61,7 +61,7 @@ const Settings = {
         keys.push(i);
       }
     }
-    chrome.storage.sync.get(keys, items => {
+    chrome.storage.sync.get(keys, (items) => {
       for (const i in items) {
         if (Object.prototype.hasOwnProperty.call(items, i)) {
           this.cache[i] = items[i];
@@ -69,7 +69,7 @@ const Settings = {
           // Because the badge count is external state, this side effect must be run once the value
           // is read from storage. This could more elequently be handled in a reducer, but place it
           // here to make minimal changes while correctly updating the badge count.
-          if (i === 'showBadgeCount') tabmanager.updateClosedCount();
+          if (i === "showBadgeCount") tabmanager.updateClosedCount();
         }
       }
     });
@@ -83,7 +83,7 @@ const Settings = {
    * @return {*}
    */
   get(key: string): mixed {
-    if (typeof this[key] == 'function') {
+    if (typeof this[key] == "function") {
       return this[key]();
     }
     return this.cache[key];
@@ -101,8 +101,8 @@ const Settings = {
    */
   set(key: string, value: mixed): void {
     // Magic setter functions are set{fieldname}
-    if (typeof this['set' + key] == 'function') {
-      this['set' + key](value);
+    if (typeof this["set" + key] == "function") {
+      this["set" + key](value);
     } else {
       Settings.setValue(key, value);
     }
@@ -116,10 +116,10 @@ const Settings = {
   setmaxTabs(value: string) {
     if (isNaN(parseInt(value, 10)) || parseInt(value, 10) < 1 || parseInt(value, 10) > 1000) {
       throw Error(
-        chrome.i18n.getMessage('settings_setmaxTabs_error') || 'Error: settings.setmaxTabs'
+        chrome.i18n.getMessage("settings_setmaxTabs_error") || "Error: settings.setmaxTabs"
       );
     }
-    Settings.setValue('maxTabs', value);
+    Settings.setValue("maxTabs", value);
   },
 
   /**
@@ -130,10 +130,10 @@ const Settings = {
   setminTabs(value: string) {
     if (isNaN(parseInt(value, 10)) || parseInt(value, 10) < 0) {
       throw Error(
-        chrome.i18n.getMessage('settings_setminTabs_error') || 'Error: settings.setminTabs'
+        chrome.i18n.getMessage("settings_setminTabs_error") || "Error: settings.setminTabs"
       );
     }
-    Settings.setValue('minTabs', value);
+    Settings.setValue("minTabs", value);
   },
 
   /**
@@ -145,15 +145,15 @@ const Settings = {
     const minutes = parseInt(value, 10);
     if (isNaN(minutes) || minutes < 0) {
       throw Error(
-        chrome.i18n.getMessage('settings_setminutesInactive_error') ||
-          'Error: settings.setminutesInactive'
+        chrome.i18n.getMessage("settings_setminutesInactive_error") ||
+          "Error: settings.setminutesInactive"
       );
     }
 
     // Reset the tabTimes since we changed the setting
     tabmanager.tabTimes = {};
-    chrome.tabs.query({ windowType: 'normal' }, tabmanager.initTabs);
-    Settings.setValue('minutesInactive', value);
+    chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
+    Settings.setValue("minutesInactive", value);
   },
 
   /**
@@ -165,18 +165,18 @@ const Settings = {
     const seconds = parseInt(value, 10);
     if (isNaN(seconds) || seconds < 0 || seconds > 59) {
       throw Error(
-        chrome.i18n.getMessage('settings_setsecondsInactive_error') || 'Error: setsecondsInactive'
+        chrome.i18n.getMessage("settings_setsecondsInactive_error") || "Error: setsecondsInactive"
       );
     }
 
     // Reset the tabTimes since we changed the setting
     tabmanager.tabTimes = {};
-    chrome.tabs.query({ windowType: 'normal' }, tabmanager.initTabs);
-    Settings.setValue('secondsInactive', value);
+    chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
+    Settings.setValue("secondsInactive", value);
   },
 
   setshowBadgeCount(value: boolean) {
-    Settings.setValue('showBadgeCount', value);
+    Settings.setValue("showBadgeCount", value);
     tabmanager.updateClosedCount();
   },
 
@@ -192,8 +192,8 @@ const Settings = {
    */
   stayOpen(): number {
     return (
-      (parseInt(this.get('minutesInactive'), 10) * 60000 + // minutes
-      parseInt(this.get('secondsInactive'), 10) * 1000) // seconds
+      parseInt(this.get("minutesInactive"), 10) * 60000 + // minutes
+      parseInt(this.get("secondsInactive"), 10) * 1000 // seconds
     );
   },
 };

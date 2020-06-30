@@ -1,32 +1,32 @@
 /* @flow */
 
 type RemoveAllSavedTabsAction = {
-  type: 'REMOVE_ALL_SAVED_TABS',
+  type: "REMOVE_ALL_SAVED_TABS",
 };
 
 type RemoveSavedTabsAction = {
   tabs: Array<chrome$Tab>,
-  type: 'REMOVE_SAVED_TABS',
+  type: "REMOVE_SAVED_TABS",
 };
 
 type SetSavedTabsAction = {
   savedTabs: Array<chrome$Tab>,
-  type: 'SET_SAVED_TABS',
+  type: "SET_SAVED_TABS",
 };
 
 type SetTotalTabsRemovedAction = {
   totalTabsRemoved: number,
-  type: 'SET_TOTAL_TABS_REMOVED',
+  type: "SET_TOTAL_TABS_REMOVED",
 };
 
 type SetTotalTabsUnwrangledAction = {
   totalTabsUnwrangled: number,
-  type: 'SET_TOTAL_TABS_UNWRANGLED',
+  type: "SET_TOTAL_TABS_UNWRANGLED",
 };
 
 type SetTotalTabsWrangledAction = {
   totalTabsWrangled: number,
-  type: 'SET_TOTAL_TABS_WRANGLED',
+  type: "SET_TOTAL_TABS_WRANGLED",
 };
 
 export type Action =
@@ -67,40 +67,40 @@ export function createInitialState() {
 const initialState = createInitialState();
 export default function localStorage(state: State = initialState, action: Action) {
   switch (action.type) {
-    case 'REMOVE_ALL_SAVED_TABS':
+    case "REMOVE_ALL_SAVED_TABS":
       return {
         ...state,
         savedTabs: [],
       };
-    case 'REMOVE_SAVED_TABS': {
+    case "REMOVE_SAVED_TABS": {
       const removedTabsSet = new Set(action.tabs);
       // * Annotate `nextSavedTabs` to appease Flow. It's unclear why this annotation is required
       //   and can't be inferred.
       // * Remove any tabs that are not in the action's array of tabs.
       const nextSavedTabs: Array<chrome$Tab> = state.savedTabs.filter(
-        tab => !removedTabsSet.has(tab)
+        (tab) => !removedTabsSet.has(tab)
       );
       return {
         ...state,
         savedTabs: nextSavedTabs,
       };
     }
-    case 'SET_SAVED_TABS':
+    case "SET_SAVED_TABS":
       return {
         ...state,
         savedTabs: action.savedTabs,
       };
-    case 'SET_TOTAL_TABS_REMOVED':
+    case "SET_TOTAL_TABS_REMOVED":
       return {
         ...state,
         totalTabsRemoved: action.totalTabsRemoved,
       };
-    case 'SET_TOTAL_TABS_UNWRANGLED':
+    case "SET_TOTAL_TABS_UNWRANGLED":
       return {
         ...state,
         totalTabsUnwrangled: action.totalTabsUnwrangled,
       };
-    case 'SET_TOTAL_TABS_WRANGLED':
+    case "SET_TOTAL_TABS_WRANGLED":
       return {
         ...state,
         totalTabsWrangled: action.totalTabsWrangled,

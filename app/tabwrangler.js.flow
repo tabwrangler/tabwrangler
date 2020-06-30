@@ -1,7 +1,7 @@
 /* @flow */
 
-import typeof settings from './js/settings';
-import typeof tabmanager from './js/tabmanager';
+import typeof settings from "./js/settings";
+import typeof tabmanager from "./js/tabmanager";
 
 type TabWrangler = {
   settings: settings,

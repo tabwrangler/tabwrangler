@@ -1,16 +1,16 @@
 /* @flow */
 
-import type { ThemeSettingValue } from '../Types';
+import type { ThemeSettingValue } from "../Types";
 
 type SetPausedAction = {
-  key: 'paused',
-  type: 'SET_PAUSED_SETTING',
+  key: "paused",
+  type: "SET_PAUSED_SETTING",
   value: boolean,
 };
 
 type SetThemeSettingAction = {
-  key: 'theme',
-  type: 'SET_THEME_SETTING',
+  key: "theme",
+  type: "SET_THEME_SETTING",
   value: ThemeSettingValue,
 };
 
@@ -27,19 +27,19 @@ export type State = {
 function createInitialState() {
   return {
     paused: false,
-    theme: 'system',
+    theme: "system",
   };
 }
 
 const initialState = createInitialState();
 export default function settingsReducer(state: State = initialState, action: Action) {
   switch (action.type) {
-    case 'SET_PAUSED_SETTING':
+    case "SET_PAUSED_SETTING":
       return {
         ...state,
         paused: action.value,
       };
-    case 'SET_THEME_SETTING':
+    case "SET_THEME_SETTING":
       return {
         ...state,
         theme: action.value,

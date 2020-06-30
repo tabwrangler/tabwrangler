@@ -1,17 +1,17 @@
 /* @flow */
 
-import type { AppState, Dispatch } from './Types';
-import NavBar, { type NavBarTabID } from './NavBar';
-import { clearTempStorage, fetchSessions } from './actions/tempStorageActions';
-import { useDispatch, useSelector } from 'react-redux';
-import AboutTab from './AboutTab';
-import CorralTab from './CorralTab';
-import LockTab from './LockTab';
-import OptionsTab from './OptionsTab';
-import React from 'react';
+import type { AppState, Dispatch } from "./Types";
+import NavBar, { type NavBarTabID } from "./NavBar";
+import { clearTempStorage, fetchSessions } from "./actions/tempStorageActions";
+import { useDispatch, useSelector } from "react-redux";
+import AboutTab from "./AboutTab";
+import CorralTab from "./CorralTab";
+import LockTab from "./LockTab";
+import OptionsTab from "./OptionsTab";
+import React from "react";
 
 export default function Popup() {
-  const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>('corral');
+  const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>("corral");
   const dispatch = useDispatch<Dispatch>();
   const theme = useSelector((state: AppState) => state.settings.theme);
 
@@ -20,8 +20,8 @@ export default function Popup() {
   React.useEffect(() => {
     const body = document.body;
     if (body == null) return;
-    body.classList.toggle('theme-dark', theme === 'dark');
-    body.classList.toggle('theme-light', theme === 'light');
+    body.classList.toggle("theme-dark", theme === "dark");
+    body.classList.toggle("theme-light", theme === "light");
   }, [theme]);
 
   React.useEffect(() => {
@@ -48,16 +48,16 @@ export default function Popup() {
 
   let activeTab;
   switch (activeTabId) {
-    case 'about':
+    case "about":
       activeTab = <AboutTab />;
       break;
-    case 'corral':
+    case "corral":
       activeTab = <CorralTab />;
       break;
-    case 'lock':
+    case "lock":
       activeTab = <LockTab />;
       break;
-    case 'options':
+    case "options":
       activeTab = <OptionsTab />;
       break;
   }

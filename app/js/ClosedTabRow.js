@@ -1,13 +1,13 @@
 /* @flow */
 
-import './CoralTabRow.css';
-import LazyImage from './LazyImage';
-import React from 'react';
-import TimeAgo from 'timeago-react';
-import cx from 'classnames';
-import extractHostname from './extractHostname';
-import { register } from 'timeago.js';
-import timeagoLocale from './timeagoLocale';
+import "./CoralTabRow.css";
+import LazyImage from "./LazyImage";
+import React from "react";
+import TimeAgo from "timeago-react";
+import cx from "classnames";
+import extractHostname from "./extractHostname";
+import { register } from "timeago.js";
+import timeagoLocale from "./timeagoLocale";
 
 const uiLanguage = chrome.i18n.getUILanguage();
 register(uiLanguage, timeagoLocale[uiLanguage]);
@@ -41,20 +41,22 @@ export default function ClosedTabRow(props: Props) {
   }
 
   function _handleClickTd(event: SyntheticMouseEvent<HTMLElement>) {
-    if (event.currentTarget.nodeName === 'input') return;
+    if (event.currentTarget.nodeName === "input") return;
     props.onToggleTab(props.tab, !props.isSelected, event.shiftKey);
   }
 
   return (
     <div
       aria-label="row"
-      className={cx('ReactVirtualized__Table__row', { 'table-warning': isSelected })}
+      className={cx("ReactVirtualized__Table__row", { "table-warning": isSelected })}
       role="row"
-      style={style}>
+      style={style}
+    >
       <div
         className="ReactVirtualized__Table__rowColumn"
         onClick={_handleClickTd}
-        style={{ verticalAlign: 'middle' }}>
+        style={{ verticalAlign: "middle" }}
+      >
         <input
           checked={isSelected}
           className="checkbox--td"
@@ -65,7 +67,8 @@ export default function ClosedTabRow(props: Props) {
       </div>
       <div
         className="faviconCol ReactVirtualized__Table__rowColumn"
-        style={{ verticalAlign: 'middle' }}>
+        style={{ verticalAlign: "middle" }}
+      >
         <LazyImage
           alt=""
           className="faviconCol--hover-hidden favicon"
@@ -77,14 +80,15 @@ export default function ClosedTabRow(props: Props) {
           className="faviconCol--hover-shown"
           onClick={_handleClickRemove}
           role="button"
-          style={{ cursor: 'pointer', height: 16, width: 16 }}
+          style={{ cursor: "pointer", height: 16, width: 16 }}
           tabIndex={0}
-          title="Remove this tab">
+          title="Remove this tab"
+        >
           <i className="fas fa-trash-alt" />
         </span>
       </div>
       <div className="ReactVirtualized__Table__rowColumn py-1" style={{ flex: 1 }}>
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: "flex" }}>
           <div className="CorralTabRow-content">
             <a
               href={tab.url}
@@ -92,29 +96,31 @@ export default function ClosedTabRow(props: Props) {
               rel="noopener noreferrer"
               style={{ flex: 1 }}
               target="_blank"
-              title={tab.url}>
+              title={tab.url}
+            >
               {tab.title}
             </a>
             <br />
-            <small className={cx({ 'text-muted': !isSelected })}>
-              ({tab.url == null ? '???' : extractHostname(tab.url)})
+            <small className={cx({ "text-muted": !isSelected })}>
+              ({tab.url == null ? "???" : extractHostname(tab.url)})
             </small>
           </div>
         </div>
       </div>
       <div
         className="ReactVirtualized__Table__rowColumn text-right"
-        style={{ verticalAlign: 'middle' }}
+        style={{ verticalAlign: "middle" }}
         title={
           /* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */
           new Date(tab.closedAt).toLocaleString()
-        }>
+        }
+      >
         {/* $FlowFixMe: `closedAt` is an expando property added by Tab Wrangler to chrome$Tab */}
         <TimeAgo datetime={tab.closedAt} locale={uiLanguage} />
       </div>
-      <div className="ReactVirtualized__Table__rowColumn" style={{ width: '11px' }}>
+      <div className="ReactVirtualized__Table__rowColumn" style={{ width: "11px" }}>
         {session == null ? null : (
-          <abbr title={chrome.i18n.getMessage('corral_tabSessionFresh')}>
+          <abbr title={chrome.i18n.getMessage("corral_tabSessionFresh")}>
             <i className="fas fa-leaf text-success" />
           </abbr>
         )}

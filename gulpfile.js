@@ -1,23 +1,23 @@
 /* eslint-env node */
 
-const CrowdinApi = require('crowdin-api');
-const PluginError = require('plugin-error');
-const eslint = require('gulp-eslint');
-const gulp = require('gulp');
-const ignore = require('gulp-ignore');
-const jest = require('gulp-jest').default;
-const log = require('fancy-log');
-const rename = require('gulp-rename');
-const rimraf = require('rimraf');
-const unzip = require('gulp-unzip');
-const webpack = require('webpack');
-const webpackConfig = require('./webpack.config.js');
-const webpackProductionConfig = require('./webpack.production.config.js');
+const CrowdinApi = require("crowdin-api");
+const PluginError = require("plugin-error");
+const eslint = require("gulp-eslint");
+const gulp = require("gulp");
+const ignore = require("gulp-ignore");
+const jest = require("gulp-jest").default;
+const log = require("fancy-log");
+const rename = require("gulp-rename");
+const rimraf = require("rimraf");
+const unzip = require("gulp-unzip");
+const webpack = require("webpack");
+const webpackConfig = require("./webpack.config.js");
+const webpackProductionConfig = require("./webpack.production.config.js");
 
-const DIST_DIRECTORY = 'dist';
+const DIST_DIRECTORY = "dist";
 
 // Clean all release artifacts
-gulp.task('clean', function(done) {
+gulp.task("clean", function (done) {
   rimraf(`${__dirname}/${DIST_DIRECTORY}`, done);
 });
 
@@ -29,19 +29,19 @@ gulp.task('clean', function(done) {
 //   Tab Wrangler if you want to run this locally and get access to the API key.
 //
 // [0]: https://crowdin.com/project/tab-wrangler
-gulp.task('l10n:import', function() {
+gulp.task("l10n:import", function () {
   const crowdinApi = new CrowdinApi({
     apiKey: process.env.CROWDIN_API_KEY,
-    projectName: 'tab-wrangler',
+    projectName: "tab-wrangler",
   });
 
-  return crowdinApi.downloadAllTranslations().then(allTranslationsZip => {
+  return crowdinApi.downloadAllTranslations().then((allTranslationsZip) => {
     return gulp
       .src(allTranslationsZip)
       .pipe(unzip())
       .pipe(
-        ignore(function(file) {
-          const contents = JSON.parse(file.contents.toString('utf8'));
+        ignore(function (file) {
+          const contents = JSON.parse(file.contents.toString("utf8"));
           if (contents != null) {
             // Files with translations contain Objects, files with no translations contain Arrays.
             // `Object.keys(array)` returns an empty Array, so empty files will be excluded.
@@ -54,12 +54,12 @@ gulp.task('l10n:import', function() {
         })
       )
       .pipe(
-        rename(function(path) {
+        rename(function (path) {
           switch (path.dirname) {
-            case 'es-ES':
+            case "es-ES":
               // Crowdin names its base Spanish locale "es-ES", but Chrome only supports the
               // non-suffixed "es" locale. Rename the file so it moves to the right place.
-              path.dirname = 'es';
+              path.dirname = "es";
               break;
             default:
               break;
@@ -67,17 +67,17 @@ gulp.task('l10n:import', function() {
 
           // Crowdin names its locales with dashes, like "zh-TW", but Chrome expects those same
           // locale names to use underscores, like "zh_TW".
-          path.dirname = path.dirname.replace('-', '_');
+          path.dirname = path.dirname.replace("-", "_");
         })
       )
       .pipe(gulp.dest(`${__dirname}/_locales/`));
   });
 });
 
-gulp.task('lint', function() {
+gulp.task("lint", function () {
   return (
     gulp
-      .src(['**/*.js', `!${DIST_DIRECTORY}/**`, '!node_modules/**', '!coverage/**'])
+      .src(["**/*.js", `!${DIST_DIRECTORY}/**`, "!node_modules/**", "!coverage/**"])
       // eslint() attaches the lint output to the "eslint" property
       // of the file object so it can be used by other modules.
       .pipe(eslint())
@@ -90,17 +90,17 @@ gulp.task('lint', function() {
   );
 });
 
-gulp.task('test', function() {
-  process.env.NODE_ENV = 'test';
-  return gulp.src('app/js/__tests__').pipe(
+gulp.task("test", function () {
+  process.env.NODE_ENV = "test";
+  return gulp.src("app/js/__tests__").pipe(
     jest(
       Object.assign(
         {},
         {
           config: {
-            transformIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/node_modules/'],
+            transformIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/node_modules/"],
             transform: {
-              '^.+\\.jsx?$': 'babel-jest',
+              "^.+\\.jsx?$": "babel-jest",
             },
             verbose: true,
             automock: false,
@@ -113,7 +113,7 @@ gulp.task('test', function() {
 
 function webpackLog(stats) {
   log(
-    '[webpack]',
+    "[webpack]",
     stats.toString({
       chunks: false, // Limit chunk information output; it's slow and not too useful
       colors: true,
@@ -122,30 +122,30 @@ function webpackLog(stats) {
   );
 }
 
-gulp.task('webpack', function(done) {
-  return webpack(webpackConfig, function(err, stats) {
-    if (err) throw new PluginError('webpack', err);
+gulp.task("webpack", function (done) {
+  return webpack(webpackConfig, function (err, stats) {
+    if (err) throw new PluginError("webpack", err);
     webpackLog(stats);
     done();
   });
 });
 
-gulp.task('webpack:production', function(done) {
-  return webpack(webpackProductionConfig, function(err, stats) {
-    if (err) throw new PluginError('webpack', err);
+gulp.task("webpack:production", function (done) {
+  return webpack(webpackProductionConfig, function (err, stats) {
+    if (err) throw new PluginError("webpack", err);
     webpackLog(stats);
     done();
   });
 });
 
-gulp.task('webpack:watch', function(done) {
+gulp.task("webpack:watch", function (done) {
   let firstRun = true;
   return webpack(
-    webpackConfig.map(function(platformConfig) {
+    webpackConfig.map(function (platformConfig) {
       return Object.assign({}, { watch: true }, platformConfig);
     }),
-    function(err, stats) {
-      if (err) throw new PluginError('webpack', err);
+    function (err, stats) {
+      if (err) throw new PluginError("webpack", err);
       webpackLog(stats);
 
       // Call Gulp's `done` callback only once per watch. Calling it more than once is an error.
@@ -159,20 +159,20 @@ gulp.task('webpack:watch', function(done) {
 
 // Watch and re-compile / re-lint when in development.
 gulp.task(
-  'watch',
+  "watch",
   gulp.series(
-    'clean',
+    "clean",
     function lintAndTest(done) {
       // Run lint and test on first execution to get results, but don't prevent Webpack from
       // starting up. This way you need to run `yarn start` at most 1 time to get compilation
       // started.
-      gulp.watch('app/**/*.js', { ignoreInitial: false }, gulp.parallel('lint', 'test'));
-      gulp.watch('__tests__/**/*.js', gulp.parallel('lint', 'test'));
+      gulp.watch("app/**/*.js", { ignoreInitial: false }, gulp.parallel("lint", "test"));
+      gulp.watch("__tests__/**/*.js", gulp.parallel("lint", "test"));
       done();
     },
-    'webpack:watch'
+    "webpack:watch"
   )
 );
 
-gulp.task('release', gulp.series('clean', gulp.parallel('lint', 'test'), 'webpack:production'));
-gulp.task('default', gulp.series('lint', 'webpack'));
+gulp.task("release", gulp.series("clean", gulp.parallel("lint", "test"), "webpack:production"));
+gulp.task("default", gulp.series("lint", "webpack"));

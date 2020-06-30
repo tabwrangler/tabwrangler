@@ -1,15 +1,15 @@
-import React from 'react';
-import ReactTestUtils from 'react-dom/test-utils';
-import TabWrangleOption from '../TabWrangleOption';
-import renderer from 'react-test-renderer';
+import React from "react";
+import ReactTestUtils from "react-dom/test-utils";
+import TabWrangleOption from "../TabWrangleOption";
+import renderer from "react-test-renderer";
 
 const chrome = {
   i18n: {
-    getMessage: () => '',
+    getMessage: () => "",
   },
 };
 
-test('should render options with withDupes selected', () => {
+test("should render options with withDupes selected", () => {
   global.chrome = chrome;
   const mockCallback = jest.fn();
 
@@ -20,7 +20,7 @@ test('should render options with withDupes selected', () => {
   expect(two).toMatchSnapshot();
 });
 
-test('should render options with exactURLMatch selected', () => {
+test("should render options with exactURLMatch selected", () => {
   global.chrome = chrome;
   const mockCallback = jest.fn();
 
@@ -31,7 +31,7 @@ test('should render options with exactURLMatch selected', () => {
   expect(two).toMatchSnapshot();
 });
 
-test('should render options with hostnameAndTitleMatch selected', () => {
+test("should render options with hostnameAndTitleMatch selected", () => {
   global.chrome = chrome;
   const mockCallback = jest.fn();
 
@@ -42,7 +42,7 @@ test('should render options with hostnameAndTitleMatch selected', () => {
   expect(two).toMatchSnapshot();
 });
 
-test('should call onChange handler callback when clicked', () => {
+test("should call onChange handler callback when clicked", () => {
   global.chrome = chrome;
   const mockCallback = jest.fn();
 
@@ -59,7 +59,7 @@ test('should call onChange handler callback when clicked', () => {
 
   const two = ReactTestUtils.renderIntoDocument(<Wrapper />);
 
-  const buttonNode = ReactTestUtils.scryRenderedDOMComponentsWithTag(two, 'input');
+  const buttonNode = ReactTestUtils.scryRenderedDOMComponentsWithTag(two, "input");
   ReactTestUtils.Simulate.change(buttonNode[1], { target: { checked: true } });
 
   expect(mockCallback.mock.calls.length).toBe(1);

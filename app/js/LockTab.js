@@ -1,10 +1,10 @@
 /* @flow */
 
-import { isLocked, isManuallyLockable } from './tab';
-import OpenTabRow from './OpenTabRow';
-import React from 'react';
-import cx from 'classnames';
-import memoize from 'memoize-one';
+import { isLocked, isManuallyLockable } from "./tab";
+import OpenTabRow from "./OpenTabRow";
+import React from "react";
+import cx from "classnames";
+import memoize from "memoize-one";
 
 // Unpack TW.
 const { settings, tabmanager } = chrome.extension.getBackgroundPage().TW;
@@ -17,9 +17,9 @@ type Sorter = {
 };
 
 const ChronoSorter: Sorter = {
-  key: 'chrono',
-  label: chrome.i18n.getMessage('tabLock_sort_timeUntilClose') || '',
-  shortLabel: chrome.i18n.getMessage('tabLock_sort_timeUntilClose_short') || '',
+  key: "chrono",
+  label: chrome.i18n.getMessage("tabLock_sort_timeUntilClose") || "",
+  shortLabel: chrome.i18n.getMessage("tabLock_sort_timeUntilClose_short") || "",
   sort(tabA, tabB) {
     if (tabA == null || tabB == null) {
       return 0;
@@ -36,18 +36,18 @@ const ChronoSorter: Sorter = {
 };
 
 const ReverseChronoSorter: Sorter = {
-  key: 'reverseChrono',
-  label: chrome.i18n.getMessage('tabLock_sort_timeUntilClose_desc') || '',
-  shortLabel: chrome.i18n.getMessage('tabLock_sort_timeUntilClose_desc_short') || '',
+  key: "reverseChrono",
+  label: chrome.i18n.getMessage("tabLock_sort_timeUntilClose_desc") || "",
+  shortLabel: chrome.i18n.getMessage("tabLock_sort_timeUntilClose_desc_short") || "",
   sort(tabA, tabB) {
     return -1 * ChronoSorter.sort(tabA, tabB);
   },
 };
 
 const TabOrderSorter: Sorter = {
-  key: 'tabOrder',
-  label: chrome.i18n.getMessage('tabLock_sort_tabOrder') || '',
-  shortLabel: chrome.i18n.getMessage('tabLock_sort_tabOrder_short') || '',
+  key: "tabOrder",
+  label: chrome.i18n.getMessage("tabLock_sort_tabOrder") || "",
+  shortLabel: chrome.i18n.getMessage("tabLock_sort_tabOrder_short") || "",
   sort(tabA, tabB) {
     if (tabA == null || tabB == null) {
       return 0;
@@ -60,9 +60,9 @@ const TabOrderSorter: Sorter = {
 };
 
 const ReverseTabOrderSorter: Sorter = {
-  key: 'reverseTabOrder',
-  label: chrome.i18n.getMessage('tabLock_sort_tabOrder_desc') || '',
-  shortLabel: chrome.i18n.getMessage('tabLock_sort_tabOrder_desc_short') || '',
+  key: "reverseTabOrder",
+  label: chrome.i18n.getMessage("tabLock_sort_tabOrder_desc") || "",
+  shortLabel: chrome.i18n.getMessage("tabLock_sort_tabOrder_desc_short") || "",
   sort(tabA, tabB) {
     return -1 * TabOrderSorter.sort(tabA, tabB);
   },
@@ -85,11 +85,11 @@ export default class LockTab extends React.PureComponent<{}, State> {
 
   constructor() {
     super();
-    const savedSortOrder = settings.get('lockTabSortOrder');
+    const savedSortOrder = settings.get("lockTabSortOrder");
     let sorter =
       savedSortOrder == null
         ? DEFAULT_SORTER
-        : Sorters.find(sorter => sorter.key === savedSortOrder);
+        : Sorters.find((sorter) => sorter.key === savedSortOrder);
 
     // If settings somehow stores a bad value, always fall back to default order.
     if (sorter == null) sorter = DEFAULT_SORTER;
@@ -107,15 +107,15 @@ export default class LockTab extends React.PureComponent<{}, State> {
 
     // TODO: THIS WILL BREAK. This is some async stuff inside a synchronous call. Fix this, move
     // the state into a higher component.
-    chrome.tabs.query({}, tabs => {
+    chrome.tabs.query({}, (tabs) => {
       this.setState({ tabs });
     });
 
-    window.addEventListener('click', this._handleWindowClick);
+    window.addEventListener("click", this._handleWindowClick);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('click', this._handleWindowClick);
+    window.removeEventListener("click", this._handleWindowClick);
     window.clearInterval(this._timeLeftInterval);
   }
 
@@ -132,8 +132,8 @@ export default class LockTab extends React.PureComponent<{}, State> {
     } else {
       // When the saved sort order is not null then the user wants to preserve it. Update to the
       // new sort order and persist it.
-      if (settings.get('lockTabSortOrder') != null) {
-        settings.set('lockTabSortOrder', sorter.key);
+      if (settings.get("lockTabSortOrder") != null) {
+        settings.set("lockTabSortOrder", sorter.key);
       }
 
       this.setState({
@@ -145,10 +145,10 @@ export default class LockTab extends React.PureComponent<{}, State> {
 
   _handleChangeSaveSortOrder = (event: SyntheticInputEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      settings.set('lockTabSortOrder', this.state.sorter.key);
+      settings.set("lockTabSortOrder", this.state.sorter.key);
       this.setState({ savedSortOrder: this.state.sorter.key });
     } else {
-      settings.set('lockTabSortOrder', null);
+      settings.set("lockTabSortOrder", null);
       this.setState({ savedSortOrder: null });
     }
   };
@@ -168,10 +168,12 @@ export default class LockTab extends React.PureComponent<{}, State> {
     }
 
     // Toggle only the tabs that are manually lockable.
-    tabsToToggle.filter(tab => isManuallyLockable(tab)).forEach(tab => {
-      if (selected) tabmanager.lockTab(tab.id);
-      else tabmanager.unlockTab(tab.id);
-    });
+    tabsToToggle
+      .filter((tab) => isManuallyLockable(tab))
+      .forEach((tab) => {
+        if (selected) tabmanager.lockTab(tab.id);
+        else tabmanager.unlockTab(tab.id);
+      });
 
     this._lastSelectedTab = tab;
     this.forceUpdate();
@@ -200,36 +202,40 @@ export default class LockTab extends React.PureComponent<{}, State> {
     return (
       <div className="tab-pane active">
         <div className="d-flex align-items-center justify-content-between border-bottom pb-2">
-          <div style={{ paddingLeft: '0.55rem', paddingRight: '0.55rem' }}>
-            <abbr title={chrome.i18n.getMessage('tabLock_lockLabel')}>
+          <div style={{ paddingLeft: "0.55rem", paddingRight: "0.55rem" }}>
+            <abbr title={chrome.i18n.getMessage("tabLock_lockLabel")}>
               <i className="fas fa-lock" />
             </abbr>
           </div>
           <div
             className="dropdown"
-            ref={dropdown => {
+            ref={(dropdown) => {
               this._dropdownRef = dropdown;
-            }}>
+            }}
+          >
             <button
               aria-haspopup="true"
               className="btn btn-outline-dark btn-sm"
               id="sort-dropdown"
               onClick={this._toggleSortDropdown}
-              title={chrome.i18n.getMessage('corral_currentSort', this.state.sorter.label)}>
-              <span>{chrome.i18n.getMessage('corral_sortBy')}</span>
+              title={chrome.i18n.getMessage("corral_currentSort", this.state.sorter.label)}
+            >
+              <span>{chrome.i18n.getMessage("corral_sortBy")}</span>
               <span> {this.state.sorter.shortLabel}</span> <i className="fas fa-caret-down" />
             </button>
             <div
               aria-labelledby="sort-dropdown"
-              className={cx('dropdown-menu dropdown-menu-right shadow-sm', {
+              className={cx("dropdown-menu dropdown-menu-right shadow-sm", {
                 show: this.state.isSortDropdownOpen,
-              })}>
-              {Sorters.map(sorter => (
+              })}
+            >
+              {Sorters.map((sorter) => (
                 <a
-                  className={cx('dropdown-item', { active: this.state.sorter === sorter })}
+                  className={cx("dropdown-item", { active: this.state.sorter === sorter })}
                   href="#"
                   key={sorter.label}
-                  onClick={this._clickSorter.bind(this, sorter)}>
+                  onClick={this._clickSorter.bind(this, sorter)}
+                >
                   {sorter.label}
                 </a>
               ))}
@@ -245,7 +251,7 @@ export default class LockTab extends React.PureComponent<{}, State> {
                       type="checkbox"
                     />
                     <label className="form-check-label" htmlFor="lock-tab--save-sort-order">
-                      {chrome.i18n.getMessage('options_option_saveSortOrder')}
+                      {chrome.i18n.getMessage("options_option_saveSortOrder")}
                     </label>
                   </div>
                 </div>
@@ -255,7 +261,7 @@ export default class LockTab extends React.PureComponent<{}, State> {
         </div>
         <table className="table table-hover table-sm table-th-unbordered">
           <tbody>
-            {this._getSortedTabs(this.state.tabs, this.state.sorter).map(tab => (
+            {this._getSortedTabs(this.state.tabs, this.state.sorter).map((tab) => (
               <OpenTabRow key={tab.id} onToggleTab={this._handleToggleTab} tab={tab} />
             ))}
           </tbody>

@@ -3,17 +3,17 @@
 import {
   type Action as LocalStorageAction,
   type State as LocalStorageState,
-} from './reducers/localStorageReducer';
+} from "./reducers/localStorageReducer";
 import {
   type Action as SettingsAction,
   type State as SettingsState,
-} from './reducers/settingsReducer';
+} from "./reducers/settingsReducer";
 import {
   type Action as TempStorageAction,
   type State as TempStorageState,
-} from './reducers/tempStorageReducer';
+} from "./reducers/tempStorageReducer";
 
-export type ThemeSettingValue = 'dark' | 'light' | 'system';
+export type ThemeSettingValue = "dark" | "light" | "system";
 
 type StoreAction = LocalStorageAction | SettingsAction | TempStorageAction;
 

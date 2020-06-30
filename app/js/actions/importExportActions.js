@@ -1,12 +1,12 @@
 /* @flow */
 
-import type { Dispatch, GetState } from '../Types';
+import type { Dispatch, GetState } from "../Types";
 import {
   setSavedTabs,
   setTotalTabsRemoved,
   setTotalTabsUnwrangled,
   setTotalTabsWrangled,
-} from './localStorageActions';
+} from "./localStorageActions";
 
 /**
  * Import the backup of saved tabs and the accounting information.
@@ -16,7 +16,7 @@ import {
  * @param event contains the path of the backup file
  */
 function importData(event: SyntheticInputEvent<HTMLInputElement>) {
-  return function(dispatch: Dispatch): Promise<void> {
+  return function (dispatch: Dispatch): Promise<void> {
     const files = event.target.files;
     if (files[0]) {
       return new Promise((resolve, reject) => {
@@ -25,7 +25,7 @@ function importData(event: SyntheticInputEvent<HTMLInputElement>) {
           try {
             const json = JSON.parse(String(fileReader.result));
             if (Object.keys(json).length < 4) {
-              reject(new Error('Invalid backup'));
+              reject(new Error("Invalid backup"));
             } else {
               const savedTabs = json.savedTabs;
               const totalTabsRemoved = json.totalTabsRemoved;
@@ -43,13 +43,13 @@ function importData(event: SyntheticInputEvent<HTMLInputElement>) {
           }
         };
 
-        fileReader.onerror = arg => {
+        fileReader.onerror = (arg) => {
           reject(arg);
         };
-        fileReader.readAsText(files[0], 'utf-8');
+        fileReader.readAsText(files[0], "utf-8");
       });
     } else {
-      return Promise.reject('Nothing to import');
+      return Promise.reject("Nothing to import");
     }
   };
 }
@@ -65,7 +65,7 @@ function importData(event: SyntheticInputEvent<HTMLInputElement>) {
  * `savedTabs` is acquired by reading it directly from the Store.
  */
 function exportData() {
-  return function(dispatch: Dispatch, getState: GetState): Promise<mixed> {
+  return function (dispatch: Dispatch, getState: GetState): Promise<mixed> {
     const { localStorage } = getState();
     const exportObject = {
       savedTabs: localStorage.savedTabs,
@@ -75,7 +75,7 @@ function exportData() {
     };
     const exportData = JSON.stringify(exportObject);
     const blob = new Blob([exportData], {
-      type: 'application/json;charset=utf-8',
+      type: "application/json;charset=utf-8",
     });
     return Promise.resolve(blob);
   };

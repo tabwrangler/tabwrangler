@@ -1,10 +1,10 @@
 /* @flow */
 
-import './LazyImage.css';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import ColorHash from 'color-hash';
-import React from 'react';
-import cx from 'classnames';
+import "./LazyImage.css";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
+import ColorHash from "color-hash";
+import React from "react";
+import cx from "classnames";
 
 const loadedSrcs = new Set();
 const pendingLazyImages = new Set();
@@ -95,7 +95,7 @@ export default class LazyImage extends React.PureComponent<Props, State> {
           <CSSTransition classNames="lazy-image" key="img" timeout={250}>
             <img
               alt={this.props.alt}
-              className={cx('lazy-image-img', this.props.className)}
+              className={cx("lazy-image-img", this.props.className)}
               height={this.props.height}
               src={this.props.src}
               style={this.props.style}

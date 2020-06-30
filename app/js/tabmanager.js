@@ -1,7 +1,7 @@
 /* @flow */
 /* global TW */
 
-import { exportData, importData } from './actions/importExportActions';
+import { exportData, importData } from "./actions/importExportActions";
 import {
   removeAllSavedTabs,
   removeSavedTabs,
@@ -9,9 +9,9 @@ import {
   setTotalTabsRemoved,
   setTotalTabsUnwrangled,
   setTotalTabsWrangled,
-} from './actions/localStorageActions';
+} from "./actions/localStorageActions";
 
-type WrangleOption = 'exactURLMatch' | 'hostnameAndTitleMatch' | 'withDuplicates';
+type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
 /**
  * Stores the tabs in a separate variable to log Last Accessed time.
@@ -36,16 +36,16 @@ const TabManager = {
       return null;
     },
 
-    findPositionByURL(url: ?string = ''): number {
-      return TW.store.getState().localStorage.savedTabs.findIndex(item => {
+    findPositionByURL(url: ?string = ""): number {
+      return TW.store.getState().localStorage.savedTabs.findIndex((item) => {
         return item.url === url && url != null;
       });
     },
 
-    findPositionByHostnameAndTitle(url: string = '', title: string = ''): number {
+    findPositionByHostnameAndTitle(url: string = "", title: string = ""): number {
       const hostB = new URL(url).hostname;
-      return TW.store.getState().localStorage.savedTabs.findIndex(tab => {
-        const hostA = new URL(tab.url || '').hostname;
+      return TW.store.getState().localStorage.savedTabs.findIndex((tab) => {
+        const hostA = new URL(tab.url || "").hostname;
         return hostA === hostB && tab.title === title;
       });
     },
@@ -54,7 +54,7 @@ const TabManager = {
       const { localStorage } = TW.store.getState();
       const installDate = localStorage.installDate;
       let countableTabsUnwrangled = 0;
-      sessionTabs.forEach(sessionTab => {
+      sessionTabs.forEach((sessionTab) => {
         if (sessionTab.session == null || sessionTab.session.tab == null) {
           chrome.tabs.create({ active: false, url: sessionTab.tab.url });
         } else {
@@ -69,18 +69,18 @@ const TabManager = {
       });
 
       // Done opening them all, now get all of the restored tabs out of the store.
-      TW.store.dispatch(removeSavedTabs(sessionTabs.map(sessionTab => sessionTab.tab)));
+      TW.store.dispatch(removeSavedTabs(sessionTabs.map((sessionTab) => sessionTab.tab)));
 
       const totalTabsUnwrangled = localStorage.totalTabsUnwrangled;
       TW.store.dispatch(setTotalTabsUnwrangled(totalTabsUnwrangled + countableTabsUnwrangled));
     },
 
     getURLPositionFilterByWrangleOption(option: WrangleOption): (tab: chrome$Tab) => number {
-      if (option === 'hostnameAndTitleMatch') {
+      if (option === "hostnameAndTitleMatch") {
         return (tab: chrome$Tab): number => {
           return TabManager.closedTabs.findPositionByHostnameAndTitle(tab.url, tab.title);
         };
-      } else if (option === 'exactURLMatch') {
+      } else if (option === "exactURLMatch") {
         return (tab: chrome$Tab): number => {
           return TabManager.closedTabs.findPositionByURL(tab.url);
         };
@@ -93,9 +93,9 @@ const TabManager = {
     },
 
     wrangleTabs(tabs: Array<Object>) {
-      const maxTabs = TW.settings.get('maxTabs');
+      const maxTabs = TW.settings.get("maxTabs");
       let totalTabsWrangled = TW.store.getState().localStorage.totalTabsWrangled;
-      const wrangleOption = TW.settings.get('wrangleOption');
+      const wrangleOption = TW.settings.get("wrangleOption");
       const findURLPositionByWrangleOption = this.getURLPositionFilterByWrangleOption(
         wrangleOption
       );
@@ -103,7 +103,7 @@ const TabManager = {
       let nextSavedTabs = TW.store.getState().localStorage.savedTabs.slice();
       for (let i = 0; i < tabs.length; i++) {
         if (tabs[i] === null) {
-          console.log('Weird bug, backtrace this...');
+          console.log("Weird bug, backtrace this...");
         }
 
         const existingTabPosition = findURLPositionByWrangleOption(tabs[i]);
@@ -167,7 +167,7 @@ const TabManager = {
   },
 
   getWhitelistMatch(url: string) {
-    const whitelist = TW.settings.get('whitelist');
+    const whitelist = TW.settings.get("whitelist");
     for (let i = 0; i < whitelist.length; i++) {
       if (url.indexOf(whitelist[i]) !== -1) {
         return whitelist[i];
@@ -177,7 +177,7 @@ const TabManager = {
   },
 
   isLocked(tabId: number) {
-    const lockedIds = TW.settings.get('lockedIds');
+    const lockedIds = TW.settings.get("lockedIds");
     if (lockedIds.indexOf(tabId) !== -1) {
       return true;
     }
@@ -189,12 +189,12 @@ const TabManager = {
   },
 
   lockTab(tabId: number) {
-    const lockedIds = TW.settings.get('lockedIds');
+    const lockedIds = TW.settings.get("lockedIds");
 
     if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {
       lockedIds.push(tabId);
     }
-    TW.settings.set('lockedIds', lockedIds);
+    TW.settings.set("lockedIds", lockedIds);
   },
 
   removeTab(tabId: number) {
@@ -209,20 +209,20 @@ const TabManager = {
   },
 
   unlockTab(tabId: number) {
-    const lockedIds = TW.settings.get('lockedIds');
+    const lockedIds = TW.settings.get("lockedIds");
     if (lockedIds.indexOf(tabId) > -1) {
       lockedIds.splice(lockedIds.indexOf(tabId), 1);
     }
-    TW.settings.set('lockedIds', lockedIds);
+    TW.settings.set("lockedIds", lockedIds);
   },
 
   updateClosedCount() {
     let text;
-    if (TW.settings.get('showBadgeCount')) {
+    if (TW.settings.get("showBadgeCount")) {
       const savedTabsLength = TW.store.getState().localStorage.savedTabs.length;
-      text = savedTabsLength.length === 0 ? '' : savedTabsLength.toString();
+      text = savedTabsLength.length === 0 ? "" : savedTabsLength.toString();
     } else {
-      text = '';
+      text = "";
     }
     chrome.browserAction.setBadgeText({ text });
   },
@@ -232,14 +232,14 @@ const TabManager = {
     if (Array.isArray(tabOrTabId)) {
       tabOrTabId.map(TabManager.updateLastAccessed.bind(this));
       return;
-    } else if (typeof tabOrTabId === 'number') {
+    } else if (typeof tabOrTabId === "number") {
       tabId = tabOrTabId;
     } else {
       tabId = tabOrTabId.id;
     }
 
-    if (typeof tabId !== 'number') {
-      console.log('Error: `tabId` is not an number', tabId);
+    if (typeof tabId !== "number") {
+      console.log("Error: `tabId` is not an number", tabId);
       return;
     }
 

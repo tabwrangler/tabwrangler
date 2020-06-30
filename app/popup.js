@@ -1,17 +1,17 @@
 /* @flow */
 
-import './css/popup.scss';
-import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
-import './css/fontawesome-free-solid-woff-only.css';
-import 'react-virtualized/styles.css';
-import { PersistGate } from 'redux-persist/integration/react';
-import Popup from './js/Popup';
-import { Provider } from 'react-redux';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { connect } from 'react-redux';
+import "./css/popup.scss";
+import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
+import "./css/fontawesome-free-solid-woff-only.css";
+import "react-virtualized/styles.css";
+import { PersistGate } from "redux-persist/integration/react";
+import Popup from "./js/Popup";
+import { Provider } from "react-redux";
+import React from "react";
+import ReactDOM from "react-dom";
+import { connect } from "react-redux";
 
-const popupElement = document.getElementById('popup');
+const popupElement = document.getElementById("popup");
 
 if (popupElement != null) {
   const ConnectedPopup = connect()(Popup);
@@ -30,10 +30,10 @@ if (popupElement != null) {
   // it can unsubscribe from the Store events.
   const unmountPopup = function unmountPopup() {
     ReactDOM.unmountComponentAtNode(popupElement);
-    window.removeEventListener('pagehide', unmountPopup);
+    window.removeEventListener("pagehide", unmountPopup);
   };
 
-  window.addEventListener('pagehide', unmountPopup);
+  window.addEventListener("pagehide", unmountPopup);
 }
 
 // [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Dead_object

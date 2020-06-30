@@ -88,6 +88,39 @@ function scheduleCheckToClose() {
   checkToCloseTimeout = window.setTimeout(checkToClose, settings.get('checkInterval'));
 }
 
+// Updates closed count badge in the URL bar whenever the store updates.
+function watchClosedCount(store) {
+  const savedTabsCountWatch = watch(store.getState, 'localStorage.savedTabs');
+  store.subscribe(
+    savedTabsCountWatch(() => {
+      tabmanager.updateClosedCount();
+    })
+  );
+}
+
+// Updates icon in tab bar when the extension is paused/resumed.
+function watchPaused(store) {
+  const pausedWatch = watch(store.getState, 'settings.paused');
+  store.subscribe(
+    pausedWatch(paused => {
+      if (paused) {
+        chrome.browserAction.setIcon({ path: 'img/icon-paused.png' });
+      } else {
+        chrome.browserAction.setIcon({ path: 'img/icon.png' });
+
+        // The user has just unpaused, immediately set all tabs to the current time so they will not
+        // be closed.
+        chrome.tabs.query(
+          {
+            windowType: 'normal',
+          },
+          tabmanager.initTabs
+        );
+      }
+    })
+  );
+}
+
 const closeTab = function(tab) {
   if (true === tab.pinned) {
     return;
@@ -114,13 +147,8 @@ const startup = function() {
   TW.store = store;
   TW.persistor = persistor;
 
-  // Update closed count badge in the URL bar whenever the store updates.
-  const savedTabsCountWatch = watch(store.getState, 'localStorage.savedTabs');
-  store.subscribe(
-    savedTabsCountWatch(() => {
-      tabmanager.updateClosedCount();
-    })
-  );
+  watchClosedCount(store);
+  watchPaused(store);
 
   settings.init();
 

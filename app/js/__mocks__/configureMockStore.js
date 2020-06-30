@@ -21,6 +21,7 @@ export default function configureMockStore(
       ...(initialState.localStorage == null ? {} : initialState.localStorage),
     },
     settings: {
+      paused: false,
       theme: 'system',
     },
     tempStorage: {

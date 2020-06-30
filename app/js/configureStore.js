@@ -57,14 +57,37 @@ const localStoragePersistConfig = {
 
 const settingsPersistConfig = {
   key: 'settings',
+  migrate(state) {
+    if (state == null) return Promise.resolve(state);
+    switch (state._persist.version) {
+      // Migrating from v1 -> v2 moves `settings.paused` into the managed sync storage area.
+      case 1:
+        return new Promise(resolve => {
+          chrome.storage.sync.get('paused', items => {
+            if (Object.prototype.hasOwnProperty.call(items, 'paused')) {
+              console.log('migrating! found paused', items.paused);
+              resolve({
+                ...state,
+                paused: items.paused,
+              });
+            } else {
+              resolve(state);
+            }
+          });
+        });
+      default:
+        return Promise.resolve(state);
+    }
+  },
   serialize: false,
   storage: syncStorage,
   timeout: 0,
-  version: 1,
+  version: 2,
 };
 
 const rootReducer = combineReducers({
   localStorage: persistReducer(localStoragePersistConfig, localStorageReducer),
+  // $FlowFixMe redux-persist should allow parameterized PersistedState so app can declare shape.
   settings: persistReducer(settingsPersistConfig, settingsReducer),
   tempStorage: tempStorageReducer,
 });

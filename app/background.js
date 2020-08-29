@@ -164,6 +164,9 @@ const startup = function () {
     tabmanager.updateLastAccessed.bind(tabmanager),
     1000
   );
+
+  const debouncedBonusTime = debounce(tabmanager.bonusTime.bind(tabmanager), 1000);
+
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
   chrome.tabs.onCreated.addListener(onNewTab);
@@ -174,8 +177,10 @@ const startup = function () {
 
     if (settings.get("debounceOnActivated")) {
       debouncedUpdateLastAccessed(tabInfo["tabId"]);
+      debouncedBonusTime(tabInfo["tabId"]);
     } else {
       tabmanager.updateLastAccessed(tabInfo["tabId"]);
+      tabmanager.bonusTime(tabInfo["tabId"]);
     }
   });
   scheduleCheckToClose();

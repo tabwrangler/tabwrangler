@@ -239,11 +239,36 @@ const TabManager = {
     }
 
     if (typeof tabId !== "number") {
-      console.log("Error: `tabId` is not an number", tabId);
+      console.log("Error: `tabId` is not a number", tabId);
+      return;
+    }
+
+    if (TabManager.tabTimes[tabId] && TabManager.tabTimes[tabId] > new Date().getTime()) {
       return;
     }
 
     TabManager.tabTimes[tabId] = new Date().getTime();
+  },
+
+  bonusTime(tabOrTabId: chrome$Tab | number) {
+    let tabId;
+    if (typeof tabOrTabId === "number") {
+      tabId = tabOrTabId;
+    } else {
+      tabId = tabOrTabId.id;
+    }
+
+    const bonus = Math.round(TW.settings.get("stayOpen") / 4);
+
+    if (
+      TabManager.tabTimes[tabId] &&
+      TabManager.tabTimes[tabId] + bonus / 2 < new Date().getTime()
+    ) {
+      TabManager.tabTimes[tabId] = new Date().getTime();
+      return;
+    }
+
+    TabManager.tabTimes[tabId] += bonus;
   },
 };
 

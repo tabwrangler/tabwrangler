@@ -269,6 +269,10 @@ const TabManager = {
     }
 
     TabManager.tabTimes[tabId] += bonus;
+
+    if (TabManager.tabTimes[tabId] > new Date().getTime() + bonus * 4) {
+      TabManager.tabTimes[tabId] = new Date().getTime() + bonus * 4;
+    }
   },
 };
 

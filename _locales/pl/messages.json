@@ -1,0 +1,82 @@
+{
+  "about_name": {
+    "description": "Name of the 'About' section, where users can see information about the extension",
+    "message": "O rozszerzeniu"
+  },
+  "about_changeLog": {
+    "description": "Link to the extension's list of changes per release",
+    "message": "Lista zmian"
+  },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "Kod źródłowy (MIT)"
+  },
+  "about_support": {
+    "description": "Link to the extension's support site",
+    "message": "Wsparcie"
+  },
+  "contextMenu_lockDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "Nigdy nie zamykaj nic na tej domenie"
+  },
+  "contextMenu_lockSpecificDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "Nigdy nie zamykaj nic z $domain$",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "www.wikipedia.org"
+      }
+    }
+  },
+  "contextMenu_lockTab": {
+    "description": "Label for context menu item that locks the clicked tab",
+    "message": "Nigdy nie zamykaj tej karty"
+  },
+  "corral_emptyList": {
+    "description": "Message displayed in the tab corral when the extension has not yet closed any tabs",
+    "message": "Brak zamkniętych kart. Kiedy Tab Wrangler zamknie jakąś, pojawi się tu. Zostaw kilka kart otwartych, aby sprawdzić, jak działa!"
+  },
+  "corral_removeSelectedTabs": {
+    "description": "Button title for removing all selected tabs from the corral",
+    "message": "Usuń wybrane karty"
+  },
+  "corral_restoreSelectedTabs": {
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
+    "message": "Przywróć wybrane karty"
+  },
+  "corral_searchResults_clear": {
+    "description": "Button title for clearing the search value and resetting results",
+    "message": "Wyczyść wyszukiwanie"
+  },
+  "corral_searchResults_label": {
+    "description": "Label showing number of tab search results",
+    "message": "$count$ wyników wyszukiwania",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "33"
+      }
+    }
+  },
+  "corral_searchTabs": {
+    "description": "Text input placeholder for searching list of closed tabs",
+    "message": "Wyszukaj karty..."
+  },
+  "corral_toggleAllTabs_deselectAll": {
+    "description": "Button title for deselecting all tabs in the tab corral",
+    "message": "Odznacz wszystkie karty"
+  },
+  "corral_toggleAllTabs_selectAll": {
+    "description": "Button title for selecting all tabs in the tab corral",
+    "message": "Zaznacz wszystkie karty"
+  },
+  "extension_pause": {
+    "description": "Label for button that pauses the extension",
+    "message": "Wstrzymaj"
+  },
+  "extension_resume": {
+    "description": "Label for button that resumes (unpauses) the extension",
+    "message": "Wznów"
+  }
+}

@@ -4,6 +4,7 @@ import { isLocked, isManuallyLockable } from "./tab";
 import LazyImage from "./LazyImage";
 import React from "react";
 import cx from "classnames";
+import { useSelector } from "react-redux";
 
 // Unpack TW.
 const { settings, tabmanager } = chrome.extension.getBackgroundPage().TW;
@@ -20,6 +21,8 @@ type Props = {
 };
 
 export default function OpenTabRow(props: Props) {
+  const paused = useSelector((state) => state.settings.paused);
+
   function handleLockedOnClick(event: SyntheticMouseEvent<HTMLInputElement>) {
     // Dynamic type check to ensure target is an input element.
     if (!(event.target instanceof HTMLInputElement)) return;
@@ -54,7 +57,7 @@ export default function OpenTabRow(props: Props) {
     );
   } else {
     let timeLeftContent;
-    if (settings.get("paused")) {
+    if (paused) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
     } else {
       const lastModified = tabmanager.tabTimes[tab.id];

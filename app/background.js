@@ -23,7 +23,7 @@ const checkToClose = function (cutOff: ?number) {
     const lockedIds = ((settings.get("lockedIds"): any): Array<number>);
     const toCut = tabmanager.getOlderThen(cutOff);
 
-    if (!settings.get("paused")) {
+    if (!TW.store.getState().settings.paused) {
       // Update the selected one to make sure it doesn't get closed.
       chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabmanager.updateLastAccessed);
 

@@ -7,7 +7,7 @@ import ColorHash from "color-hash";
 import cx from "classnames";
 
 const loadedSrcs = new Set();
-const pendingLazyImages = new Set();
+const pendingLazyImages: Set<LazyImage> = new Set();
 
 function checkShouldLoadLazyImages() {
   for (const lazyImage of pendingLazyImages) {

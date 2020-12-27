@@ -1,9 +1,9 @@
 /* @flow */
 
+import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import React from "react";
 
-export default function PauseButton() {
+export default function PauseButton(): React.Node {
   const dispatch = useDispatch();
   const paused = useSelector((state) => state.settings.paused);
 

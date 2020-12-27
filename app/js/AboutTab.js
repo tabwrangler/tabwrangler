@@ -1,9 +1,9 @@
 /* global EXTENSION_URL */
 /* @flow */
 
-import React from "react";
+import * as React from "react";
 
-export default function AboutTab() {
+export default function AboutTab(): React.Node {
   return (
     <div className="tab-pane active">
       <p>

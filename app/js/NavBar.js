@@ -1,8 +1,8 @@
 /* @flow */
 
 import "./NavBar.css";
+import * as React from "react";
 import PauseButton from "./PauseButton";
-import React from "react";
 import cx from "classnames";
 
 export type NavBarTabID = "about" | "corral" | "lock" | "options";
@@ -12,7 +12,7 @@ type Props = {
   onClickTab: (tabId: NavBarTabID) => void,
 };
 
-export default function NavBar(props: Props) {
+export default function NavBar(props: Props): React.Node {
   function handleClickAboutTab(event: SyntheticMouseEvent<HTMLElement>) {
     event.preventDefault();
     props.onClickTab("about");

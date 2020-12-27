@@ -8,7 +8,7 @@ type SetPausedAction = {
   value: boolean,
 };
 
-type SetThemeSettingAction = {
+export type SetThemeSettingAction = {
   key: "theme",
   type: "SET_THEME_SETTING",
   value: ThemeSettingValue,
@@ -32,7 +32,7 @@ function createInitialState() {
 }
 
 const initialState = createInitialState();
-export default function settingsReducer(state: State = initialState, action: Action) {
+export default function settingsReducer(state: State = initialState, action: Action): State {
   switch (action.type) {
     case "SET_PAUSED_SETTING":
       return {

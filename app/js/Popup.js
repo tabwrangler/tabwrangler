@@ -1,5 +1,6 @@
 /* @flow */
 
+import * as React from "react";
 import type { AppState, Dispatch } from "./Types";
 import NavBar, { type NavBarTabID } from "./NavBar";
 import { clearTempStorage, fetchSessions } from "./actions/tempStorageActions";
@@ -8,9 +9,8 @@ import AboutTab from "./AboutTab";
 import CorralTab from "./CorralTab";
 import LockTab from "./LockTab";
 import OptionsTab from "./OptionsTab";
-import React from "react";
 
-export default function Popup() {
+export default function Popup(): React.Node {
   const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>("corral");
   const dispatch = useDispatch<Dispatch>();
   const theme = useSelector((state: AppState) => state.settings.theme);

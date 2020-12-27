@@ -1,8 +1,8 @@
 /* @flow */
 
+import * as React from "react";
 import { isLocked, isManuallyLockable } from "./tab";
 import OpenTabRow from "./OpenTabRow";
-import React from "react";
 import cx from "classnames";
 import memoize from "memoize-one";
 
@@ -143,7 +143,9 @@ export default class LockTab extends React.PureComponent<{}, State> {
     }
   }
 
-  _handleChangeSaveSortOrder = (event: SyntheticInputEvent<HTMLInputElement>) => {
+  _handleChangeSaveSortOrder: (event: SyntheticInputEvent<HTMLInputElement>) => void = (
+    event: SyntheticInputEvent<HTMLInputElement>
+  ) => {
     if (event.target.checked) {
       settings.set("lockTabSortOrder", this.state.sorter.key);
       this.setState({ savedSortOrder: this.state.sorter.key });
@@ -153,7 +155,11 @@ export default class LockTab extends React.PureComponent<{}, State> {
     }
   };
 
-  _handleToggleTab = (tab: chrome$Tab, selected: boolean, multiselect: boolean) => {
+  _handleToggleTab: (tab: chrome$Tab, selected: boolean, multiselect: boolean) => void = (
+    tab: chrome$Tab,
+    selected: boolean,
+    multiselect: boolean
+  ) => {
     let tabsToToggle = [tab];
     const tabs = this._getSortedTabs(this.state.tabs, this.state.sorter);
     if (multiselect && this._lastSelectedTab != null) {
@@ -179,7 +185,7 @@ export default class LockTab extends React.PureComponent<{}, State> {
     this.forceUpdate();
   };
 
-  _handleWindowClick = (event: MouseEvent) => {
+  _handleWindowClick: (event: MouseEvent) => void = (event: MouseEvent) => {
     if (
       this.state.isSortDropdownOpen &&
       this._dropdownRef != null &&
@@ -190,15 +196,17 @@ export default class LockTab extends React.PureComponent<{}, State> {
     }
   };
 
-  _getSortedTabs = memoize((tabs: Array<chrome$Tab>, sorter: Sorter) => {
-    return (tabs.slice(): any).sort(sorter.sort);
-  });
+  _getSortedTabs: (tabs: Array<chrome$Tab>, sorter: Sorter) => Array<chrome$Tab> = memoize(
+    (tabs: Array<chrome$Tab>, sorter: Sorter) => {
+      return (tabs.slice(): any).sort(sorter.sort);
+    }
+  );
 
-  _toggleSortDropdown = () => {
+  _toggleSortDropdown: () => void = () => {
     this.setState({ isSortDropdownOpen: !this.state.isSortDropdownOpen });
   };
 
-  render() {
+  render(): React.Node {
     return (
       <div className="tab-pane active">
         <div className="d-flex align-items-center justify-content-between border-bottom pb-2">

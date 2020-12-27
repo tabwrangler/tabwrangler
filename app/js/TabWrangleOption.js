@@ -1,13 +1,13 @@
 /* @flow */
 
-import React from "react";
+import * as React from "react";
 
 interface Props {
   onChange: (event: SyntheticInputEvent<HTMLInputElement>) => void;
   selectedOption: string;
 }
 
-export default function TabWrangleOption(props: Props) {
+export default function TabWrangleOption(props: Props): React.Node {
   // Declare this dynamically so it is available inside tests. It's not simple to modify globals,
   // like `chrome`, using Jest. Is there a better way to do this? Probably.
   const OPTIONS = [

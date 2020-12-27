@@ -1,30 +1,30 @@
 /* @flow */
 
-type RemoveAllSavedTabsAction = {
+export type RemoveAllSavedTabsAction = {
   type: "REMOVE_ALL_SAVED_TABS",
 };
 
-type RemoveSavedTabsAction = {
+export type RemoveSavedTabsAction = {
   tabs: Array<chrome$Tab>,
   type: "REMOVE_SAVED_TABS",
 };
 
-type SetSavedTabsAction = {
+export type SetSavedTabsAction = {
   savedTabs: Array<chrome$Tab>,
   type: "SET_SAVED_TABS",
 };
 
-type SetTotalTabsRemovedAction = {
+export type SetTotalTabsRemovedAction = {
   totalTabsRemoved: number,
   type: "SET_TOTAL_TABS_REMOVED",
 };
 
-type SetTotalTabsUnwrangledAction = {
+export type SetTotalTabsUnwrangledAction = {
   totalTabsUnwrangled: number,
   type: "SET_TOTAL_TABS_UNWRANGLED",
 };
 
-type SetTotalTabsWrangledAction = {
+export type SetTotalTabsWrangledAction = {
   totalTabsWrangled: number,
   type: "SET_TOTAL_TABS_WRANGLED",
 };
@@ -54,7 +54,7 @@ export type State = {
   totalTabsWrangled: number,
 };
 
-export function createInitialState() {
+export function createInitialState(): State {
   return {
     installDate: Date.now(),
     savedTabs: [],
@@ -65,7 +65,7 @@ export function createInitialState() {
 }
 
 const initialState = createInitialState();
-export default function localStorage(state: State = initialState, action: Action) {
+export default function localStorage(state: State = initialState, action: Action): State {
   switch (action.type) {
     case "REMOVE_ALL_SAVED_TABS":
       return {

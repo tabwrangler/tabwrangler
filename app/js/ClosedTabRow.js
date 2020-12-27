@@ -1,8 +1,8 @@
 /* @flow */
 
 import "./CoralTabRow.css";
+import * as React from "react";
 import LazyImage from "./LazyImage";
-import React from "react";
 import TimeAgo from "timeago-react";
 import cx from "classnames";
 import extractHostname from "./extractHostname";
@@ -22,7 +22,7 @@ type Props = {
   style: Object,
 };
 
-export default function ClosedTabRow(props: Props) {
+export default function ClosedTabRow(props: Props): React.Node {
   const { isSelected, session, style, tab } = props;
 
   function _handleClickAnchor(event: SyntheticMouseEvent<HTMLElement>) {

@@ -1,8 +1,7 @@
 /* @flow */
 
-// eslint-disable-next-line no-unused-vars
 import type { Action, AppState } from "../Types";
-import configureStore from "redux-mock-store";
+import configureStore, { type mockStoreWithoutMiddleware } from "redux-mock-store";
 import { createInitialState as lsCreateInitialState } from "../reducers/localStorageReducer";
 import thunk from "redux-thunk";
 import { createInitialState as tsCreateInitialState } from "../reducers/tempStorageReducer";
@@ -14,7 +13,7 @@ type MockInitialState = {
 
 export default function configureMockStore(
   initialState: MockInitialState = { localStorage: null, tempStorage: null }
-) {
+): mockStoreWithoutMiddleware<AppState, Action> {
   return configureStore([thunk])<AppState, Action>({
     localStorage: {
       ...lsCreateInitialState(),

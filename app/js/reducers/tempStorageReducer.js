@@ -1,10 +1,10 @@
 /* @flow */
 
-type ClearTempStorageAction = {
+export type ClearTempStorageAction = {
   type: "CLEAR_TEMP_STORAGE",
 };
 
-type SetCommandsAction = {
+export type SetCommandsAction = {
   commands: Array<chrome$Command>,
   type: "SET_COMMANDS",
 };
@@ -26,7 +26,7 @@ export type State = {
   sessions: Array<chrome$Session>,
 };
 
-export function createInitialState() {
+export function createInitialState(): State {
   return {
     commands: [],
     sessions: [],
@@ -34,7 +34,7 @@ export function createInitialState() {
 }
 
 const initialState = createInitialState();
-export default function tempStorage(state: State = initialState, action: Action) {
+export default function tempStorage(state: State = initialState, action: Action): State {
   switch (action.type) {
     case "CLEAR_TEMP_STORAGE":
       return createInitialState();

@@ -1,8 +1,8 @@
 /* @flow */
 
+import * as React from "react";
 import { isLocked, isManuallyLockable } from "./tab";
 import LazyImage from "./LazyImage";
-import React from "react";
 import cx from "classnames";
 import { useSelector } from "react-redux";
 
@@ -20,7 +20,7 @@ type Props = {
   tab: chrome$Tab,
 };
 
-export default function OpenTabRow(props: Props) {
+export default function OpenTabRow(props: Props): React.Node {
   const paused = useSelector((state) => state.settings.paused);
 
   function handleLockedOnClick(event: SyntheticMouseEvent<HTMLInputElement>) {

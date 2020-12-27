@@ -4,4 +4,5 @@
 // Jest environment and bypass the need for a CSS preprocessor. Instead, this file is loaded as the
 // CSS dependency and nothing happens.
 
-module.exports = {};
+const styleMock: { [key: string]: any } = {};
+module.exports = styleMock;

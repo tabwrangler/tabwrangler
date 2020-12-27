@@ -1,10 +1,10 @@
 /* @flow */
 
 import "./CorralTab.scss";
+import * as React from "react";
 import { Table, WindowScroller } from "react-virtualized";
 import ClosedTabRow from "./ClosedTabRow";
 import type { Dispatch } from "./Types";
-import React from "react";
 import { connect } from "react-redux";
 import cx from "classnames";
 import extractHostname from "./extractHostname";
@@ -117,7 +117,7 @@ const Sorters: Array<Sorter> = [
   ReverseChronoSorter,
 ];
 
-export function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab) {
+export function sessionFuzzyMatchesTab(session: chrome$Session, tab: chrome$Tab): boolean {
   // Sessions' `lastModified` is only accurate to the second in Chrome whereas `closedAt` is
   // accurate to the millisecond. Convert to ms if needed.
   const lastModifiedMs =
@@ -596,11 +596,11 @@ class CorralTab extends React.Component<Props, State> {
   }
 }
 
-export default connect((state) => ({
+export default (connect((state) => ({
   savedTabs: state.localStorage.savedTabs,
   sessions: state.tempStorage.sessions,
   totalTabsRemoved: state.localStorage.totalTabsRemoved,
   totalTabsWrangled: state.localStorage.totalTabsWrangled,
-}))(CorralTab);
+}))(CorralTab): React.AbstractComponent<{}>);
 
 // [0]: https://developer.chrome.com/extensions/sessions#method-getRecentlyClosed

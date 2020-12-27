@@ -13,12 +13,15 @@ import {
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
+// A map of tabId => timestamp
+const defaultTabTimes: { [tabId: string]: number } = {};
+
 /**
  * Stores the tabs in a separate variable to log Last Accessed time.
  * @type {Object}
  */
 const TabManager = {
-  tabTimes: {}, // An array of tabId => timestamp
+  tabTimes: defaultTabTimes,
 
   closedTabs: {
     clear() {
@@ -144,7 +147,7 @@ const TabManager = {
    * Wrapper function to get all tab times regardless of time inactive
    * @return {Array}
    */
-  getAll() {
+  getAll(): Array<number> {
     return TabManager.getOlderThen();
   },
 
@@ -154,7 +157,7 @@ const TabManager = {
    *  If null, returns all.
    * @return {Array}
    */
-  getOlderThen(time?: number) {
+  getOlderThen(time?: number): Array<number> {
     const ret = [];
     for (const i in this.tabTimes) {
       if (Object.prototype.hasOwnProperty.call(this.tabTimes, i)) {
@@ -166,7 +169,7 @@ const TabManager = {
     return ret;
   },
 
-  getWhitelistMatch(url: string) {
+  getWhitelistMatch(url: string): boolean {
     const whitelist = TW.settings.get("whitelist");
     for (let i = 0; i < whitelist.length; i++) {
       if (url.indexOf(whitelist[i]) !== -1) {
@@ -176,7 +179,7 @@ const TabManager = {
     return false;
   },
 
-  isLocked(tabId: number) {
+  isLocked(tabId: number): boolean {
     const lockedIds = TW.settings.get("lockedIds");
     if (lockedIds.indexOf(tabId) !== -1) {
       return true;
@@ -184,7 +187,7 @@ const TabManager = {
     return false;
   },
 
-  isWhitelisted(url: string) {
+  isWhitelisted(url: string): boolean {
     return this.getWhitelistMatch(url) !== false;
   },
 
@@ -200,7 +203,7 @@ const TabManager = {
   removeTab(tabId: number) {
     const totalTabsRemoved = TW.store.getState().localStorage.totalTabsRemoved;
     TW.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
-    delete TabManager.tabTimes[tabId];
+    delete TabManager.tabTimes[String(tabId)];
   },
 
   replaceTab(addedTabId: number, removedTabId: number) {
@@ -243,7 +246,7 @@ const TabManager = {
       return;
     }
 
-    TabManager.tabTimes[tabId] = new Date().getTime();
+    TabManager.tabTimes[String(tabId)] = new Date().getTime();
   },
 };
 

@@ -2,11 +2,14 @@
 
 import tabmanager from "./tabmanager";
 
+const defaultCache: { [key: string]: mixed } = {};
+const defaultLockedIds: Array<number> = [];
+
 /**
  * @type {Object}
  */
 const Settings = {
-  cache: {},
+  cache: defaultCache,
 
   defaults: {
     // How often we check for old tabs.
@@ -22,7 +25,7 @@ const Settings = {
     filterAudio: true,
 
     // An array of tabids which have been explicitly locked by the user.
-    lockedIds: [],
+    lockedIds: defaultLockedIds,
 
     // Saved sort order for list of open tabs. When null, default sort is used (tab order)
     lockTabSortOrder: null,

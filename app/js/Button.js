@@ -1,6 +1,6 @@
 /* @flow */
 
-import React from "react";
+import * as React from "react";
 
 type Props = {
   children?: any,
@@ -9,7 +9,7 @@ type Props = {
   onClick?: (event: SyntheticMouseEvent<HTMLButtonElement>) => void,
 };
 
-export default function Button(props: Props) {
+export default function Button(props: Props): React.Node {
   let glyph;
   if (props.glyph != null) {
     glyph = <i className={`fas fa-${props.glyph}`} />;

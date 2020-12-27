@@ -1,6 +1,7 @@
 /* @flow */
 
-import { applyMiddleware, combineReducers, createStore } from "redux";
+import type { Action, AppState } from "./Types";
+import { type Store, applyMiddleware, combineReducers, createStore } from "redux";
 import { localStorage, syncStorage } from "redux-persist-webextension-storage";
 import { persistReducer, persistStore } from "redux-persist";
 import localStorageReducer from "./reducers/localStorageReducer";
@@ -92,7 +93,7 @@ const rootReducer = combineReducers({
   tempStorage: tempStorageReducer,
 });
 
-export default function () {
+export default function (): { persistor: mixed, store: Store<AppState, Action> } {
   // $FlowFixMe
   const store = createStore(rootReducer, applyMiddleware(thunk));
   return {

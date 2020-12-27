@@ -1,122 +1,125 @@
 // @flow
+
 import * as langs from "timeago.js/lib/lang";
 
+type TimeagoLocale = (number: number, index: number) => [string, string];
+
 const timeagoLocale = {
-  get ar() {
+  get ar(): TimeagoLocale {
     return langs["ar"];
   },
-  get be() {
+  get be(): TimeagoLocale {
     return langs["be"];
   },
-  get bg() {
+  get bg(): TimeagoLocale {
     return langs["bg"];
   },
-  get ca() {
+  get ca(): TimeagoLocale {
     return langs["ca"];
   },
-  get da() {
+  get da(): TimeagoLocale {
     return langs["da"];
   },
-  get de() {
+  get de(): TimeagoLocale {
     return langs["de"];
   },
-  get el() {
+  get el(): TimeagoLocale {
     return langs["el"];
   },
-  get en() {
+  get en(): TimeagoLocale {
     return langs["en_US"];
   },
-  get en_short() {
+  get en_short(): TimeagoLocale {
     return langs["en_short"];
   },
-  get es() {
+  get es(): TimeagoLocale {
     return langs["es"];
   },
-  get eu() {
+  get eu(): TimeagoLocale {
     return langs["eu"];
   },
-  get fa() {
+  get fa(): TimeagoLocale {
     return langs["fa"];
   },
-  get fi() {
+  get fi(): TimeagoLocale {
     return langs["fi"];
   },
-  get fr() {
+  get fr(): TimeagoLocale {
     return langs["fr"];
   },
-  get he() {
+  get he(): TimeagoLocale {
     return langs["he"];
   },
-  get hu() {
+  get hu(): TimeagoLocale {
     return langs["hu"];
   },
-  get in_BG() {
+  get in_BG(): TimeagoLocale {
     return langs["bn_IN"];
   },
-  get in_HI() {
+  get in_HI(): TimeagoLocale {
     return langs["hi_IN"];
   },
-  get in_ID() {
+  get in_ID(): TimeagoLocale {
     return langs["id_ID"];
   },
-  get it() {
+  get it(): TimeagoLocale {
     return langs["it"];
   },
-  get ja() {
+  get ja(): TimeagoLocale {
     return langs["ja"];
   },
-  get ko() {
+  get ko(): TimeagoLocale {
     return langs["ko"];
   },
-  get ml() {
+  get ml(): TimeagoLocale {
     return langs["ml"];
   },
-  get my() {
+  get my(): TimeagoLocale {
     return langs["my"];
   },
-  get nb_NO() {
+  get nb_NO(): TimeagoLocale {
     return langs["nb_NO"];
   },
-  get nl() {
+  get nl(): TimeagoLocale {
     return langs["nl"];
   },
-  get nn_NO() {
+  get nn_NO(): TimeagoLocale {
     return langs["nn_NO"];
   },
-  get pl() {
+  get pl(): TimeagoLocale {
     return langs["pl"];
   },
-  get pt_BR() {
+  get pt_BR(): TimeagoLocale {
     return langs["pt_BR"];
   },
-  get ro() {
+  get ro(): TimeagoLocale {
     return langs["ro"];
   },
-  get ru() {
+  get ru(): TimeagoLocale {
     return langs["ru"];
   },
-  get sv() {
+  get sv(): TimeagoLocale {
     return langs["sv"];
   },
-  get ta() {
+  get ta(): TimeagoLocale {
     return langs["ta"];
   },
-  get th() {
+  get th(): TimeagoLocale {
     return langs["th"];
   },
-  get tr() {
+  get tr(): TimeagoLocale {
     return langs["tr"];
   },
-  get uk() {
+  get uk(): TimeagoLocale {
     return langs["uk"];
   },
-  get vi() {
+  get vi(): TimeagoLocale {
     return langs["vi"];
   },
-  get zh_CN() {
+  get zh_CN(): TimeagoLocale {
     return langs["zh_CN"];
   },
-  get zh_TW() {
+  get zh_TW(): TimeagoLocale {
     return langs["zh_TW"];
   },
 };

@@ -1,9 +1,9 @@
 /* @flow */
 
+import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import type { Dispatch, ThemeSettingValue } from "./Types";
 import FileSaver from "file-saver";
-import React from "react";
 import TabWrangleOption from "./TabWrangleOption";
 import { connect } from "react-redux";
 import cx from "classnames";
@@ -586,7 +586,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   }
 }
 
-export default connect((state) => ({
+export default (connect((state) => ({
   commands: state.tempStorage.commands,
   theme: state.settings.theme,
-}))(OptionsTab);
+}))(OptionsTab): React.AbstractComponent<{}>);

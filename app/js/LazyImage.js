@@ -1,9 +1,9 @@
 /* @flow */
 
 import "./LazyImage.css";
+import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import ColorHash from "color-hash";
-import React from "react";
 import cx from "classnames";
 
 const loadedSrcs = new Set();
@@ -82,13 +82,13 @@ export default class LazyImage extends React.PureComponent<Props, State> {
     pendingLazyImages.delete(this);
   }
 
-  setLoaded = () => {
+  setLoaded: () => void = () => {
     this._img = null;
     loadedSrcs.add(this.props.src);
     this.setState({ loaded: true });
   };
 
-  render() {
+  render(): React.Node {
     return (
       <TransitionGroup className="lazy-image-container">
         {this.props.src != null && this.state.loaded ? (

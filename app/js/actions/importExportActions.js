@@ -15,7 +15,9 @@ import {
  *
  * @param event contains the path of the backup file
  */
-function importData(event: SyntheticInputEvent<HTMLInputElement>) {
+function importData(
+  event: SyntheticInputEvent<HTMLInputElement>
+): (dispatch: Dispatch) => Promise<void> {
   return function (dispatch: Dispatch): Promise<void> {
     const files = event.target.files;
     if (files[0]) {
@@ -64,7 +66,7 @@ function importData(event: SyntheticInputEvent<HTMLInputElement>) {
  *
  * `savedTabs` is acquired by reading it directly from the Store.
  */
-function exportData() {
+function exportData(): (dispatch: Dispatch, getState: GetState) => Promise<mixed> {
   return function (dispatch: Dispatch, getState: GetState): Promise<mixed> {
     const { localStorage } = getState();
     const exportObject = {
@@ -81,7 +83,7 @@ function exportData() {
   };
 }
 
-const exportFileName = (date: Date) => {
+const exportFileName = (date: Date): string => {
   // Use a format like YYYY-MM-DD, which is the first 10 characters of the ISO string format.
   const localeDateString = date.toISOString().substr(0, 10);
   return `TabWranglerExport-${localeDateString}.json`;

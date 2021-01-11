@@ -82,9 +82,5 @@
   "extension_resume": {
     "description": "Label for button that resumes (unpauses) the extension",
     "message": "Wznów"
-  },
-  "options_option_filterGroupedTabs_label": {
-    "description": "Label for checkbox to lock tabs that are in a tab group",
-    "message": "Nie zamykaj karty, które znajdują się w grupie"
   }
 }

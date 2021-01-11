@@ -205,10 +205,6 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "탭의 타이머가 1초 동안 활성화된 후에만 재설정"
   },
-  "options_option_filterGroupedTabs_label": {
-    "description": "Label for checkbox to lock tabs that are in a tab group",
-    "message": "그룹에 닫지 탭을 수행"
-  },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
     "message": "다음보다 많은 경우에만 탭을 자동으로 닫습니다:"

@@ -41,6 +41,10 @@ const checkToClose = function (cutOff: ?number) {
           tabs = tabs.filter((tab) => tab.pinned === false);
           // Filter out audible tabs if the option to do so is checked
           tabs = tabs.filter((tab) => (tab.audible && settings.get("filterAudio")) === false);
+          // Filter out tabs that are in a group if the option to do so is checked
+          tabs = tabs.filter(
+            (tab) => (tab.groupId > 0 && settings.get("filterGroupedTabs")) === false
+          );
 
           let tabsToCut = tabs.filter((t) => t.id == null || toCut.indexOf(t.id) !== -1);
           if (tabs.length - minTabs <= 0) {

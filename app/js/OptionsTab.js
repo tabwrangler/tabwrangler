@@ -427,6 +427,19 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               {chrome.i18n.getMessage("options_option_filterAudio_label")}
             </label>
           </div>
+          <div className="form-check mb-2">
+            <input
+              className="form-check-input"
+              defaultChecked={settings.get("filterGroupedTabs")}
+              id="filterGroupedTabs"
+              name="filterGroupedTabs"
+              onChange={this.handleSettingsChange}
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="filterGroupedTabs">
+              {chrome.i18n.getMessage("options_option_filterGroupedTabs_label")}
+            </label>
+          </div>
           <TabWrangleOption
             onChange={this.handleSettingsChange}
             selectedOption={settings.get("wrangleOption")}

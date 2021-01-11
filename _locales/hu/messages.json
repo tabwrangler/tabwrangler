@@ -41,6 +41,10 @@
     "description": "The name of this extension",
     "message": "Tab Wrangler"
   },
+  "options_option_filterGroupedTabs_label": {
+    "description": "Label for checkbox to lock tabs that are in a tab group",
+    "message": "Ne zárja lapok, amelyek egy csoportban"
+  },
   "options_option_theme_label": {
     "description": "Label preceding button group for choosing the color theme",
     "message": "Téma"

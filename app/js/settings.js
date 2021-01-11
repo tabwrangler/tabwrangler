@@ -24,6 +24,9 @@ const Settings = {
     // Don't close tabs that are playing audio.
     filterAudio: true,
 
+    // Don't close tabs that are a member of a group.
+    filterGroupedTabs: false,
+
     // An array of tabids which have been explicitly locked by the user.
     lockedIds: defaultLockedIds,
 

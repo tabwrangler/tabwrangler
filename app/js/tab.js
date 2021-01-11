@@ -10,7 +10,7 @@ export function isLocked(tab: chrome$Tab): boolean {
     tab.pinned ||
     tabWhitelistMatch ||
     lockedIds.indexOf(tab.id) !== -1 ||
-    !!(tab.groupId > 0 && settings.get("filterGroupedTabs")) ||
+    !!(settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) ||
     !!(tab.audible && settings.get("filterAudio"))
   );
 }
@@ -21,6 +21,6 @@ export function isManuallyLockable(tab: chrome$Tab): boolean {
     !tab.pinned &&
     !tabWhitelistMatch &&
     !(tab.audible && settings.get("filterAudio")) &&
-    !(tab.groupId > 0 && settings.get("filterGroupedTabs"))
+    !(settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0)
   );
 }

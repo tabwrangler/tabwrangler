@@ -327,6 +327,10 @@
     "description": "Label for a tab that is locked because it's audible",
     "message": "Tabs playing audio will not be closed"
   },
+  "tabLock_lockedReason_group": {
+    "description": "Label for a tab that is locked because it's in a group",
+    "message": "Grouped"
+  },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
     "message": "Check a tab's box to lock the tab (prevent it from auto-closing)."

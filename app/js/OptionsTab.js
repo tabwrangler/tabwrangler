@@ -51,6 +51,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       importExportErrors: [],
       importExportAlertVisible: false,
       importExportOperationName: "",
+      showFilterTabGroupsOption: false,
     };
   }
 
@@ -69,6 +70,20 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       event.persist();
       debounced(event);
     };
+
+    // this is for determining if we should show the filter tab groups setting
+    chrome.tabs.query({}, (tabs) => {
+      // this shouldn't happen but we'll just bail if there are zero tabs
+      if (tabs.length < 1) {
+        return;
+      }
+
+      if ("groupId" in tabs[0]) {
+        this.setState(() => {
+          return { showFilterTabGroupsOption: true };
+        });
+      }
+    });
   }
 
   componentWillUnmount() {
@@ -427,6 +442,21 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               {chrome.i18n.getMessage("options_option_filterAudio_label")}
             </label>
           </div>
+          {this.state.showFilterTabGroupsOption && (
+            <div className="form-check mb-2">
+              <input
+                className="form-check-input"
+                defaultChecked={settings.get("filterGroupedTabs")}
+                id="filterGroupedTabs"
+                name="filterGroupedTabs"
+                onChange={this.handleSettingsChange}
+                type="checkbox"
+              />
+              <label className="form-check-label" htmlFor="filterGroupedTabs">
+                {chrome.i18n.getMessage("options_option_filterGroupedTabs_label")}
+              </label>
+            </div>
+          )}
           <TabWrangleOption
             onChange={this.handleSettingsChange}
             selectedOption={settings.get("wrangleOption")}

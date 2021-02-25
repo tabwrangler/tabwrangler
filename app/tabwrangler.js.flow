@@ -10,4 +10,5 @@ type TabWrangler = {
 };
 
 declare var EXTENSION_URL: string;
+declare var BROWSER: string;
 declare var TW: TabWrangler;

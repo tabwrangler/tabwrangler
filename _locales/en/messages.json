@@ -209,6 +209,10 @@
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "Don't close tabs that are playing audio"
   },
+  "options_option_filterGroupedTabs_label": {
+    "description": "Label for checkbox to lock tabs that are in a tab group",
+    "message": "Don't close tabs that are in a group"
+  },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
     "message": "Auto-close tabs only if I have more than:"
@@ -322,6 +326,10 @@
   "tabLock_lockedReason_audible": {
     "description": "Label for a tab that is locked because it's audible",
     "message": "Tabs playing audio will not be closed"
+  },
+  "tabLock_lockedReason_group": {
+    "description": "Label for a tab that is locked because it's in a group",
+    "message": "Grouped"
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",

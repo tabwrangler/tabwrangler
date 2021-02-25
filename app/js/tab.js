@@ -10,11 +10,17 @@ export function isLocked(tab: chrome$Tab): boolean {
     tab.pinned ||
     tabWhitelistMatch ||
     lockedIds.indexOf(tab.id) !== -1 ||
+    !!(settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) ||
     !!(tab.audible && settings.get("filterAudio"))
   );
 }
 
 export function isManuallyLockable(tab: chrome$Tab): boolean {
   const tabWhitelistMatch = tabmanager.getWhitelistMatch(tab.url);
-  return !tab.pinned && !tabWhitelistMatch && !(tab.audible && settings.get("filterAudio"));
+  return (
+    !tab.pinned &&
+    !tabWhitelistMatch &&
+    !(tab.audible && settings.get("filterAudio")) &&
+    !(settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0)
+  );
 }

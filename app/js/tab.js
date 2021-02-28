@@ -10,6 +10,7 @@ export function isLocked(tab: chrome$Tab): boolean {
     tab.pinned ||
     tabWhitelistMatch ||
     lockedIds.indexOf(tab.id) !== -1 ||
+    // $FlowFixMe missing groupId in chrome.tab
     !!(settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) ||
     !!(tab.audible && settings.get("filterAudio"))
   );
@@ -21,6 +22,7 @@ export function isManuallyLockable(tab: chrome$Tab): boolean {
     !tab.pinned &&
     !tabWhitelistMatch &&
     !(tab.audible && settings.get("filterAudio")) &&
+    // $FlowFixMe missing groupId in chrome.tab
     !(settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0)
   );
 }

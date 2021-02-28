@@ -29,11 +29,12 @@ type OptionsTabProps = {
 
 type OptionsTabState = {
   errors: Array<Object>,
-  newPattern: string,
-  saveAlertVisible: boolean,
   importExportErrors: Array<{ message: string }>,
   importExportAlertVisible: boolean,
   importExportOperationName: string,
+  newPattern: string,
+  saveAlertVisible: boolean,
+  showFilterTabGroupsOption: boolean,
 };
 
 class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
@@ -46,11 +47,11 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     super();
     this.state = {
       errors: [],
-      newPattern: "",
-      saveAlertVisible: false,
       importExportErrors: [],
       importExportAlertVisible: false,
       importExportOperationName: "",
+      newPattern: "",
+      saveAlertVisible: false,
       showFilterTabGroupsOption: false,
     };
   }
@@ -79,8 +80,8 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       }
 
       if ("groupId" in tabs[0]) {
-        this.setState(() => {
-          return { showFilterTabGroupsOption: true };
+        this.setState({
+          showFilterTabGroupsOption: true,
         });
       }
     });

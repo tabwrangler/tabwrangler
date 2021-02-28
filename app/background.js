@@ -43,7 +43,8 @@ const checkToClose = function (cutOff: ?number) {
           tabs = settings.get("filterAudio") ? tabs.filter((tab) => !tab.audible) : tabs;
           // Filter out tabs that are in a group if the option to do so is checked
           tabs = settings.get("filterGroupedTabs")
-            ? tabs.filter((tab) => !("groupId" in tab) || tab.groupId <= 0)
+            ? // $FlowFixMe
+              tabs.filter((tab) => !("groupId" in tab) || tab.groupId <= 0)
             : tabs;
 
           let tabsToCut = tabs.filter((t) => t.id == null || toCut.indexOf(t.id) !== -1);

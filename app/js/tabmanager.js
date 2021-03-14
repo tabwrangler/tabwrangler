@@ -237,16 +237,16 @@ const TabManager = {
       return;
     } else if (typeof tabOrTabId === "number") {
       tabId = tabOrTabId;
+      TabManager.tabTimes[String(tabId)] = new Date().getTime();
     } else {
       tabId = tabOrTabId.id;
+      TabManager.tabTimes[String(tabId)] = tabOrTabId?.lastAccessed ?? new Date().getTime();
     }
 
     if (typeof tabId !== "number") {
       console.log("Error: `tabId` is not an number", tabId);
       return;
     }
-
-    TabManager.tabTimes[String(tabId)] = new Date().getTime();
   },
 };
 

@@ -245,6 +245,30 @@
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
     "message": "Show # of closed tabs on the toolbar button"
   },
+  "options_option_skipCoral_add": {
+    "description": "Button label for adding to skip coral list",
+    "message": "Add"
+  },
+  "options_option_skipCoral_empty": {
+    "description": "Message shown when there are no skip coral URLs",
+    "message": "No skip coral URLs yet. Use the form above to add some to the skip coral."
+  },
+  "options_option_skipCoral_example": {
+    "description": "Example describing how the skip coral works",
+    "message": "Example: \"cnn\" would match every page on \"https://www.cnn.com\" and any URL with \"cnn\" anywhere in it."
+  },
+  "options_option_skipCoral_label": {
+    "description": "Label preceeding input for adding URL to whitelist",
+    "message": "Skip coral tabs with URLs containing:"
+  },
+  "options_option_skipCoral_remove": {
+    "description": "Button label for removing a URL from the skip coral",
+    "message": "Remove"
+  },
+  "options_option_skipCoral_urlHeader": {
+    "description": "Table column header for list of skip coral URL strings",
+    "message": "URL String"
+  },
   "options_option_theme_label": {
     "description": "Label preceding button group for choosing the color theme",
     "message": "Theme"
@@ -296,6 +320,10 @@
   "options_section_settings": {
     "description": "Header for settings section of the options tab",
     "message": "Settings"
+  },
+  "options_section_skipCorral": {
+    "description": "Header for the skip-coral section of the options tab",
+    "message": "Skip Coral"
   },
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",

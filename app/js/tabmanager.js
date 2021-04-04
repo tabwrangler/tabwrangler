@@ -95,6 +95,16 @@ const TabManager = {
       };
     },
 
+    isSkipCorallistMatch(url: string): boolean {
+      const skipcorallist = TW.settings.get("skipcorallist");
+      for (let i = 0; i < skipcorallist.length; i++) {
+        if (url.indexOf(skipcorallist[i]) !== -1) {
+          return skipcorallist[i];
+        }
+      }
+      return false;
+    },
+
     wrangleTabs(tabs: Array<Object>) {
       const maxTabs = TW.settings.get("maxTabs");
       let totalTabsWrangled = TW.store.getState().localStorage.totalTabsWrangled;
@@ -116,11 +126,13 @@ const TabManager = {
           nextSavedTabs.splice(existingTabPosition, 1);
         }
 
-        tabs[i].closedAt = closingDate;
-        nextSavedTabs.unshift(tabs[i]);
-        totalTabsWrangled += 1;
+        if (!this.isSkipCorallistMatch(tabs[i].url)) {
+            nextSavedTabs.unshift(tabs[i]);
+            totalTabsWrangled += 1;
+        }
 
         // Close it in Chrome.
+        tabs[i].closedAt = closingDate;
         chrome.tabs.remove(tabs[i].id);
       }
 
@@ -174,6 +186,16 @@ const TabManager = {
     for (let i = 0; i < whitelist.length; i++) {
       if (url.indexOf(whitelist[i]) !== -1) {
         return whitelist[i];
+      }
+    }
+    return false;
+  },
+
+  getSkipCorallistMatch(url: string): boolean {
+    const skipcorallist = TW.settings.get("skipcorallist");
+    for (let i = 0; i < skipcorallist.length; i++) {
+      if (url.indexOf(skipcorallist[i]) !== -1) {
+        return skipcorallist[i];
       }
     }
     return false;

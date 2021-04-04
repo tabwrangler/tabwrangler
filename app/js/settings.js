@@ -54,6 +54,9 @@ const Settings = {
     // An array of patterns to check against. If a URL matches a pattern, it is never locked.
     whitelist: ["about:", "chrome://"],
 
+    // An array of patterns to check against. If a URL matches a pattern, it is not added to coral when closed.
+    skipcorallist: [],
+
     // We allow duplicate entries in the closed/wrangled tabs list
     wrangleOption: "withDupes",
   },

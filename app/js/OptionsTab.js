@@ -33,6 +33,7 @@ type OptionsTabState = {
   importExportAlertVisible: boolean,
   importExportOperationName: string,
   newPattern: string,
+  newSkipCoralPattern: string,
   saveAlertVisible: boolean,
   showFilterTabGroupsOption: boolean,
 };
@@ -51,6 +52,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       importExportAlertVisible: false,
       importExportOperationName: "",
       newPattern: "",
+      newSkipCoralPattern: "",
       saveAlertVisible: false,
       showFilterTabGroupsOption: false,
     };
@@ -100,6 +102,13 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     this.forceUpdate();
   }
 
+  handleClickRemoveSkipCoralPattern(pattern: string) {
+    const skipcorallist = settings.get("skipcorallist");
+    skipcorallist.splice(skipcorallist.indexOf(pattern), 1);
+    this.saveOption("skipcorallist", skipcorallist);
+    this.forceUpdate();
+  }
+
   handleAddPatternSubmit = (event: SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     const { newPattern } = this.state;
@@ -119,6 +128,25 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     this.setState({ newPattern: "" });
   };
 
+  handleAddSkipCoralSubmit = (event: SyntheticEvent<HTMLElement>) => {
+    event.preventDefault();
+    const { newSkipCoralPattern } = this.state;
+
+    if (!isValidPattern(newSkipCoralPattern)) {
+      return;
+    }
+
+    const skipcorallist = settings.get("skipcorallist");
+
+    // Only add the pattern again if it's new, not yet in the whitelist.
+    if (skipcorallist.indexOf(newSkipCoralPattern) === -1) {
+      skipcorallist.push(newSkipCoralPattern);
+      this.saveOption("skipcorallist", skipcorallist);
+    }
+
+    this.setState({ newSkipCoralPattern: "" });
+  };
+
   _handleConfigureCommandsClick = (event: SyntheticMouseEvent<HTMLAnchorElement>) => {
     // `chrome://` URLs are not linkable, but it's possible to create new tabs pointing to Chrome's
     // configuration pages. Calling `tabs.create` will open the tab and close this popup.
@@ -132,6 +160,10 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
 
   handleNewPatternChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
     this.setState({ newPattern: event.target.value });
+  };
+
+  handleSkipCoralPatternChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
+    this.setState({ newSkipCoralPattern: event.target.value });
   };
 
   handleSettingsChange = (event: SyntheticInputEvent<HTMLInputElement>) => {
@@ -214,6 +246,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
 
   render() {
     const whitelist = settings.get("whitelist");
+    const skipcorallist = settings.get("skipcorallist");
 
     let errorAlert;
     let saveAlert;
@@ -525,6 +558,75 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                       style={{ marginBottom: "-4px", marginTop: "-4px" }}
                     >
                       {chrome.i18n.getMessage("options_option_autoLock_remove")}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        <h4 className="mt-3">{chrome.i18n.getMessage("options_section_skipCorral")}</h4>
+        <div className="row">
+          <div className="col-8">
+            <form onSubmit={this.handleAddSkipCoralSubmit} style={{ marginBottom: "20px" }}>
+              <label htmlFor="sk-add">
+                {chrome.i18n.getMessage("options_option_skipCoral_label")}
+              </label>
+              <div className="input-group">
+                <input
+                  className="form-control"
+                  id="sk-add"
+                  onChange={this.handleSkipCoralPatternChange}
+                  type="text"
+                  value={this.state.newSkipCoralPattern}
+                />
+                <span className="input-group-append">
+                  <button
+                    className="btn btn-outline-dark"
+                    disabled={!isValidPattern(this.state.newSkipCoralPattern)}
+                    id="addToSK"
+                    type="submit"
+                  >
+                    {chrome.i18n.getMessage("options_option_skipCoral_add")}
+                  </button>
+                </span>
+              </div>
+              <p className="form-text text-muted">
+                {chrome.i18n.getMessage("options_option_skipCoral_example")}
+              </p>
+            </form>
+          </div>
+        </div>
+        <table className="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th style={{ width: "100%" }}>
+                {chrome.i18n.getMessage("options_option_skipCoral_urlHeader")}
+              </th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {skipcorallist.length === 0 ? (
+              <tr>
+                <td className="text-center" colSpan="2">
+                  {chrome.i18n.getMessage("options_option_skipCoral_empty")}
+                </td>
+              </tr>
+            ) : (
+              skipcorallist.map((pattern) => (
+                <tr key={pattern}>
+                  <td>
+                    <code>{pattern}</code>
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-link btn-sm"
+                      onClick={this.handleClickRemoveSkipCoralPattern.bind(this, pattern)}
+                      style={{ marginBottom: "-4px", marginTop: "-4px" }}
+                    >
+                      {chrome.i18n.getMessage("options_option_skipCoral_remove")}
                     </button>
                   </td>
                 </tr>

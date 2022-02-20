@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from "react";
 import ReactTestUtils from "react-dom/test-utils";
 import TabWrangleOption from "../TabWrangleOption";

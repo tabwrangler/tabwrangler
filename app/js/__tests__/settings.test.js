@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import Settings from "../settings";
 
 let mockFunctionGet;

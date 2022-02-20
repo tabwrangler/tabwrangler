@@ -44,13 +44,15 @@ const COMMON_CONFIG = {
     },
   },
   plugins: [
-    new CopyWebpackPlugin([
-      { from: "_locales/**" },
-      { from: "app/img/", to: "img/" },
-      { from: "app/manifest.json" },
-      { from: "MIT-LICENSE.txt" },
-      { from: "README.md" },
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "_locales/**" },
+        { from: "app/img/", to: "img/" },
+        { from: "app/manifest.json" },
+        { from: "MIT-LICENSE.txt" },
+        { from: "README.md" },
+      ],
+    }),
     new MiniCssExtractPlugin({
       filename: "[name].css",
     }),

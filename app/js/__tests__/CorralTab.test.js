@@ -1,4 +1,7 @@
-/* @flow */
+/**
+ * @jest-environment jsdom
+ * @flow
+ */
 
 let sessionFuzzyMatchesTab;
 

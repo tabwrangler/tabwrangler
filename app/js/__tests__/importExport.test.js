@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { exportData, exportFileName, importData } from "../actions/importExportActions";
 import configureMockStore from "../__mocks__/configureMockStore";
 

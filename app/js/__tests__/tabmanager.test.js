@@ -1,4 +1,7 @@
-/* @flow */
+/**
+ * @jest-environment jsdom
+ * @flow
+ */
 
 import TabManager from "../tabmanager";
 import configureMockStore from "../__mocks__/configureMockStore";
@@ -212,27 +215,24 @@ describe("filter", () => {
 
 describe("getURLPositionFilterByWrangleOption", () => {
   test("should return function that always returns -1", () => {
-    const filterFunction = TabManager.closedTabs.getURLPositionFilterByWrangleOption(
-      "withDuplicates"
-    );
+    const filterFunction =
+      TabManager.closedTabs.getURLPositionFilterByWrangleOption("withDuplicates");
 
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
   });
 
   test("should return function that will return the tab position by exact URL match", () => {
-    const filterFunction = TabManager.closedTabs.getURLPositionFilterByWrangleOption(
-      "exactURLMatch"
-    );
+    const filterFunction =
+      TabManager.closedTabs.getURLPositionFilterByWrangleOption("exactURLMatch");
 
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
   });
 
   test("should return function that will return the tab position by hostname and title", () => {
-    const filterFunction = TabManager.closedTabs.getURLPositionFilterByWrangleOption(
-      "hostnameAndTitleMatch"
-    );
+    const filterFunction =
+      TabManager.closedTabs.getURLPositionFilterByWrangleOption("hostnameAndTitleMatch");
 
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com", title: "test" }))).toBe(-1);

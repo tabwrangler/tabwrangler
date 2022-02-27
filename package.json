@@ -71,7 +71,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.0.0",
-    "bootstrap": "^4.3.1",
+    "bootstrap": "^4.0.0",
     "classnames": "^2.2.5",
     "color-hash": "^2.0.0",
     "file-saver": "^2.0.0",

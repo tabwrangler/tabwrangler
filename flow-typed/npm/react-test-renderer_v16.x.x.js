@@ -1,10 +1,12 @@
-// flow-typed signature: 1e72e585885f0d635f1583960545de71
-// flow-typed version: c6154227d1/react-test-renderer_v16.x.x/flow_>=v0.104.x
+// flow-typed signature: 1d1fa13c18620265ab0cc0f6dd661436
+// flow-typed version: fcb5a26c5f/react-test-renderer_v16.x.x/flow_>=v0.104.x
 
 // Type definitions for react-test-renderer 16.x.x
 // Ported from: https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/react-test-renderer
 
 type ReactComponentInstance = React$Component<any>;
+
+type ReactInstance = React$Component<any, any> | React$Element<any>;
 
 type ReactTestRendererJSON = {
   type: string,
@@ -64,13 +66,13 @@ declare module "react-test-renderer" {
     options?: TestRendererOptions
   ): ReactTestRenderer;
 
-  declare function act(callback: () => void): Thenable;
+  declare function act(callback: () => void | Promise<void>): Thenable;
 }
 
 declare module "react-test-renderer/shallow" {
   declare export default class ShallowRenderer {
     static createRenderer(): ShallowRenderer;
-    getMountedInstance(): ReactTestInstance;
+    getMountedInstance<I: ReactInstance>(): I;
     getRenderOutput<E: React$Element<any>>(): E;
     getRenderOutput(): React$Element<any>;
     render(element: React$Element<any>, context?: any): void;

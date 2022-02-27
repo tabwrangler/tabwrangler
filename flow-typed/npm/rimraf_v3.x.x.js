@@ -1,5 +1,5 @@
-// flow-typed signature: 8b21843f43134917177d82a3b993b609
-// flow-typed version: c6154227d1/rimraf_v2.x.x/flow_>=v0.104.x
+// flow-typed signature: 31191d41b239d1242753bdea18136ae9
+// flow-typed version: 6ee04b16cf/rimraf_v3.x.x/flow_>=v0.104.x
 
 declare module 'rimraf' {
   declare type Options = {

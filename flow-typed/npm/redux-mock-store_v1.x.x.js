@@ -1,5 +1,5 @@
-// flow-typed signature: d235ca951e74d5203825bf0c4b23041c
-// flow-typed version: c6154227d1/redux-mock-store_v1.2.x/flow_>=v0.104.x
+// flow-typed signature: 391af34d1983e15b80d2f18fd8273954
+// flow-typed version: 032de4a35a/redux-mock-store_v1.x.x/flow_>=v0.104.x
 
 declare module "redux-mock-store" {
   /*
@@ -9,7 +9,7 @@ declare module "redux-mock-store" {
 
   declare type mockStore = { <S, A>(state: S): mockStoreWithoutMiddleware<S, A>, ... };
   declare type DispatchAPI<A> = (action: A) => A;
-  declare type Dispatch<A: { type: string, ... }> = DispatchAPI<A>;
+  declare type Dispatch<A: $ReadOnly<{ type: string, ... }>> = DispatchAPI<A>;
   declare type mockStoreWithoutMiddleware<S, A> = {
     getState(): S,
     getActions(): Array<A>,

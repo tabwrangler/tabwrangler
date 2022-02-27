@@ -3,3 +3,4 @@ node_modules/
 coverage/
 tabwrangler*.zip
 yarn-error.log
+.parcel-cache/

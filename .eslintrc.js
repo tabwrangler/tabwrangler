@@ -15,7 +15,7 @@ module.exports = {
     "prettier/react",
     "prettier/standard",
   ],
-  parser: "babel-eslint",
+  parser: "@babel/eslint-parser",
   parserOptions: {
     ecmaFeatures: {
       jsx: true,

@@ -1,4 +1,3 @@
-/* global EXTENSION_URL */
 /* @flow */
 
 import * as React from "react";
@@ -7,7 +6,11 @@ export default function AboutTab(): React.Node {
   return (
     <div className="tab-pane active">
       <p>
-        <a href={EXTENSION_URL} rel="noopener noreferrer" target="_blank">
+        <a
+          href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
           {chrome.i18n.getMessage("extName")}
         </a>{" "}
         v{chrome.runtime.getManifest().version}

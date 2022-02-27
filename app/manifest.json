@@ -15,7 +15,8 @@
     "default_popup": "popup.html"
   },
   "background": {
-    "page": "background.html"
+    "persistent": true,
+    "scripts": ["background.js"]
   },
   "commands": {
     "wrangle-current-tab": {
@@ -31,13 +32,6 @@
     "open_in_tab": true,
     "page": "popup.html"
   },
-  "permissions": [
-    "contextMenus",
-    "sessions",
-    "storage",
-    "tabs"
-  ],
-  "web_accessible_resources": [
-    "img/icon48.png"
-  ]
+  "permissions": ["contextMenus", "sessions", "storage", "tabs"],
+  "web_accessible_resources": ["img/icon48.png"]
 }

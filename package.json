@@ -73,7 +73,7 @@
     "@fortawesome/fontawesome-free": "^5.3.1",
     "bootstrap": "^4.3.1",
     "classnames": "^2.2.5",
-    "color-hash": "^1.0.3",
+    "color-hash": "^2.0.0",
     "file-saver": "^2.0.0",
     "lodash.debounce": "^4.0.8",
     "memoize-one": "^6.0.0",

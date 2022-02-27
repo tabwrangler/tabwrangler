@@ -37,7 +37,14 @@ type State = {
   loaded: boolean,
 };
 
-const colorHash = new ColorHash();
+// Note: default options were changed in v2.x.
+// Use the following options to get the same result of v1.x
+// TODO: test
+const colorHash = new ColorHash({
+  hash: "bkdr",
+  saturation: [0.65, 0.35, 0.5],
+  lightness: [0.65, 0.35, 0.5],
+});
 
 export default class LazyImage extends React.PureComponent<Props, State> {
   _img: ?Image;

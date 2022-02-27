@@ -70,7 +70,7 @@
     "webpack-cli": "^3.3.6"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.3.1",
+    "@fortawesome/fontawesome-free": "^6.0.0",
     "bootstrap": "^4.3.1",
     "classnames": "^2.2.5",
     "color-hash": "^2.0.0",

@@ -58,7 +58,7 @@
     "mini-css-extract-plugin": "^0.8.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "plugin-error": "^1.0.1",
-    "prettier": "^2.0.5",
+    "prettier": "2.2.1",
     "react-test-renderer": "^16.8.6",
     "redux-mock-store": "^1.5.3",
     "rimraf": "^3.0.0",

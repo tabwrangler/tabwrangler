@@ -36,7 +36,7 @@
     "copy-webpack-plugin": "^6.0.0",
     "core-js": "^3.5.0",
     "crowdin-api": "^4.0.0",
-    "css-loader": "^3.0.0",
+    "css-loader": "^4.0.0",
     "eslint": "^7.16.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-flowtype": "^5.2.0",

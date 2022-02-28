@@ -11,9 +11,7 @@ module.exports = {
     "plugin:flowtype/recommended",
     "plugin:react/recommended",
     "plugin:prettier/recommended",
-    "prettier/flowtype",
-    "prettier/react",
-    "prettier/standard",
+    "prettier",
   ],
   parser: "@babel/eslint-parser",
   parserOptions: {

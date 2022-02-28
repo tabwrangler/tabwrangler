@@ -33,5 +33,5 @@
     "page": "popup.html"
   },
   "permissions": ["contextMenus", "sessions", "storage", "tabs"],
-  "web_accessible_resources": ["img/icon48.png"]
+  "web_accessible_resources": ["img/icon48.png", "img/icon.png", "img/icon-paused.png"]
 }

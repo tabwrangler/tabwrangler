@@ -1,5 +1,6 @@
 {
   "presets": [
+    ["@parcel/babel-preset-env", { "modules": "auto"}],
     "@babel/preset-flow",
     "@babel/preset-react"
   ],

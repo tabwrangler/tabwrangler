@@ -1,12 +1,8 @@
 /* eslint-env node */
 
 const CrowdinApi = require("crowdin-api");
-const PluginError = require("plugin-error");
-const eslint = require("gulp-eslint");
 const gulp = require("gulp");
 const ignore = require("gulp-ignore");
-const jest = require("gulp-jest").default;
-const log = require("fancy-log");
 const rename = require("gulp-rename");
 const rimraf = require("rimraf");
 const unzip = require("gulp-unzip");
@@ -71,42 +67,4 @@ gulp.task("l10n:import", function () {
   });
 });
 
-gulp.task("lint", function () {
-  return (
-    gulp
-      .src(["**/*.js", `!${DIST_DIRECTORY}/**`, "!node_modules/**", "!coverage/**"])
-      // eslint() attaches the lint output to the "eslint" property
-      // of the file object so it can be used by other modules.
-      .pipe(eslint())
-      // eslint.format() outputs the lint results to the console.
-      // Alternatively use eslint.formatEach() (see Docs).
-      .pipe(eslint.format())
-      // To have the process exit with an error code (1) on
-      // lint error, return the stream and pipe to failAfterError last.
-      .pipe(eslint.failAfterError())
-  );
-});
-
-gulp.task("test", function () {
-  process.env.NODE_ENV = "test";
-  return gulp.src("app/js/__tests__").pipe(
-    jest(
-      Object.assign(
-        {},
-        {
-          config: {
-            transformIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/node_modules/"],
-            transform: {
-              "^.+\\.jsx?$": "babel-jest",
-            },
-            verbose: true,
-            automock: false,
-          },
-        }
-      )
-    )
-  );
-});
-
-gulp.task("release", gulp.series("clean", gulp.parallel("lint", "test"), "webpack:production"));
 gulp.task("default", gulp.series("lint", "webpack"));

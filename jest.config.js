@@ -11,5 +11,8 @@ module.exports = async () => {
     moduleNameMapper: {
       "\\.(s?css)$": "<rootDir>/app/__mocks__/styleMock.js",
     },
+    transform: {
+      "^.+\\.jsx?$": "babel-jest",
+    },
   };
 };

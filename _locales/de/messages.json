@@ -3,6 +3,10 @@
     "description": "Name of the 'About' section, where users can see information about the extension",
     "message": "Über"
   },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "Quelltext (MIT)"
+  },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
     "message": "Tab schließen und URL sichern"
@@ -129,9 +133,17 @@
     "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Alle geschlossenen Tabs aus der Tab Liste exportieren. Das ist die einzige Möglichkeit ein Backup der geschlossen Tabs herzustellen und nach einer erneuten Installation der Extension den alten Zustand wiederherzustellen."
   },
+  "options_importExport_export": {
+    "description": "Button label to begin exporting closed tabs",
+    "message": "Exportieren"
+  },
   "options_importExport_exporting": {
     "description": "Label displayed when exporting closed tabs",
     "message": "Exportieren..."
+  },
+  "options_importExport_import": {
+    "description": "Button label to begin importing closed tabs",
+    "message": "Importieren"
   },
   "options_importExport_importing": {
     "description": "Label displayed when importing closed tabs",
@@ -213,6 +225,26 @@
     "description": "Input title for number of tabs to remember",
     "message": "Muss eine Nummer größer oder gleich 0 sein"
   },
+  "options_option_saveSortOrder": {
+    "description": "Label for toggling saving sort order in Corral and Lock Tabs",
+    "message": "Sortierreihenfolge speichern"
+  },
+  "options_option_theme_label": {
+    "description": "Label preceding button group for choosing the color theme",
+    "message": "Thema"
+  },
+  "options_option_theme_dark": {
+    "description": "'Dark' choice for color theme. Dark background, light font",
+    "message": "Dunkel"
+  },
+  "options_option_theme_light": {
+    "description": "'Light' choice for color theme. Light background, dark font",
+    "message": "Hell"
+  },
+  "options_option_theme_system": {
+    "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
+    "message": "System"
+  },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "Schließen von inaktiven Tabs nach:"
@@ -236,6 +268,10 @@
   "options_section_autoLock": {
     "description": "Header for the auto-lock section of the options tab",
     "message": "Automatischer Schutz"
+  },
+  "options_section_importExport": {
+    "description": "Header for the import/export feature section of the options tab",
+    "message": "Importieren / Exportieren"
   },
   "options_section_keyboardShortcuts": {
     "description": "Header for the section containing keyboard shortcut configuration",
@@ -275,6 +311,10 @@
     "description": "Label for a tab that is locked because it's audible",
     "message": "Tabs die Ton abspielen nicht schliessen"
   },
+  "tabLock_lockedReason_group": {
+    "description": "Label for a tab that is locked because it's in a group",
+    "message": "Gruppiert"
+  },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
     "message": "Auswählen der Checkbox verhindert das automatische schliessen des Tabs."
@@ -286,6 +326,10 @@
   "tabLock_remainingTimeLabel": {
     "description": "Explanation of time remaining before tab is closed",
     "message": "Schliessen in..."
+  },
+  "tabLock_sort_tabOrder_short": {
+    "description": "Short version of tabLock_sort_tabOrder",
+    "message": "Tab Reihenfolge"
   },
   "corral_tabsWrangled": {
     "description": "Label preceeding the number of tabs wrangled by this extension",
@@ -350,6 +394,10 @@
   "corral_sortTimeClosed_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time in descending order",
     "message": "Zeitpunkt geschlosen (absteigend)"
+  },
+  "corral_sortDomain": {
+    "description": "Label for sorting the tab corral list by domain",
+    "message": "Domain"
   },
   "corral_sortDomain_descending": {
     "description": "Label for sorting the tab corral list by domain in descending order",

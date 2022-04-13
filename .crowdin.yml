@@ -1,6 +1,5 @@
 "api_token_env": CROWDIN_PERSONAL_TOKEN
-"base_path": "/tab-wrangler"
-"base_url": "https://api.crowdin.com"
+"base_path": "."
 "preserve_hierarchy": true
 "project_id_env": CROWDIN_PROJECT_ID
 

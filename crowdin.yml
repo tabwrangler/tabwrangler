@@ -1,0 +1,12 @@
+"api_token_env": CROWDIN_PERSONAL_TOKEN
+"base_path": "/tab-wrangler"
+"base_url": "https://api.crowdin.com"
+"preserve_hierarchy": true
+"project_id_env": CROWDIN_PROJECT_ID
+
+"files": [
+  {
+    "source": "/_locales/en/messages.json",
+    "translation": "/_locales/%locale_with_underscore%/%original_file_name%"
+  }
+]

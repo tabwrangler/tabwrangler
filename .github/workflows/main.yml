@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
 # Controls when the workflow will run
@@ -34,6 +32,6 @@ jobs:
     - run: yarn release
     - uses: actions/upload-artifact@v3
       with:
-        name: tabwrangler
+        name: tabwrangler-builds
         path: tabwrangler-*.zip
         if-no-files-found: error

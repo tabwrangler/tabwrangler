@@ -7,6 +7,6 @@
   {
     "dest": "messages.json",
     "source": "/_locales/en/messages.json",
-    "translation": "/FOOBAR/%locale_with_underscore%/baz.json"
+    "translation": "/_locales/%two_letters_code%/%original_file_name%"
   }
 ]

@@ -18,11 +18,7 @@ jobs:
     - name: Crowdin action
       uses: crowdin/github-action@1.4.8
       with:
-        # download translations options
         download_translations: true
-
-        # no uploading translations, they all live in Crowdin
-        upload_translations: false
       env:
         CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
         CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}

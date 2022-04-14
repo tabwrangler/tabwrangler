@@ -20,10 +20,6 @@ jobs:
       with:
         # download translations options
         download_translations: true
-        export_only_approved: true
-        push_translations: true
-        skip_untranslated_strings: true
-        skip_untranslated_files: true
 
         # no uploading translations, they all live in Crowdin
         upload_translations: false

@@ -209,6 +209,10 @@
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "不要关闭正在播放音频的标签页"
   },
+  "options_option_filterGroupedTabs_label": {
+    "description": "Label for checkbox to lock tabs that are in a tab group",
+    "message": "不要关闭群组内的标签页"
+  },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
     "message": "自动关闭标签页，仅当已打开超过"
@@ -302,6 +306,10 @@
   "tabLock_lockedReason_audible": {
     "description": "Label for a tab that is locked because it's audible",
     "message": "正在播放音频的标签页将不被关闭"
+  },
+  "tabLock_lockedReason_group": {
+    "description": "Label for a tab that is locked because it's in a group",
+    "message": "群组内"
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",

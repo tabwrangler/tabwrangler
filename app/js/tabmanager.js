@@ -235,17 +235,15 @@ const TabManager = {
     if (Array.isArray(tabOrTabId)) {
       tabOrTabId.map(TabManager.updateLastAccessed.bind(this));
       return;
+    } else if (typeof tabOrTabId !== "number" && typeof tabOrTabId.id !== "number") {
+      console.log("Error: `tabOrTabId.id` is not an number", tabOrTabId.id);
+      return;
     } else if (typeof tabOrTabId === "number") {
       tabId = tabOrTabId;
       TabManager.tabTimes[String(tabId)] = new Date().getTime();
     } else {
       tabId = tabOrTabId.id;
       TabManager.tabTimes[String(tabId)] = tabOrTabId?.lastAccessed ?? new Date().getTime();
-    }
-
-    if (typeof tabId !== "number") {
-      console.log("Error: `tabId` is not an number", tabId);
-      return;
     }
   },
 };

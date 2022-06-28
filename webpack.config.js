@@ -81,6 +81,7 @@ module.exports = [
         EXTENSION_URL: JSON.stringify(
           "https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/"
         ),
+        BROWSER: JSON.stringify("chrome"),
       }),
     ]),
   }),
@@ -95,6 +96,7 @@ module.exports = [
         EXTENSION_URL: JSON.stringify(
           "https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/"
         ),
+        BROWSER: JSON.stringify("firefox"),
       }),
     ]),
   }),

@@ -1,0 +1,84 @@
+{
+  "about_name": {
+    "description": "Name of the 'About' section, where users can see information about the extension",
+    "message": "தகவல்"
+  },
+  "about_changeLog": {
+    "description": "Link to the extension's list of changes per release",
+    "message": "மாற்றங்களின் பதிவு"
+  },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "மென்பொருள் மூலம்\t(எம்ஐடி)"
+  },
+  "about_support": {
+    "description": "Link to the extension's support site",
+    "message": "ஆதரவு"
+  },
+  "contextMenu_corralTab": {
+    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
+    "message": "தாவலை மூடி, URLஐ உடனடியாகச் சேமிக்கவும்"
+  },
+  "contextMenu_lockDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "இந்த வலைகளத்தில் எதையும் மூட வேண்டாம்"
+  },
+  "contextMenu_lockSpecificDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "இந்த $domain$-ல் எதையும் மூட வேண்டாம்",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "www.wikipedia.org"
+      }
+    }
+  },
+  "contextMenu_lockTab": {
+    "description": "Label for context menu item that locks the clicked tab",
+    "message": "இந்தத் தாவலை ஒருபோதும் மூட வேண்டாம்"
+  },
+  "corral_currentSort": {
+    "description": "Button title for showing current sort order",
+    "message": "தற்போது $sort_order$ வரிசைப்படுத்தப்பட்டுள்ளது",
+    "placeholders": {
+      "sort_order": {
+        "content": "$1",
+        "example": "Reverse Chrono"
+      }
+    }
+  },
+  "corral_emptyList": {
+    "description": "Message displayed in the tab corral when the extension has not yet closed any tabs",
+    "message": "மூடிய தாவல்கள் எதுவும் இல்லை. Tab Wrangler தாவல்களை மூடும்போது, அவை இங்கே தோன்றும். உங்கள் தாவல்களைத் திறந்து விடுங்கள்!"
+  },
+  "corral_removeSelectedTabs": {
+    "description": "Button title for removing all selected tabs from the corral",
+    "message": "தேர்ந்தெடுக்கப்பட்ட தாவல்களை அகற்றுக"
+  },
+  "corral_restoreSelectedTabs": {
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
+    "message": "தேர்ந்தெடுக்கப்பட்ட தாவல்களை மீட்டமைக்க"
+  },
+  "corral_searchResults_clear": {
+    "description": "Button title for clearing the search value and resetting results",
+    "message": "தேடல் சொற்களை அழிக்கவும்"
+  },
+  "corral_searchResults_label": {
+    "description": "Label showing number of tab search results",
+    "message": "$count$ தேடல் முடிவுகள்",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "33"
+      }
+    }
+  },
+  "extension_pause": {
+    "description": "Label for button that pauses the extension",
+    "message": "இடைநிறுத்து"
+  },
+  "extension_resume": {
+    "description": "Label for button that resumes (unpauses) the extension",
+    "message": "மீள் துவங்குக"
+  }
+}

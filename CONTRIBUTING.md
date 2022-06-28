@@ -40,23 +40,8 @@
 
 ## Contributing Translations
 
-### Recommended
-
-1. Contribute on [Tab Wrangler's Crowdin Project][3], and your translations will be automatically
-   added to the project.
-
-### Custom (more complex)
-
-1. Follow the instructions for [Developing](#developing) the Tab Wrangler extension
-2. Find or create the appropriate "messages.json" file
-    - For a new locale, create a new directory in the "\_locales" directory with the locale code.
-      Ensure the new locale is one of the [locales supported by Chrome][1]. Copy
-      "\_locales/en/messages.json" to the new directory and begin editing.
-    - For an existing locale, edit the "messages.json" file in the appropriate locale's directory
-3. Edit each `"message"` field in the file with your translation
-    - Optional: You may also translate the `"description"` so the next person to view the
-      translations has a better description. This is not required.
-4. Build and install the extension locally to ensure the translations work as expected.
+Contribute on [Tab Wrangler's Crowdin Project][3], and your translations will be automatically
+added to the project.
 
 Note: For further details on Chrome extension i18n, check out the Chrome extension documentation
 on [i18n messages][0].

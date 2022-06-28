@@ -40,6 +40,9 @@ export default function OpenTabRow(props: Props): React.Node {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
     } else if (settings.get("filterAudio") && tab.audible) {
       reason = <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>Locked</abbr>;
+      // $FlowFixMe missing groupId in chrome.tab
+    } else if (settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) {
+      reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
     } else if (tabWhitelistMatch) {
       reason = (
         <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_matches", tabWhitelistMatch)}>

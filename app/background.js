@@ -40,7 +40,12 @@ const checkToClose = function (cutOff: ?number) {
           // Filter out the pinned tabs
           tabs = tabs.filter((tab) => tab.pinned === false);
           // Filter out audible tabs if the option to do so is checked
-          tabs = tabs.filter((tab) => (tab.audible && settings.get("filterAudio")) === false);
+          tabs = settings.get("filterAudio") ? tabs.filter((tab) => !tab.audible) : tabs;
+          // Filter out tabs that are in a group if the option to do so is checked
+          tabs = settings.get("filterGroupedTabs")
+            ? // $FlowFixMe
+              tabs.filter((tab) => !("groupId" in tab) || tab.groupId <= 0)
+            : tabs;
 
           let tabsToCut = tabs.filter((t) => t.id == null || toCut.indexOf(t.id) !== -1);
           if (tabs.length - minTabs <= 0) {

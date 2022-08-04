@@ -1,1 +1,22 @@
-{}
+{
+  "about_name": {
+    "description": "Name of the 'About' section, where users can see information about the extension",
+    "message": "Tentang"
+  },
+  "about_changeLog": {
+    "description": "Link to the extension's list of changes per release",
+    "message": "Catatan Perubahan"
+  },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "Kode Sumber (MIT)"
+  },
+  "about_support": {
+    "description": "Link to the extension's support site",
+    "message": "Dukungan"
+  },
+  "contextMenu_corralTab": {
+    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
+    "message": "Tutup tab dan simpan URL dengan segera"
+  }
+}

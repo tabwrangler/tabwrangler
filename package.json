@@ -1,6 +1,5 @@
 {
   "name": "tabwrangler",
-  "private": true,
   "version": "6.9.1",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "main": "app/background.js",
@@ -21,6 +20,27 @@
     "url": "https://github.com/tabwrangler/tabwrangler/issues"
   },
   "homepage": "https://github.com/tabwrangler/tabwrangler#readme",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.3.1",
+    "bootstrap": "^4.3.1",
+    "classnames": "^2.2.5",
+    "color-hash": "^1.0.3",
+    "file-saver": "^2.0.0",
+    "lodash.debounce": "^4.0.8",
+    "memoize-one": "^5.0.5",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-redux": "^7.1.0",
+    "react-transition-group": "^4.0.0",
+    "react-virtualized": "^9.21.1",
+    "redux": "^4.0.0",
+    "redux-persist": "^5.10.0",
+    "redux-persist-webextension-storage": "^1.0.0",
+    "redux-thunk": "^2.3.0",
+    "redux-watch": "^1.1.1",
+    "timeago-react": "^3.0.0",
+    "timeago.js": "^4.0.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
@@ -64,27 +84,10 @@
     "webpack-archive-plugin": "^3.0.0",
     "webpack-cli": "^3.3.6"
   },
-  "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.3.1",
-    "bootstrap": "^4.3.1",
-    "classnames": "^2.2.5",
-    "color-hash": "^1.0.3",
-    "file-saver": "^2.0.0",
-    "lodash.debounce": "^4.0.8",
-    "memoize-one": "^5.0.5",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-redux": "^7.1.0",
-    "react-transition-group": "^4.0.0",
-    "react-virtualized": "^9.21.1",
-    "redux": "^4.0.0",
-    "redux-persist": "^5.10.0",
-    "redux-persist-webextension-storage": "^1.0.0",
-    "redux-thunk": "^2.3.0",
-    "redux-watch": "^1.1.1",
-    "timeago-react": "^3.0.0",
-    "timeago.js": "^4.0.0"
+  "engines": {
+    "yarn": "NO LONGER USED - Please use npm"
   },
+  "private": true,
   "jest": {
     "globals": {
       "chrome": true

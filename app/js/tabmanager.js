@@ -99,9 +99,8 @@ const TabManager = {
       const maxTabs = TW.settings.get("maxTabs");
       let totalTabsWrangled = TW.store.getState().localStorage.totalTabsWrangled;
       const wrangleOption = TW.settings.get("wrangleOption");
-      const findURLPositionByWrangleOption = this.getURLPositionFilterByWrangleOption(
-        wrangleOption
-      );
+      const findURLPositionByWrangleOption =
+        this.getURLPositionFilterByWrangleOption(wrangleOption);
 
       let nextSavedTabs = TW.store.getState().localStorage.savedTabs.slice();
       for (let i = 0; i < tabs.length; i++) {

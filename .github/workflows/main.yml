@@ -25,12 +25,12 @@ jobs:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
+        cache: 'npm'
         node-version: ${{ matrix.node-version }}
-        cache: 'yarn'
-    - run: yarn install
-    - run: yarn lint
-    - run: yarn test
-    - run: yarn release
+    - run: npm install
+    - run: npm run lint
+    - run: npm run test
+    - run: npm run release
     - uses: actions/upload-artifact@v3
       with:
         name: tabwrangler-builds

@@ -83,12 +83,10 @@ gulp.task(
   "watch",
   gulp.series(
     "clean",
-    function lintAndTest(done) {
-      // Run lint and test on first execution to get results, but don't prevent Webpack from
-      // starting up. This way you need to run `yarn start` at most 1 time to get compilation
-      // started.
-      gulp.watch("app/**/*.js", { ignoreInitial: false }, gulp.parallel("lint", "test"));
-      gulp.watch("__tests__/**/*.js", gulp.parallel("lint", "test"));
+    function lint(done) {
+      // Run lint on first execution to get results, but don't prevent Webpack from starting up.
+      // This way you need to run `npm run start` at most 1 time to get compilation started.
+      gulp.watch("app/**/*.js", { ignoreInitial: false }, gulp.series("lint"));
       done();
     },
     "webpack:watch"

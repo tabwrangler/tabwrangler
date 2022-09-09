@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "release": "gulp release",
     "start": "gulp watch",
-    "test": "gulp test"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -50,7 +50,7 @@
     "@babel/preset-react": "^7.0.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
-    "babel-jest": "^24.8.0",
+    "babel-jest": "^29.0.2",
     "babel-loader": "^8.0.2",
     "copy-webpack-plugin": "^5.0.0",
     "core-js": "^3.5.0",
@@ -67,9 +67,10 @@
     "flow-interfaces-chrome": "^0.6.0",
     "gulp": "^4.0.2",
     "gulp-eslint": "^6.0.0",
-    "gulp-jest": "^4.0.2",
     "html-webpack-plugin": "^3.2.0",
-    "jest-cli": "^24.8.0",
+    "jest": "^29.0.2",
+    "jest-cli": "^29.0.2",
+    "jest-environment-jsdom": "^29.0.2",
     "mini-css-extract-plugin": "^0.8.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "plugin-error": "^1.0.1",
@@ -94,6 +95,7 @@
     },
     "moduleNameMapper": {
       "\\.(s?css)$": "<rootDir>/app/__mocks__/styleMock.js"
-    }
+    },
+    "testEnvironment": "jsdom"
   }
 }

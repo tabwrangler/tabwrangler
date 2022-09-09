@@ -3,7 +3,6 @@
 const PluginError = require("plugin-error");
 const eslint = require("gulp-eslint");
 const gulp = require("gulp");
-const jest = require("gulp-jest").default;
 const log = require("fancy-log");
 const rimraf = require("rimraf");
 const webpack = require("webpack");
@@ -30,27 +29,6 @@ gulp.task("lint", function () {
       // To have the process exit with an error code (1) on
       // lint error, return the stream and pipe to failAfterError last.
       .pipe(eslint.failAfterError())
-  );
-});
-
-gulp.task("test", function () {
-  process.env.NODE_ENV = "test";
-  return gulp.src("app/js/__tests__").pipe(
-    jest(
-      Object.assign(
-        {},
-        {
-          config: {
-            transformIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/node_modules/"],
-            transform: {
-              "^.+\\.jsx?$": "babel-jest",
-            },
-            verbose: true,
-            automock: false,
-          },
-        }
-      )
-    )
   );
 });
 

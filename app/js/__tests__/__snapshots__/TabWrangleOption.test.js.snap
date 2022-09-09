@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render options with exactURLMatch selected 1`] = `
-Array [
+[
   <label
     htmlFor="wrangleOption"
   >
@@ -72,14 +72,14 @@ Array [
     <div
       className="col-8 form-text text-muted"
       style={
-        Object {
+        {
           "marginBottom": 0,
         }
       }
     >
       <dl
         style={
-          Object {
+          {
             "marginBottom": 0,
           }
         }
@@ -92,7 +92,7 @@ Array [
         </dd>
         <dt
           style={
-            Object {
+            {
               "marginTop": "10px",
             }
           }
@@ -104,7 +104,7 @@ Array [
         </dd>
         <dt
           style={
-            Object {
+            {
               "marginTop": "10px",
             }
           }
@@ -121,7 +121,7 @@ Array [
 `;
 
 exports[`should render options with hostnameAndTitleMatch selected 1`] = `
-Array [
+[
   <label
     htmlFor="wrangleOption"
   >
@@ -192,14 +192,14 @@ Array [
     <div
       className="col-8 form-text text-muted"
       style={
-        Object {
+        {
           "marginBottom": 0,
         }
       }
     >
       <dl
         style={
-          Object {
+          {
             "marginBottom": 0,
           }
         }
@@ -212,7 +212,7 @@ Array [
         </dd>
         <dt
           style={
-            Object {
+            {
               "marginTop": "10px",
             }
           }
@@ -224,7 +224,7 @@ Array [
         </dd>
         <dt
           style={
-            Object {
+            {
               "marginTop": "10px",
             }
           }
@@ -241,7 +241,7 @@ Array [
 `;
 
 exports[`should render options with withDupes selected 1`] = `
-Array [
+[
   <label
     htmlFor="wrangleOption"
   >
@@ -312,14 +312,14 @@ Array [
     <div
       className="col-8 form-text text-muted"
       style={
-        Object {
+        {
           "marginBottom": 0,
         }
       }
     >
       <dl
         style={
-          Object {
+          {
             "marginBottom": 0,
           }
         }
@@ -332,7 +332,7 @@ Array [
         </dd>
         <dt
           style={
-            Object {
+            {
               "marginTop": "10px",
             }
           }
@@ -344,7 +344,7 @@ Array [
         </dd>
         <dt
           style={
-            Object {
+            {
               "marginTop": "10px",
             }
           }

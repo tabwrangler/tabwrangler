@@ -172,10 +172,10 @@ const TabManager = {
     const whitelist = TW.settings.get("whitelist");
     for (let i = 0; i < whitelist.length; i++) {
       if (url.indexOf(whitelist[i]) !== -1) {
-        return whitelist[i];
+        return TW.settings.get("invertWhitelist") ? false : whitelist[i];
       }
     }
-    return false;
+    return false || TW.settings.get("invertWhitelist");
   },
 
   isLocked(tabId: number): boolean {

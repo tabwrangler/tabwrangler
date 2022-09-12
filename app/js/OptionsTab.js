@@ -468,6 +468,19 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         <div className="row">
           <div className="col-8">
             <form onSubmit={this.handleAddPatternSubmit} style={{ marginBottom: "20px" }}>
+              <div className="form-check mb-1">
+                <input
+                  className="form-check-input"
+                  defaultChecked={settings.get("invertWhitelist")}
+                  id="invertWhitelist"
+                  name="invertWhitelist"
+                  onChange={this.handleSettingsChange}
+                  type="checkbox"
+                />
+                <label className="form-check-label" htmlFor="invertWhitelist">
+                  {chrome.i18n.getMessage("options_option_invertWhitelist_label")}
+                </label>
+              </div>
               <label htmlFor="wl-add">
                 {chrome.i18n.getMessage("options_option_autoLock_label")}
               </label>

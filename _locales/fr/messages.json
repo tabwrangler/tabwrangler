@@ -161,14 +161,6 @@
     "description": "Description of the destructiveness of importing; current tabs are overwritten",
     "message": "AVERTISSEMENT : L'importation de données écrasera toutes les données existantes. Il n’y a aucun moyen de retour (sauf si vous avez une sauvegarde)."
   },
-  "options_keyboardShortcuts_configure": {
-    "description": "Link text for navigating to keyboard shortcut configuration",
-    "message": "Configurez ces raccourcis"
-  },
-  "options_keyboardShortcuts_notSet": {
-    "description": "Message shown for a shortcut when it has not been configured",
-    "message": "Aucun raccourci"
-  },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Paramètres"
@@ -264,10 +256,6 @@
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
     "message": "Importer / Exporter"
-  },
-  "options_section_keyboardShortcuts": {
-    "description": "Header for the section containing keyboard shortcut configuration",
-    "message": "Raccourcis clavier"
   },
   "options_section_settings": {
     "description": "Header for settings section of the options tab",

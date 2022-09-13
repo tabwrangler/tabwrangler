@@ -153,14 +153,6 @@
     "description": "Description of the destructiveness of importing; current tabs are overwritten",
     "message": "Achtung: Importieren eines Backup überschreibt unwiederbringlich die bestehenden Tabs im Corral. Ohne Backup gibt es keine Möglichkeit den Zustand wiederherzustellen."
   },
-  "options_keyboardShortcuts_configure": {
-    "description": "Link text for navigating to keyboard shortcut configuration",
-    "message": "Tastenkombination konfigurieren"
-  },
-  "options_keyboardShortcuts_notSet": {
-    "description": "Message shown for a shortcut when it has not been configured",
-    "message": "Keine Tastenkombination vorhanden"
-  },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Optionen"
@@ -272,10 +264,6 @@
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
     "message": "Importieren / Exportieren"
-  },
-  "options_section_keyboardShortcuts": {
-    "description": "Header for the section containing keyboard shortcut configuration",
-    "message": "Tastatenkombination"
   },
   "options_section_settings": {
     "description": "Header for settings section of the options tab",

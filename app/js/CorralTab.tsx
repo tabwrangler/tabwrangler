@@ -524,8 +524,8 @@ class CorralTab extends React.Component<Props, State> {
                 onClick={this._toggleSortDropdown}
                 title={chrome.i18n.getMessage("corral_currentSort", this.state.sorter.label())}
               >
-                <span>{chrome.i18n.getMessage("corral_sortBy")}</span>
-                <span> {this.state.sorter.shortLabel}</span> <i className="fas fa-caret-down" />
+                <span>{chrome.i18n.getMessage("corral_sortBy")}</span>{" "}
+                <span>{this.state.sorter.shortLabel()}</span> <i className="fas fa-caret-down" />
               </button>
               <div
                 aria-labelledby="sort-dropdown"
@@ -540,7 +540,7 @@ class CorralTab extends React.Component<Props, State> {
                     key={sorter.label()}
                     onClick={this._clickSorter.bind(this, sorter)}
                   >
-                    {sorter.label}
+                    {sorter.label()}
                   </a>
                 ))}
                 <div className="dropdown-divider" />

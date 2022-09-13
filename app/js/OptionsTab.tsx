@@ -9,7 +9,6 @@ import cx from "classnames";
 import debounce from "lodash.debounce";
 import { exportFileName } from "./actions/importExportActions";
 import { getTW } from "./util";
-import { setCommands } from "./actions/tempStorageActions";
 import { setTheme } from "./actions/settingsActions";
 
 function isValidPattern(pattern: string) {
@@ -19,7 +18,6 @@ function isValidPattern(pattern: string) {
 }
 
 type OptionsTabProps = {
-  commands: Array<chrome.commands.Command> | null;
   dispatch: Dispatch;
   theme: ThemeSettingValue;
 };
@@ -63,12 +61,6 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   }
 
   componentDidMount() {
-    // Fetch commands only when opening the `OptionsTab` since this is the only place they're
-    // needed.
-    chrome.commands.getAll((commands) => {
-      this.props.dispatch(setCommands(commands));
-    });
-
     // this is for determining if we should show the filter tab groups setting
     chrome.tabs.query({}, (tabs) => {
       // this shouldn't happen but we'll just bail if there are zero tabs
@@ -114,17 +106,6 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     }
 
     this.setState({ newPattern: "" });
-  };
-
-  _handleConfigureCommandsClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    // `chrome://` URLs are not linkable, but it's possible to create new tabs pointing to Chrome's
-    // configuration pages. Calling `tabs.create` will open the tab and close this popup.
-    chrome.tabs.create({ url: event.currentTarget.href });
-
-    // Because `chrome://` URLs are not linkable, attempting to follow a link to them results in an
-    // error like, "Not allowed to load local resource: chrome://extensions/configureCommands".
-    // Prevent the default action to prevent an error.
-    event.preventDefault();
   };
 
   handleNewPatternChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -577,39 +558,6 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           importExportAlert
         )}
 
-        <h4 className="mt-3 mb-0">{chrome.i18n.getMessage("options_section_keyboardShortcuts")}</h4>
-        <p>
-          <a
-            href="chrome://extensions/configureCommands"
-            onClick={this._handleConfigureCommandsClick}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            {chrome.i18n.getMessage("options_keyboardShortcuts_configure")}
-          </a>
-        </p>
-        <ul>
-          {this.props.commands == null
-            ? null
-            : this.props.commands.map((command) => {
-                // This is a default command for any extension with a browser action. It can't be
-                // listened for.
-                //
-                // See https://developer.chrome.com/extensions/commands#usage
-                if (command.name === "_execute_browser_action") return null;
-                return (
-                  <li key={command.shortcut}>
-                    {command.shortcut == null || command.shortcut.length === 0 ? (
-                      <em>{chrome.i18n.getMessage("options_keyboardShortcuts_notSet")}</em>
-                    ) : (
-                      <kbd>{command.shortcut}</kbd>
-                    )}
-                    : {command.description}
-                  </li>
-                );
-              })}
-        </ul>
-
         {this.state.errors.length === 0 ? (
           <TransitionGroup appear={false}>{saveAlert}</TransitionGroup>
         ) : (
@@ -621,7 +569,6 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
 }
 
 export default connect((state: AppState) => ({
-  commands: state.tempStorage.commands,
   theme: state.settings.theme,
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore:next-line

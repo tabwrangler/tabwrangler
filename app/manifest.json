@@ -19,11 +19,7 @@
   },
   "commands": {
     "wrangle-current-tab": {
-      "description": "Close current tab and save to corral",
-      "suggested_key": {
-        "default": "Ctrl+Shift+E",
-        "mac": "MacCtrl+Shift+W"
-      }
+      "description": "Close current tab and save to corral"
     }
   },
   "minimum_chrome_version": "28",

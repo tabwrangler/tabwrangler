@@ -7,15 +7,15 @@ import memoize from "memoize-one";
 
 type Sorter = {
   key: string;
-  label: string;
-  shortLabel: string;
+  label: () => string;
+  shortLabel: () => string;
   sort: (a: chrome.tabs.Tab | null, b: chrome.tabs.Tab | null) => number;
 };
 
 const ChronoSorter: Sorter = {
   key: "chrono",
-  label: chrome.i18n.getMessage("tabLock_sort_timeUntilClose") || "",
-  shortLabel: chrome.i18n.getMessage("tabLock_sort_timeUntilClose_short") || "",
+  label: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose") || "",
+  shortLabel: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose_short") || "",
   sort(tabA, tabB) {
     if (tabA == null || tabB == null) {
       return 0;
@@ -33,8 +33,8 @@ const ChronoSorter: Sorter = {
 
 const ReverseChronoSorter: Sorter = {
   key: "reverseChrono",
-  label: chrome.i18n.getMessage("tabLock_sort_timeUntilClose_desc") || "",
-  shortLabel: chrome.i18n.getMessage("tabLock_sort_timeUntilClose_desc_short") || "",
+  label: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose_desc") || "",
+  shortLabel: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose_desc_short") || "",
   sort(tabA, tabB) {
     return -1 * ChronoSorter.sort(tabA, tabB);
   },
@@ -42,8 +42,8 @@ const ReverseChronoSorter: Sorter = {
 
 const TabOrderSorter: Sorter = {
   key: "tabOrder",
-  label: chrome.i18n.getMessage("tabLock_sort_tabOrder") || "",
-  shortLabel: chrome.i18n.getMessage("tabLock_sort_tabOrder_short") || "",
+  label: () => chrome.i18n.getMessage("tabLock_sort_tabOrder") || "",
+  shortLabel: () => chrome.i18n.getMessage("tabLock_sort_tabOrder_short") || "",
   sort(tabA, tabB) {
     if (tabA == null || tabB == null) {
       return 0;
@@ -57,8 +57,8 @@ const TabOrderSorter: Sorter = {
 
 const ReverseTabOrderSorter: Sorter = {
   key: "reverseTabOrder",
-  label: chrome.i18n.getMessage("tabLock_sort_tabOrder_desc") || "",
-  shortLabel: chrome.i18n.getMessage("tabLock_sort_tabOrder_desc_short") || "",
+  label: () => chrome.i18n.getMessage("tabLock_sort_tabOrder_desc") || "",
+  shortLabel: () => chrome.i18n.getMessage("tabLock_sort_tabOrder_desc_short") || "",
   sort(tabA, tabB) {
     return -1 * TabOrderSorter.sort(tabA, tabB);
   },
@@ -222,10 +222,10 @@ export default class LockTab extends React.PureComponent<Props, State> {
               className="btn btn-outline-dark btn-sm"
               id="sort-dropdown"
               onClick={this._toggleSortDropdown}
-              title={chrome.i18n.getMessage("corral_currentSort", this.state.sorter.label)}
+              title={chrome.i18n.getMessage("corral_currentSort", this.state.sorter.label())}
             >
               <span>{chrome.i18n.getMessage("corral_sortBy")}</span>
-              <span> {this.state.sorter.shortLabel}</span> <i className="fas fa-caret-down" />
+              <span> {this.state.sorter.shortLabel()}</span> <i className="fas fa-caret-down" />
             </button>
             <div
               aria-labelledby="sort-dropdown"
@@ -237,10 +237,10 @@ export default class LockTab extends React.PureComponent<Props, State> {
                 <a
                   className={cx("dropdown-item", { active: this.state.sorter === sorter })}
                   href="#"
-                  key={sorter.label}
+                  key={sorter.label()}
                   onClick={this._clickSorter.bind(this, sorter)}
                 >
-                  {sorter.label}
+                  {sorter.label()}
                 </a>
               ))}
               <div className="dropdown-divider" />

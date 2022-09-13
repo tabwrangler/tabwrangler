@@ -161,14 +161,6 @@
     "description": "Description of the destructiveness of importing; current tabs are overwritten",
     "message": "경고 : 데이터 가져오기는 기존의 모든 데이터를 덮어씁니다. (백업이 없다면 복구할 수 없습니다.)"
   },
-  "options_keyboardShortcuts_configure": {
-    "description": "Link text for navigating to keyboard shortcut configuration",
-    "message": "단축키 설정하기"
-  },
-  "options_keyboardShortcuts_notSet": {
-    "description": "Message shown for a shortcut when it has not been configured",
-    "message": "단축키 없음"
-  },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "설정"
@@ -288,10 +280,6 @@
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
     "message": "가져오기 / 내보내기"
-  },
-  "options_section_keyboardShortcuts": {
-    "description": "Header for the section containing keyboard shortcut configuration",
-    "message": "키보드 단축키"
   },
   "options_section_settings": {
     "description": "Header for settings section of the options tab",

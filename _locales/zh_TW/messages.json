@@ -161,14 +161,6 @@
     "description": "Description of the destructiveness of importing; current tabs are overwritten",
     "message": "注意：現有的資料會被匯入的資料覆蓋。這是不可恢復的操作。(除非你有備份)"
   },
-  "options_keyboardShortcuts_configure": {
-    "description": "Link text for navigating to keyboard shortcut configuration",
-    "message": "設定快捷鍵"
-  },
-  "options_keyboardShortcuts_notSet": {
-    "description": "Message shown for a shortcut when it has not been configured",
-    "message": "沒有快捷鍵"
-  },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "選項"
@@ -264,10 +256,6 @@
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
     "message": "匯入 / 匯出"
-  },
-  "options_section_keyboardShortcuts": {
-    "description": "Header for the section containing keyboard shortcut configuration",
-    "message": "鍵盤快捷鍵"
   },
   "options_section_settings": {
     "description": "Header for settings section of the options tab",

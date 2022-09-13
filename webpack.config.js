@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-env node */
 
 const CopyWebpackPlugin = require("copy-webpack-plugin");
@@ -9,12 +10,19 @@ const webpack = require("webpack");
 const COMMON_CONFIG = {
   devtool: "cheap-module-source-map",
   entry: {
-    background: "./app/background.js",
-    popup: "./app/popup.js",
+    background: "./app/background.ts",
+    popup: "./app/popup.tsx",
   },
   mode: "development",
   module: {
     rules: [
+      {
+        exclude: /node_modules/,
+        test: /\.tsx?$/,
+        use: {
+          loader: "ts-loader",
+        },
+      },
       {
         exclude: /node_modules/,
         test: /\.js$/,
@@ -67,6 +75,9 @@ const COMMON_CONFIG = {
       template: "./app/background.template.html",
     }),
   ],
+  resolve: {
+    extensions: [".js", ".ts", ".tsx"],
+  },
 };
 
 module.exports = [

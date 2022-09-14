@@ -217,6 +217,10 @@
     "description": "Input title for minimum number of tabs",
     "message": "Must be a number greater than or equal to 0"
   },
+  "options_option_pauseIfFull_label": {
+    "description": "Label for checkbox to stop closing tabs if corral is full",
+    "message": "Pause extension if corral is full"
+  },
   "options_option_rememberTabs_label": {
     "description": "Label preceeding input for number of tabs to remember",
     "message": "Remember up to:"
@@ -288,6 +292,10 @@
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
     "message": "Tab Corral"
+  },
+  "tabLock_lockedReason_corralFull": {
+    "description": "Label for tab that is locked because the corral is full",
+    "message": "Corral full"
   },
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",

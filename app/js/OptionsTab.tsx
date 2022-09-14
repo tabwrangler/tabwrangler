@@ -391,6 +391,19 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           <div className="form-check mb-1">
             <input
               className="form-check-input"
+              defaultChecked={getTW().settings.get("pauseIfFull")}
+              id="pauseIfFull"
+              name="pauseIfFull"
+              onChange={this.handleSettingsChange}
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="pauseIfFull">
+              {chrome.i18n.getMessage("options_option_pauseIfFull_label")}
+            </label>
+          </div>
+          <div className="form-check mb-1">
+            <input
+              className="form-check-input"
               defaultChecked={getTW().settings.get("showBadgeCount")}
               id="showBadgeCount"
               name="showBadgeCount"

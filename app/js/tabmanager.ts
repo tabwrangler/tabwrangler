@@ -141,6 +141,10 @@ const TabManager = {
       window.TW.store.dispatch(setSavedTabs(nextSavedTabs));
       window.TW.store.dispatch(setTotalTabsWrangled(totalTabsWrangled));
     },
+
+    get length(): number {
+      return window.TW.store.getState().localStorage.totalTabsWrangled;
+    }
   },
 
   initTabs(tabs: Array<chrome.tabs.Tab>) {

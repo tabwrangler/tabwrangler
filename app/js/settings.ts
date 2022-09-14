@@ -39,6 +39,9 @@ const Settings = {
 
     // Save closed tabs in between browser sessions.
     purgeClosedTabs: false,
+    
+    // When true and corral full, pause automatic tab wrangling
+    pauseIfFull: false,
 
     // How many seconds (+ minutesInactive) before a tab is "stale" and ready to close.
     secondsInactive: 0,

@@ -40,11 +40,16 @@ export default function OpenTabRow(props: Props) {
     } else if (getTW().settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
     } else if (tabWhitelistMatch) {
-      reason = (
-        <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_matches", tabWhitelistMatch)}>
-          Auto-Locked
-        </abbr>
-      );
+      if (!getTW().settings.get("invertWhitelist"))
+        reason = (
+          <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_matches", tabWhitelistMatch)}>
+            Auto-Locked
+          </abbr>
+        );
+      else
+        reason = (
+          <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_noMatches")}>Auto-Locked</abbr>
+        );
     } else {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
     }

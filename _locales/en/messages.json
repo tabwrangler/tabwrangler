@@ -319,6 +319,10 @@
       }
     }
   },
+  "tabLock_lockedReason_noMatches": {
+    "description": "Label for a tab that is locked because it doesn't match the whitelist, and the invert setting is enabled",
+    "message": "No matches, whitelist inverted"
+  },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",
     "message": "Paused"

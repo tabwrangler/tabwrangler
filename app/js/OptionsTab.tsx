@@ -74,12 +74,15 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         });
       }
     });
+    
+    window.addEventListener("blur", this.handleWindowUnload);
   }
 
   componentWillUnmount() {
     if (this._saveAlertTimeout != null) {
       window.clearTimeout(this._saveAlertTimeout);
     }
+    window.removeEventListener("blur", this.handleWindowUnload);
   }
 
   handleClickRemovePattern(pattern: string) {
@@ -112,7 +115,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     this.setState({ newPattern: event.target.value });
   };
 
-  handleSettingsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  handleSettingsChange = (event: React.ChangeEvent<HTMLInputElement> | {target: HTMLInputElement}) => {
     if (event.target.type === "checkbox") {
       this.saveOption(event.target.id, !!event.target.checked);
     } else if (event.target.type === "radio") {
@@ -120,6 +123,11 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     } else {
       this.saveOption(event.target.id, event.target.value);
     }
+  };
+  
+  handleWindowUnload = () => {
+    if (document.activeElement instanceof HTMLInputElement)
+      this.handleSettingsChange({target: document.activeElement});
   };
 
   saveOption(key: string, value: unknown) {
@@ -344,7 +352,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                 id="minTabs"
                 min="0"
                 name="minTabs"
-                onChange={this._debouncedHandleSettingsChange}
+                onBlur={this._debouncedHandleSettingsChange}
                 title={chrome.i18n.getMessage("options_option_minTabs_tabs")}
                 type="number"
               />
@@ -366,7 +374,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
                 id="maxTabs"
                 min="0"
                 name="maxTabs"
-                onChange={this._debouncedHandleSettingsChange}
+                onBlur={this._debouncedHandleSettingsChange}
                 title={chrome.i18n.getMessage("options_option_rememberTabs_tabs")}
                 type="number"
               />

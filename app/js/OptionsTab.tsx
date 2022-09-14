@@ -474,7 +474,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               <div className="form-check mb-1">
                 <input
                   className="form-check-input"
-                  defaultChecked={settings.get("invertWhitelist")}
+                  defaultChecked={getTW().settings.get("invertWhitelist")}
                   id="invertWhitelist"
                   name="invertWhitelist"
                   onChange={this.handleSettingsChange}

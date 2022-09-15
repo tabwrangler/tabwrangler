@@ -199,7 +199,7 @@ const TabManager = {
   isLockedTab(tabId: number): boolean {
     return this._isLocked("lockedIds", tabId);
   },
-  
+
   isLockedWindow(windowId: number): boolean {
     return this._isLocked("lockedWindowIds", windowId);
   },
@@ -227,9 +227,9 @@ const TabManager = {
   lockTab(lock: boolean, tabId: number) {
     this._lock("lockedIds", lock, tabId);
   },
-  
+
   lockWindow(lock: boolean, windowId: number) {
-    this._lock("lockedWindowIds", lock, windowId)
+    this._lock("lockedWindowIds", lock, windowId);
   },
 
   removeTab(tabId: number) {

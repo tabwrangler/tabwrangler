@@ -33,7 +33,7 @@ const Menus = {
       whitelist.push(domain);
       settings.set("whitelist", whitelist);
     },
-    
+
     lockWindow(onClickData: chrome.contextMenus.OnClickData, selectedTab: chrome.tabs.Tab) {
       if (selectedTab.id == null) return;
       tabmanager.lockWindow(!!onClickData.checked, selectedTab.windowId);
@@ -56,7 +56,7 @@ const Menus = {
       title: chrome.i18n.getMessage("contextMenu_lockDomain") || "",
       onclick: this.pageSpecificActions["lockDomain"],
     };
-    
+
     const lockWindow: chrome.contextMenus.CreateProperties = {
       type: "checkbox",
       title: chrome.i18n.getMessage("contextMenu_lockWindow") || "",
@@ -95,8 +95,12 @@ const Menus = {
       });
 
     if (this.lockTabId != null) {
-      chrome.contextMenus.update(Number(this.lockTabId), { checked: tabmanager.isLockedTab(tabId) });
-      chrome.contextMenus.update(Number(this.lockWindowId), { checked: tabmanager.isLockedWindow(tabId) });
+      chrome.contextMenus.update(Number(this.lockTabId), {
+        checked: tabmanager.isLockedTab(tabId),
+      });
+      chrome.contextMenus.update(Number(this.lockWindowId), {
+        checked: tabmanager.isLockedWindow(tabId),
+      });
     }
   },
 };

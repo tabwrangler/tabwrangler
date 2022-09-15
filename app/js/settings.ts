@@ -26,7 +26,7 @@ const Settings = {
     // An array of tabids which have been explicitly locked by the user.
     // TODO: rename to `lockedTabIds`?
     lockedIds: defaultLockedIds,
-    
+
     // An array of window ids which have been explicitly locked by the user.
     lockedWindowIds: defaultLockedWindowIds,
 

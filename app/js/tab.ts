@@ -10,8 +10,8 @@ export function isLocked(tab: chrome.tabs.Tab): boolean {
     !!tabWhitelistMatch ||
     (tab.id != null && lockedIds.indexOf(tab.id) !== -1) ||
     !!(settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) ||
-    !!(tab.audible && settings.get("filterAudio"))
-    || (tab.windowId != null && lockedWindowIds.indexOf(tab.windowId) !== -1)
+    !!(tab.audible && settings.get("filterAudio")) ||
+    (tab.windowId != null && lockedWindowIds.indexOf(tab.windowId) !== -1)
   );
 }
 
@@ -24,7 +24,7 @@ export function isManuallyLockable(tab: chrome.tabs.Tab): boolean {
     !tabWhitelistMatch &&
     !(tab.audible && settings.get("filterAudio")) &&
     // $FlowFixMe missing groupId in chrome.tab
-    !(settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0)
-    && !(tab.windowId != null && lockedWindowIds.indexOf(tab.windowId) !== -1)
+    !(settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) &&
+    !(tab.windowId != null && lockedWindowIds.indexOf(tab.windowId) !== -1)
   );
 }

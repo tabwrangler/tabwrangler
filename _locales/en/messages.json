@@ -37,6 +37,10 @@
     "description": "Label for context menu item that locks the clicked tab",
     "message": "Never close this tab"
   },
+  "contextMenu_lockWindow": {
+    "description": "Label for context menu item that locks the current window",
+    "message": "Never close this window"
+  },
   "corral_currentSort": {
     "description": "Button title for showing current sort order",
     "message": "Currently sorted $sort_order$",
@@ -292,6 +296,10 @@
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "Locked"
+  },
+  "tabLock_lockedReason_lockedWindow": {
+    "description": "Label for tab that is locked because the user locked its window",
+    "message": "Locked Window"
   },
   "tabLock_lockedReason_matches": {
     "description": "Label for a tab that is locked because it matches the whitelist",

@@ -12,14 +12,15 @@ function getDomain(url: string): string | null {
 const Menus = {
   lockDomainId: null as number | string | null,
   lockTabId: null as number | string | null,
+  lockWindowId: null as number | string | null,
 
   pageSpecificActions: {
-    lockTab(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
+    lockTab(onClickData: chrome.contextMenus.OnClickData, selectedTab: chrome.tabs.Tab) {
       if (selectedTab.id == null) return;
-      tabmanager.lockTab(selectedTab.id);
+      tabmanager.lockTab(!!onClickData.checked, selectedTab.id);
     },
 
-    lockDomain(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
+    lockDomain(onClickData: chrome.contextMenus.OnClickData, selectedTab: chrome.tabs.Tab) {
       // Chrome tabs don't necessarily have URLs. In those cases there is no domain to lock.
       if (selectedTab.url == null) return;
 
@@ -31,6 +32,11 @@ const Menus = {
       const whitelist = settings.get<Array<string>>("whitelist");
       whitelist.push(domain);
       settings.set("whitelist", whitelist);
+    },
+    
+    lockWindow(onClickData: chrome.contextMenus.OnClickData, selectedTab: chrome.tabs.Tab) {
+      if (selectedTab.id == null) return;
+      tabmanager.lockWindow(!!onClickData.checked, selectedTab.windowId);
     },
 
     corralTab(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
@@ -50,6 +56,12 @@ const Menus = {
       title: chrome.i18n.getMessage("contextMenu_lockDomain") || "",
       onclick: this.pageSpecificActions["lockDomain"],
     };
+    
+    const lockWindow: chrome.contextMenus.CreateProperties = {
+      type: "checkbox",
+      title: chrome.i18n.getMessage("contextMenu_lockWindow") || "",
+      onclick: this.pageSpecificActions["lockWindow"],
+    };
 
     const corralTab: chrome.contextMenus.CreateProperties = {
       type: "normal",
@@ -59,6 +71,7 @@ const Menus = {
 
     this.lockTabId = chrome.contextMenus.create(lockTab);
     this.lockDomainId = chrome.contextMenus.create(lockDomain);
+    this.lockWindowId = chrome.contextMenus.create(lockWindow);
     chrome.contextMenus.create(corralTab);
   },
 
@@ -81,8 +94,10 @@ const Menus = {
         }
       });
 
-    if (this.lockTabId != null)
-      chrome.contextMenus.update(Number(this.lockTabId), { checked: tabmanager.isLocked(tabId) });
+    if (this.lockTabId != null) {
+      chrome.contextMenus.update(Number(this.lockTabId), { checked: tabmanager.isLockedTab(tabId) });
+      chrome.contextMenus.update(Number(this.lockWindowId), { checked: tabmanager.isLockedWindow(tabId) });
+    }
   },
 };
 

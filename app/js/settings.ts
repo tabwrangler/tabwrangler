@@ -2,6 +2,7 @@ import tabmanager from "./tabmanager";
 
 const defaultCache: Record<string, unknown> = {};
 const defaultLockedIds: Array<number> = [];
+const defaultLockedWindowIds: Array<number> = [];
 
 const Settings = {
   cache: defaultCache,
@@ -23,7 +24,11 @@ const Settings = {
     filterGroupedTabs: false,
 
     // An array of tabids which have been explicitly locked by the user.
+    // TODO: rename to `lockedTabIds`?
     lockedIds: defaultLockedIds,
+    
+    // An array of window ids which have been explicitly locked by the user.
+    lockedWindowIds: defaultLockedWindowIds,
 
     // Saved sort order for list of open tabs. When null, default sort is used (tab order)
     lockTabSortOrder: null,

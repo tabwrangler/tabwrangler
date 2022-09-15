@@ -7,6 +7,7 @@ import {
   setTotalTabsUnwrangled,
   setTotalTabsWrangled,
 } from "./actions/localStorageActions";
+import { getTW } from "./util";
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
@@ -190,25 +191,45 @@ const TabManager = {
     return null;
   },
 
-  isLocked(tabId: number): boolean {
-    const lockedIds = window.TW.settings.get<Array<number>>("lockedIds");
-    if (lockedIds.indexOf(tabId) !== -1) {
-      return true;
-    }
-    return false;
+  _isLocked(storeName: string, entityId: number): boolean {
+    const lockedIds = getTW().settings.get<Array<number>>(storeName);
+    return lockedIds.indexOf(entityId) !== -1;
+  },
+
+  isLockedTab(tabId: number): boolean {
+    return this._isLocked("lockedIds", tabId);
+  },
+  
+  isLockedWindow(windowId: number): boolean {
+    return this._isLocked("lockedWindowIds", windowId);
   },
 
   isWhitelisted(url: string): boolean {
     return this.getWhitelistMatch(url) !== null;
   },
 
-  lockTab(tabId: number) {
-    const lockedIds = window.TW.settings.get<Array<number>>("lockedIds");
+  _lock(storeName: string, lock: boolean, entityId: number) {
+    const lockedIds = window.TW.settings.get<Array<number>>(storeName);
 
-    if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {
-      lockedIds.push(tabId);
+    if (entityId <= 0) return;
+    if (lock) {
+      if (lockedIds.indexOf(entityId) === -1) {
+        lockedIds.push(entityId);
+      }
+    } else {
+      if (lockedIds.indexOf(entityId) !== -1) {
+        lockedIds.splice(lockedIds.indexOf(entityId), 1);
+      }
     }
-    window.TW.settings.set("lockedIds", lockedIds);
+    window.TW.settings.set(storeName, lockedIds);
+  },
+
+  lockTab(lock: boolean, tabId: number) {
+    this._lock("lockedIds", lock, tabId);
+  },
+  
+  lockWindow(lock: boolean, windowId: number) {
+    this._lock("lockedWindowIds", lock, windowId)
   },
 
   removeTab(tabId: number) {

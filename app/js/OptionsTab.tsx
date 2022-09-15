@@ -74,7 +74,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         });
       }
     });
-    
+
     window.addEventListener("blur", this.handleWindowUnload);
   }
 
@@ -115,7 +115,9 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     this.setState({ newPattern: event.target.value });
   };
 
-  handleSettingsChange = (event: React.ChangeEvent<HTMLInputElement> | {target: HTMLInputElement}) => {
+  handleSettingsChange = (
+    event: React.ChangeEvent<HTMLInputElement> | { target: HTMLInputElement }
+  ) => {
     if (event.target.type === "checkbox") {
       this.saveOption(event.target.id, !!event.target.checked);
     } else if (event.target.type === "radio") {
@@ -124,10 +126,10 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       this.saveOption(event.target.id, event.target.value);
     }
   };
-  
+
   handleWindowUnload = () => {
     if (document.activeElement instanceof HTMLInputElement)
-      this.handleSettingsChange({target: document.activeElement});
+      this.handleSettingsChange({ target: document.activeElement });
   };
 
   saveOption(key: string, value: unknown) {

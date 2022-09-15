@@ -39,7 +39,7 @@ const Settings = {
 
     // Save closed tabs in between browser sessions.
     purgeClosedTabs: false,
-    
+
     // When true and corral full, pause automatic tab wrangling
     pauseIfFull: false,
 

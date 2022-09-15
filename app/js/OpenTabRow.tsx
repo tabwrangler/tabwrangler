@@ -45,7 +45,10 @@ export default function OpenTabRow(props: Props) {
           Auto-Locked
         </abbr>
       );
-    } else if (getTW().settings.get("pauseIfFull") && getTW().tabmanager.closedTabs.length >= getTW().settings.get<number>("maxTabs")) {
+    } else if (
+      getTW().settings.get("pauseIfFull") &&
+      getTW().tabmanager.closedTabs.length >= getTW().settings.get<number>("maxTabs")
+    ) {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_corralFull");
     } else {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");

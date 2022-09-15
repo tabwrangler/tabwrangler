@@ -144,7 +144,7 @@ const TabManager = {
 
     get length(): number {
       return window.TW.store.getState().localStorage.totalTabsWrangled;
-    }
+    },
   },
 
   initTabs(tabs: Array<chrome.tabs.Tab>) {

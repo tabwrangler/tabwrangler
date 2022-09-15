@@ -7,9 +7,6 @@ import settings from "./js/settings";
 import tabmanager from "./js/tabmanager";
 import watch from "redux-watch";
 
-/**
- * @todo: refactor into "get the ones to close" and "close 'em" So it can be tested.
- */
 const checkToClose = function (cutOff: number | null) {
   try {
     cutOff = cutOff || new Date().getTime() - settings.get<number>("stayOpen");
@@ -189,6 +186,11 @@ const startup = function () {
 
   chrome.commands.onCommand.addListener((command) => {
     switch (command) {
+      case "lock-unlock-active-tab":
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          tabmanager.toggleTabs(tabs);
+        });
+        break;
       case "wrangle-current-tab":
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           tabmanager.closedTabs.wrangleTabs(tabs);

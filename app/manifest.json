@@ -18,8 +18,11 @@
     "page": "background.html"
   },
   "commands": {
+    "lock-unlock-active-tab": {
+      "description": "__MSG_commandLockUnlockActiveTab__"
+    },
     "wrangle-current-tab": {
-      "description": "Close current tab and save to corral"
+      "description": "__MSG_commandWrangleCurrentTab__"
     }
   },
   "minimum_chrome_version": "28",

@@ -222,6 +222,14 @@ const TabManager = {
     TabManager.updateLastAccessed(addedTabId);
   },
 
+  toggleTabs(tabs: chrome.tabs.Tab[]) {
+    tabs.forEach((tab) => {
+      if (tab.id == null) return;
+      else if (this.isLocked(tab.id)) this.unlockTab(tab.id);
+      else this.lockTab(tab.id);
+    });
+  },
+
   unlockTab(tabId: number) {
     const lockedIds = window.TW.settings.get<Array<number>>("lockedIds");
     if (lockedIds.indexOf(tabId) > -1) {

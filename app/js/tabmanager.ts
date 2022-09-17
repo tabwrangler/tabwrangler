@@ -232,6 +232,12 @@ const TabManager = {
     this._lock("lockedWindowIds", lock, windowId);
   },
 
+  removeWindow(windowId: number) {
+    const lockedIds = window.TW.settings.get<Array<number>>("lockedWindowIds");
+    delete lockedIds[lockedIds.indexOf(windowId)];
+    window.TW.settings.set("lockedWindowIds", lockedIds);
+  },
+
   removeTab(tabId: number) {
     const totalTabsRemoved = window.TW.store.getState().localStorage.totalTabsRemoved;
     window.TW.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));

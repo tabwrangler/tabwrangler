@@ -169,6 +169,7 @@ const startup = function () {
     1000
   );
   // Move this to a function somehwere so we can restart the process.
+  chrome.windows.onRemoved.addListener(tabmanager.removeWindow);
   chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
   chrome.tabs.onCreated.addListener(onNewTab);
   chrome.tabs.onRemoved.addListener(tabmanager.removeTab);

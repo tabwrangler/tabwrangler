@@ -132,12 +132,21 @@ Tab Wrangler's requested permissions are listed in its [manifest.json][manifest.
 [Tab Wrangler's Crowdin Project][1]: the place to contribute and view translations
 
 Tab Wrangler is available in other languages thanks to generous translation help. Any help
-translating Tab Wrangler is greatly appreciated and can be done via Crowdin.
+translating Tab Wrangler is greatly appreciated and can be done via Crowdin. Contributors
+include the following:
 
-* 🇫🇷 French translation by [orpheuslummis](https://orpheuslummis.info)
-* 🇩🇪 German translation by [ingorichter](https://github.com/ingorichter)
-* 🇰🇷 Korean translation by [simple-is-best](https://github.com/simple-is-best)
-* 🇷🇺 Russian translation by [Voknehzyr](https://github.com/Voknehzyr)
+🇨🇳 Chinese (Simplified) by [yfdyh000](https://crowdin.com/profile/yfdyh000),
+🇹🇼 Chinese (Traditional) by [ingrid123](https://crowdin.com/profile/ingrid123) and [xbddc.ho](https://crowdin.com/profile/xbddc.ho),
+🇫🇷 French by [orpheuslummis](https://crowdin.com/profile/orpheuslummis) and [bkazez](https://crowdin.com/profile/bkazez),
+🇩🇪 Germany by [johannesfischer](https://crowdin.com/profile/johannesfischer),
+🇭🇺 Hungarian by [kottalovag](https://crowdin.com/profile/kottalovag),
+🇮🇩 Indonesian by [azhe403](https://crowdin.com/profile/azhe403),
+🇰🇷 Korean by [x_nuk](https://crowdin.com/profile/x_nuk),
+🇱🇻 Latvian by [coool](https://crowdin.com/profile/coool),
+🇵🇱 Polish by [imjusttony](https://crowdin.com/profile/imjusttony),
+🇷🇺 Russian by [sdir01](https://crowdin.com/profile/sdir01) and [coool](https://crowdin.com/profile/coool),
+🇪🇸 Spanish by [julianjaramillo](https://crowdin.com/profile/julianjaramillo),
+Tamil by [dineshr](https://crowdin.com/profile/dineshr)
 
 ### Development
 

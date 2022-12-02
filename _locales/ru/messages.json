@@ -371,18 +371,6 @@
     "description": "Short version of tabLock_sort_timeUntilClose_desc",
     "message": "Времени до закрытия (убыв.)"
   },
-  "corral_tabsWrangled": {
-    "description": "Label preceeding the number of tabs wrangled by this extension",
-    "message": "вкладок закрыто"
-  },
-  "corral_tabsWrangled_formula": {
-    "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "вкладок закрыто при помощи Tab Wrangler / всего закрыто вкладок"
-  },
-  "corral_tabsWrangled_or": {
-    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
-    "message": "или"
-  },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",
     "message": "Максимальное число вкладок должно быть между 1 и 1000."

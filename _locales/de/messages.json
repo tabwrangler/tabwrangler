@@ -319,18 +319,6 @@
     "description": "Short version of tabLock_sort_tabOrder",
     "message": "Tab Reihenfolge"
   },
-  "corral_tabsWrangled": {
-    "description": "Label preceeding the number of tabs wrangled by this extension",
-    "message": "Tabs geschlossen"
-  },
-  "corral_tabsWrangled_formula": {
-    "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "Tabs von Tab Wrangler geschlossen/ alle geschlossenen Tabs"
-  },
-  "corral_tabsWrangled_or": {
-    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
-    "message": "oder"
-  },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",
     "message": "Maximale Anzahl von Tabs muss zwischen 1 und 1000 liegen."

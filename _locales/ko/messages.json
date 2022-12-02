@@ -331,18 +331,6 @@
     "description": "Explanation of time remaining before tab is closed",
     "message": "닫는 중..."
   },
-  "corral_tabsWrangled": {
-    "description": "Label preceeding the number of tabs wrangled by this extension",
-    "message": "탭이 보관됨"
-  },
-  "corral_tabsWrangled_formula": {
-    "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "Tab Wrangler에 의해 탭이 닫힘 / 모든 탭이 닫힘"
-  },
-  "corral_tabsWrangled_or": {
-    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
-    "message": "또는"
-  },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",
     "message": "최대 탭은 1에서 1000 사이의 숫자여야 합니다."

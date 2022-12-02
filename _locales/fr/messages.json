@@ -303,18 +303,6 @@
     "description": "Explanation of time remaining before tab is closed",
     "message": "Fermeture en..."
   },
-  "corral_tabsWrangled": {
-    "description": "Label preceeding the number of tabs wrangled by this extension",
-    "message": "onglets archivés"
-  },
-  "corral_tabsWrangled_formula": {
-    "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "onglets fermés par Tab Wrangler / tous les onglets fermés"
-  },
-  "corral_tabsWrangled_or": {
-    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
-    "message": "ou"
-  },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",
     "message": "Onglets maximum doit être un nombre entre 1 et 1000"

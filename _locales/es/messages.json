@@ -299,18 +299,6 @@
     "description": "Explanation of time remaining before tab is closed",
     "message": "Cerrando en..."
   },
-  "corral_tabsWrangled": {
-    "description": "Label preceeding the number of tabs wrangled by this extension",
-    "message": "pestañas cerradas"
-  },
-  "corral_tabsWrangled_formula": {
-    "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "pestañas cerradas por Tab Wrangler / todas las pestañas cerradas"
-  },
-  "corral_tabsWrangled_or": {
-    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
-    "message": "o"
-  },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",
     "message": "El número máximo de pestañas deber ser un número entre 1 y 1000"

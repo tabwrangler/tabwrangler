@@ -303,18 +303,6 @@
     "description": "Explanation of time remaining before tab is closed",
     "message": "即將關閉 ..."
   },
-  "corral_tabsWrangled": {
-    "description": "Label preceeding the number of tabs wrangled by this extension",
-    "message": "分頁擱置中"
-  },
-  "corral_tabsWrangled_formula": {
-    "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "由 Tab Wrangler 關閉的分頁 / 所有關閉的分頁"
-  },
-  "corral_tabsWrangled_or": {
-    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
-    "message": "或"
-  },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",
     "message": "最大分頁數必須是一個介於 1 至 1000 之間的數字"

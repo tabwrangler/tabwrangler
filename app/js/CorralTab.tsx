@@ -441,11 +441,10 @@ class CorralTab extends React.Component<Props, State> {
             </div>
           </form>
           <div className="col text-right" style={{ lineHeight: "30px" }}>
-            <span className="text-muted">{chrome.i18n.getMessage("corral_tabsWrangled")}</span>{" "}
-            {totalTabsWrangled} {chrome.i18n.getMessage("corral_tabsWrangled_or")}{" "}
-            <abbr title={chrome.i18n.getMessage("corral_tabsWrangled_formula")}>
-              {percentClosed}%
-            </abbr>
+            {chrome.i18n.getMessage("corral_tabsWrangledFull", [
+              String(totalTabsWrangled),
+              String(percentClosed),
+            ])}
           </div>
         </div>
 

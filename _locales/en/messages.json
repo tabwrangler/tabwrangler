@@ -371,17 +371,19 @@
     "description": "Short version of tabLock_sort_timeUntilClose_desc",
     "message": "Time until close (desc.)"
   },
-  "corral_tabsWrangled": {
-    "description": "Label preceeding the number of tabs wrangled by this extension",
-    "message": "tabs wrangled"
-  },
-  "corral_tabsWrangled_formula": {
-    "description": "Title describing how % of tabs wrangled is calculated",
-    "message": "tabs closed by Tab Wrangler / all tabs closed"
-  },
-  "corral_tabsWrangled_or": {
-    "description": "Natural language separator between number and percent of tabs wrangled, like '235 or 5%'",
-    "message": "or"
+  "corral_tabsWrangledFull": {
+    "description": "Description of number of tabs wrangled by this extension",
+    "message": "tabs wrangled: $count$ ($percent$%)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "18"
+      }
+    }
   },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",

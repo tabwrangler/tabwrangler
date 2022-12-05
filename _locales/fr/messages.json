@@ -303,6 +303,20 @@
     "description": "Explanation of time remaining before tab is closed",
     "message": "Fermeture en..."
   },
+  "corral_tabsWrangledFull": {
+    "description": "Description of number of tabs wrangled by this extension",
+    "message": "onglets fermés : $count$ ($percent$%)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "18"
+      }
+    }
+  },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",
     "message": "Onglets maximum doit être un nombre entre 1 et 1000"

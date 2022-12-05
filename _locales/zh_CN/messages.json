@@ -15,6 +15,14 @@
     "description": "Link to the extension's support site",
     "message": "支持"
   },
+  "commandLockUnlockActiveTab": {
+    "description": "Description of keyboard shortcut to lock or unlock the active tab",
+    "message": "锁定/解锁活动标签页"
+  },
+  "commandWrangleCurrentTab": {
+    "description": "Description of keyboard shortcut to close and save the active tab",
+    "message": "关闭并保存活动标签页"
+  },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
     "message": "关闭标签页并保存网址"
@@ -229,9 +237,29 @@
     "description": "Input title for number of tabs to remember",
     "message": "必须是一个大于或等于 0 的数字"
   },
+  "options_option_saveSortOrder": {
+    "description": "Label for toggling saving sort order in Corral and Lock Tabs",
+    "message": "保存排序方式"
+  },
   "options_option_showBadgeCount_label": {
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
     "message": "在工具栏按钮上显示已贮藏标签页的数量"
+  },
+  "options_option_theme_label": {
+    "description": "Label preceding button group for choosing the color theme",
+    "message": "主题"
+  },
+  "options_option_theme_dark": {
+    "description": "'Dark' choice for color theme. Dark background, light font",
+    "message": "深色"
+  },
+  "options_option_theme_light": {
+    "description": "'Light' choice for color theme. Light background, dark font",
+    "message": "浅色"
+  },
+  "options_option_theme_system": {
+    "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
+    "message": "系统"
   },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
@@ -310,6 +338,52 @@
   "tabLock_remainingTimeLabel": {
     "description": "Explanation of time remaining before tab is closed",
     "message": "关闭倒计时"
+  },
+  "tabLock_sort_tabOrder": {
+    "description": "Description for sorting tabs by how they appear in browser",
+    "message": "标签页顺序"
+  },
+  "tabLock_sort_tabOrder_short": {
+    "description": "Short version of tabLock_sort_tabOrder",
+    "message": "标签页顺序"
+  },
+  "tabLock_sort_tabOrder_desc": {
+    "description": "Description for sorting tabs by how they appear in browser, in reverse",
+    "message": "标签页顺序 (反向)"
+  },
+  "tabLock_sort_tabOrder_desc_short": {
+    "description": "Short version of tabLock_sort_tabOrder_desc",
+    "message": "标签页顺序 (反向)"
+  },
+  "tabLock_sort_timeUntilClose": {
+    "description": "Description for sorting tabs by how much time until TW closes them",
+    "message": "关闭前时间"
+  },
+  "tabLock_sort_timeUntilClose_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose",
+    "message": "关闭前时间"
+  },
+  "tabLock_sort_timeUntilClose_desc": {
+    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
+    "message": "关闭前时间 (降序)"
+  },
+  "tabLock_sort_timeUntilClose_desc_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose_desc",
+    "message": "关闭前时间 (降序)"
+  },
+  "corral_tabsWrangledFull": {
+    "description": "Description of number of tabs wrangled by this extension",
+    "message": "已贮藏 $count$ 个标签页 ($percent$%)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "18"
+      }
+    }
   },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",

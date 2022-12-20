@@ -159,12 +159,12 @@ const startup = function () {
   if (settings.get("purgeClosedTabs") !== false) {
     tabmanager.closedTabs.clear();
   }
-  settings.set("lockedIds", []);
 
   const debouncedUpdateLastAccessed = debounce(
     tabmanager.updateLastAccessed.bind(tabmanager),
     1000
   );
+
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
   chrome.tabs.onCreated.addListener(onNewTab);

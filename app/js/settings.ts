@@ -67,13 +67,37 @@ const Settings = {
         if (Object.prototype.hasOwnProperty.call(items, i)) {
           this.cache[i] = items[i];
 
-          // Because the badge count is external state, this side effect must be run once the value
-          // is read from storage. This could more elequently be handled in a reducer, but place it
-          // here to make minimal changes while correctly updating the badge count.
-          if (i === "showBadgeCount") tabmanager.updateClosedCount();
+          if (i === "lockedIds") this._initLockedIds();
+          else if (i === "showBadgeCount") this._initShowBadgeCount();
         }
       }
     });
+  },
+
+  _initLockedIds() {
+    if (this.cache.lockedIds == null) return;
+
+    // Remove any tab IDs from the `lockedIds` list that no longer exist so the collection does not
+    // grow unbounded. This also ensures tab IDs that are reused are not inadvertently locked.
+    chrome.tabs.query({}, (tabs) => {
+      const currTabIds = new Set(tabs.map((tab) => tab.id));
+      const nextLockedIds = (this.cache.lockedIds as number[]).filter((lockedId) => {
+        const lockedIdExists = currTabIds.has(lockedId);
+        if (!lockedIdExists)
+          console.debug(
+            `Locked tab ID ${lockedId} no longer exixts; removing from 'lockedIds' list`
+          );
+        return lockedIdExists;
+      });
+      this.set("lockedIds", nextLockedIds);
+    });
+  },
+
+  _initShowBadgeCount() {
+    // Because the badge count is external state, this side effect must be run once the value
+    // is read from storage. This could more elequently be handled in a reducer, but place it
+    // here to make minimal changes while correctly updating the badge count.
+    tabmanager.updateClosedCount();
   },
 
   /**

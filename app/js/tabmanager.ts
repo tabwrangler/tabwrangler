@@ -10,17 +10,7 @@ import {
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
-// A map of tabId => timestamp
-const defaultTabTimes: {
-  [tabid: string]: number;
-} = {};
-
-/**
- * Stores the tabs in a separate variable to log Last Accessed time.
- */
 const TabManager = {
-  tabTimes: defaultTabTimes,
-
   closedTabs: {
     clear() {
       window.window.TW.store.dispatch(removeAllSavedTabs());
@@ -144,9 +134,9 @@ const TabManager = {
   },
 
   initTabs(tabs: Array<chrome.tabs.Tab>) {
-    for (let i = 0; i < tabs.length; i++) {
-      TabManager.updateLastAccessed(tabs[i]);
-    }
+    tabs.forEach((tab) => {
+      window.TW.store.dispatch({ tabOrTabId: tab, type: "UPDATE_TAB_TIME" });
+    });
   },
 
   /* Re-export so these can be executed in the context of the Tab Manager. */
@@ -154,26 +144,22 @@ const TabManager = {
   importData,
 
   /**
-   * Wrapper function to get all tab times regardless of time inactive
-   * @return {Array}
+   * Returns all tab times regardless of time inactive
    */
   getAll(): Array<number> {
     return TabManager.getOlderThen();
   },
 
   /**
-   * Returns tab times (hash of tabId : lastAccess)
-   * @param time
-   *  If null, returns all.
-   * @return {Array}
+   * Returns tab times. If `time` is null, returns all.
    */
   getOlderThen(time?: number): Array<number> {
     const ret = [];
-    for (const i in this.tabTimes) {
-      if (Object.prototype.hasOwnProperty.call(this.tabTimes, i)) {
-        if (!time || this.tabTimes[i] < time) {
-          ret.push(parseInt(i, 10));
-        }
+    for (const [tabId, tabTime] of Object.entries(
+      window.TW.store.getState().localStorage.tabTimes
+    )) {
+      if (!time || (tabTime as number) < time) {
+        ret.push(parseInt(tabId, 10));
       }
     }
     return ret;
@@ -214,12 +200,12 @@ const TabManager = {
     const totalTabsRemoved = window.TW.store.getState().localStorage.totalTabsRemoved;
     window.TW.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
     this.unlockTab(tabId);
-    delete TabManager.tabTimes[String(tabId)];
+    window.TW.store.dispatch({ tabId, type: "REMOVE_TAB_TIME" });
   },
 
   replaceTab(addedTabId: number, removedTabId: number) {
     TabManager.removeTab(removedTabId);
-    TabManager.updateLastAccessed(addedTabId);
+    window.TW.store.dispatch({ tabOrTabId: addedTabId, type: "UPDATE_TAB_TIME" });
   },
 
   toggleTabs(tabs: chrome.tabs.Tab[]) {
@@ -247,25 +233,6 @@ const TabManager = {
       text = "";
     }
     chrome.browserAction.setBadgeText({ text });
-  },
-
-  updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number | Array<chrome.tabs.Tab>) {
-    let tabId;
-    if (Array.isArray(tabOrTabId)) {
-      tabOrTabId.map(TabManager.updateLastAccessed.bind(this));
-      return;
-    } else if (typeof tabOrTabId !== "number" && typeof tabOrTabId.id !== "number") {
-      console.log("Error: `tabOrTabId.id` is not an number", tabOrTabId.id);
-      return;
-    } else if (typeof tabOrTabId === "number") {
-      tabId = tabOrTabId;
-      TabManager.tabTimes[String(tabId)] = Date.now();
-    } else {
-      tabId = tabOrTabId.id;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
-      TabManager.tabTimes[String(tabId)] = tabOrTabId?.lastAccessed ?? new Date().getTime();
-    }
   },
 };
 

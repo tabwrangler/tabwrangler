@@ -48,6 +48,8 @@ export default function Popup() {
       // Ensure the temp storage is cleared when the popup is closed to prevent holding references
       // to objects that may be cleaned up. In Firefox, this can lead to ["DeadObject" errors][1],
       // which throw exceptions and prevent the popup from displaying.
+      //
+      // [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Dead_object
       dispatch(clearTempStorage());
     };
   }, [dispatch]);

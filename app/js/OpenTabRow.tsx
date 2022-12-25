@@ -59,7 +59,8 @@ export default function OpenTabRow(props: Props) {
     if (paused) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
     } else {
-      const lastModified = tab.id == null ? Date.now() : getTW().tabmanager.tabTimes[tab.id];
+      const lastModified =
+        tab.id == null ? Date.now() : getTW().store.getState().localStorage.tabTimes[tab.id];
       const cutOff = new Date().getTime() - getTW().settings.get<number>("stayOpen");
       const timeLeft = -1 * Math.round((cutOff - lastModified) / 1000);
       // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the

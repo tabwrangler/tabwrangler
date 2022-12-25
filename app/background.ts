@@ -18,10 +18,14 @@ const checkToClose = function (cutOff: number | null) {
 
     if (!window.TW.store.getState().settings.paused) {
       // Update the selected one to make sure it doesn't get closed.
-      chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabmanager.updateLastAccessed);
+      chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+        window.window.TW.store.dispatch({ tabOrTabId: tabs, type: "UPDATE_TAB_TIME" });
+      });
 
       if (settings.get("filterAudio") === true) {
-        chrome.tabs.query({ audible: true }, tabmanager.updateLastAccessed);
+        chrome.tabs.query({ audible: true }, (tabs) => {
+          window.window.TW.store.dispatch({ tabOrTabId: tabs, type: "UPDATE_TAB_TIME" });
+        });
       }
 
       chrome.windows.getAll({ populate: true }, function (windows) {
@@ -47,7 +51,8 @@ const checkToClose = function (cutOff: number | null) {
             // don't get closed when we add a new one.
             for (let i = 0; i < tabs.length; i++) {
               const tabId = tabs[i].id;
-              if (tabId != null && myWindow.focused) tabmanager.updateLastAccessed(tabId);
+              if (tabId != null && myWindow.focused)
+                window.window.TW.store.dispatch({ tabOrTabId: tabId, type: "UPDATE_TAB_TIME" });
             }
             return;
           }
@@ -67,7 +72,7 @@ const checkToClose = function (cutOff: number | null) {
               // Update its time so it gets checked less frequently.
               // Would also be smart to just never add it.
               // @todo: fix that.
-              tabmanager.updateLastAccessed(tabId);
+              window.window.TW.store.dispatch({ tabOrTabId: tabId, type: "UPDATE_TAB_TIME" });
               continue;
             }
             closeTab(tabsToCut[i]);
@@ -137,7 +142,7 @@ const closeTab = function (tab: chrome.tabs.Tab) {
 
 const onNewTab = function (tab: chrome.tabs.Tab) {
   // Track new tab's time to close.
-  if (tab.id != null) tabmanager.updateLastAccessed(tab.id);
+  if (tab.id != null) window.window.TW.store.dispatch({ tabOrTabId: tab, type: "UPDATE_TAB_TIME" });
 };
 
 const startup = function () {
@@ -160,10 +165,9 @@ const startup = function () {
     tabmanager.closedTabs.clear();
   }
 
-  const debouncedUpdateLastAccessed = debounce(
-    tabmanager.updateLastAccessed.bind(tabmanager),
-    1000
-  );
+  const debouncedUpdateLastAccessed = debounce((tabOrTabId) => {
+    window.window.TW.store.dispatch({ tabOrTabId, type: "UPDATE_TAB_TIME" });
+  }, 1000);
 
   // Move this to a function somehwere so we can restart the process.
   chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
@@ -176,7 +180,7 @@ const startup = function () {
     if (settings.get("debounceOnActivated")) {
       debouncedUpdateLastAccessed(tabInfo["tabId"]);
     } else {
-      tabmanager.updateLastAccessed(tabInfo["tabId"]);
+      window.window.TW.store.dispatch({ tabOrTabId: tabInfo["tabId"], type: "UPDATE_TAB_TIME" });
     }
   });
   scheduleCheckToClose();

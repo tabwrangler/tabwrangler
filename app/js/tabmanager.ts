@@ -144,13 +144,6 @@ const TabManager = {
   importData,
 
   /**
-   * Returns all tab times regardless of time inactive
-   */
-  getAll(): Array<number> {
-    return TabManager.getOlderThen();
-  },
-
-  /**
    * Returns tab times. If `time` is null, returns all.
    */
   getOlderThen(time?: number): Array<number> {

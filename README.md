@@ -138,7 +138,7 @@ include the following:
 🇨🇳 Chinese (Simplified) by [yfdyh000](https://crowdin.com/profile/yfdyh000),
 🇹🇼 Chinese (Traditional) by [ingrid123](https://crowdin.com/profile/ingrid123) and [xbddc.ho](https://crowdin.com/profile/xbddc.ho),
 🇫🇷 French by [orpheuslummis](https://crowdin.com/profile/orpheuslummis) and [bkazez](https://crowdin.com/profile/bkazez),
-🇩🇪 Germany by [johannesfischer](https://crowdin.com/profile/johannesfischer),
+🇩🇪 German by [johannesfischer](https://crowdin.com/profile/johannesfischer),
 🇭🇺 Hungarian by [kottalovag](https://crowdin.com/profile/kottalovag),
 🇮🇩 Indonesian by [azhe403](https://crowdin.com/profile/azhe403),
 🇰🇷 Korean by [x_nuk](https://crowdin.com/profile/x_nuk),

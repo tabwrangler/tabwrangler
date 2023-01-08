@@ -114,9 +114,9 @@ your tabs but not the content inside those tabs.
 Tab Wrangler's requested permissions are listed in its [manifest.json][manifest.json] under the
 `"permissions"` key.
 
-* [`"contextMenus"`][3] Enables a "Tab Wrangler" menu item when you right click on a webpage that
+* [`"contextMenus"`][3]: Enables a "Tab Wrangler" menu item when you right click on a webpage that
   lets you send the tab to the Tab Corral, lock that tab, or lock all tabs on that domain.
-* [`"sessions"`][4] Enables Tab Wrangler to read and restore the full history of a tab including
+* [`"sessions"`][4]: Enables Tab Wrangler to read and restore the full history of a tab including
   enabling the back/forward buttons and your scroll position on the page.
 * [`"storage"`][5]: Enables Tab Wrangler to sync your Tab Wrangler settings with your browser
   account and enables saving your closed tabs to your local computer. *Note: closed tabs are not

@@ -13,6 +13,9 @@ const Settings = {
     // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
     corralTabSortOrder: null,
 
+    // How many days (+ other *Inactive) before we consider a tab "stale" and ready to close.
+    daysInactive: 0,
+
     // wait 1 second before updating an active tab
     debounceOnActivated: false,
 
@@ -21,6 +24,9 @@ const Settings = {
 
     // Don't close tabs that are a member of a group.
     filterGroupedTabs: false,
+
+    // How many hours (+ other *Inactive) before we consider a tab "stale" and ready to close.
+    hoursInactive: 0,
 
     // An array of tabids which have been explicitly locked by the user.
     lockedIds: defaultLockedIds,
@@ -34,13 +40,13 @@ const Settings = {
     // Stop acting if there are only minTabs tabs open.
     minTabs: 5,
 
-    // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
+    // How many minutes (+ other *Inactive) before we consider a tab "stale" and ready to close.
     minutesInactive: 20,
 
     // Save closed tabs in between browser sessions.
     purgeClosedTabs: false,
 
-    // How many seconds (+ minutesInactive) before a tab is "stale" and ready to close.
+    // How many seconds (+ other *Inactive) before a tab is "stale" and ready to close.
     secondsInactive: 0,
 
     // When true, shows the number of closed tabs in the list as a badge on the browser icon.
@@ -161,9 +167,43 @@ const Settings = {
   /**
    * @see Settings.set
    */
+  setdaysInactive(value: string): void {
+    const days = parseInt(value, 10);
+    if (isNan(days) || days < 0 || days > 30) {
+        throw Error(
+            chrome.i18n.getMessage("settings_setdaysInactive_error") || "Error: setdaysInactive"
+        );
+    }
+
+    // Reset the tabTimes since we changed the setting
+    tablmanager.tabTimes = {};
+    chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
+    Settings.setValue("daysInactive", value);
+  },
+
+  /**
+   * @see Settings.set
+   */
+  sethoursInactive(value: string): void {
+    const hours = parseInt(value, 10);
+    if (isNan(hours) || hours < 0 || hours > 24) {
+        throw Error(
+            chrome.i18n.getMessage("settings_sethoursInactive_error") || "Error: sethoursInactive"
+        );
+    }
+
+    // Reset the tabTimes since we changed the setting
+    tablmanager.tabTimes = {};
+    chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
+    Settings.setValue("hoursInactive", value);
+  },
+
+  /**
+   * @see Settings.set
+   */
   setminutesInactive(value: string): void {
     const minutes = parseInt(value, 10);
-    if (isNaN(minutes) || minutes < 0) {
+    if (isNaN(minutes) || minutes < 0 || minutes > 59) {
       throw Error(
         chrome.i18n.getMessage("settings_setminutesInactive_error") ||
           "Error: settings.setminutesInactive"
@@ -207,9 +247,15 @@ const Settings = {
    * Returns the number of milliseconds that tabs should stay open for without being used.
    */
   stayOpen(): number {
+    let seconds = parseInt(this.get("secondsInactive"), 10);
+    let minutes = parseInt(this.get("minutesInactive"), 10);
+    let hours   = parseInt(this.get("hoursInactive"), 10);
+    let days    = parseInt(this.get("daysInactive"), 10);
     return (
-      parseInt(this.get("minutesInactive"), 10) * 60000 + // minutes
-      parseInt(this.get("secondsInactive"), 10) * 1000 // seconds
+      seconds * 1000 +
+      minutes * 1000 * 60 +
+      hours   * 1000 * 60 * 60 +
+      days    * 1000 * 60 * 60 * 24
     );
   },
 };

@@ -267,15 +267,23 @@
   },
   "options_option_timeInactive_minutes": {
     "description": "Input title for number of minutes before closing tabs",
-    "message": "Must be a number greater than 0 and less than 7200"
+    "message": "Must be a number greater or equal to 0 and less than 60"
   },
   "options_option_timeInactive_postLabel": {
     "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "minutes : seconds"
+    "message": "hours : minutes : seconds"
   },
   "options_option_timeInactive_seconds": {
     "description": "Input title for number of seconds before closing tabs",
-    "message": "Must be a number greater than 0 and less than 60"
+    "message": "Must be a number greater or equal to 0 and less than 60"
+  },
+  "options_option_timeInactive_hours": {
+    "description": "Input title for number of hours before closing tabs",
+    "message": "Must be a number greater or equal to 0 and less than 24"
+  },
+  "options_option_timeInactive_days": {
+    "description": "Input title for number of days before closing tabs",
+    "message": "Must be a number greater or equal to 0 and less than 30"
   },
   "options_saving": {
     "description": "Message displayed when options are being saved",

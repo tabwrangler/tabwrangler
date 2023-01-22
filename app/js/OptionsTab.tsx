@@ -305,9 +305,33 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             <div className="form-inline">
               <input
                 className="form-control form-control--time"
+                defaultValue{getTW().settings.get("daysInactive")}
+                id="daysInactive"
+                max="30"
+                min="0"
+                name="daysInactive"
+                onChange={this._debouncedHandleSettingsChange}
+                title={chrome.i18n.getMessage("options_option_timeInactive_days")}
+                type="number"
+              />
+              <span className="mx-1">days </span>
+              <input
+                className="form-control form-control--time"
+                defaultValue{getTW().settings.get("hoursInactive")}
+                id="hoursInactive"
+                max="24"
+                min="0"
+                name="hoursInactive"
+                onChange={this._debouncedHandleSettingsChange}
+                title={chrome.i18n.getMessage("options_option_timeInactive_hours")}
+                type="number"
+              />
+              <span className="mx-1"> : </span>
+              <input
+                className="form-control form-control--time"
                 defaultValue={getTW().settings.get("minutesInactive")}
                 id="minutesInactive"
-                max="7200"
+                max="60"
                 min="0"
                 name="minutesInactive"
                 onChange={this._debouncedHandleSettingsChange}

@@ -192,7 +192,7 @@ const TabManager = {
   removeTab(tabId: number) {
     const totalTabsRemoved = window.TW.store.getState().localStorage.totalTabsRemoved;
     window.TW.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
-    this.unlockTab(tabId);
+    TabManager.unlockTab(tabId);
     window.TW.store.dispatch({ tabId, type: "REMOVE_TAB_TIME" });
   },
 
@@ -204,8 +204,8 @@ const TabManager = {
   toggleTabs(tabs: chrome.tabs.Tab[]) {
     tabs.forEach((tab) => {
       if (tab.id == null) return;
-      else if (this.isLocked(tab.id)) this.unlockTab(tab.id);
-      else this.lockTab(tab.id);
+      else if (TabManager.isLocked(tab.id)) TabManager.unlockTab(tab.id);
+      else TabManager.lockTab(tab.id);
     });
   },
 

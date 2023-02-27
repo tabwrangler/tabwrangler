@@ -171,7 +171,7 @@ const Settings = {
     }
 
     // Reset the tabTimes since we changed the setting
-    window.window.TW.store.dispatch({ type: "RESET_TAB_TIMES" });
+    tabmanager.tabTimes = {};
     chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
     Settings.setValue("minutesInactive", value);
   },
@@ -188,7 +188,7 @@ const Settings = {
     }
 
     // Reset the tabTimes since we changed the setting
-    window.window.TW.store.dispatch({ type: "RESET_TAB_TIMES" });
+    tabmanager.tabTimes = {};
     chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
     Settings.setValue("secondsInactive", value);
   },

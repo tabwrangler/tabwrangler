@@ -24,10 +24,8 @@ const ChronoSorter: Sorter = {
     } else if (!isLocked(tabA) && isLocked(tabB)) {
       return -1;
     } else {
-      const lastModifiedA =
-        tabA.id == null ? -1 : getTW().store.getState().localStorage.tabTimes[tabA.id];
-      const lastModifiedB =
-        tabB.id == null ? -1 : getTW().store.getState().localStorage.tabTimes[tabB.id];
+      const lastModifiedA = tabA.id == null ? -1 : getTW().tabmanager.tabTimes[tabA.id];
+      const lastModifiedB = tabB.id == null ? -1 : getTW().tabmanager.tabTimes[tabB.id];
       return lastModifiedA - lastModifiedB;
     }
   },

@@ -213,7 +213,7 @@ const TabManager = {
   removeTab(tabId: number) {
     const totalTabsRemoved = window.TW.store.getState().localStorage.totalTabsRemoved;
     window.TW.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
-    this.unlockTab(tabId);
+    TabManager.unlockTab(tabId);
     delete TabManager.tabTimes[String(tabId)];
   },
 

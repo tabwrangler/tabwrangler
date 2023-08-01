@@ -143,14 +143,6 @@ const TabManager = {
   importData,
 
   /**
-   * Wrapper function to get all tab times regardless of time inactive
-   * @return {Array}
-   */
-  getAll(): Array<number> {
-    return TabManager.getOlderThen();
-  },
-
-  /**
    * Returns tab times (hash of tabId : lastAccess)
    * @param time
    *  If null, returns all.

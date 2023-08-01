@@ -1,6 +1,8 @@
 import * as React from "react";
 import { isLocked, isManuallyLockable } from "./tab";
+import { AppState } from "./Types";
 import OpenTabRow from "./OpenTabRow";
+import { connect } from "react-redux";
 import cx from "classnames";
 import { getTW } from "./util";
 import memoize from "memoize-one";
@@ -9,14 +11,20 @@ type Sorter = {
   key: string;
   label: () => string;
   shortLabel: () => string;
-  sort: (a: chrome.tabs.Tab | null, b: chrome.tabs.Tab | null) => number;
+  sort: (
+    a: chrome.tabs.Tab | null,
+    b: chrome.tabs.Tab | null,
+    tabTimes: {
+      [tabid: string]: number;
+    }
+  ) => number;
 };
 
 const ChronoSorter: Sorter = {
   key: "chrono",
   label: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose") || "",
   shortLabel: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose_short") || "",
-  sort(tabA, tabB) {
+  sort(tabA, tabB, tabTimes) {
     if (tabA == null || tabB == null) {
       return 0;
     } else if (isLocked(tabA) && !isLocked(tabB)) {
@@ -24,8 +32,8 @@ const ChronoSorter: Sorter = {
     } else if (!isLocked(tabA) && isLocked(tabB)) {
       return -1;
     } else {
-      const lastModifiedA = tabA.id == null ? -1 : getTW().tabmanager.tabTimes[tabA.id];
-      const lastModifiedB = tabB.id == null ? -1 : getTW().tabmanager.tabTimes[tabB.id];
+      const lastModifiedA = tabA.id == null ? -1 : tabTimes[tabA.id];
+      const lastModifiedB = tabB.id == null ? -1 : tabTimes[tabB.id];
       return lastModifiedA - lastModifiedB;
     }
   },
@@ -35,8 +43,8 @@ const ReverseChronoSorter: Sorter = {
   key: "reverseChrono",
   label: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose_desc") || "",
   shortLabel: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose_desc_short") || "",
-  sort(tabA, tabB) {
-    return -1 * ChronoSorter.sort(tabA, tabB);
+  sort(tabA, tabB, tabTimes) {
+    return -1 * ChronoSorter.sort(tabA, tabB, tabTimes);
   },
 };
 
@@ -59,8 +67,8 @@ const ReverseTabOrderSorter: Sorter = {
   key: "reverseTabOrder",
   label: () => chrome.i18n.getMessage("tabLock_sort_tabOrder_desc") || "",
   shortLabel: () => chrome.i18n.getMessage("tabLock_sort_tabOrder_desc_short") || "",
-  sort(tabA, tabB) {
-    return -1 * TabOrderSorter.sort(tabA, tabB);
+  sort(tabA, tabB, tabTimes) {
+    return -1 * TabOrderSorter.sort(tabA, tabB, tabTimes);
   },
 };
 
@@ -76,7 +84,7 @@ type State = {
   tabs: Array<chrome.tabs.Tab>;
 };
 
-export default class LockTab extends React.PureComponent<Props, State> {
+class LockTab extends React.PureComponent<Props, State> {
   _dropdownRef: HTMLElement | null = null;
   _lastSelectedTab: chrome.tabs.Tab | undefined = undefined;
   _timeLeftInterval: number | undefined;
@@ -157,7 +165,7 @@ export default class LockTab extends React.PureComponent<Props, State> {
     multiselect: boolean
   ) => {
     let tabsToToggle = [tab];
-    const tabs = this._getSortedTabs(this.state.tabs, this.state.sorter);
+    const tabs = this._getSortedTabs(this.state.tabs, this.state.sorter, this.props.tabTimes);
     if (multiselect && this._lastSelectedTab != null) {
       const lastSelectedTabIndex = tabs.indexOf(this._lastSelectedTab);
       if (lastSelectedTabIndex >= 0) {
@@ -193,10 +201,23 @@ export default class LockTab extends React.PureComponent<Props, State> {
     }
   };
 
-  _getSortedTabs: (tabs: Array<chrome.tabs.Tab>, sorter: Sorter) => Array<chrome.tabs.Tab> =
-    memoize((tabs: Array<chrome.tabs.Tab>, sorter: Sorter) => {
-      return tabs.slice().sort(sorter.sort);
-    });
+  _getSortedTabs: (
+    tabs: Array<chrome.tabs.Tab>,
+    sorter: Sorter,
+    tabTimes: {
+      [tabid: string]: number;
+    }
+  ) => Array<chrome.tabs.Tab> = memoize(
+    (
+      tabs: Array<chrome.tabs.Tab>,
+      sorter: Sorter,
+      tabTimes: {
+        [tabid: string]: number;
+      }
+    ) => {
+      return tabs.slice().sort((tabA, tabB) => sorter.sort(tabA, tabB, tabTimes));
+    }
+  );
 
   _toggleSortDropdown: () => void = () => {
     this.setState({ isSortDropdownOpen: !this.state.isSortDropdownOpen });
@@ -265,12 +286,18 @@ export default class LockTab extends React.PureComponent<Props, State> {
         </div>
         <table className="table table-hover table-sm table-th-unbordered">
           <tbody>
-            {this._getSortedTabs(this.state.tabs, this.state.sorter).map((tab) => (
-              <OpenTabRow key={tab.id} onToggleTab={this._handleToggleTab} tab={tab} />
-            ))}
+            {this._getSortedTabs(this.state.tabs, this.state.sorter, this.props.tabTimes).map(
+              (tab) => (
+                <OpenTabRow key={tab.id} onToggleTab={this._handleToggleTab} tab={tab} />
+              )
+            )}
           </tbody>
         </table>
       </div>
     );
   }
 }
+
+export default connect((state: AppState) => ({
+  tabTimes: state.localStorage.tabTimes,
+}))(LockTab);

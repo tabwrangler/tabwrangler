@@ -10,23 +10,12 @@ import {
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
-// A map of tabId => timestamp
-const defaultTabTimes: {
-  [tabid: string]: number;
-} = {};
-
-/**
- * Stores the tabs in a separate variable to log Last Accessed time.
- */
 const TabManager = {
-  tabTimes: defaultTabTimes,
-
   closedTabs: {
     clear() {
-      window.window.TW.store.dispatch(removeAllSavedTabs());
+      window.TW.store.dispatch(removeAllSavedTabs());
     },
 
-    // @todo: move to filter system for consistency
     findPositionById(id: number): number | null {
       const { savedTabs } = window.TW.store.getState().localStorage;
       for (let i = 0; i < savedTabs.length; i++) {
@@ -169,9 +158,10 @@ const TabManager = {
    */
   getOlderThen(time?: number): Array<number> {
     const ret = [];
-    for (const i in this.tabTimes) {
-      if (Object.prototype.hasOwnProperty.call(this.tabTimes, i)) {
-        if (!time || this.tabTimes[i] < time) {
+    const { tabTimes } = window.TW.store.getState().localStorage;
+    for (const i in tabTimes) {
+      if (Object.prototype.hasOwnProperty.call(tabTimes, i)) {
+        if (!time || tabTimes[i] < time) {
           ret.push(parseInt(i, 10));
         }
       }
@@ -214,12 +204,16 @@ const TabManager = {
     const totalTabsRemoved = window.TW.store.getState().localStorage.totalTabsRemoved;
     window.TW.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
     TabManager.unlockTab(tabId);
-    delete TabManager.tabTimes[String(tabId)];
+    window.TW.store.dispatch({ tabId: String(tabId), type: "REMOVE_TAB_TIME" });
   },
 
   replaceTab(addedTabId: number, removedTabId: number) {
     TabManager.removeTab(removedTabId);
     TabManager.updateLastAccessed(addedTabId);
+  },
+
+  resetTabTimes() {
+    window.TW.store.dispatch({ type: "RESET_TAB_TIMES" });
   },
 
   toggleTabs(tabs: chrome.tabs.Tab[]) {
@@ -259,12 +253,17 @@ const TabManager = {
       return;
     } else if (typeof tabOrTabId === "number") {
       tabId = tabOrTabId;
-      TabManager.tabTimes[String(tabId)] = Date.now();
+      window.TW.store.dispatch({ tabId: String(tabId), tabTime: Date.now(), type: "SET_TAB_TIME" });
     } else {
       tabId = tabOrTabId.id;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
-      TabManager.tabTimes[String(tabId)] = tabOrTabId?.lastAccessed ?? new Date().getTime();
+      window.TW.store.dispatch({
+        tabId: String(tabId),
+        // `Tab.lastAccessed` not yet added to `chrome.tabs.Tab` type.
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore:next-line
+        tabTime: tabOrTabId?.lastAccessed ?? new Date().getTime(),
+        type: "SET_TAB_TIME",
+      });
     }
   },
 };

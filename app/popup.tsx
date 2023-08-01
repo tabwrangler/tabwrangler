@@ -7,6 +7,7 @@ import Popup from "./js/Popup";
 import { Provider } from "react-redux";
 import React from "react";
 import ReactDOM from "react-dom";
+import configureStore from "./js/configureStore";
 import { connect } from "react-redux";
 
 const popupElement = document.getElementById("popup");
@@ -18,12 +19,12 @@ if (popupElement != null) {
     throw new Error("Reopen the page or popup. Background page does not exist.");
   }
 
+  const { persistor, store } = configureStore();
   const ConnectedPopup = connect()(Popup);
-  const TW = backgroundPage.TW;
 
   ReactDOM.render(
-    <Provider store={TW.store}>
-      <PersistGate loading={null} persistor={TW.persistor}>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
         <ConnectedPopup />
       </PersistGate>
     </Provider>,
@@ -39,5 +40,3 @@ if (popupElement != null) {
 
   window.addEventListener("pagehide", unmountPopup);
 }
-
-// [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Dead_object

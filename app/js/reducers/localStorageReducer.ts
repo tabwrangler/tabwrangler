@@ -7,9 +7,24 @@ export type RemoveSavedTabsAction = {
   type: "REMOVE_SAVED_TABS";
 };
 
+type RemoveTabTime = {
+  tabId: string;
+  type: "REMOVE_TAB_TIME";
+};
+
+type ResetTabTimes = {
+  type: "RESET_TAB_TIMES";
+};
+
 export type SetSavedTabsAction = {
   savedTabs: Array<chrome.tabs.Tab>;
   type: "SET_SAVED_TABS";
+};
+
+type SetTabTime = {
+  tabId: string;
+  tabTime: number;
+  type: "SET_TAB_TIME";
 };
 
 export type SetTotalTabsRemovedAction = {
@@ -30,7 +45,10 @@ export type SetTotalTabsWrangledAction = {
 export type Action =
   | RemoveAllSavedTabsAction
   | RemoveSavedTabsAction
+  | RemoveTabTime
+  | ResetTabTimes
   | SetSavedTabsAction
+  | SetTabTime
   | SetTotalTabsRemovedAction
   | SetTotalTabsUnwrangledAction
   | SetTotalTabsWrangledAction;
@@ -40,6 +58,10 @@ export type State = {
   installDate: number;
   // Tabs closed by Tab Wrangler
   savedTabs: Array<chrome.tabs.Tab>;
+  // Map of tabId -> time remaining before tab is closed
+  tabTimes: {
+    [tabid: string]: number;
+  };
   // Number of tabs closed by any means since install
   totalTabsRemoved: number;
   // Number of tabs unwrangled (re-opened from the corral) since install
@@ -52,6 +74,7 @@ export function createInitialState(): State {
   return {
     installDate: Date.now(),
     savedTabs: [],
+    tabTimes: {},
     totalTabsRemoved: 0,
     totalTabsUnwrangled: 0,
     totalTabsWrangled: 0,
@@ -79,6 +102,27 @@ export default function localStorage(state: State = initialState, action: Action
       return {
         ...state,
         savedTabs: action.savedTabs,
+      };
+    case "RESET_TAB_TIMES":
+      return {
+        ...state,
+        tabTimes: {},
+      };
+    case "REMOVE_TAB_TIME": {
+      const nextTabTimes = { ...state.tabTimes };
+      delete nextTabTimes[action.tabId];
+      return {
+        ...state,
+        tabTimes: nextTabTimes,
+      };
+    }
+    case "SET_TAB_TIME":
+      return {
+        ...state,
+        tabTimes: {
+          ...state.tabTimes,
+          [action.tabId]: action.tabTime,
+        },
       };
     case "SET_TOTAL_TABS_REMOVED":
       return {

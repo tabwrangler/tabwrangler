@@ -1,6 +1,7 @@
 import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import type { Dispatch, ThemeSettingValue } from "./Types";
+import { exportData, importData } from "./actions/importExportActions";
 import { AppState } from "./Types";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
@@ -180,7 +181,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   exportData = (event: React.MouseEvent<HTMLButtonElement>) => {
     this.importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_exporting") || "",
-      getTW().tabmanager.exportData,
+      exportData,
       event,
       (blob) => {
         FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
@@ -191,7 +192,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   importData = (event: React.FormEvent<HTMLInputElement>) => {
     this.importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_importing") || "",
-      getTW().tabmanager.importData,
+      importData,
       event
     );
   };

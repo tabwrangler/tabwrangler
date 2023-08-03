@@ -60,16 +60,20 @@ afterEach(() => {
 });
 
 describe("wrangleTabs", () => {
+  let tabManager: TabManager;
+
+  beforeEach(() => {
+    tabManager = new TabManager();
+  });
+
   test("should wrangle new tabs", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
     window.TW.settings.get = jest.fn(() => 5); //maxTabs
     window.chrome.tabs.remove = jest.fn();
 
-    const testTabs = [{ id: 2 }, { id: 3 }, { id: 4 }];
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    TabManager.closedTabs.wrangleTabs(testTabs);
+    const testTabs = [createTab({ id: 2 }), createTab({ id: 3 }), createTab({ id: 4 })];
+    tabManager.wrangleTabs(testTabs);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
@@ -93,13 +97,16 @@ describe("wrangleTabs", () => {
     window.TW.settings.get = jest.fn(() => 3);
     window.chrome.tabs.remove = jest.fn();
 
-    const testTabs = [{ id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }];
+    const testTabs = [
+      createTab({ id: 2 }),
+      createTab({ id: 3 }),
+      createTab({ id: 4 }),
+      createTab({ id: 5 }),
+    ];
     window.chrome.storage.local.set = jest.fn();
 
     window.chrome.browserAction.setBadgeText = jest.fn();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    TabManager.closedTabs.wrangleTabs(testTabs);
+    tabManager.wrangleTabs(testTabs);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
@@ -137,11 +144,9 @@ describe("wrangleTabs", () => {
     // reset all mocks
     jest.clearAllMocks();
 
-    const testTabs = [{ id: 4, url: "https://www.nytimes.com" }];
+    const testTabs = [createTab({ id: 4, url: "https://www.nytimes.com" })];
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    TabManager.closedTabs.wrangleTabs(testTabs);
+    tabManager.wrangleTabs(testTabs);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
@@ -181,11 +186,11 @@ describe("wrangleTabs", () => {
     // reset all mocks
     jest.clearAllMocks();
 
-    const testTabs = [{ id: 4, url: "https://www.nytimes.com", title: "New York Times" }];
+    const testTabs = [
+      createTab({ id: 4, url: "https://www.nytimes.com", title: "New York Times" }),
+    ];
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    TabManager.closedTabs.wrangleTabs(testTabs);
+    tabManager.wrangleTabs(testTabs);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
@@ -205,7 +210,10 @@ describe("wrangleTabs", () => {
 });
 
 describe("filter", () => {
+  let tabManager: TabManager;
+
   beforeEach(() => {
+    tabManager = new TabManager();
     window.TW.store = configureMockStore({
       localStorage: {
         savedTabs: [
@@ -222,24 +230,24 @@ describe("filter", () => {
   });
 
   test("should return index of tab if the url matches", () => {
-    expect(TabManager.closedTabs.findPositionByURL("https://www.nytimes.com")).toBe(2);
+    expect(tabManager.findPositionByURL("https://www.nytimes.com")).toBe(2);
   });
 
   test("should return -1 if the url does not match any tab", () => {
-    expect(TabManager.closedTabs.findPositionByURL("https://www.mozilla.org")).toBe(-1);
+    expect(tabManager.findPositionByURL("https://www.mozilla.org")).toBe(-1);
   });
 
   test("should return -1 if the url is undefined", () => {
-    expect(TabManager.closedTabs.findPositionByURL()).toBe(-1);
+    expect(tabManager.findPositionByURL()).toBe(-1);
   });
 
   test("should return -1 if the url is null", () => {
-    expect(TabManager.closedTabs.findPositionByURL(null)).toBe(-1);
+    expect(tabManager.findPositionByURL(null)).toBe(-1);
   });
 
   test("should return index of tab if the url matches", () => {
     expect(
-      TabManager.closedTabs.findPositionByHostnameAndTitle(
+      tabManager.findPositionByHostnameAndTitle(
         "https://www.nytimes.com",
         "The New York Times - Breaking News, World News & Multimedia"
       )
@@ -247,32 +255,33 @@ describe("filter", () => {
   });
 
   test("should return -1 of tab if no title provided", () => {
-    expect(TabManager.closedTabs.findPositionByHostnameAndTitle("https://www.nytimes.com")).toBe(
-      -1
-    );
+    expect(tabManager.findPositionByHostnameAndTitle("https://www.nytimes.com")).toBe(-1);
   });
 });
 
 describe("getURLPositionFilterByWrangleOption", () => {
+  let tabManager: TabManager;
+
+  beforeEach(() => {
+    tabManager = new TabManager();
+  });
+
   test("should return function that always returns -1", () => {
-    const filterFunction =
-      TabManager.closedTabs.getURLPositionFilterByWrangleOption("withDuplicates");
+    const filterFunction = tabManager.getURLPositionFilterByWrangleOption("withDuplicates");
 
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
   });
 
   test("should return function that will return the tab position by exact URL match", () => {
-    const filterFunction =
-      TabManager.closedTabs.getURLPositionFilterByWrangleOption("exactURLMatch");
+    const filterFunction = tabManager.getURLPositionFilterByWrangleOption("exactURLMatch");
 
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
   });
 
   test("should return function that will return the tab position by hostname and title", () => {
-    const filterFunction =
-      TabManager.closedTabs.getURLPositionFilterByWrangleOption("hostnameAndTitleMatch");
+    const filterFunction = tabManager.getURLPositionFilterByWrangleOption("hostnameAndTitleMatch");
 
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com", title: "test" }))).toBe(-1);

@@ -345,7 +345,7 @@ class CorralTab extends React.Component<Props, State> {
         tab,
       }));
 
-    getTW().tabmanager.closedTabs.unwrangleTabs(sessionTabs);
+    getTW().tabmanager.unwrangleTabs(sessionTabs);
     this.setState({ selectedTabs: new Set() });
   };
 
@@ -366,7 +366,7 @@ class CorralTab extends React.Component<Props, State> {
   };
 
   openTab = (tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) => {
-    getTW().tabmanager.closedTabs.unwrangleTabs([{ session, tab }]);
+    getTW().tabmanager.unwrangleTabs([{ session, tab }]);
     this.state.selectedTabs.delete(tab);
     this.forceUpdate();
   };

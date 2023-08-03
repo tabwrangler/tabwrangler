@@ -224,9 +224,9 @@ const TabManager = {
     window.TW.settings.set("lockedIds", lockedIds);
   },
 
-  updateClosedCount() {
+  updateClosedCount(showBadgeCount: boolean = window.TW.settings.get("showBadgeCount")) {
     let text;
-    if (window.TW.settings.get("showBadgeCount")) {
+    if (showBadgeCount) {
       const savedTabsLength = window.TW.store.getState().localStorage.savedTabs.length;
       text = savedTabsLength.length === 0 ? "" : savedTabsLength.toString();
     } else {

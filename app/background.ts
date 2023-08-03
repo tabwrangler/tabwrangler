@@ -140,13 +140,14 @@ const onNewTab = function (tab: chrome.tabs.Tab) {
   if (tab.id != null) tabmanager.updateLastAccessed(tab.id);
 };
 
-const startup = function () {
+const startup = async function () {
   const { persistor, store } = configureStore();
 
   watchClosedCount(store);
   watchPaused(store);
 
-  settings.init();
+  // Settings reads from async browser storage; ensure settings are loaded before proceeding.
+  await settings.init();
 
   // Declare this global namespace so it can be used from popup.js
   window.TW = {
@@ -155,6 +156,11 @@ const startup = function () {
     store,
     tabmanager,
   };
+
+  // Because the badge count is external state, this side effect must be run once the value
+  // is read from storage. This could more elequently be handled in a reducer, but place it
+  // here to make minimal changes while correctly updating the badge count.
+  tabmanager.updateClosedCount();
 
   if (settings.get("purgeClosedTabs") !== false) {
     tabmanager.closedTabs.clear();
@@ -179,6 +185,8 @@ const startup = function () {
       tabmanager.updateLastAccessed(tabInfo["tabId"]);
     }
   });
+
+  // Kick off checking for tabs to close
   scheduleCheckToClose();
 
   // Create the "lock tab" context menu:
@@ -198,6 +206,20 @@ const startup = function () {
         break;
       default:
         break;
+    }
+  });
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === "sync") {
+      if (changes["minutesInactive"] || changes["secondsInactive"]) {
+        // Reset the tabTimes since we changed the setting
+        tabmanager.resetTabTimes();
+        chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
+      }
+
+      if (changes["showBadgeCount"]) {
+        tabmanager.updateClosedCount(changes["showBadgeCount"].newValue);
+      }
     }
   });
 };

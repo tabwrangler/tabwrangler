@@ -1,5 +1,3 @@
-import tabmanager from "./tabmanager";
-
 const defaultCache: Record<string, unknown> = {};
 const defaultLockedIds: Array<number> = [];
 
@@ -54,7 +52,7 @@ const Settings = {
   } as Record<string, unknown>,
 
   // Gets all settings from sync and stores them locally.
-  init() {
+  init(): Promise<void> {
     const keys: Array<string> = [];
     for (const i in this.defaults) {
       if (Object.prototype.hasOwnProperty.call(this.defaults, i)) {
@@ -62,15 +60,17 @@ const Settings = {
         keys.push(i);
       }
     }
-    chrome.storage.sync.get(keys, (items) => {
-      for (const i in items) {
-        if (Object.prototype.hasOwnProperty.call(items, i)) {
-          this.cache[i] = items[i];
 
-          if (i === "lockedIds") this._initLockedIds();
-          else if (i === "showBadgeCount") this._initShowBadgeCount();
+    return new Promise((resolve) => {
+      chrome.storage.sync.get(keys, (items) => {
+        for (const i in items) {
+          if (Object.prototype.hasOwnProperty.call(items, i)) {
+            this.cache[i] = items[i];
+          }
         }
-      }
+        this._initLockedIds();
+        resolve();
+      });
     });
   },
 
@@ -91,13 +91,6 @@ const Settings = {
       });
       this.set("lockedIds", nextLockedIds);
     });
-  },
-
-  _initShowBadgeCount() {
-    // Because the badge count is external state, this side effect must be run once the value
-    // is read from storage. This could more elequently be handled in a reducer, but place it
-    // here to make minimal changes while correctly updating the badge count.
-    tabmanager.updateClosedCount();
   },
 
   /**
@@ -170,9 +163,6 @@ const Settings = {
       );
     }
 
-    // Reset the tabTimes since we changed the setting
-    tabmanager.resetTabTimes();
-    chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
     Settings.setValue("minutesInactive", value);
   },
 
@@ -186,16 +176,7 @@ const Settings = {
         chrome.i18n.getMessage("settings_setsecondsInactive_error") || "Error: setsecondsInactive"
       );
     }
-
-    // Reset the tabTimes since we changed the setting
-    tabmanager.resetTabTimes();
-    chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
     Settings.setValue("secondsInactive", value);
-  },
-
-  setshowBadgeCount(value: boolean) {
-    Settings.setValue("showBadgeCount", value);
-    tabmanager.updateClosedCount();
   },
 
   setValue<T>(key: string, value: T, fx?: () => void) {

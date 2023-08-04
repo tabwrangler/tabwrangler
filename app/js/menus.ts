@@ -18,45 +18,50 @@ export default class Menus {
     this.tabManager = tabManager;
 
     const lockTab: chrome.contextMenus.CreateProperties = {
+      onclick: this.lockTab.bind(this),
+      title: chrome.i18n.getMessage("contextMenu_lockTab"),
       type: "checkbox",
-      title: chrome.i18n.getMessage("contextMenu_lockTab") || "",
-      onclick: this.lockTab,
     };
 
     const lockDomain: chrome.contextMenus.CreateProperties = {
+      onclick: this.lockDomain.bind(this),
+      title: chrome.i18n.getMessage("contextMenu_lockDomain"),
       type: "checkbox",
-      title: chrome.i18n.getMessage("contextMenu_lockDomain") || "",
-      onclick: this.lockDomain,
     };
 
-    const corralTab: chrome.contextMenus.CreateProperties = {
+    chrome.contextMenus.create({
+      onclick: this.corralTab.bind(this),
+      title: chrome.i18n.getMessage("contextMenu_corralTab"),
       type: "normal",
-      title: chrome.i18n.getMessage("contextMenu_corralTab") || "",
-      onclick: this.corralTab,
-    };
-
+    });
+    chrome.contextMenus.create({ type: "separator" });
     this.lockTabId = chrome.contextMenus.create(lockTab);
     this.lockDomainId = chrome.contextMenus.create(lockDomain);
-    chrome.contextMenus.create(corralTab);
   }
 
-  lockTab(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
+  lockTab(_onClickData: chrome.contextMenus.OnClickData, selectedTab: chrome.tabs.Tab) {
     if (selectedTab.id == null) return;
     settings.lockTab(selectedTab.id);
   }
 
-  lockDomain(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
+  lockDomain({ wasChecked }: chrome.contextMenus.OnClickData, selectedTab: chrome.tabs.Tab) {
     // Tabs don't necessarily have URLs. In those cases there is no domain to lock.
     if (selectedTab.url == null) return;
 
-    // If the URL doesn't match our bulletproof regexp for discovering the domain, do nothing
-    // because we have no domain to lock.
+    // If the URL doesn't match our regexp for discovering the domain, do nothing because we have no
+    // domain to lock.
     const domain = getDomain(selectedTab.url);
     if (domain == null) return;
 
     const whitelist = settings.get<Array<string>>("whitelist");
-    whitelist.push(domain);
-    settings.set("whitelist", whitelist);
+    if (wasChecked) {
+      settings.set(
+        "whitelist",
+        whitelist.filter((d) => d !== domain)
+      );
+    } else {
+      settings.set("whitelist", [...whitelist, domain]);
+    }
   }
 
   corralTab(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
@@ -71,7 +76,10 @@ export default class Menus {
           if (tab.url == null) return;
           const currentDomain = getDomain(tab.url);
           if (currentDomain == null) return;
+
+          const whitelist = settings.get<Array<string>>("whitelist");
           chrome.contextMenus.update(Number(this.lockDomainId), {
+            checked: whitelist.includes(currentDomain),
             title: chrome.i18n.getMessage("contextMenu_lockSpecificDomain", currentDomain) || "",
           });
         } catch (e) {

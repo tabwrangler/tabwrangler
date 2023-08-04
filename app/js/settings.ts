@@ -61,6 +61,15 @@ const Settings = {
       }
     }
 
+    // Sync the cache with the browser's storage area. Changes in the background pages should sync
+    // with those in the popup and vice versa.
+    chrome.storage.onChanged.addListener(
+      (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
+        if (areaName !== "sync") return;
+        for (const [key, value] of Object.entries(changes)) this.cache[key] = value.newValue;
+      }
+    );
+
     return new Promise((resolve) => {
       chrome.storage.sync.get(keys, (items) => {
         for (const i in items) {

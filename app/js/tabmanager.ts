@@ -32,9 +32,9 @@ export default class TabManager {
   }
 
   findPositionByURL(url: string | null = ""): number {
-    return this.store.getState().localStorage.savedTabs.findIndex((item: chrome.tabs.Tab) => {
-      return item.url === url && url != null;
-    });
+    return this.store
+      .getState()
+      .localStorage.savedTabs.findIndex((item: chrome.tabs.Tab) => item.url === url && url != null);
   }
 
   findPositionByHostnameAndTitle(url = "", title = ""): number {
@@ -78,19 +78,14 @@ export default class TabManager {
 
   getURLPositionFilterByWrangleOption(option: WrangleOption): (tab: chrome.tabs.Tab) => number {
     if (option === "hostnameAndTitleMatch") {
-      return (tab: chrome.tabs.Tab): number => {
-        return this.findPositionByHostnameAndTitle(tab.url, tab.title);
-      };
+      return (tab: chrome.tabs.Tab): number =>
+        this.findPositionByHostnameAndTitle(tab.url, tab.title);
     } else if (option === "exactURLMatch") {
-      return (tab: chrome.tabs.Tab): number => {
-        return this.findPositionByURL(tab.url);
-      };
+      return (tab: chrome.tabs.Tab): number => this.findPositionByURL(tab.url);
     }
 
     // `'withDupes'` && default
-    return () => {
-      return -1;
-    };
+    return () => -1;
   }
 
   wrangleTabs(tabs: Array<chrome.tabs.Tab>) {

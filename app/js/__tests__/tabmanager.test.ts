@@ -61,11 +61,9 @@ afterEach(() => {
 
 describe("wrangleTabs", () => {
   let store: ReturnType<typeof configureMockStore>;
-  let tabManager: TabManager;
 
   beforeEach(() => {
     store = configureMockStore();
-    tabManager = new TabManager(<any>store);
   });
 
   test("should wrangle new tabs", () => {
@@ -73,6 +71,7 @@ describe("wrangleTabs", () => {
     // @ts-ignore:next-line
     window.TW.settings.get = jest.fn(() => 5); //maxTabs
     window.chrome.tabs.remove = jest.fn();
+    const tabManager = new TabManager(<any>store);
 
     const testTabs = [createTab({ id: 2 }), createTab({ id: 3 }), createTab({ id: 4 })];
     tabManager.wrangleTabs(testTabs);
@@ -98,6 +97,7 @@ describe("wrangleTabs", () => {
     // @ts-ignore:next-line
     window.TW.settings.get = jest.fn(() => 3);
     window.chrome.tabs.remove = jest.fn();
+    const tabManager = new TabManager(<any>store);
 
     const testTabs = [
       createTab({ id: 2 }),
@@ -139,6 +139,7 @@ describe("wrangleTabs", () => {
         ],
       },
     });
+    const tabManager = new TabManager(<any>store);
 
     window.chrome.storage.local.set = jest.fn();
     window.chrome.browserAction.setBadgeText = jest.fn();
@@ -181,6 +182,7 @@ describe("wrangleTabs", () => {
         ],
       },
     });
+    const tabManager = new TabManager(<any>store);
 
     window.chrome.storage.local.set = jest.fn();
     window.chrome.browserAction.setBadgeText = jest.fn();

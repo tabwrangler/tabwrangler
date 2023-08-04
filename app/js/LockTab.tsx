@@ -181,8 +181,8 @@ class LockTab extends React.PureComponent<Props, State> {
       .filter((tab) => getTW().settings.isTabManuallyLockable(tab))
       .forEach((tab) => {
         if (tab.id == null) return;
-        else if (selected) getTW().tabmanager.lockTab(tab.id);
-        else getTW().tabmanager.unlockTab(tab.id);
+        else if (selected) getTW().settings.lockTab(tab.id);
+        else getTW().settings.unlockTab(tab.id);
       });
 
     this._lastSelectedTab = tab;

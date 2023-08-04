@@ -42,11 +42,11 @@ export default class Menus {
 
   lockTab(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
     if (selectedTab.id == null) return;
-    this.tabManager.lockTab(selectedTab.id);
+    settings.lockTab(selectedTab.id);
   }
 
   lockDomain(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
-    // Chrome tabs don't necessarily have URLs. In those cases there is no domain to lock.
+    // Tabs don't necessarily have URLs. In those cases there is no domain to lock.
     if (selectedTab.url == null) return;
 
     // If the URL doesn't match our bulletproof regexp for discovering the domain, do nothing
@@ -64,27 +64,25 @@ export default class Menus {
   }
 
   updateContextMenus(tabId: number) {
-    // Little bit of a kludge, would be nice to be DRY here but this was simpler.
-    // Sets the title again for each page.
-    const { lockDomainId } = this;
-    if (lockDomainId != null)
-      chrome.tabs.get(tabId, function (tab) {
+    chrome.tabs.get(tabId, (tab) => {
+      // Sets the title again for each page.
+      if (this.lockDomainId != null)
         try {
           if (tab.url == null) return;
           const currentDomain = getDomain(tab.url);
           if (currentDomain == null) return;
-          chrome.contextMenus.update(Number(lockDomainId), {
+          chrome.contextMenus.update(Number(this.lockDomainId), {
             title: chrome.i18n.getMessage("contextMenu_lockSpecificDomain", currentDomain) || "",
           });
         } catch (e) {
           console.log(tab, "Error in updating menu");
           throw e;
         }
-      });
 
-    if (this.lockTabId != null)
-      chrome.contextMenus.update(Number(this.lockTabId), {
-        checked: this.tabManager.isLocked(tabId),
-      });
+      if (this.lockTabId != null)
+        chrome.contextMenus.update(Number(this.lockTabId), {
+          checked: settings.isTabLocked(tab),
+        });
+    });
   }
 }

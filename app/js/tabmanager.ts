@@ -151,26 +151,10 @@ export default class TabManager {
     return ret;
   }
 
-  isLocked(tabId: number): boolean {
-    const lockedIds = window.TW.settings.get<Array<number>>("lockedIds");
-    if (lockedIds.indexOf(tabId) !== -1) {
-      return true;
-    }
-    return false;
-  }
-
-  lockTab(tabId: number) {
-    const lockedIds = window.TW.settings.get<Array<number>>("lockedIds");
-    if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {
-      lockedIds.push(tabId);
-    }
-    window.TW.settings.set("lockedIds", lockedIds);
-  }
-
   removeTab(tabId: number) {
     const totalTabsRemoved = this.store.getState().localStorage.totalTabsRemoved;
     this.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
-    this.unlockTab(tabId);
+    window.TW.settings.unlockTab(tabId);
     this.store.dispatch({ tabId: String(tabId), type: "REMOVE_TAB_TIME" });
   }
 
@@ -181,22 +165,6 @@ export default class TabManager {
 
   resetTabTimes() {
     this.store.dispatch({ type: "RESET_TAB_TIMES" });
-  }
-
-  toggleTabs(tabs: chrome.tabs.Tab[]) {
-    tabs.forEach((tab) => {
-      if (tab.id == null) return;
-      else if (this.isLocked(tab.id)) this.unlockTab(tab.id);
-      else this.lockTab(tab.id);
-    });
-  }
-
-  unlockTab(tabId: number) {
-    const lockedIds = window.TW.settings.get<Array<number>>("lockedIds");
-    if (lockedIds.indexOf(tabId) > -1) {
-      lockedIds.splice(lockedIds.indexOf(tabId), 1);
-    }
-    window.TW.settings.set("lockedIds", lockedIds);
   }
 
   updateClosedCount(showBadgeCount: boolean = window.TW.settings.get("showBadgeCount")) {

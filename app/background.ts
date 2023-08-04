@@ -195,7 +195,7 @@ const startup = async function () {
     switch (command) {
       case "lock-unlock-active-tab":
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          tabmanager.toggleTabs(tabs);
+          settings.toggleTabs(tabs);
         });
         break;
       case "wrangle-current-tab":

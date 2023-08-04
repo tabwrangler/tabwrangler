@@ -144,6 +144,14 @@ const Settings = {
     return this.getWhitelistMatch(url) !== null;
   },
 
+  lockTab(tabId: number) {
+    const lockedIds = this.get<Array<number>>("lockedIds");
+    if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {
+      lockedIds.push(tabId);
+    }
+    this.set("lockedIds", lockedIds);
+  },
+
   /**
    * Sets a value in localStorage.  Can also call a setter.
    *
@@ -216,6 +224,22 @@ const Settings = {
       parseInt(this.get("minutesInactive"), 10) * 60000 + // minutes
       parseInt(this.get("secondsInactive"), 10) * 1000 // seconds
     );
+  },
+
+  toggleTabs(tabs: chrome.tabs.Tab[]) {
+    tabs.forEach((tab) => {
+      if (tab.id == null) return;
+      else if (this.isTabLocked(tab)) this.unlockTab(tab.id);
+      else this.lockTab(tab.id);
+    });
+  },
+
+  unlockTab(tabId: number) {
+    const lockedIds = this.get<Array<number>>("lockedIds");
+    if (lockedIds.indexOf(tabId) > -1) {
+      lockedIds.splice(lockedIds.indexOf(tabId), 1);
+    }
+    this.set("lockedIds", lockedIds);
   },
 };
 

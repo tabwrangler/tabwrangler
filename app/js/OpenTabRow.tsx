@@ -2,7 +2,7 @@ import * as React from "react";
 import { AppState } from "./Types";
 import LazyImage from "./LazyImage";
 import cx from "classnames";
-import { getTW } from "./util";
+import settings from "./settings";
 import { useSelector } from "react-redux";
 
 function secondsToMinutes(seconds: number) {
@@ -29,17 +29,17 @@ export default function OpenTabRow(props: Props) {
     props.onToggleTab(props.tab, event.target.checked, event.shiftKey);
   }
 
-  const tabWhitelistMatch = getTW().settings.getWhitelistMatch(tab.url);
-  const tabIsLocked = getTW().settings.isTabLocked(tab);
+  const tabWhitelistMatch = settings.getWhitelistMatch(tab.url);
+  const tabIsLocked = settings.isTabLocked(tab);
 
   let lockStatusElement;
   if (tabIsLocked) {
     let reason;
     if (tab.pinned) {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
-    } else if (getTW().settings.get("filterAudio") && tab.audible) {
+    } else if (settings.get("filterAudio") && tab.audible) {
       reason = <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>Locked</abbr>;
-    } else if (getTW().settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) {
+    } else if (settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
     } else if (tabWhitelistMatch) {
       reason = (
@@ -61,7 +61,7 @@ export default function OpenTabRow(props: Props) {
     if (paused) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
     } else {
-      const cutOff = new Date().getTime() - getTW().settings.get<number>("stayOpen");
+      const cutOff = new Date().getTime() - settings.get<number>("stayOpen");
       const timeLeft = -1 * Math.round((cutOff - tabTime) / 1000);
       // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the
       // interval to clean up this tab. It's also possible the number of tabs is not below
@@ -83,7 +83,7 @@ export default function OpenTabRow(props: Props) {
         <input
           checked={tabIsLocked}
           className="mx-1"
-          disabled={!getTW().settings.isTabManuallyLockable(tab)}
+          disabled={!settings.isTabManuallyLockable(tab)}
           onClick={handleLockedOnClick}
           type="checkbox"
           readOnly

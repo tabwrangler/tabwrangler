@@ -9,8 +9,8 @@ import { connect } from "react-redux";
 import cx from "classnames";
 import debounce from "lodash.debounce";
 import { exportFileName } from "./actions/importExportActions";
-import { getTW } from "./util";
 import { setTheme } from "./actions/settingsActions";
+import settings from "./settings";
 
 function isValidPattern(pattern: string) {
   // some other choices such as '/' also do not make sense; not sure if they should be blocked as
@@ -84,7 +84,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   }
 
   handleClickRemovePattern(pattern: string) {
-    const whitelist = getTW().settings.get<Array<string>>("whitelist");
+    const whitelist = settings.get<Array<string>>("whitelist");
     whitelist.splice(whitelist.indexOf(pattern), 1);
     this.saveOption("whitelist", whitelist);
     this.forceUpdate();
@@ -98,7 +98,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       return;
     }
 
-    const whitelist = getTW().settings.get<Array<string>>("whitelist");
+    const whitelist = settings.get<Array<string>>("whitelist");
 
     // Only add the pattern again if it's new, not yet in the whitelist.
     if (whitelist.indexOf(newPattern) === -1) {
@@ -129,7 +129,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     }
 
     try {
-      getTW().settings.set(key, value);
+      settings.set(key, value);
       this.setState({
         errors: [],
         saveAlertVisible: true,
@@ -198,7 +198,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   };
 
   render() {
-    const whitelist = getTW().settings.get<Array<string>>("whitelist");
+    const whitelist = settings.get<Array<string>>("whitelist");
 
     let errorAlert;
     let saveAlert;
@@ -306,7 +306,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             <div className="form-inline">
               <input
                 className="form-control form-control--time"
-                defaultValue={getTW().settings.get("minutesInactive")}
+                defaultValue={settings.get("minutesInactive")}
                 id="minutesInactive"
                 max="7200"
                 min="0"
@@ -318,7 +318,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               <span className="mx-1"> : </span>
               <input
                 className="form-control form-control--time"
-                defaultValue={getTW().settings.get("secondsInactive")}
+                defaultValue={settings.get("secondsInactive")}
                 id="secondsInactive"
                 max="59"
                 min="0"
@@ -341,7 +341,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             <div className="form-inline">
               <input
                 className="form-control form-control--time mr-1"
-                defaultValue={getTW().settings.get("minTabs")}
+                defaultValue={settings.get("minTabs")}
                 id="minTabs"
                 min="0"
                 name="minTabs"
@@ -363,7 +363,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             <div className="form-inline">
               <input
                 className="form-control form-control--time mr-1"
-                defaultValue={getTW().settings.get("maxTabs")}
+                defaultValue={settings.get("maxTabs")}
                 id="maxTabs"
                 min="0"
                 name="maxTabs"
@@ -379,7 +379,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           <div className="form-check mb-1">
             <input
               className="form-check-input"
-              defaultChecked={getTW().settings.get("purgeClosedTabs")}
+              defaultChecked={settings.get("purgeClosedTabs")}
               id="purgeClosedTabs"
               name="purgeClosedTabs"
               onChange={this.handleSettingsChange}
@@ -392,7 +392,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           <div className="form-check mb-1">
             <input
               className="form-check-input"
-              defaultChecked={getTW().settings.get("showBadgeCount")}
+              defaultChecked={settings.get("showBadgeCount")}
               id="showBadgeCount"
               name="showBadgeCount"
               onChange={this.handleSettingsChange}
@@ -405,7 +405,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           <div className="form-check mb-1">
             <input
               className="form-check-input"
-              defaultChecked={getTW().settings.get("debounceOnActivated")}
+              defaultChecked={settings.get("debounceOnActivated")}
               id="debounceOnActivated"
               name="debounceOnActivated"
               onChange={this.handleSettingsChange}
@@ -418,7 +418,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           <div className="form-check mb-2">
             <input
               className="form-check-input"
-              defaultChecked={getTW().settings.get("filterAudio")}
+              defaultChecked={settings.get("filterAudio")}
               id="filterAudio"
               name="filterAudio"
               onChange={this.handleSettingsChange}
@@ -432,7 +432,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             <div className="form-check mb-2">
               <input
                 className="form-check-input"
-                defaultChecked={getTW().settings.get("filterGroupedTabs")}
+                defaultChecked={settings.get("filterGroupedTabs")}
                 id="filterGroupedTabs"
                 name="filterGroupedTabs"
                 onChange={this.handleSettingsChange}
@@ -445,7 +445,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           )}
           <TabWrangleOption
             onChange={this.handleSettingsChange}
-            selectedOption={getTW().settings.get("wrangleOption")}
+            selectedOption={settings.get("wrangleOption")}
           />
         </form>
 

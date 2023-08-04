@@ -8,7 +8,7 @@ import { Provider } from "react-redux";
 import React from "react";
 import ReactDOM from "react-dom";
 import configureStore from "./js/configureStore";
-import { connect } from "react-redux";
+import settings from "./js/settings";
 
 const popupElement = document.getElementById("popup");
 
@@ -20,12 +20,12 @@ if (popupElement != null) {
   }
 
   const { persistor, store } = configureStore();
-  const ConnectedPopup = connect()(Popup);
+  settings.init();
 
   ReactDOM.render(
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <ConnectedPopup />
+        <Popup />
       </PersistGate>
     </Provider>,
     popupElement

@@ -26,15 +26,19 @@ module.exports = {
   root: true,
   rules: {
     // Rules included in ESLint
-    "consistent-return": 2,
-    eqeqeq: [2, "smart"],
-    "no-console": 0,
-    "no-unused-expressions": 2,
-    "sort-imports": 2,
+    "consistent-return": "error",
+    eqeqeq: ["error", "smart"],
+    "no-console": "off",
+    "no-unused-expressions": "error",
+    "sort-imports": "error",
 
     // React Hooks
-    "react-hooks/rules-of-hooks": 2,
-    "react-hooks/exhaustive-deps": 2,
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
+
+    // TypeScript
+    "no-unused-vars": "off", // Note: you must disable the base rule as it can report incorrect errors
+    "@typescript-eslint/no-unused-vars": "error",
   },
   settings: {
     react: {

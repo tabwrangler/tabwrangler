@@ -1,6 +1,7 @@
 import "./CorralTab.scss";
 import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
+import { removeSavedTabs, unwrangleTabs } from "./actions/localStorageActions";
 import { AppState } from "./Types";
 import ClosedTabRow from "./ClosedTabRow";
 import type { Dispatch } from "./Types";
@@ -8,8 +9,7 @@ import { connect } from "react-redux";
 import cx from "classnames";
 import extractHostname from "./extractHostname";
 import extractRootDomain from "./extractRootDomain";
-import { getTW } from "./util";
-import { removeSavedTabs } from "./actions/localStorageActions";
+import settings from "./settings";
 
 function keywordFilter(keyword: string) {
   return function (tab: chrome.tabs.Tab) {
@@ -194,7 +194,7 @@ class CorralTab extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const savedSortOrder = getTW().settings.get<string>("corralTabSortOrder");
+    const savedSortOrder = settings.get<string>("corralTabSortOrder");
     let sorter =
       savedSortOrder == null
         ? DEFAULT_SORTER
@@ -252,8 +252,8 @@ class CorralTab extends React.Component<Props, State> {
     } else {
       // When the saved sort order is not null then the user wants to preserve it. Update to the
       // new sort order and persist it.
-      if (getTW().settings.get("corralTabSortOrder") != null) {
-        getTW().settings.set("corralTabSortOrder", sorter.key);
+      if (settings.get("corralTabSortOrder") != null) {
+        settings.set("corralTabSortOrder", sorter.key);
       }
 
       this.setState({
@@ -270,10 +270,10 @@ class CorralTab extends React.Component<Props, State> {
 
   _handleChangeSaveSortOrder = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      getTW().settings.set("corralTabSortOrder", this.state.sorter.key);
+      settings.set("corralTabSortOrder", this.state.sorter.key);
       this.setState({ savedSortOrder: this.state.sorter.key });
     } else {
-      getTW().settings.set("corralTabSortOrder", null);
+      settings.set("corralTabSortOrder", null);
       this.setState({ savedSortOrder: null });
     }
   };
@@ -345,7 +345,7 @@ class CorralTab extends React.Component<Props, State> {
         tab,
       }));
 
-    getTW().tabmanager.unwrangleTabs(sessionTabs);
+    this.props.dispatch(unwrangleTabs(sessionTabs));
     this.setState({ selectedTabs: new Set() });
   };
 
@@ -366,7 +366,7 @@ class CorralTab extends React.Component<Props, State> {
   };
 
   openTab = (tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) => {
-    getTW().tabmanager.unwrangleTabs([{ session, tab }]);
+    this.props.dispatch(unwrangleTabs([{ session, tab }]));
     this.state.selectedTabs.delete(tab);
     this.forceUpdate();
   };

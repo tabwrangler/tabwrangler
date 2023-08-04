@@ -1,9 +1,7 @@
 import {
   removeAllSavedTabs,
-  removeSavedTabs,
   setSavedTabs,
   setTotalTabsRemoved,
-  setTotalTabsUnwrangled,
   setTotalTabsWrangled,
 } from "./actions/localStorageActions";
 import configureStore from "./configureStore";
@@ -43,37 +41,6 @@ export default class TabManager {
       const hostA = new URL(tab.url || "").hostname;
       return hostA === hostB && tab.title === title;
     });
-  }
-
-  unwrangleTabs(
-    sessionTabs: Array<{
-      session: chrome.sessions.Session | undefined;
-      tab: chrome.tabs.Tab;
-    }>
-  ) {
-    const { localStorage } = this.store.getState();
-    const installDate = localStorage.installDate;
-    let countableTabsUnwrangled = 0;
-    sessionTabs.forEach((sessionTab) => {
-      if (sessionTab.session == null || sessionTab.session.tab == null) {
-        chrome.tabs.create({ active: false, url: sessionTab.tab.url });
-      } else {
-        chrome.sessions.restore(sessionTab.session.tab.sessionId);
-      }
-
-      // Count only those tabs closed after install date because users who upgrade will not have
-      // an accurate count of all tabs closed. The updaters' install dates will be the date of
-      // the upgrade, after which point TW will keep an accurate count of closed tabs.
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
-      if (sessionTab.tab.closedAt >= installDate) countableTabsUnwrangled++;
-    });
-
-    // Done opening them all, now get all of the restored tabs out of the store.
-    this.store.dispatch(removeSavedTabs(sessionTabs.map((sessionTab) => sessionTab.tab)));
-
-    const totalTabsUnwrangled = localStorage.totalTabsUnwrangled;
-    this.store.dispatch(setTotalTabsUnwrangled(totalTabsUnwrangled + countableTabsUnwrangled));
   }
 
   getURLPositionFilterByWrangleOption(option: WrangleOption): (tab: chrome.tabs.Tab) => number {

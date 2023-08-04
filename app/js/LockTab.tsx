@@ -3,8 +3,8 @@ import { AppState } from "./Types";
 import OpenTabRow from "./OpenTabRow";
 import { connect } from "react-redux";
 import cx from "classnames";
-import { getTW } from "./util";
 import memoize from "memoize-one";
+import settings from "./settings";
 
 type Sorter = {
   key: string;
@@ -26,9 +26,9 @@ const ChronoSorter: Sorter = {
   sort(tabA, tabB, tabTimes) {
     if (tabA == null || tabB == null) {
       return 0;
-    } else if (getTW().settings.isTabLocked(tabA) && !getTW().settings.isTabLocked(tabB)) {
+    } else if (settings.isTabLocked(tabA) && !settings.isTabLocked(tabB)) {
       return 1;
-    } else if (!getTW().settings.isTabLocked(tabA) && getTW().settings.isTabLocked(tabB)) {
+    } else if (!settings.isTabLocked(tabA) && settings.isTabLocked(tabB)) {
       return -1;
     } else {
       const lastModifiedA = tabA.id == null ? -1 : tabTimes[tabA.id];
@@ -90,7 +90,7 @@ class LockTab extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const savedSortOrder = getTW().settings.get<string>("lockTabSortOrder");
+    const savedSortOrder = settings.get<string>("lockTabSortOrder");
     let sorter =
       savedSortOrder == null
         ? DEFAULT_SORTER
@@ -137,8 +137,8 @@ class LockTab extends React.PureComponent<Props, State> {
     } else {
       // When the saved sort order is not null then the user wants to preserve it. Update to the
       // new sort order and persist it.
-      if (getTW().settings.get("lockTabSortOrder") != null) {
-        getTW().settings.set("lockTabSortOrder", sorter.key);
+      if (settings.get("lockTabSortOrder") != null) {
+        settings.set("lockTabSortOrder", sorter.key);
       }
 
       this.setState({
@@ -150,10 +150,10 @@ class LockTab extends React.PureComponent<Props, State> {
 
   _handleChangeSaveSortOrder = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      getTW().settings.set("lockTabSortOrder", this.state.sorter.key);
+      settings.set("lockTabSortOrder", this.state.sorter.key);
       this.setState({ savedSortOrder: this.state.sorter.key });
     } else {
-      getTW().settings.set("lockTabSortOrder", null);
+      settings.set("lockTabSortOrder", null);
       this.setState({ savedSortOrder: null });
     }
   };
@@ -178,11 +178,11 @@ class LockTab extends React.PureComponent<Props, State> {
 
     // Toggle only the tabs that are manually lockable.
     tabsToToggle
-      .filter((tab) => getTW().settings.isTabManuallyLockable(tab))
+      .filter((tab) => settings.isTabManuallyLockable(tab))
       .forEach((tab) => {
         if (tab.id == null) return;
-        else if (selected) getTW().settings.lockTab(tab.id);
-        else getTW().settings.unlockTab(tab.id);
+        else if (selected) settings.lockTab(tab.id);
+        else settings.unlockTab(tab.id);
       });
 
     this._lastSelectedTab = tab;

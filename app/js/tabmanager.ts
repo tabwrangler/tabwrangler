@@ -6,16 +6,23 @@ import {
   setTotalTabsUnwrangled,
   setTotalTabsWrangled,
 } from "./actions/localStorageActions";
+import configureStore from "./configureStore";
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
 export default class TabManager {
+  store: ReturnType<typeof configureStore>["store"];
+
+  constructor(store: ReturnType<typeof configureStore>["store"]) {
+    this.store = store;
+  }
+
   clear() {
-    window.TW.store.dispatch(removeAllSavedTabs());
+    this.store.dispatch(removeAllSavedTabs());
   }
 
   findPositionById(id: number): number | null {
-    const { savedTabs } = window.TW.store.getState().localStorage;
+    const { savedTabs } = this.store.getState().localStorage;
     for (let i = 0; i < savedTabs.length; i++) {
       if (savedTabs[i].id === id) {
         return i;
@@ -25,14 +32,14 @@ export default class TabManager {
   }
 
   findPositionByURL(url: string | null = ""): number {
-    return window.TW.store.getState().localStorage.savedTabs.findIndex((item: chrome.tabs.Tab) => {
+    return this.store.getState().localStorage.savedTabs.findIndex((item: chrome.tabs.Tab) => {
       return item.url === url && url != null;
     });
   }
 
   findPositionByHostnameAndTitle(url = "", title = ""): number {
     const hostB = new URL(url).hostname;
-    return window.TW.store.getState().localStorage.savedTabs.findIndex((tab: chrome.tabs.Tab) => {
+    return this.store.getState().localStorage.savedTabs.findIndex((tab: chrome.tabs.Tab) => {
       const hostA = new URL(tab.url || "").hostname;
       return hostA === hostB && tab.title === title;
     });
@@ -44,7 +51,7 @@ export default class TabManager {
       tab: chrome.tabs.Tab;
     }>
   ) {
-    const { localStorage } = window.TW.store.getState();
+    const { localStorage } = this.store.getState();
     const installDate = localStorage.installDate;
     let countableTabsUnwrangled = 0;
     sessionTabs.forEach((sessionTab) => {
@@ -63,10 +70,10 @@ export default class TabManager {
     });
 
     // Done opening them all, now get all of the restored tabs out of the store.
-    window.TW.store.dispatch(removeSavedTabs(sessionTabs.map((sessionTab) => sessionTab.tab)));
+    this.store.dispatch(removeSavedTabs(sessionTabs.map((sessionTab) => sessionTab.tab)));
 
     const totalTabsUnwrangled = localStorage.totalTabsUnwrangled;
-    window.TW.store.dispatch(setTotalTabsUnwrangled(totalTabsUnwrangled + countableTabsUnwrangled));
+    this.store.dispatch(setTotalTabsUnwrangled(totalTabsUnwrangled + countableTabsUnwrangled));
   }
 
   getURLPositionFilterByWrangleOption(option: WrangleOption): (tab: chrome.tabs.Tab) => number {
@@ -88,11 +95,11 @@ export default class TabManager {
 
   wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
     const maxTabs = window.TW.settings.get<number>("maxTabs");
-    let totalTabsWrangled = window.TW.store.getState().localStorage.totalTabsWrangled;
+    let totalTabsWrangled = this.store.getState().localStorage.totalTabsWrangled;
     const wrangleOption = window.TW.settings.get<WrangleOption>("wrangleOption");
     const findURLPositionByWrangleOption = this.getURLPositionFilterByWrangleOption(wrangleOption);
 
-    let nextSavedTabs = window.TW.store.getState().localStorage.savedTabs.slice();
+    let nextSavedTabs = this.store.getState().localStorage.savedTabs.slice();
     for (let i = 0; i < tabs.length; i++) {
       if (tabs[i] === null) {
         console.log("Weird bug, backtrace this...");
@@ -120,8 +127,8 @@ export default class TabManager {
       nextSavedTabs = nextSavedTabs.splice(0, maxTabs);
     }
 
-    window.TW.store.dispatch(setSavedTabs(nextSavedTabs));
-    window.TW.store.dispatch(setTotalTabsWrangled(totalTabsWrangled));
+    this.store.dispatch(setSavedTabs(nextSavedTabs));
+    this.store.dispatch(setTotalTabsWrangled(totalTabsWrangled));
   }
 
   initTabs(tabs: Array<chrome.tabs.Tab>) {
@@ -138,7 +145,7 @@ export default class TabManager {
    */
   getOlderThen(time?: number): Array<number> {
     const ret = [];
-    const { tabTimes } = window.TW.store.getState().localStorage;
+    const { tabTimes } = this.store.getState().localStorage;
     for (const i in tabTimes) {
       if (Object.prototype.hasOwnProperty.call(tabTimes, i)) {
         if (!time || tabTimes[i] < time) {
@@ -149,27 +156,12 @@ export default class TabManager {
     return ret;
   }
 
-  getWhitelistMatch(url: string | undefined): string | null {
-    if (url == null) return null;
-    const whitelist = window.TW.settings.get<string>("whitelist");
-    for (let i = 0; i < whitelist.length; i++) {
-      if (url.indexOf(whitelist[i]) !== -1) {
-        return whitelist[i];
-      }
-    }
-    return null;
-  }
-
   isLocked(tabId: number): boolean {
     const lockedIds = window.TW.settings.get<Array<number>>("lockedIds");
     if (lockedIds.indexOf(tabId) !== -1) {
       return true;
     }
     return false;
-  }
-
-  isWhitelisted(url: string): boolean {
-    return this.getWhitelistMatch(url) !== null;
   }
 
   lockTab(tabId: number) {
@@ -181,10 +173,10 @@ export default class TabManager {
   }
 
   removeTab(tabId: number) {
-    const totalTabsRemoved = window.TW.store.getState().localStorage.totalTabsRemoved;
-    window.TW.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
+    const totalTabsRemoved = this.store.getState().localStorage.totalTabsRemoved;
+    this.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
     this.unlockTab(tabId);
-    window.TW.store.dispatch({ tabId: String(tabId), type: "REMOVE_TAB_TIME" });
+    this.store.dispatch({ tabId: String(tabId), type: "REMOVE_TAB_TIME" });
   }
 
   replaceTab(addedTabId: number, removedTabId: number) {
@@ -193,7 +185,7 @@ export default class TabManager {
   }
 
   resetTabTimes() {
-    window.TW.store.dispatch({ type: "RESET_TAB_TIMES" });
+    this.store.dispatch({ type: "RESET_TAB_TIMES" });
   }
 
   toggleTabs(tabs: chrome.tabs.Tab[]) {
@@ -215,8 +207,8 @@ export default class TabManager {
   updateClosedCount(showBadgeCount: boolean = window.TW.settings.get("showBadgeCount")) {
     let text;
     if (showBadgeCount) {
-      const savedTabsLength = window.TW.store.getState().localStorage.savedTabs.length;
-      text = savedTabsLength.length === 0 ? "" : savedTabsLength.toString();
+      const savedTabsLength = this.store.getState().localStorage.savedTabs.length;
+      text = savedTabsLength === 0 ? "" : savedTabsLength.toString();
     } else {
       text = "";
     }
@@ -233,10 +225,10 @@ export default class TabManager {
       return;
     } else if (typeof tabOrTabId === "number") {
       tabId = tabOrTabId;
-      window.TW.store.dispatch({ tabId: String(tabId), tabTime: Date.now(), type: "SET_TAB_TIME" });
+      this.store.dispatch({ tabId: String(tabId), tabTime: Date.now(), type: "SET_TAB_TIME" });
     } else {
       tabId = tabOrTabId.id;
-      window.TW.store.dispatch({
+      this.store.dispatch({
         tabId: String(tabId),
         // `Tab.lastAccessed` not yet added to `chrome.tabs.Tab` type.
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

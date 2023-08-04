@@ -1,5 +1,4 @@
 import * as React from "react";
-import { isLocked, isManuallyLockable } from "./tab";
 import { AppState } from "./Types";
 import OpenTabRow from "./OpenTabRow";
 import { connect } from "react-redux";
@@ -27,9 +26,9 @@ const ChronoSorter: Sorter = {
   sort(tabA, tabB, tabTimes) {
     if (tabA == null || tabB == null) {
       return 0;
-    } else if (isLocked(tabA) && !isLocked(tabB)) {
+    } else if (getTW().settings.isTabLocked(tabA) && !getTW().settings.isTabLocked(tabB)) {
       return 1;
-    } else if (!isLocked(tabA) && isLocked(tabB)) {
+    } else if (!getTW().settings.isTabLocked(tabA) && getTW().settings.isTabLocked(tabB)) {
       return -1;
     } else {
       const lastModifiedA = tabA.id == null ? -1 : tabTimes[tabA.id];
@@ -179,7 +178,7 @@ class LockTab extends React.PureComponent<Props, State> {
 
     // Toggle only the tabs that are manually lockable.
     tabsToToggle
-      .filter((tab) => isManuallyLockable(tab))
+      .filter((tab) => getTW().settings.isTabManuallyLockable(tab))
       .forEach((tab) => {
         if (tab.id == null) return;
         else if (selected) getTW().tabmanager.lockTab(tab.id);

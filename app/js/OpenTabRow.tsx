@@ -1,5 +1,4 @@
 import * as React from "react";
-import { isLocked, isManuallyLockable } from "./tab";
 import { AppState } from "./Types";
 import LazyImage from "./LazyImage";
 import cx from "classnames";
@@ -30,8 +29,8 @@ export default function OpenTabRow(props: Props) {
     props.onToggleTab(props.tab, event.target.checked, event.shiftKey);
   }
 
-  const tabWhitelistMatch = getTW().tabmanager.getWhitelistMatch(tab.url);
-  const tabIsLocked = isLocked(tab);
+  const tabWhitelistMatch = getTW().settings.getWhitelistMatch(tab.url);
+  const tabIsLocked = getTW().settings.isTabLocked(tab);
 
   let lockStatusElement;
   if (tabIsLocked) {
@@ -84,7 +83,7 @@ export default function OpenTabRow(props: Props) {
         <input
           checked={tabIsLocked}
           className="mx-1"
-          disabled={!isManuallyLockable(tab)}
+          disabled={!getTW().settings.isTabManuallyLockable(tab)}
           onClick={handleLockedOnClick}
           type="checkbox"
           readOnly

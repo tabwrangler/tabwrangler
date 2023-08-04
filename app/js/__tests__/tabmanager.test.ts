@@ -60,10 +60,12 @@ afterEach(() => {
 });
 
 describe("wrangleTabs", () => {
+  let store: ReturnType<typeof configureMockStore>;
   let tabManager: TabManager;
 
   beforeEach(() => {
-    tabManager = new TabManager();
+    store = configureMockStore();
+    tabManager = new TabManager(<any>store);
   });
 
   test("should wrangle new tabs", () => {
@@ -82,7 +84,7 @@ describe("wrangleTabs", () => {
     // @ts-ignore:next-line
     expect(window.chrome.tabs.remove.mock.calls).toEqual([[2], [3], [4]]);
 
-    const setSavedTabsAction = window.TW.store
+    const setSavedTabsAction = store
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore:next-line
       .getActions()
@@ -116,7 +118,7 @@ describe("wrangleTabs", () => {
     expect(window.chrome.tabs.remove.mock.calls).toEqual([[2], [3], [4], [5]]);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
-    expect(window.TW.store.getActions()).toContainEqual({
+    expect(store.getActions()).toContainEqual({
       totalTabsWrangled: 4,
       type: "SET_TOTAL_TABS_WRANGLED",
     });
@@ -128,7 +130,7 @@ describe("wrangleTabs", () => {
       .mockImplementationOnce(() => 100)
       .mockImplementationOnce(() => "exactURLMatch");
     window.chrome.tabs.remove = jest.fn();
-    window.TW.store = configureMockStore({
+    store = configureMockStore({
       localStorage: {
         savedTabs: [
           { id: 1, url: "https://www.github.com" },
@@ -156,7 +158,7 @@ describe("wrangleTabs", () => {
     expect(window.chrome.tabs.remove.mock.calls).toEqual([[4]]);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
-    expect(window.TW.store.getActions()).toContainEqual({
+    expect(store.getActions()).toContainEqual({
       totalTabsWrangled: 1,
       type: "SET_TOTAL_TABS_WRANGLED",
     });
@@ -170,7 +172,7 @@ describe("wrangleTabs", () => {
       .mockImplementationOnce(() => 100)
       .mockImplementationOnce(() => "hostnameAndTitleMatch");
     window.chrome.tabs.remove = jest.fn();
-    window.TW.store = configureMockStore({
+    store = configureMockStore({
       localStorage: {
         savedTabs: [
           { id: 1, url: "https://www.github.com", title: "Github" },
@@ -200,7 +202,7 @@ describe("wrangleTabs", () => {
     expect(window.chrome.tabs.remove.mock.calls).toEqual([[4]]);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
-    expect(window.TW.store.getActions()).toContainEqual({
+    expect(store.getActions()).toContainEqual({
       totalTabsWrangled: 1,
       type: "SET_TOTAL_TABS_WRANGLED",
     });
@@ -210,11 +212,11 @@ describe("wrangleTabs", () => {
 });
 
 describe("filter", () => {
+  let store: ReturnType<typeof configureMockStore>;
   let tabManager: TabManager;
 
   beforeEach(() => {
-    tabManager = new TabManager();
-    window.TW.store = configureMockStore({
+    store = configureMockStore({
       localStorage: {
         savedTabs: [
           { id: 1, url: "https://www.github.com", title: "GitHub" },
@@ -227,6 +229,7 @@ describe("filter", () => {
         ],
       },
     });
+    tabManager = new TabManager(<any>store);
   });
 
   test("should return index of tab if the url matches", () => {
@@ -260,10 +263,12 @@ describe("filter", () => {
 });
 
 describe("getURLPositionFilterByWrangleOption", () => {
+  let store: ReturnType<typeof configureMockStore>;
   let tabManager: TabManager;
 
   beforeEach(() => {
-    tabManager = new TabManager();
+    store = configureMockStore();
+    tabManager = new TabManager(<any>store);
   });
 
   test("should return function that always returns -1", () => {

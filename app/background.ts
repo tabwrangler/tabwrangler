@@ -8,8 +8,11 @@ import settings from "./js/settings";
 import watch from "redux-watch";
 
 const startup = async function () {
+  // Settings reads from async browser storage; ensure settings are loaded before proceeding.
+  await settings.init();
+
   const { persistor, store } = configureStore();
-  const tabmanager = new TabManager();
+  const tabmanager = new TabManager(store);
   const menus = new Menus(tabmanager);
 
   const checkToClose = function (cutOff: number | null) {
@@ -133,7 +136,7 @@ const startup = async function () {
       return;
     }
 
-    if (tab.url != null && tabmanager.isWhitelisted(tab.url)) {
+    if (tab.url != null && settings.isWhitelisted(tab.url)) {
       return;
     }
 
@@ -147,9 +150,6 @@ const startup = async function () {
 
   watchClosedCount(store);
   watchPaused(store);
-
-  // Settings reads from async browser storage; ensure settings are loaded before proceeding.
-  await settings.init();
 
   // Declare this global namespace so it can be used from popup.js
   window.TW = {

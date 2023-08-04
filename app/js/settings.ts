@@ -107,6 +107,43 @@ const Settings = {
     return this.cache[key] as T;
   },
 
+  getWhitelistMatch(url: string | undefined): string | null {
+    if (url == null) return null;
+    const whitelist = this.get<Array<string>>("whitelist");
+    for (let i = 0; i < whitelist.length; i++) {
+      if (url.indexOf(whitelist[i]) !== -1) {
+        return whitelist[i];
+      }
+    }
+    return null;
+  },
+
+  isTabLocked(tab: chrome.tabs.Tab): boolean {
+    const lockedIds = this.get<Array<number>>("lockedIds");
+    const tabWhitelistMatch = this.getWhitelistMatch(tab.url);
+    return (
+      tab.pinned ||
+      !!tabWhitelistMatch ||
+      (tab.id != null && lockedIds.indexOf(tab.id) !== -1) ||
+      !!(this.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) ||
+      !!(tab.audible && this.get("filterAudio"))
+    );
+  },
+
+  isTabManuallyLockable(tab: chrome.tabs.Tab): boolean {
+    const tabWhitelistMatch = this.getWhitelistMatch(tab.url);
+    return (
+      !tab.pinned &&
+      !tabWhitelistMatch &&
+      !(tab.audible && this.get("filterAudio")) &&
+      !(this.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0)
+    );
+  },
+
+  isWhitelisted(url: string): boolean {
+    return this.getWhitelistMatch(url) !== null;
+  },
+
   /**
    * Sets a value in localStorage.  Can also call a setter.
    *
@@ -125,11 +162,8 @@ const Settings = {
     }
   },
 
-  /**
-   * @see Settings.set
-   */
-  setmaxTabs(value: string) {
-    const parsedValue = parseInt(value, 10);
+  setmaxTabs(maxTabs: string) {
+    const parsedValue = parseInt(maxTabs, 10);
     if (isNaN(parsedValue) || parsedValue < 1 || parsedValue > 1000) {
       throw Error(
         chrome.i18n.getMessage("settings_setmaxTabs_error") || "Error: settings.setmaxTabs"
@@ -138,11 +172,8 @@ const Settings = {
     Settings.setValue("maxTabs", parsedValue);
   },
 
-  /**
-   * @see Settings.set
-   */
-  setminTabs(value: string) {
-    const parsedValue = parseInt(value, 10);
+  setminTabs(minTabs: string) {
+    const parsedValue = parseInt(minTabs, 10);
     if (isNaN(parsedValue) || parsedValue < 0) {
       throw Error(
         chrome.i18n.getMessage("settings_setminTabs_error") || "Error: settings.setminTabs"
@@ -151,32 +182,25 @@ const Settings = {
     Settings.setValue("minTabs", parsedValue);
   },
 
-  /**
-   * @see Settings.set
-   */
-  setminutesInactive(value: string): void {
-    const minutes = parseInt(value, 10);
+  setminutesInactive(minutesInactive: string): void {
+    const minutes = parseInt(minutesInactive, 10);
     if (isNaN(minutes) || minutes < 0) {
       throw Error(
         chrome.i18n.getMessage("settings_setminutesInactive_error") ||
           "Error: settings.setminutesInactive"
       );
     }
-
-    Settings.setValue("minutesInactive", value);
+    Settings.setValue("minutesInactive", minutesInactive);
   },
 
-  /**
-   * @see Settings.set
-   */
-  setsecondsInactive(value: string): void {
-    const seconds = parseInt(value, 10);
+  setsecondsInactive(secondsInactive: string): void {
+    const seconds = parseInt(secondsInactive, 10);
     if (isNaN(seconds) || seconds < 0 || seconds > 59) {
       throw Error(
         chrome.i18n.getMessage("settings_setsecondsInactive_error") || "Error: setsecondsInactive"
       );
     }
-    Settings.setValue("secondsInactive", value);
+    Settings.setValue("secondsInactive", secondsInactive);
   },
 
   setValue<T>(key: string, value: T, fx?: () => void) {

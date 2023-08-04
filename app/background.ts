@@ -26,10 +26,14 @@ const startup = async function () {
 
       if (!window.TW.store.getState().settings.paused) {
         // Update the selected one to make sure it doesn't get closed.
-        chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabmanager.updateLastAccessed);
+        chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+          tabmanager.updateLastAccessed(tabs);
+        });
 
         if (settings.get("filterAudio") === true) {
-          chrome.tabs.query({ audible: true }, tabmanager.updateLastAccessed);
+          chrome.tabs.query({ audible: true }, (tabs) => {
+            tabmanager.updateLastAccessed(tabs);
+          });
         }
 
         chrome.windows.getAll({ populate: true }, function (windows) {
@@ -120,7 +124,9 @@ const startup = async function () {
             {
               windowType: "normal",
             },
-            tabmanager.initTabs
+            (tabs) => {
+              tabmanager.initTabs(tabs);
+            }
           );
         }
       })
@@ -174,10 +180,10 @@ const startup = async function () {
   );
 
   // Move this to a function somehwere so we can restart the process.
-  chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
+  chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs.bind(tabmanager));
   chrome.tabs.onCreated.addListener(onNewTab);
-  chrome.tabs.onRemoved.addListener(tabmanager.removeTab);
-  chrome.tabs.onReplaced.addListener(tabmanager.replaceTab);
+  chrome.tabs.onRemoved.addListener(tabmanager.removeTab.bind(tabmanager));
+  chrome.tabs.onReplaced.addListener(tabmanager.replaceTab.bind(tabmanager));
   chrome.tabs.onActivated.addListener(function (tabInfo) {
     menus.updateContextMenus(tabInfo["tabId"]);
 
@@ -213,7 +219,9 @@ const startup = async function () {
       if (changes["minutesInactive"] || changes["secondsInactive"]) {
         // Reset the tabTimes since we changed the setting
         tabmanager.resetTabTimes();
-        chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
+        chrome.tabs.query({ windowType: "normal" }, (tabs) => {
+          tabmanager.initTabs(tabs);
+        });
       }
 
       if (changes["showBadgeCount"]) {

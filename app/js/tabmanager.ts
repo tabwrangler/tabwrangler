@@ -1,10 +1,10 @@
 import {
-  removeAllSavedTabs,
   setSavedTabs,
   setTotalTabsRemoved,
   setTotalTabsWrangled,
 } from "./actions/localStorageActions";
 import configureStore from "./configureStore";
+import settings from "./settings";
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
@@ -13,20 +13,6 @@ export default class TabManager {
 
   constructor(store: ReturnType<typeof configureStore>["store"]) {
     this.store = store;
-  }
-
-  clear() {
-    this.store.dispatch(removeAllSavedTabs());
-  }
-
-  findPositionById(id: number): number | null {
-    const { savedTabs } = this.store.getState().localStorage;
-    for (let i = 0; i < savedTabs.length; i++) {
-      if (savedTabs[i].id === id) {
-        return i;
-      }
-    }
-    return null;
   }
 
   findPositionByURL(url: string | null = ""): number {
@@ -55,18 +41,15 @@ export default class TabManager {
     return () => -1;
   }
 
-  wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
-    const maxTabs = window.TW.settings.get<number>("maxTabs");
+  async wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
+    const maxTabs = settings.get<number>("maxTabs");
     let totalTabsWrangled = this.store.getState().localStorage.totalTabsWrangled;
-    const wrangleOption = window.TW.settings.get<WrangleOption>("wrangleOption");
+    const wrangleOption = settings.get<WrangleOption>("wrangleOption");
     const findURLPositionByWrangleOption = this.getURLPositionFilterByWrangleOption(wrangleOption);
 
     let nextSavedTabs = this.store.getState().localStorage.savedTabs.slice();
+    const tabIdsToRemove: Array<number> = [];
     for (let i = 0; i < tabs.length; i++) {
-      if (tabs[i] === null) {
-        console.log("Weird bug, backtrace this...");
-      }
-
       const existingTabPosition = findURLPositionByWrangleOption(tabs[i]);
       const closingDate = Date.now();
 
@@ -80,14 +63,20 @@ export default class TabManager {
       nextSavedTabs.unshift(tabs[i]);
       totalTabsWrangled += 1;
 
-      // Close it in the browser.
       const tabId = tabs[i].id;
-      if (tabId != null) chrome.tabs.remove(tabId);
+      if (tabId != null) {
+        tabIdsToRemove.push(tabId);
+      }
     }
 
-    if (nextSavedTabs.length - maxTabs > 0) {
-      nextSavedTabs = nextSavedTabs.splice(0, maxTabs);
-    }
+    if (tabIdsToRemove.length > 0)
+      await new Promise((resolve) => {
+        chrome.tabs.remove(tabIdsToRemove, resolve);
+      });
+
+    // Trim saved tabs to the max allocated by the setting. Browser extension storage is limited and
+    // thus cannot allow saved tabs to grow indefinitely.
+    if (nextSavedTabs.length - maxTabs > 0) nextSavedTabs = nextSavedTabs.splice(0, maxTabs);
 
     this.store.dispatch(setSavedTabs(nextSavedTabs));
     this.store.dispatch(setTotalTabsWrangled(totalTabsWrangled));
@@ -118,10 +107,15 @@ export default class TabManager {
     return ret;
   }
 
+  onNewTab(tab: chrome.tabs.Tab) {
+    // Track new tab's time to close.
+    if (tab.id != null) this.updateLastAccessed(tab.id);
+  }
+
   removeTab(tabId: number) {
     const totalTabsRemoved = this.store.getState().localStorage.totalTabsRemoved;
     this.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
-    window.TW.settings.unlockTab(tabId);
+    settings.unlockTab(tabId);
     this.store.dispatch({ tabId: String(tabId), type: "REMOVE_TAB_TIME" });
   }
 
@@ -130,11 +124,7 @@ export default class TabManager {
     this.updateLastAccessed(addedTabId);
   }
 
-  resetTabTimes() {
-    this.store.dispatch({ type: "RESET_TAB_TIMES" });
-  }
-
-  updateClosedCount(showBadgeCount: boolean = window.TW.settings.get("showBadgeCount")) {
+  updateClosedCount(showBadgeCount: boolean = settings.get("showBadgeCount")) {
     let text;
     if (showBadgeCount) {
       const savedTabsLength = this.store.getState().localStorage.savedTabs.length;

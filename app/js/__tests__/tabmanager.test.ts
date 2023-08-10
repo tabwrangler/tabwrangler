@@ -1,6 +1,7 @@
 import { Action } from "redux";
 import TabManager from "../tabmanager";
 import configureMockStore from "../__mocks__/configureMockStore";
+import settings from "../settings";
 
 function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
   return {
@@ -22,13 +23,6 @@ function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
 }
 
 beforeEach(() => {
-  const TW = (window.TW = {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    settings: {},
-    store: configureMockStore(),
-  });
-
   window.chrome = {
     storage: {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -41,15 +35,6 @@ beforeEach(() => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
     browserAction: {},
-    extension: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
-      getBackgroundPage: () => {
-        return {
-          TW,
-        };
-      },
-    },
   };
 });
 
@@ -66,10 +51,10 @@ describe("wrangleTabs", () => {
     store = configureMockStore();
   });
 
-  test("should wrangle new tabs", () => {
+  test("wrangles new tabs", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
-    window.TW.settings.get = jest.fn(() => 5); //maxTabs
+    settings.get = jest.fn(() => 5); //maxTabs
     window.chrome.tabs.remove = jest.fn();
     const tabManager = new TabManager(<any>store);
 
@@ -92,10 +77,10 @@ describe("wrangleTabs", () => {
     expect(setSavedTabsAction.savedTabs.map((tab: chrome.tabs.Tab) => tab.id)).toEqual([4, 3, 2]);
   });
 
-  test("should wrangle max tabs", () => {
+  test("wrangles max tabs", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
-    window.TW.settings.get = jest.fn(() => 3);
+    settings.get = jest.fn(() => 3);
     window.chrome.tabs.remove = jest.fn();
     const tabManager = new TabManager(<any>store);
 
@@ -125,7 +110,7 @@ describe("wrangleTabs", () => {
   });
 
   test("replaces duplicate tab in the corral if exact URL matches", () => {
-    window.TW.settings.get = jest
+    settings.get = jest
       .fn()
       .mockImplementationOnce(() => 100)
       .mockImplementationOnce(() => "exactURLMatch");
@@ -168,7 +153,7 @@ describe("wrangleTabs", () => {
   });
 
   test("replaces duplicate tab in the corral if hostname and title match", () => {
-    window.TW.settings.get = jest
+    settings.get = jest
       .fn()
       .mockImplementationOnce(() => 100)
       .mockImplementationOnce(() => "hostnameAndTitleMatch");

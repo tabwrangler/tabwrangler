@@ -1,6 +1,8 @@
 const defaultCache: Record<string, unknown> = {};
 const defaultLockedIds: Array<number> = [];
 
+// This is a SINGLETON! It is imported both by backgrounnd.ts and by popup.tsx and used in both
+// environments.
 const Settings = {
   cache: defaultCache,
 
@@ -63,6 +65,10 @@ const Settings = {
 
     // Sync the cache with the browser's storage area. Changes in the background pages should sync
     // with those in the popup and vice versa.
+    //
+    // Note: this does NOT integrate with React, this is not a replacement for Redux. React
+    // components will not be notified of the new values. For now this is okay because settings are
+    // only updated via the popup and so React is already aware of the changes.
     chrome.storage.onChanged.addListener(
       (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
         if (areaName !== "sync") return;
@@ -71,35 +77,37 @@ const Settings = {
     );
 
     return new Promise((resolve) => {
-      chrome.storage.sync.get(keys, (items) => {
+      chrome.storage.sync.get(keys, async (items) => {
         for (const i in items) {
           if (Object.prototype.hasOwnProperty.call(items, i)) {
             this.cache[i] = items[i];
           }
         }
-        this._initLockedIds();
+        await this._initLockedIds();
         resolve();
       });
     });
   },
 
-  _initLockedIds() {
-    if (this.cache.lockedIds == null) return;
+  async _initLockedIds(): Promise<void> {
+    if (this.cache.lockedIds == null) return Promise.resolve();
 
     // Remove any tab IDs from the `lockedIds` list that no longer exist so the collection does not
     // grow unbounded. This also ensures tab IDs that are reused are not inadvertently locked.
-    chrome.tabs.query({}, (tabs) => {
-      const currTabIds = new Set(tabs.map((tab) => tab.id));
-      const nextLockedIds = (this.cache.lockedIds as number[]).filter((lockedId) => {
-        const lockedIdExists = currTabIds.has(lockedId);
-        if (!lockedIdExists)
-          console.debug(
-            `Locked tab ID ${lockedId} no longer exixts; removing from 'lockedIds' list`
-          );
-        return lockedIdExists;
+    const tabs = await new Promise<chrome.tabs.Tab[]>((resolve) => {
+      chrome.tabs.query({}, (tabs) => {
+        resolve(tabs);
       });
-      this.set("lockedIds", nextLockedIds);
     });
+    const currTabIds = new Set(tabs.map((tab) => tab.id));
+    const nextLockedIds = (this.cache.lockedIds as number[]).filter((lockedId) => {
+      const lockedIdExists = currTabIds.has(lockedId);
+      if (!lockedIdExists)
+        console.debug(`Locked tab ID ${lockedId} no longer exixts; removing from 'lockedIds' list`);
+      return lockedIdExists;
+    });
+    this.set("lockedIds", nextLockedIds);
+    return void 0;
   },
 
   /**

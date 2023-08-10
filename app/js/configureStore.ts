@@ -91,10 +91,10 @@ const rootReducer = combineReducers({
   tempStorage: tempStorageReducer,
 });
 
-export default function configureStore() {
+export default function configureStore(afterRehydrate?: () => unknown) {
   const store = createStore(rootReducer, applyMiddleware(thunk));
   return {
-    persistor: persistStore(store),
+    persistor: persistStore(store, undefined, afterRehydrate),
     store,
   };
 }

@@ -13,12 +13,6 @@ import settings from "./js/settings";
 const popupElement = document.getElementById("popup");
 
 if (popupElement != null) {
-  const backgroundPage = chrome.extension.getBackgroundPage();
-
-  if (backgroundPage == null) {
-    throw new Error("Reopen the page or popup. Background page does not exist.");
-  }
-
   const { persistor, store } = configureStore();
   settings.init();
 

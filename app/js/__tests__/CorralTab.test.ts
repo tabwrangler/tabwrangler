@@ -2,15 +2,6 @@ import { sessionFuzzyMatchesTab } from "../CorralTab";
 
 beforeAll(() => {
   window.chrome = {
-    extension: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
-      getBackgroundPage: () => {
-        return {
-          TW: { store: {} },
-        };
-      },
-    },
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
     i18n: {

@@ -23,26 +23,7 @@ function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
 }
 
 beforeEach(() => {
-  window.chrome = {
-    storage: {
-      // @ts-expect-error Only partial implementation of `chrome.storage.local` API
-      local: {},
-    },
-    tabs: {
-      // @ts-expect-error Only partial implementation of `chrome.tabs.remove` API
-      remove: jest.fn((_tabIds, callback) => {
-        if (callback != null) callback();
-      }),
-    },
-    // @ts-expect-error Only partial implementation of `chrome.browserAction` API
-    browserAction: {},
-  };
-});
-
-afterEach(() => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore:next-line
-  window.chrome = {};
+  jest.clearAllMocks();
 });
 
 describe("wrangleTabs", () => {

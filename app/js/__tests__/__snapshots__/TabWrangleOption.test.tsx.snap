@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should render options with exactURLMatch selected 1`] = `
+exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
 [
   <label
     htmlFor="wrangleOption"
@@ -120,7 +120,7 @@ exports[`should render options with exactURLMatch selected 1`] = `
 ]
 `;
 
-exports[`should render options with hostnameAndTitleMatch selected 1`] = `
+exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`] = `
 [
   <label
     htmlFor="wrangleOption"
@@ -240,7 +240,7 @@ exports[`should render options with hostnameAndTitleMatch selected 1`] = `
 ]
 `;
 
-exports[`should render options with withDupes selected 1`] = `
+exports[`TabWrangleOption renders options with withDupes selected 1`] = `
 [
   <label
     htmlFor="wrangleOption"

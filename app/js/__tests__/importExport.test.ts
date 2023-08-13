@@ -7,20 +7,6 @@ describe("importExportActions", () => {
 
   beforeEach(() => {
     store = configureMockStore();
-
-    window.chrome = {
-      storage: {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore:next-line
-        local: {},
-      },
-    };
-  });
-
-  afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    window.chrome = {};
   });
 
   test("should export the bookmark data", () => {
@@ -32,9 +18,10 @@ describe("importExportActions", () => {
       },
     });
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    window.chrome.storage.local.get = (t, func) => {
+    const ogGet = chrome.storage.local.get;
+
+    // @ts-expect-error Incomplete `get` implementation
+    chrome.storage.local.get = (t, func) => {
       func({ test: 2 });
     };
 
@@ -43,6 +30,8 @@ describe("importExportActions", () => {
     store.dispatch(exportData()).then((blob: Blob) => {
       expect(blob.type).toBe("application/json;charset=utf-8");
     });
+
+    chrome.storage.local.get = ogGet;
   });
 
   test("should import the bookmark data", (done) => {
@@ -132,10 +121,6 @@ describe("importExportActions", () => {
   });
 
   test("should fail to import non existent backup", (done) => {
-    // provide a mock function
-    const mockFunction = jest.fn();
-    window.chrome.storage.local.set = mockFunction;
-
     store
       .dispatch(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -149,16 +134,12 @@ describe("importExportActions", () => {
         })
       )
       .catch(() => {
-        expect(mockFunction.mock.calls.length).toBe(0);
+        expect(chrome.storage.local.set).not.toHaveBeenCalled();
         done();
       });
   });
 
   test("should fail import of incomplete backup data", (done) => {
-    // provide a mock function
-    const mockFunction = jest.fn();
-    window.chrome.storage.local.set = mockFunction;
-
     // this is missing the savedTabs object
     const expectedImportData = [
       { totalTabsRemoved: 256 },
@@ -183,16 +164,12 @@ describe("importExportActions", () => {
         })
       )
       .catch(() => {
-        expect(mockFunction.mock.calls.length).toBe(0);
+        expect(chrome.storage.local.set).not.toHaveBeenCalled();
         done();
       });
   });
 
   test("should fail import of corrupt backup data", (done) => {
-    // provide a mock function
-    const mockFunction = jest.fn();
-    window.chrome.storage.local.set = mockFunction;
-
     const blob = new Blob(["{345:}"], {
       type: "text/plain;charset=utf-8",
     });
@@ -210,7 +187,7 @@ describe("importExportActions", () => {
         })
       )
       .catch(() => {
-        expect(mockFunction.mock.calls.length).toBe(0);
+        expect(chrome.storage.local.set).not.toHaveBeenCalled();
         done();
       });
   });
@@ -218,7 +195,6 @@ describe("importExportActions", () => {
   test("should generate a unique file name based on a given date", () => {
     const date = new Date("2017-04-10 00:00:00 GMT");
     const uniqueFileName = exportFileName(date);
-
     expect(uniqueFileName).toBe("TabWranglerExport-2017-04-10.json");
   });
 });

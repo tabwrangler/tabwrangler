@@ -43,7 +43,7 @@ describe("wrangleTabs", () => {
     await tabManager.wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4], expect.anything());
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4]);
 
     const setSavedTabsAction = store
       .getActions()
@@ -69,7 +69,7 @@ describe("wrangleTabs", () => {
     await tabManager.wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4, 5], expect.anything());
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4, 5]);
     expect(store.getActions()).toContainEqual({
       totalTabsWrangled: 4,
       type: "SET_TOTAL_TABS_WRANGLED",
@@ -100,7 +100,7 @@ describe("wrangleTabs", () => {
     await tabManager.wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4], expect.anything());
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
     expect(store.getActions()).toContainEqual({
       totalTabsWrangled: 1,
       type: "SET_TOTAL_TABS_WRANGLED",
@@ -135,7 +135,7 @@ describe("wrangleTabs", () => {
     await tabManager.wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4], expect.anything());
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
     expect(store.getActions()).toContainEqual({
       totalTabsWrangled: 1,
       type: "SET_TOTAL_TABS_WRANGLED",

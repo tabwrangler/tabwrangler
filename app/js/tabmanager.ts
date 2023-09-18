@@ -41,7 +41,7 @@ export default class TabManager {
     return () => -1;
   }
 
-  async wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
+  wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
     const maxTabs = settings.get<number>("maxTabs");
     let totalTabsWrangled = this.store.getState().localStorage.totalTabsWrangled;
     const wrangleOption = settings.get<WrangleOption>("wrangleOption");
@@ -68,10 +68,9 @@ export default class TabManager {
       }
     }
 
-    if (tabIdsToRemove.length > 0)
-      await new Promise((resolve) => {
-        chrome.tabs.remove(tabIdsToRemove, resolve);
-      });
+    // Note: intentionally not awaiting tab removal! If removal does need to be awaited then this
+    // function must be rewritten to get store values before/after async operations.
+    if (tabIdsToRemove.length > 0) chrome.tabs.remove(tabIdsToRemove);
 
     // Trim saved tabs to the max allocated by the setting. Browser extension storage is limited and
     // thus cannot allow saved tabs to grow indefinitely.

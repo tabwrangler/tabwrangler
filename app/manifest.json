@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_extName__",
-  "version": "6.10.1",
+  "version": "7.0.0",
   "default_locale": "en",
   "description": "__MSG_extDescription__",
   "icons": {
@@ -30,6 +30,7 @@
       "description": "__MSG_commandWrangleCurrentTab__"
     }
   },
+  "externally_connectable": {},
   "minimum_chrome_version": "28",
   "options_ui": {
     "open_in_tab": true,

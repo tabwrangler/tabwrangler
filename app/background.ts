@@ -6,10 +6,10 @@ import { removeAllSavedTabs } from "./js/actions/localStorageActions";
 import settings from "./js/settings";
 
 async function startup() {
-  // Ensure settings are loaded before proceeding; Settings reads from async browser storage.
+  // Load settings before proceeding; Settings reads from async browser storage.
   await settings.init();
 
-  // Ensure store has rehydrated before proceeding; Store reads from async browser storage.
+  // Rehydrate store before proceeding; Store reads from async browser storage.
   const { store } = await new Promise<ReturnType<typeof configureStore>>((resolve) => {
     const storeConfig = configureStore(() => resolve(storeConfig));
   });

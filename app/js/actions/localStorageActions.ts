@@ -52,8 +52,7 @@ export function unwrangleTabs(
       // Count only those tabs closed after install date because users who upgrade will not have
       // an accurate count of all tabs closed. The updaters' install dates will be the date of
       // the upgrade, after which point TW will keep an accurate count of closed tabs.
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
+      // @ts-expect-error `closedAt` is a TW expando property on tabs
       if (sessionTab.tab.closedAt >= installDate) countableTabsUnwrangled++;
     });
 

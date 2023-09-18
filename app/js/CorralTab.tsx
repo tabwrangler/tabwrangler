@@ -55,8 +55,7 @@ const ChronoSorter: Sorter = {
     if (tabA == null || tabB == null) {
       return 0;
     } else {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      /* @ts-ignore:next-line `closedAt` is an expando property added by Tab Wrangler */
+      // @ts-expect-error `closedAt` is a TW expando property on tabs
       return tabA.closedAt - tabB.closedAt;
     }
   },
@@ -134,8 +133,7 @@ export function sessionFuzzyMatchesTab(
     session.tab.url === tab.url &&
     // Ensure the browser's last modified time is within 1s of Tab Wrangler's close to as a fuzzy,
     // but likely always correct, match.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    /* @ts-ignore:next-line `closedAt` is an expando property added by Tab Wrangler */
+    // @ts-expect-error `closedAt` is a TW expando property on tabs
     Math.abs(lastModifiedMs - tab.closedAt) < 1000
   );
 }

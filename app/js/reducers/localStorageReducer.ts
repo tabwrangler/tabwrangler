@@ -70,6 +70,14 @@ export type State = {
   totalTabsWrangled: number;
 };
 
+// Serializes closed tabs for comparison. Because the "REMOVED_SAVED_TABS" action comes from the
+// popup, the tabs to remove are serialized as strings to pass from popup -> serviceWorker and so
+// object comparison is not possible.
+function serializeClosedTab(tab: chrome.tabs.Tab): string {
+  // @ts-expect-error `closedAt` is a TW expando property
+  return `${tab.id}:${tab.windowId}:${tab.closedAt}`;
+}
+
 export function createInitialState(): State {
   return {
     installDate: Date.now(),
@@ -90,9 +98,11 @@ export default function localStorage(state: State = initialState, action: Action
         savedTabs: [],
       };
     case "REMOVE_SAVED_TABS": {
-      const removedTabsSet = new Set(action.tabs);
+      const removedTabsSet = new Set(action.tabs.map(serializeClosedTab));
       // * Remove any tabs that are not in the action's array of tabs.
-      const nextSavedTabs = state.savedTabs.filter((tab) => !removedTabsSet.has(tab));
+      const nextSavedTabs = state.savedTabs.filter(
+        (tab) => !removedTabsSet.has(serializeClosedTab(tab))
+      );
       return {
         ...state,
         savedTabs: nextSavedTabs,

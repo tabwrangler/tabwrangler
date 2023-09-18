@@ -1,6 +1,6 @@
 {
   "name": "tabwrangler",
-  "version": "6.10.1",
+  "version": "7.0.0",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "main": "app/background.js",
   "scripts": {
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/tabwrangler/tabwrangler#readme",
   "dependencies": {
+    "@eduardoac-skimlinks/webext-redux": "^3.0.1-release-candidate",
     "@fortawesome/fontawesome-free": "^5.3.1",
     "bootstrap": "^4.3.1",
     "classnames": "^2.2.5",

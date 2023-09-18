@@ -57,8 +57,7 @@ export default class TabManager {
         nextSavedTabs.splice(existingTabPosition, 1);
       }
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
+      // @ts-expect-error `closedAt` is a TW expando property on tabs
       tabs[i].closedAt = closingDate;
       nextSavedTabs.unshift(tabs[i]);
       totalTabsWrangled += 1;

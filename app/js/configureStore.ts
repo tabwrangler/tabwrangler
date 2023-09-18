@@ -5,6 +5,7 @@ import localStorageReducer from "./reducers/localStorageReducer";
 import settingsReducer from "./reducers/settingsReducer";
 import tempStorageReducer from "./reducers/tempStorageReducer";
 import thunk from "redux-thunk";
+import { wrapStore } from "@eduardoac-skimlinks/webext-redux";
 
 const PRE_V6_STORAGE_KEYS: Array<string> = [
   "installDate",
@@ -93,6 +94,7 @@ const rootReducer = combineReducers({
 
 export default function configureStore(afterRehydrate?: () => unknown) {
   const store = createStore(rootReducer, applyMiddleware(thunk));
+  wrapStore(store);
   return {
     persistor: persistStore(store, undefined, afterRehydrate),
     store,

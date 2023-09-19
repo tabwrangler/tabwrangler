@@ -29,7 +29,7 @@ const Settings = {
     lockTabSortOrder: null,
 
     // Max number of tabs stored before the list starts getting truncated.
-    maxTabs: 100,
+    maxTabs: 1000,
 
     // Stop acting if there are only minTabs tabs open.
     minTabs: 5,

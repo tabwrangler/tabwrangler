@@ -1,14 +1,13 @@
 import "./CorralTab.scss";
 import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
+import { extractHostname, extractRootDomain, serializeTab } from "./util";
 import { removeSavedTabs, unwrangleTabs } from "./actions/localStorageActions";
 import { AppState } from "./Types";
 import ClosedTabRow from "./ClosedTabRow";
 import type { Dispatch } from "./Types";
 import { connect } from "react-redux";
 import cx from "classnames";
-import extractHostname from "./extractHostname";
-import extractRootDomain from "./extractRootDomain";
 import settings from "./settings";
 
 function keywordFilter(keyword: string) {
@@ -180,7 +179,7 @@ type State = {
   filter: string;
   isSortDropdownOpen: boolean;
   savedSortOrder: string | null;
-  selectedTabs: Set<chrome.tabs.Tab>;
+  selectedTabs: Set<string>;
   sorter: Sorter;
 };
 
@@ -230,7 +229,10 @@ class CorralTab extends React.Component<Props, State> {
 
   _areAllClosedTabsSelected() {
     const closedTabs = this._getClosedTabs();
-    return closedTabs.length > 0 && closedTabs.every((tab) => this.state.selectedTabs.has(tab));
+    return (
+      closedTabs.length > 0 &&
+      closedTabs.every((tab) => this.state.selectedTabs.has(serializeTab(tab)))
+    );
   }
 
   _clearFilter = () => {
@@ -290,14 +292,14 @@ class CorralTab extends React.Component<Props, State> {
 
   _handleRemoveSelectedTabs = () => {
     const closedTabs = this._getClosedTabs();
-    const tabs = closedTabs.filter((tab) => this.state.selectedTabs.has(tab));
+    const tabs = closedTabs.filter((tab) => this.state.selectedTabs.has(serializeTab(tab)));
     this.props.dispatch(removeSavedTabs(tabs));
     this.setState({ selectedTabs: new Set() });
   };
 
   _handleRemoveTab = (tab: chrome.tabs.Tab) => {
     this.props.dispatch(removeSavedTabs([tab]));
-    this.state.selectedTabs.delete(tab);
+    this.state.selectedTabs.delete(serializeTab(tab));
     this.forceUpdate();
   };
 
@@ -316,17 +318,17 @@ class CorralTab extends React.Component<Props, State> {
           i++
         ) {
           if (isSelected) {
-            this.state.selectedTabs.add(closedTabs[i]);
+            this.state.selectedTabs.add(serializeTab(closedTabs[i]));
           } else {
-            this.state.selectedTabs.delete(closedTabs[i]);
+            this.state.selectedTabs.delete(serializeTab(closedTabs[i]));
           }
         }
       }
     } else {
       if (isSelected) {
-        this.state.selectedTabs.add(tab);
+        this.state.selectedTabs.add(serializeTab(tab));
       } else {
-        this.state.selectedTabs.delete(tab);
+        this.state.selectedTabs.delete(serializeTab(tab));
       }
     }
 
@@ -337,7 +339,7 @@ class CorralTab extends React.Component<Props, State> {
   _handleRestoreSelectedTabs = () => {
     const closedTabs = this._getClosedTabs();
     const sessionTabs = closedTabs
-      .filter((tab) => this.state.selectedTabs.has(tab))
+      .filter((tab) => this.state.selectedTabs.has(serializeTab(tab)))
       .map((tab) => ({
         session: this.props.sessions.find((session) => sessionFuzzyMatchesTab(session, tab)),
         tab,
@@ -365,7 +367,7 @@ class CorralTab extends React.Component<Props, State> {
 
   openTab = (tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) => {
     this.props.dispatch(unwrangleTabs([{ session, tab }]));
-    this.state.selectedTabs.delete(tab);
+    this.state.selectedTabs.delete(serializeTab(tab));
     this.forceUpdate();
   };
 
@@ -397,9 +399,9 @@ class CorralTab extends React.Component<Props, State> {
     let selectedTabs;
     if (this._areAllClosedTabsSelected()) {
       selectedTabs = this.state.selectedTabs;
-      closedTabs.forEach((tab) => this.state.selectedTabs.delete(tab));
+      closedTabs.forEach((tab) => this.state.selectedTabs.delete(serializeTab(tab)));
     } else {
-      selectedTabs = new Set(closedTabs);
+      selectedTabs = new Set(closedTabs.map(serializeTab));
     }
 
     this._lastSelectedTab = null;
@@ -416,7 +418,9 @@ class CorralTab extends React.Component<Props, State> {
     const closedTabs = this._getClosedTabs();
     const areAllClosedTabsSelected = this._areAllClosedTabsSelected();
     const { totalTabsRemoved, totalTabsWrangled } = this.props;
-    const hasVisibleSelectedTabs = closedTabs.some((tab) => this.state.selectedTabs.has(tab));
+    const hasVisibleSelectedTabs = closedTabs.some((tab) =>
+      this.state.selectedTabs.has(serializeTab(tab))
+    );
     const percentClosed =
       totalTabsRemoved === 0 ? 0 : Math.trunc((totalTabsWrangled / totalTabsRemoved) * 100);
 
@@ -589,7 +593,7 @@ class CorralTab extends React.Component<Props, State> {
                     : this.props.sessions.find((session) => sessionFuzzyMatchesTab(session, tab));
 
                 return {
-                  isSelected: this.state.selectedTabs.has(tab),
+                  isSelected: this.state.selectedTabs.has(serializeTab(tab)),
                   onOpenTab: this.openTab,
                   onRemoveTab: this._handleRemoveTab,
                   onToggleTab: this._handleToggleTab,

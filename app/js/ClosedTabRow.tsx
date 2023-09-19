@@ -3,7 +3,7 @@ import * as React from "react";
 import LazyImage from "./LazyImage";
 import TimeAgo from "timeago-react";
 import cx from "classnames";
-import extractHostname from "./extractHostname";
+import { extractHostname } from "./util";
 
 type Props = {
   isSelected: boolean;

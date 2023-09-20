@@ -14,7 +14,7 @@ const Settings = {
     corralTabSortOrder: null,
 
     // wait 1 second before updating an active tab
-    debounceOnActivated: false,
+    debounceOnActivated: true,
 
     // Don't close tabs that are playing audio.
     filterAudio: true,

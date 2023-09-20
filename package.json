@@ -2,7 +2,6 @@
   "name": "tabwrangler",
   "version": "7.0.0",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
-  "main": "app/background.js",
   "scripts": {
     "build": "gulp",
     "lint": "eslint .",
@@ -37,7 +36,6 @@
     "redux-persist": "^5.10.0",
     "redux-persist-webextension-storage": "^1.0.0",
     "redux-thunk": "^2.3.0",
-    "redux-watch": "^1.1.1",
     "timeago-react": "^3.0.0",
     "timeago.js": "^4.0.0"
   },

@@ -156,12 +156,12 @@ async function startup() {
   chrome.tabs.onRemoved.addListener(tabmanager.removeTab.bind(tabmanager));
   chrome.tabs.onReplaced.addListener(tabmanager.replaceTab.bind(tabmanager));
   chrome.tabs.onActivated.addListener(function (tabInfo) {
-    menus.updateContextMenus(tabInfo["tabId"]);
+    menus.updateContextMenus(tabInfo.tabId);
 
     if (settings.get("debounceOnActivated")) {
-      debouncedUpdateLastAccessed(tabInfo["tabId"]);
+      debouncedUpdateLastAccessed(tabInfo.tabId);
     } else {
-      tabmanager.updateLastAccessed(tabInfo["tabId"]);
+      tabmanager.updateLastAccessed(tabInfo.tabId);
     }
   });
 
@@ -193,7 +193,8 @@ async function startup() {
 
       case "sync": {
         if (changes.minutesInactive || changes.secondsInactive) {
-          // Reset the tabTimes since we changed the setting
+          // Reset stored `tabTimes` because setting was changed otherwise old times may exceed new
+          // setting value.
           store.dispatch({ type: "RESET_TAB_TIMES" });
           chrome.tabs.query({ windowType: "normal" }, (tabs) => {
             tabmanager.initTabs(tabs);
@@ -201,7 +202,6 @@ async function startup() {
         }
 
         if (changes["persist:settings"]) {
-          console.log("persist:settings", changes["persist:settings"]);
           if (
             changes["persist:settings"].newValue.paused !==
             changes["persist:settings"].oldValue?.paused

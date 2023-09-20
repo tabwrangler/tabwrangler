@@ -5,12 +5,13 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
+const package = require("./package.json");
 const webpack = require("webpack");
 
 const COMMON_CONFIG = {
   devtool: "cheap-module-source-map",
   entry: {
-    serviceWorker: "./app/serviceWorker.ts",
+    background: "./app/background.ts",
     popup: "./app/popup.tsx",
   },
   mode: "production",
@@ -44,7 +45,6 @@ const COMMON_CONFIG = {
     new CopyWebpackPlugin([
       { from: "_locales/**" },
       { from: "app/img/", to: "img/" },
-      { from: "app/manifest.json" },
       { from: "MIT-LICENSE.txt" },
       { from: "README.md" },
     ]),
@@ -71,6 +71,27 @@ module.exports = [
       filename: "[name].entry.js",
     },
     plugins: COMMON_CONFIG.plugins.concat([
+      new CopyWebpackPlugin([
+        {
+          from: "app/manifest.template.json",
+          to: "manifest.json",
+          transform(buffer) {
+            const manifest = JSON.parse(buffer.toString());
+
+            // Use background script as a ServiceWorker, as required by Chrome's Manifest v3
+            // implementation.
+            // See https://developer.chrome.com/docs/extensions/migrating/to-service-workers/
+            manifest.background = {
+              service_worker: "background.entry.js",
+            };
+
+            // Sync extension version to the version in package.json.
+            manifest.version = package.version;
+
+            return JSON.stringify(manifest, null, 2);
+          },
+        },
+      ]),
       new webpack.DefinePlugin({
         EXTENSION_URL: JSON.stringify(
           "https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/"
@@ -86,6 +107,34 @@ module.exports = [
       filename: "[name].entry.js",
     },
     plugins: COMMON_CONFIG.plugins.concat([
+      new CopyWebpackPlugin([
+        {
+          from: "app/manifest.template.json",
+          to: "manifest.json",
+          transform(buffer) {
+            const manifest = JSON.parse(buffer.toString());
+
+            // Use background script as intended because Firefox supports background scripts in
+            // its Manifest v3 implementation.
+            // See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Background_scripts
+            manifest.background = {
+              scripts: ["background.entry.js"],
+            };
+
+            // Add persistent extension ID used by Firefox.
+            manifest.browser_specific_settings = {
+              gecko: {
+                id: "{81b74d53-9416-4fb3-afa2-ab46684b253b}",
+              },
+            };
+
+            // Sync extension version to the version in package.json.
+            manifest.version = package.version;
+
+            return JSON.stringify(manifest, null, 2);
+          },
+        },
+      ]),
       new webpack.DefinePlugin({
         EXTENSION_URL: JSON.stringify(
           "https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/"

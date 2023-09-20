@@ -44,6 +44,15 @@ export type SetTotalTabsWrangledAction = {
   type: "SET_TOTAL_TABS_WRANGLED";
 };
 
+// This is an "alias" action that is dispatched in the popup, serialized, and sent to the background
+// script to be handled.
+//
+// See https://github.com/tshaddix/webext-redux/tree/95ff156b4afe9bfa697e55bfdb32ec116706aba3#4-optional-implement-actions-whose-logic-only-happens-in-the-background-script-we-call-them-aliases
+type UnwrangleTabsAliasAction = {
+  sessionTabs: Array<{ session: chrome.sessions.Session | undefined; tab: chrome.tabs.Tab }>;
+  type: "UNWRANGLE_TABS_ALIAS";
+};
+
 export type Action =
   | RemoveAllSavedTabsAction
   | RemoveSavedTabsAction
@@ -53,7 +62,8 @@ export type Action =
   | SetTabTime
   | SetTotalTabsRemovedAction
   | SetTotalTabsUnwrangledAction
-  | SetTotalTabsWrangledAction;
+  | SetTotalTabsWrangledAction
+  | UnwrangleTabsAliasAction;
 
 export type State = {
   // Date of installation of Tab Wrangler

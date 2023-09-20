@@ -32,12 +32,22 @@ export function setTotalTabsWrangled(totalTabsWrangled: number): SetTotalTabsWra
   return { totalTabsWrangled, type: "SET_TOTAL_TABS_WRANGLED" };
 }
 
-export function unwrangleTabs(
+// This is an ["aliased" action creator][0] that is called by message passing from popup ->
+// background script. The function receives the full de-serialized action as an argument and returns
+// a Thunk to dispatch more actions.
+//
+// This is done in the background script to ensure `chrome` API calls execute even if the popup
+// closes during execution.
+//
+// [0]: https://github.com/tshaddix/webext-redux/tree/95ff156b4afe9bfa697e55bfdb32ec116706aba3#4-optional-implement-actions-whose-logic-only-happens-in-the-background-script-we-call-them-aliases
+export function unwrangleTabs({
+  sessionTabs,
+}: {
   sessionTabs: Array<{
     session: chrome.sessions.Session | undefined;
     tab: chrome.tabs.Tab;
-  }>
-) {
+  }>;
+}) {
   return (dispatch: Dispatch, getState: GetState) => {
     const { localStorage } = getState();
     const installDate = localStorage.installDate;

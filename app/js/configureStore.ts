@@ -1,11 +1,12 @@
 import { PersistedState, persistReducer, persistStore } from "redux-persist";
+import { alias, wrapStore } from "@eduardoac-skimlinks/webext-redux";
 import { applyMiddleware, combineReducers, createStore } from "redux";
 import { localStorage, syncStorage } from "redux-persist-webextension-storage";
 import localStorageReducer from "./reducers/localStorageReducer";
 import settingsReducer from "./reducers/settingsReducer";
 import tempStorageReducer from "./reducers/tempStorageReducer";
 import thunk from "redux-thunk";
-import { wrapStore } from "@eduardoac-skimlinks/webext-redux";
+import { unwrangleTabs } from "./actions/localStorageActions";
 
 const PRE_V6_STORAGE_KEYS: Array<string> = [
   "installDate",
@@ -92,8 +93,15 @@ const rootReducer = combineReducers({
   tempStorage: tempStorageReducer,
 });
 
+// See webext-redux's "aliased" action creators:
+//   https://github.com/tshaddix/webext-redux/tree/95ff156b4afe9bfa697e55bfdb32ec116706aba3#4-optional-implement-actions-whose-logic-only-happens-in-the-background-script-we-call-them-aliases
+const aliases = {
+  UNWRANGLE_TABS_ALIAS: unwrangleTabs,
+};
+
 export default function configureStore(afterRehydrate?: () => unknown) {
-  const store = createStore(rootReducer, applyMiddleware(thunk));
+  // Note: `thunk` must come last in the middleware chain to give earlier middlewares access to it.
+  const store = createStore(rootReducer, applyMiddleware(alias(aliases), thunk));
   wrapStore(store);
   return {
     persistor: persistStore(store, undefined, afterRehydrate),

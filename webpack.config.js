@@ -9,12 +9,12 @@ const package = require("./package.json");
 const webpack = require("webpack");
 
 const COMMON_CONFIG = {
-  devtool: "cheap-module-source-map",
+  devtool: "source-map",
   entry: {
     background: "./app/background.ts",
     popup: "./app/popup.tsx",
   },
-  mode: "production",
+  mode: "development",
   module: {
     rules: [
       {

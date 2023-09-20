@@ -2,12 +2,12 @@ import "./CorralTab.scss";
 import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
 import { extractHostname, extractRootDomain, serializeTab } from "./util";
-import { removeSavedTabs, unwrangleTabs } from "./actions/localStorageActions";
 import { AppState } from "./Types";
 import ClosedTabRow from "./ClosedTabRow";
 import type { Dispatch } from "./Types";
 import { connect } from "react-redux";
 import cx from "classnames";
+import { removeSavedTabs } from "./actions/localStorageActions";
 import settings from "./settings";
 
 function keywordFilter(keyword: string) {
@@ -345,7 +345,7 @@ class CorralTab extends React.Component<Props, State> {
         tab,
       }));
 
-    this.props.dispatch(unwrangleTabs(sessionTabs));
+    this.props.dispatch({ sessionTabs, type: "UNWRANGLE_TABS_ALIAS" });
     this.setState({ selectedTabs: new Set() });
   };
 
@@ -366,7 +366,7 @@ class CorralTab extends React.Component<Props, State> {
   };
 
   openTab = (tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) => {
-    this.props.dispatch(unwrangleTabs([{ session, tab }]));
+    this.props.dispatch({ sessionTabs: [{ session, tab }], type: "UNWRANGLE_TABS_ALIAS" });
     this.state.selectedTabs.delete(serializeTab(tab));
     this.forceUpdate();
   };

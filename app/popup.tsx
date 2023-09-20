@@ -12,34 +12,34 @@ import thunk from "redux-thunk";
 
 async function render() {
   const popupElement = document.getElementById("popup");
+  if (popupElement == null)
+    throw new Error("Could not find #popup element. Re-open the popup to try again.");
 
-  if (popupElement != null) {
-    // Initialize "proxy" store and apply Thunk middleware in order to dispatch thunk-style actions.
-    // See https://github.com/tshaddix/webext-redux
-    let store = new Store();
-    const middleware = [thunk];
-    store = applyMiddleware(store, ...middleware);
-    await store.ready();
+  // Initialize "proxy" store and apply Thunk middleware in order to dispatch thunk-style actions.
+  // See https://github.com/tshaddix/webext-redux
+  let store = new Store();
+  const middleware = [thunk];
+  store = applyMiddleware(store, ...middleware);
+  await store.ready();
 
-    // Await settings that are loaded from async browser storage before rendering.
-    await settings.init();
+  // Await settings that are loaded from async browser storage before rendering.
+  await settings.init();
 
-    ReactDOM.render(
-      <Provider store={store}>
-        <Popup />
-      </Provider>,
-      popupElement
-    );
+  ReactDOM.render(
+    <Provider store={store}>
+      <Popup />
+    </Provider>,
+    popupElement
+  );
 
-    // The popup fires `pagehide` when the popup is going away. Make sure to unmount the component so
-    // it can unsubscribe from the Store events.
-    const unmountPopup = function unmountPopup() {
-      ReactDOM.unmountComponentAtNode(popupElement);
-      window.removeEventListener("pagehide", unmountPopup);
-    };
+  // The popup fires `pagehide` when the popup is going away. Make sure to unmount the component so
+  // it can unsubscribe from the Store events.
+  const unmountPopup = function unmountPopup() {
+    ReactDOM.unmountComponentAtNode(popupElement);
+    window.removeEventListener("pagehide", unmountPopup);
+  };
 
-    window.addEventListener("pagehide", unmountPopup);
-  }
+  window.addEventListener("pagehide", unmountPopup);
 }
 
 render();

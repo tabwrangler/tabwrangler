@@ -37,7 +37,8 @@ describe("wrangleTabs", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
     settings.get = jest.fn(() => 5); //maxTabs
-    const tabManager = new TabManager(<any>store);
+    const tabManager = new TabManager();
+    tabManager.setStore(<any>store);
 
     const testTabs = [createTab({ id: 2 }), createTab({ id: 3 }), createTab({ id: 4 })];
     await tabManager.wrangleTabs(testTabs);
@@ -55,7 +56,8 @@ describe("wrangleTabs", () => {
   test("wrangles max tabs", async () => {
     // @ts-expect-error Only partial implementation of `settings` API
     settings.get = jest.fn(() => 3);
-    const tabManager = new TabManager(<any>store);
+    const tabManager = new TabManager();
+    tabManager.setStore(<any>store);
 
     const testTabs = [
       createTab({ id: 2 }),
@@ -91,7 +93,8 @@ describe("wrangleTabs", () => {
         ],
       },
     });
-    const tabManager = new TabManager(<any>store);
+    const tabManager = new TabManager();
+    tabManager.setStore(<any>store);
 
     window.chrome.storage.local.set = jest.fn();
     // FIXME: jest-webextension-mock missing `action` declaration
@@ -123,7 +126,8 @@ describe("wrangleTabs", () => {
         ],
       },
     });
-    const tabManager = new TabManager(<any>store);
+    const tabManager = new TabManager();
+    tabManager.setStore(<any>store);
 
     window.chrome.storage.local.set = jest.fn();
     // FIXME: jest-webextension-mock missing `action` declaration
@@ -164,7 +168,8 @@ describe("filter", () => {
         ],
       },
     });
-    tabManager = new TabManager(<any>store);
+    tabManager = new TabManager();
+    tabManager.setStore(<any>store);
   });
 
   test("should return index of tab if the url matches", () => {
@@ -203,7 +208,8 @@ describe("getURLPositionFilterByWrangleOption", () => {
 
   beforeEach(() => {
     store = configureMockStore();
-    tabManager = new TabManager(<any>store);
+    tabManager = new TabManager();
+    tabManager.setStore(<any>store);
   });
 
   test("should return function that always returns -1", () => {

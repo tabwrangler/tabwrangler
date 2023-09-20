@@ -9,19 +9,17 @@ import settings from "./settings";
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
 export default class TabManager {
-  store: ReturnType<typeof configureStore>["store"];
-
-  constructor(store: ReturnType<typeof configureStore>["store"]) {
-    this.store = store;
-  }
+  store: ReturnType<typeof configureStore>["store"] | undefined;
 
   findPositionByURL(url: string | null = ""): number {
+    if (this.store == null) return -1;
     return this.store
       .getState()
       .localStorage.savedTabs.findIndex((item: chrome.tabs.Tab) => item.url === url && url != null);
   }
 
   findPositionByHostnameAndTitle(url = "", title = ""): number {
+    if (this.store == null) return -1;
     const hostB = new URL(url).hostname;
     return this.store.getState().localStorage.savedTabs.findIndex((tab: chrome.tabs.Tab) => {
       const hostA = new URL(tab.url || "").hostname;
@@ -41,7 +39,18 @@ export default class TabManager {
     return () => -1;
   }
 
+  resetTabTimes() {
+    if (this.store == null) return;
+    this.store.dispatch({ type: "RESET_TAB_TIMES" });
+    chrome.tabs.query({ windowType: "normal" }, (tabs) => {
+      this.initTabs(tabs);
+    });
+  }
+
   wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
+    // Store is not yet initialized, nothing to do.
+    if (this.store == null) return;
+
     const maxTabs = settings.get<number>("maxTabs");
     let totalTabsWrangled = this.store.getState().localStorage.totalTabsWrangled;
     const wrangleOption = settings.get<WrangleOption>("wrangleOption");
@@ -93,7 +102,9 @@ export default class TabManager {
    * @return {Array}
    */
   getOlderThen(time?: number): Array<number> {
-    const ret = [];
+    const ret: Array<number> = [];
+    if (this.store == null) return ret;
+
     const { tabTimes } = this.store.getState().localStorage;
     for (const i in tabTimes) {
       if (Object.prototype.hasOwnProperty.call(tabTimes, i)) {
@@ -111,6 +122,7 @@ export default class TabManager {
   }
 
   removeTab(tabId: number) {
+    if (this.store == null) return;
     const totalTabsRemoved = this.store.getState().localStorage.totalTabsRemoved;
     this.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
     settings.unlockTab(tabId);
@@ -122,7 +134,12 @@ export default class TabManager {
     this.updateLastAccessed(addedTabId);
   }
 
+  setStore(store: ReturnType<typeof configureStore>["store"]) {
+    this.store = store;
+  }
+
   updateClosedCount(showBadgeCount: boolean = settings.get("showBadgeCount")) {
+    if (this.store == null) return;
     let text;
     if (showBadgeCount) {
       const savedTabsLength = this.store.getState().localStorage.savedTabs.length;
@@ -134,6 +151,7 @@ export default class TabManager {
   }
 
   updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number | Array<chrome.tabs.Tab>) {
+    if (this.store == null) return;
     let tabId;
     if (Array.isArray(tabOrTabId)) {
       tabOrTabId.map(this.updateLastAccessed.bind(this));

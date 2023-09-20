@@ -6,14 +6,12 @@ function getDomain(url: string): string | null {
   return match == null ? null : match[1];
 }
 
-/**
- * Creates and updates context menus and page action menus.
- */
 export default class Menus {
-  tabManager: TabManager;
+  tabManager: TabManager | undefined;
 
-  constructor(tabManager: TabManager) {
-    this.tabManager = tabManager;
+  // Note: intended to be called only once, which is why this function is static. Context menus
+  // should be once when the extension is installed.
+  static install() {
     chrome.contextMenus.create({
       id: "corralTab",
       title: chrome.i18n.getMessage("contextMenu_corralTab"),
@@ -30,11 +28,14 @@ export default class Menus {
       title: chrome.i18n.getMessage("contextMenu_lockDomain"),
       type: "checkbox",
     });
+  }
+
+  constructor() {
     chrome.contextMenus.onClicked.addListener(this.onClicked.bind(this));
   }
 
   corralTab(_onClickData: unknown, tab?: chrome.tabs.Tab | undefined) {
-    if (tab == null) return;
+    if (this.tabManager == null || tab == null) return;
     this.tabManager.wrangleTabs([tab]);
   }
 
@@ -78,6 +79,10 @@ export default class Menus {
         // No-op, no known item was clicked so there is nothing to do.
         break;
     }
+  }
+
+  setTabManager(tabManager: TabManager) {
+    this.tabManager = tabManager;
   }
 
   updateContextMenus(tabId: number) {

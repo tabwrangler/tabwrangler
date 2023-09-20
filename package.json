@@ -47,7 +47,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.18.6",
-    "@types/chrome": "^0.0.196",
+    "@types/chrome": "^0.0.246",
     "@types/color-hash": "^1.0.2",
     "@types/file-saver": "^2.0.5",
     "@types/jest": "^29.0.0",

@@ -130,7 +130,7 @@ export default class TabManager {
     } else {
       text = "";
     }
-    chrome.browserAction.setBadgeText({ text });
+    chrome.action.setBadgeText({ text });
   }
 
   updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number | Array<chrome.tabs.Tab>) {

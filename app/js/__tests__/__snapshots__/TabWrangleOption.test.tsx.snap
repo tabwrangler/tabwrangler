@@ -2,13 +2,9 @@
 
 exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
 [
-  <label
-    htmlFor="wrangleOption"
-  >
-    <strong>
-      
-    </strong>
-  </label>,
+  <strong>
+    
+  </strong>,
   <div
     className="form-check"
   >
@@ -122,13 +118,9 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
 
 exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`] = `
 [
-  <label
-    htmlFor="wrangleOption"
-  >
-    <strong>
-      
-    </strong>
-  </label>,
+  <strong>
+    
+  </strong>,
   <div
     className="form-check"
   >
@@ -242,13 +234,9 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
 
 exports[`TabWrangleOption renders options with withDupes selected 1`] = `
 [
-  <label
-    htmlFor="wrangleOption"
-  >
-    <strong>
-      
-    </strong>
-  </label>,
+  <strong>
+    
+  </strong>,
   <div
     className="form-check"
   >

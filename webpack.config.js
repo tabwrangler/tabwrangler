@@ -10,10 +10,10 @@ const webpack = require("webpack");
 const COMMON_CONFIG = {
   devtool: "cheap-module-source-map",
   entry: {
-    background: "./app/background.ts",
+    serviceWorker: "./app/serviceWorker.ts",
     popup: "./app/popup.tsx",
   },
-  mode: "development",
+  mode: "production",
   module: {
     rules: [
       {
@@ -40,17 +40,6 @@ const COMMON_CONFIG = {
       },
     ],
   },
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        commons: {
-          chunks: "initial",
-          minChunks: 2,
-          name: "commons",
-        },
-      },
-    },
-  },
   plugins: [
     new CopyWebpackPlugin([
       { from: "_locales/**" },
@@ -63,16 +52,10 @@ const COMMON_CONFIG = {
       filename: "[name].css",
     }),
     new HtmlWebpackPlugin({
-      cache: false, // Disable cache to ensure file is always created in multi-compiler build
-      chunks: ["commons", "popup"],
+      cache: false, // Disable cache to always create file in multi-compiler build
+      chunks: ["popup"],
       filename: "popup.html",
       template: "./app/popup.template.html",
-    }),
-    new HtmlWebpackPlugin({
-      cache: false, // Disable cache to ensure file is always created in multi-compiler build
-      chunks: ["commons", "background"],
-      filename: "background.html",
-      template: "./app/background.template.html",
     }),
   ],
   resolve: {

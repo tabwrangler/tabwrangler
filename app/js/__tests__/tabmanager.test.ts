@@ -65,7 +65,8 @@ describe("wrangleTabs", () => {
     ];
     window.chrome.storage.local.set = jest.fn();
 
-    window.chrome.browserAction.setBadgeText = jest.fn();
+    // FIXME: jest-webextension-mock missing `action` declaration
+    // window.chrome.action.setBadgeText = jest.fn();
     await tabManager.wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
@@ -93,7 +94,8 @@ describe("wrangleTabs", () => {
     const tabManager = new TabManager(<any>store);
 
     window.chrome.storage.local.set = jest.fn();
-    window.chrome.browserAction.setBadgeText = jest.fn();
+    // FIXME: jest-webextension-mock missing `action` declaration
+    // window.chrome.action.setBadgeText = jest.fn();
 
     const testTabs = [createTab({ id: 4, url: "https://www.nytimes.com" })];
 
@@ -124,7 +126,8 @@ describe("wrangleTabs", () => {
     const tabManager = new TabManager(<any>store);
 
     window.chrome.storage.local.set = jest.fn();
-    window.chrome.browserAction.setBadgeText = jest.fn();
+    // FIXME: jest-webextension-mock missing `action` declaration
+    // window.chrome.action.setBadgeText = jest.fn();
 
     jest.clearAllMocks();
 

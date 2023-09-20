@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "__MSG_extName__",
   "version": "7.0.0",
   "default_locale": "en",
@@ -14,13 +14,14 @@
       "id": "{81b74d53-9416-4fb3-afa2-ab46684b253b}"
     }
   },
-  "browser_action": {
-    "default_title": "__MSG_extName__",
+  "action": {
     "default_icon": "img/icon.png",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_title": "__MSG_extName__"
   },
   "background": {
-    "page": "background.html"
+    "service_worker": "serviceWorker.entry.js",
+    "type": "module"
   },
   "commands": {
     "lock-unlock-active-tab": {
@@ -30,7 +31,6 @@
       "description": "__MSG_commandWrangleCurrentTab__"
     }
   },
-  "externally_connectable": {},
   "minimum_chrome_version": "28",
   "options_ui": {
     "open_in_tab": true,
@@ -43,6 +43,13 @@
     "tabs"
   ],
   "web_accessible_resources": [
-    "img/icon48.png"
+    {
+      "matches": [
+        "*://*/*"
+      ],
+      "resources": [
+        "img/icon48.png"
+      ]
+    }
   ]
 }

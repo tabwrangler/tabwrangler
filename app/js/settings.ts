@@ -230,7 +230,8 @@ const Settings = {
 
   setValue<T>(key: string, value: T, fx?: () => void) {
     this.cache[key] = value;
-    chrome.storage.sync.set({ [key]: value }, fx);
+    if (fx == null) chrome.storage.sync.set({ [key]: value });
+    else chrome.storage.sync.set({ [key]: value }, fx);
   },
 
   /**

@@ -6,6 +6,12 @@ import { removeAllSavedTabs } from "./js/actions/localStorageActions";
 import settings from "./js/settings";
 
 async function startup() {
+  // Keep the service worker alive so it can check for stale tabs as necessary.
+  // See https://stackoverflow.com/a/66618269/368697
+  const keepAlive = () => setInterval(chrome.runtime.getPlatformInfo, 20e3);
+  chrome.runtime.onStartup.addListener(keepAlive);
+  keepAlive();
+
   // Load settings before proceeding; Settings reads from async browser storage.
   await settings.init();
 
@@ -117,15 +123,15 @@ async function startup() {
 
   let checkToCloseTimeout: number | null;
   function scheduleCheckToClose() {
-    if (checkToCloseTimeout != null) window.clearTimeout(checkToCloseTimeout);
-    checkToCloseTimeout = window.setTimeout(checkToClose, settings.get("checkInterval"));
+    if (checkToCloseTimeout != null) clearTimeout(checkToCloseTimeout);
+    checkToCloseTimeout = setTimeout(checkToClose, settings.get("checkInterval"));
   }
 
   function setPaused(paused: boolean) {
     if (paused) {
-      chrome.browserAction.setIcon({ path: "img/icon-paused.png" });
+      chrome.action.setIcon({ path: "img/icon-paused.png" });
     } else {
-      chrome.browserAction.setIcon({ path: "img/icon.png" });
+      chrome.action.setIcon({ path: "img/icon.png" });
 
       // The user has just unpaused, immediately set all tabs to the current time so they will not
       // be closed.
@@ -179,14 +185,14 @@ async function startup() {
   chrome.storage.onChanged.addListener((changes, areaName) => {
     switch (areaName) {
       case "local": {
-        if (changes["savedTabs"]) {
+        if (changes.savedTabs) {
           tabmanager.updateClosedCount();
         }
         break;
       }
 
       case "sync": {
-        if (changes["minutesInactive"] || changes["secondsInactive"]) {
+        if (changes.minutesInactive || changes.secondsInactive) {
           // Reset the tabTimes since we changed the setting
           store.dispatch({ type: "RESET_TAB_TIMES" });
           chrome.tabs.query({ windowType: "normal" }, (tabs) => {
@@ -195,16 +201,17 @@ async function startup() {
         }
 
         if (changes["persist:settings"]) {
+          console.log("persist:settings", changes["persist:settings"]);
           if (
-            changes["persist:settings"].newValue["paused"] !==
-            changes["persist:settings"].oldValue["paused"]
+            changes["persist:settings"].newValue.paused !==
+            changes["persist:settings"].oldValue?.paused
           ) {
-            setPaused(changes["persist:settings"].newValue["paused"]);
+            setPaused(changes["persist:settings"].newValue.paused);
           }
         }
 
-        if (changes["showBadgeCount"]) {
-          tabmanager.updateClosedCount(changes["showBadgeCount"].newValue);
+        if (changes.showBadgeCount) {
+          tabmanager.updateClosedCount(changes.showBadgeCount.newValue);
         }
         break;
       }

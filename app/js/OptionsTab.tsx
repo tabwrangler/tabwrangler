@@ -255,9 +255,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         <form>
           <div className="mb-2">
             <div>
-              <label htmlFor="theme">
-                <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
-              </label>
+              <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
             </div>
             <div className="mb-2">
               <div className="btn-group">
@@ -415,7 +413,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               {chrome.i18n.getMessage("options_option_debounceOnActivated_label")}
             </label>
           </div>
-          <div className="form-check mb-2">
+          <div className={cx("form-check", this.state.showFilterTabGroupsOption ? "mb-1" : "mb-2")}>
             <input
               className="form-check-input"
               defaultChecked={settings.get("filterAudio")}

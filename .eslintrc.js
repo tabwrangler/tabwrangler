@@ -27,7 +27,6 @@ module.exports = {
   rules: {
     // Rules included in ESLint
     "consistent-return": "error",
-    "dot-notation": ["error", { allowKeywords: false }],
     eqeqeq: ["error", "smart"],
     "no-console": "off",
     "no-unused-expressions": "error",

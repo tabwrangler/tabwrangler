@@ -9,7 +9,7 @@ const package = require("./package.json");
 const webpack = require("webpack");
 
 const COMMON_CONFIG = {
-  devtool: "eval-source-map",
+  devtool: "source-map",
   entry: {
     background: "./app/background.ts",
     popup: "./app/popup.tsx",

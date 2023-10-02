@@ -1,15 +1,14 @@
 import { AppState, Dispatch } from "./Types";
 import NavBar, { NavBarTabID } from "./NavBar";
-import React, { Suspense } from "react";
 import { clearTempStorage, fetchSessions } from "./actions/tempStorageActions";
 import { useDispatch, useSelector } from "react-redux";
+import AboutTab from "./AboutTab";
+import CorralTab from "./CorralTab";
+import LockTab from "./LockTab";
+import OptionsTab from "./OptionsTab";
+import React from "react";
 import { register } from "timeago.js";
 import timeagoLocale from "./timeagoLocale";
-
-const AboutTab = React.lazy(() => import("./AboutTab"));
-const CorralTab = React.lazy(() => import("./CorralTab"));
-const LockTab = React.lazy(() => import("./LockTab"));
-const OptionsTab = React.lazy(() => import("./OptionsTab"));
 
 export default function Popup() {
   const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>("corral");
@@ -72,9 +71,7 @@ export default function Popup() {
   return (
     <>
       <NavBar activeTabId={activeTabId} onClickTab={setActiveTabId} />
-      <div className="tab-content container-fluid">
-        <Suspense fallback={<div className="tab-pane active">Loading…</div>}>{activeTab}</Suspense>
-      </div>
+      <div className="tab-content container-fluid">{activeTab}</div>
     </>
   );
 }

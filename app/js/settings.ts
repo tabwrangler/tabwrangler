@@ -94,11 +94,7 @@ const Settings = {
 
     // Remove any tab IDs from the `lockedIds` list that no longer exist so the collection does not
     // grow unbounded. This also ensures tab IDs that are reused are not inadvertently locked.
-    const tabs = await new Promise<chrome.tabs.Tab[]>((resolve) => {
-      chrome.tabs.query({}, (tabs) => {
-        resolve(tabs);
-      });
-    });
+    const tabs = await chrome.tabs.query({});
     const currTabIds = new Set(tabs.map((tab) => tab.id));
     const nextLockedIds = (this.cache.lockedIds as number[]).filter((lockedId) => {
       const lockedIdExists = currTabIds.has(lockedId);

@@ -138,22 +138,16 @@ async function startup() {
 
       if (!store.getState().settings.paused) {
         // Update the selected tabs to make sure they don't get closed.
-        const activeTabs = await new Promise<chrome.tabs.Tab[]>((resolve) => {
-          chrome.tabs.query({ active: true, lastFocusedWindow: true }, resolve);
-        });
+        const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         tabManager.updateLastAccessed(activeTabs);
 
         // Update audible tabs if the setting is enabled to prevent them from being closed.
         if (settings.get("filterAudio") === true) {
-          const audibleTabs = await new Promise<chrome.tabs.Tab[]>((resolve) => {
-            chrome.tabs.query({ audible: true }, resolve);
-          });
+          const audibleTabs = await chrome.tabs.query({ audible: true });
           tabManager.updateLastAccessed(audibleTabs);
         }
 
-        const windows = await new Promise<chrome.windows.Window[]>((resolve) => {
-          chrome.windows.getAll({ populate: true }, resolve);
-        });
+        const windows = await chrome.windows.getAll({ populate: true });
 
         // Array of tabs, populated for each window.
         let tabs: Array<chrome.tabs.Tab> | undefined;
@@ -164,9 +158,9 @@ async function startup() {
           // Filter out the pinned tabs
           tabs = tabs.filter((tab) => tab.pinned === false);
           // Filter out audible tabs if the option to do so is checked
-          tabs = settings.get("filterAudio") ? tabs.filter((tab) => !tab.audible) : tabs;
+          tabs = settings.get<boolean>("filterAudio") ? tabs.filter((tab) => !tab.audible) : tabs;
           // Filter out tabs that are in a group if the option to do so is checked
-          tabs = settings.get("filterGroupedTabs")
+          tabs = settings.get<boolean>("filterGroupedTabs")
             ? tabs.filter((tab) => !("groupId" in tab) || tab.groupId <= 0)
             : tabs;
 
@@ -204,6 +198,8 @@ async function startup() {
           }
         });
       }
+    } catch (error) {
+      console.error("[checkToClose]", error);
     } finally {
       scheduleCheckToClose();
     }

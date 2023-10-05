@@ -5,13 +5,6 @@ import debounce from "lodash.debounce";
 import { removeAllSavedTabs } from "./js/actions/localStorageActions";
 import settings from "./js/settings";
 
-// Keep the (background script - Firefox) / (service worker - Chrome) alive so it can check for
-// stale tabs as necessary.
-// See https://stackoverflow.com/a/66618269/368697
-const keepAlive = () => setInterval(chrome.runtime.getPlatformInfo, 20e3);
-chrome.runtime.onStartup.addListener(keepAlive);
-keepAlive();
-
 const tabManager = new TabManager();
 const menus = new Menus();
 
@@ -99,6 +92,22 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
+function closeTab(tab: chrome.tabs.Tab) {
+  if (true === tab.pinned) {
+    return;
+  }
+
+  if (settings.get("filterAudio") && tab.audible) {
+    return;
+  }
+
+  if (tab.url != null && settings.isWhitelisted(tab.url)) {
+    return;
+  }
+
+  tabManager.wrangleTabs([tab]);
+}
+
 async function startup() {
   // Load settings before proceeding; Settings reads from async browser storage.
   await settings.init();
@@ -110,22 +119,6 @@ async function startup() {
 
   tabManager.setStore(store);
   menus.setTabManager(tabManager);
-
-  function closeTab(tab: chrome.tabs.Tab) {
-    if (true === tab.pinned) {
-      return;
-    }
-
-    if (settings.get("filterAudio") && tab.audible) {
-      return;
-    }
-
-    if (tab.url != null && settings.isWhitelisted(tab.url)) {
-      return;
-    }
-
-    tabManager.wrangleTabs([tab]);
-  }
 
   async function checkToClose(cutOff: number | null) {
     try {
@@ -228,3 +221,35 @@ async function startup() {
 }
 
 startup();
+
+// Keep the [service worker (Chrome) / background script (Firefox)] alive so the popup can always
+// talk to it to access the Store.
+// Self-contained workaround for https://crbug.com/1316588 (Apache License)
+// Source: https://bugs.chromium.org/p/chromium/issues/detail?id=1316588#c99
+let lastAlarm = 0;
+(async function lostEventsWatchdog() {
+  let quietCount = 0;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    await new Promise((resolve) => setTimeout(resolve, 65000));
+    const now = Date.now();
+    const age = now - lastAlarm;
+    console.debug(`lostEventsWatchdog: last alarm ${age / 1000}s ago`);
+    if (age < 95000) {
+      quietCount = 0; // alarm still works.
+    } else if (++quietCount >= 3) {
+      console.warn("lostEventsWatchdog: reloading!");
+      return chrome.runtime.reload();
+    } else {
+      chrome.alarms.create(`lostEventsWatchdog/${now}`, { delayInMinutes: 1 });
+    }
+  }
+})();
+chrome.alarms.onAlarm.addListener(() => (lastAlarm = Date.now()));
+chrome.runtime.onMessage.addListener((message) => {
+  if (message === "reload") {
+    console.warn("[runtime.onMessage]: Manual reload");
+    chrome.runtime.reload();
+    return true;
+  } else return false;
+});

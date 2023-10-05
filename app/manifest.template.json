@@ -29,6 +29,7 @@
     "page": "popup.html"
   },
   "permissions": [
+    "alarms",
     "contextMenus",
     "sessions",
     "storage",

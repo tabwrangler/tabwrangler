@@ -33,5 +33,5 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: tabwrangler-builds
-          path: tabwrangler-*.zip
+          path: dist/tabwrangler-*.zip
           if-no-files-found: error

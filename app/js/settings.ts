@@ -29,10 +29,10 @@ const Settings = {
     maxTabs: 1000,
 
     // Stop acting if there are only minTabs tabs open.
-    minTabs: 5,
+    minTabs: 20,
 
     // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
-    minutesInactive: 20,
+    minutesInactive: 60,
 
     // Save closed tabs in between browser sessions.
     purgeClosedTabs: false,

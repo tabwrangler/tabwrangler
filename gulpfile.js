@@ -94,5 +94,4 @@ gulp.task(
   )
 );
 
-gulp.task("release", gulp.series("clean", "webpack:production"));
-gulp.task("default", gulp.series("lint", "webpack"));
+gulp.task("default", gulp.series("clean", "lint", "webpack:production"));

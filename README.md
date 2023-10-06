@@ -83,7 +83,6 @@ usages are described in the following table:
 
 | Setting               | Default                   | Possible Values                                             | Description                                                                                            |
 | --------------------- | ------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `checkInterval`       | `5000`                    | `0` < `checkInterval`                                       | How often Tab Wrangler should check for stale tabs to close (in milliseconds)                          |
 | `corralTabSortOrder`  | `null`                    | `null, 'alpha', 'reverseAlpha', 'chrono', 'reverseChrono', 'domain', 'reverseDomain'` | Saved sort order for closed tabs. When `null`, defaults to `'reverseChrono'` |
 | `debounceOnActivated` | `true`                    |                                                             | Whether to wait 1 second before resetting the active tab's timer                                       |
 | `filterAudio`         | `false`                   |                                                             | Whether to prevent auto-closing tabs that are playing audio                                            |

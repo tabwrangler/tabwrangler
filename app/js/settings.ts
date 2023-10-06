@@ -7,9 +7,6 @@ const Settings = {
   cache: defaultCache,
 
   defaults: {
-    // How often we check for old tabs.
-    checkInterval: 5000,
-
     // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
     corralTabSortOrder: null,
 

@@ -201,7 +201,7 @@ async function startup() {
   let checkToCloseTimeout: number | null;
   function scheduleCheckToClose() {
     if (checkToCloseTimeout != null) clearTimeout(checkToCloseTimeout);
-    checkToCloseTimeout = setTimeout(checkToClose, settings.get("checkInterval"));
+    checkToCloseTimeout = setTimeout(checkToClose, 5000);
   }
 
   chrome.tabs.query({ windowType: "normal" }, tabManager.initTabs.bind(tabManager));

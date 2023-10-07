@@ -121,10 +121,12 @@ module.exports = [
               scripts: ["background.entry.js"],
             };
 
-            // Add persistent extension ID used by Firefox.
+            // Firefox (Gecko) settings
+            // See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings
             manifest.browser_specific_settings = {
               gecko: {
                 id: "{81b74d53-9416-4fb3-afa2-ab46684b253b}",
+                strict_min_version: "52.0",
               },
             };
 

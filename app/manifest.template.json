@@ -23,7 +23,7 @@
       "description": "__MSG_commandWrangleCurrentTab__"
     }
   },
-  "minimum_chrome_version": "28",
+  "minimum_chrome_version": "55",
   "options_ui": {
     "open_in_tab": true,
     "page": "popup.html"

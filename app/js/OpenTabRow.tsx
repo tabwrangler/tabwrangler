@@ -12,12 +12,12 @@ function secondsToMinutes(seconds: number) {
 }
 
 type Props = {
+  isLocked: boolean;
   onToggleTab: (tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) => void;
   tab: chrome.tabs.Tab;
 };
 
-export default function OpenTabRow(props: Props) {
-  const { tab } = props;
+export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
   const paused = useSelector((state: AppState) => state.settings.paused);
   const tabTime = useSelector((state: AppState) =>
     tab.id == null ? Date.now() : state.localStorage.tabTimes[tab.id]
@@ -26,14 +26,13 @@ export default function OpenTabRow(props: Props) {
   function handleLockedOnClick(event: React.MouseEvent) {
     // Dynamic type check to ensure target is an input element.
     if (!(event.target instanceof HTMLInputElement)) return;
-    props.onToggleTab(props.tab, event.target.checked, event.shiftKey);
+    onToggleTab(tab, event.target.checked, event.shiftKey);
   }
 
   const tabWhitelistMatch = settings.getWhitelistMatch(tab.url);
-  const tabIsLocked = settings.isTabLocked(tab);
 
   let lockStatusElement;
-  if (tabIsLocked) {
+  if (isLocked) {
     let reason;
     if (tab.pinned) {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
@@ -78,10 +77,10 @@ export default function OpenTabRow(props: Props) {
   }
 
   return (
-    <tr className={cx({ "table-warning": tabIsLocked })}>
+    <tr className={cx({ "table-warning": isLocked })}>
       <td className="text-center" style={{ verticalAlign: "middle", width: "1px" }}>
         <input
-          checked={tabIsLocked}
+          checked={isLocked}
           className="mx-1"
           disabled={!settings.isTabManuallyLockable(tab)}
           onClick={handleLockedOnClick}
@@ -103,7 +102,7 @@ export default function OpenTabRow(props: Props) {
           <div className="flex-fill text-truncate" style={{ width: "1px" }}>
             {tab.title}
             <br />
-            <small className={cx({ "text-muted": !tabIsLocked })}>({tab.url})</small>
+            <small className={cx({ "text-muted": !isLocked })}>({tab.url})</small>
           </div>
         </div>
       </td>

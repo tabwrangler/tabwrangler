@@ -2,6 +2,7 @@ import "./css/popup.scss";
 import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
 import "./css/fontawesome-free-solid-woff-only.css";
 import "react-virtualized/styles.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Store, applyMiddleware } from "@eduardoac-skimlinks/webext-redux";
 import Popup from "./js/Popup";
 import { Provider } from "react-redux";
@@ -9,6 +10,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import settings from "./js/settings";
 import thunk from "redux-thunk";
+
+const queryClient = new QueryClient();
 
 function PopupWrapper() {
   const [store, setStore] = React.useState<Store>();
@@ -85,7 +88,9 @@ function PopupWrapper() {
     // When everything is initialized as expected, render normally.
     return (
       <Provider store={store}>
-        <Popup />
+        <QueryClientProvider client={queryClient}>
+          <Popup />
+        </QueryClientProvider>
       </Provider>
     );
   }

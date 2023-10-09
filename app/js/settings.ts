@@ -1,3 +1,5 @@
+import { getWhitelistMatch, isTabLocked } from "./tabUtil";
+
 const defaultCache: Record<string, unknown> = {};
 const defaultLockedIds: Array<number> = [];
 
@@ -118,26 +120,16 @@ const Settings = {
   },
 
   getWhitelistMatch(url: string | undefined): string | null {
-    if (url == null) return null;
-    const whitelist = this.get<Array<string>>("whitelist");
-    for (let i = 0; i < whitelist.length; i++) {
-      if (url.indexOf(whitelist[i]) !== -1) {
-        return whitelist[i];
-      }
-    }
-    return null;
+    return getWhitelistMatch(url, { whitelist: this.get<Array<string>>("whitelist") });
   },
 
   isTabLocked(tab: chrome.tabs.Tab): boolean {
-    const lockedIds = this.get<Array<number>>("lockedIds");
-    const tabWhitelistMatch = this.getWhitelistMatch(tab.url);
-    return (
-      tab.pinned ||
-      !!tabWhitelistMatch ||
-      (tab.id != null && lockedIds.indexOf(tab.id) !== -1) ||
-      !!(this.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) ||
-      !!(tab.audible && this.get("filterAudio"))
-    );
+    return isTabLocked(tab, {
+      filterAudio: this.get("filterAudio"),
+      filterGroupedTabs: this.get("filterGroupedTabs"),
+      lockedIds: this.get<Array<number>>("lockedIds"),
+      whitelist: this.get<Array<string>>("whitelist"),
+    });
   },
 
   isTabManuallyLockable(tab: chrome.tabs.Tab): boolean {

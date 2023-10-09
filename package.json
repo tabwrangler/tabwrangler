@@ -20,6 +20,7 @@
   "dependencies": {
     "@eduardoac-skimlinks/webext-redux": "^3.0.1-release-candidate",
     "@fortawesome/fontawesome-free": "^5.3.1",
+    "@tanstack/react-query": "^4.36.1",
     "bootstrap": "^4.3.1",
     "classnames": "^2.2.5",
     "color-hash": "^2.0.1",

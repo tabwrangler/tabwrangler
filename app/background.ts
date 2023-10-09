@@ -92,20 +92,17 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-function closeTab(tab: chrome.tabs.Tab) {
-  if (true === tab.pinned) {
-    return;
-  }
-
-  if (settings.get("filterAudio") && tab.audible) {
-    return;
-  }
-
-  if (tab.url != null && settings.isWhitelisted(tab.url)) {
-    return;
-  }
-
-  tabManager.wrangleTabs([tab]);
+function closeTabs(tabs: chrome.tabs.Tab[]) {
+  tabManager.wrangleTabs(
+    tabs.filter(
+      (tab) =>
+        !(
+          true === tab.pinned ||
+          (settings.get("filterAudio") && tab.audible) ||
+          (tab.url != null && settings.isWhitelisted(tab.url))
+        )
+    )
+  );
 }
 
 async function startup() {
@@ -132,20 +129,25 @@ async function startup() {
       if (!store.getState().settings.paused) {
         // Update the selected tabs to make sure they don't get closed.
         const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-        tabManager.updateLastAccessed(activeTabs);
+        store.dispatch({
+          tabIds: activeTabs.map((tab) => tab.id),
+          tabTime: Date.now(),
+          type: "SET_TAB_TIMES",
+        });
 
         // Update audible tabs if the setting is enabled to prevent them from being closed.
         if (settings.get("filterAudio") === true) {
           const audibleTabs = await chrome.tabs.query({ audible: true });
-          tabManager.updateLastAccessed(audibleTabs);
+          store.dispatch({
+            tabIds: audibleTabs.map((tab) => tab.id),
+            tabTime: Date.now(),
+            type: "SET_TAB_TIMES",
+          });
         }
 
         const windows = await chrome.windows.getAll({ populate: true });
-
-        // Array of tabs, populated for each window.
-        let tabs: Array<chrome.tabs.Tab> | undefined;
         windows.forEach((myWindow) => {
-          tabs = myWindow.tabs;
+          let tabs = myWindow.tabs;
           if (tabs == null) return;
 
           // Filter out the pinned tabs
@@ -176,6 +178,8 @@ async function startup() {
             return;
           }
 
+          const tabsToClose = [];
+          const tabIdsToUpdate = [];
           for (let i = 0; i < tabsToCut.length; i++) {
             const tabId = tabsToCut[i].id;
             if (tabId == null) continue;
@@ -184,11 +188,14 @@ async function startup() {
               // Update its time so it gets checked less frequently.
               // Would also be smart to just never add it.
               // @todo: fix that.
-              tabManager.updateLastAccessed(tabId);
+              tabIdsToUpdate.push(tabId);
               continue;
             }
-            closeTab(tabsToCut[i]);
+            tabsToClose.push(tabsToCut[i]);
           }
+
+          store.dispatch({ tabIds: tabIdsToUpdate, tabTime: Date.now(), type: "SET_TAB_TIMES" });
+          closeTabs(tabsToClose);
         });
       }
     } catch (error) {

@@ -48,8 +48,10 @@ export default class TabManager {
   }
 
   wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
-    // Store is not yet initialized, nothing to do.
+    // Store not yet initialized, nothing to do
     if (this.store == null) return;
+    // No tabs, nothing to do
+    else if (tabs.length === 0) return;
 
     const maxTabs = settings.get<number>("maxTabs");
     let totalTabsWrangled = this.store.getState().localStorage.totalTabsWrangled;
@@ -150,13 +152,10 @@ export default class TabManager {
     chrome.action.setBadgeText({ text });
   }
 
-  updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number | Array<chrome.tabs.Tab>) {
+  updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number) {
     if (this.store == null) return;
     let tabId;
-    if (Array.isArray(tabOrTabId)) {
-      tabOrTabId.map(this.updateLastAccessed.bind(this));
-      return;
-    } else if (typeof tabOrTabId !== "number" && typeof tabOrTabId.id !== "number") {
+    if (typeof tabOrTabId !== "number" && typeof tabOrTabId.id !== "number") {
       console.log("Error: `tabOrTabId.id` is not an number", tabOrTabId.id);
       return;
     } else if (typeof tabOrTabId === "number") {

@@ -23,10 +23,16 @@ export type SetSavedTabsAction = {
   type: "SET_SAVED_TABS";
 };
 
-type SetTabTime = {
+type SetTabTimeAction = {
   tabId: string;
   tabTime: number;
   type: "SET_TAB_TIME";
+};
+
+type SetTabTimesAction = {
+  tabIds: string[];
+  tabTime: number;
+  type: "SET_TAB_TIMES";
 };
 
 export type SetTotalTabsRemovedAction = {
@@ -59,7 +65,8 @@ export type Action =
   | RemoveTabTime
   | ResetTabTimes
   | SetSavedTabsAction
-  | SetTabTime
+  | SetTabTimeAction
+  | SetTabTimesAction
   | SetTotalTabsRemovedAction
   | SetTotalTabsUnwrangledAction
   | SetTotalTabsWrangledAction
@@ -136,6 +143,16 @@ export default function localStorage(state: State = initialState, action: Action
           [action.tabId]: action.tabTime,
         },
       };
+    case "SET_TAB_TIMES": {
+      const nextTabTimes = { ...state.tabTimes };
+      action.tabIds.forEach((tabId) => {
+        nextTabTimes[tabId] = action.tabTime;
+      });
+      return {
+        ...state,
+        tabTimes: nextTabTimes,
+      };
+    }
     case "SET_TOTAL_TABS_REMOVED":
       return {
         ...state,

@@ -84,12 +84,10 @@ export default function LockTab() {
     settings.get<string>("lockTabSortOrder")
   );
   const [currSorter, setCurrSorter] = React.useState(() => {
-    let sorter =
-      sortOrder == null ? DEFAULT_SORTER : Sorters.find((sorter) => sorter.key === sortOrder);
+    let sorter = sortOrder == null ? DEFAULT_SORTER : Sorters.find((s) => s.key === sortOrder);
 
     // If settings somehow stores a bad value, always fall back to default order.
     if (sorter == null) sorter = DEFAULT_SORTER;
-
     return sorter;
   });
   const tabTimes = useSelector((state: AppState) => state.localStorage.tabTimes);

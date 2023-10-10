@@ -1,19 +1,50 @@
-import { Dispatch, GetState } from "../Types";
 import {
   RemoveAllSavedTabsAction,
-  RemoveSavedTabsAction,
   SetSavedTabsAction,
   SetTotalTabsRemovedAction,
   SetTotalTabsUnwrangledAction,
   SetTotalTabsWrangledAction,
 } from "../reducers/localStorageReducer";
+import { serializeTab } from "../util";
+
+type LocalStorage = {
+  // Date of installation of Tab Wrangler
+  installDate: number;
+  // Tabs closed by Tab Wrangler
+  savedTabs: Array<chrome.tabs.Tab>;
+  // Map of tabId -> time remaining before tab is closed
+  tabTimes: {
+    [tabid: string]: number;
+  };
+  // Number of tabs closed by any means since install
+  totalTabsRemoved: number;
+  // Number of tabs unwrangled (re-opened from the corral) since install
+  totalTabsUnwrangled: number;
+  // Number of tabs wrangled since install
+  totalTabsWrangled: number;
+};
 
 export function removeAllSavedTabs(): RemoveAllSavedTabsAction {
   return { type: "REMOVE_ALL_SAVED_TABS" };
 }
 
-export function removeSavedTabs(tabs: Array<chrome.tabs.Tab>): RemoveSavedTabsAction {
-  return { tabs, type: "REMOVE_SAVED_TABS" };
+export async function removeSavedTabs(tabs: Array<chrome.tabs.Tab>) {
+  const data = await chrome.storage.local.get("persist:localStorage");
+  const localStorage: LocalStorage = data["persist:localStorage"];
+  if (localStorage == null) throw new Error("[unwrangleTabs] No data in `chrome.storage.local`");
+
+  const removedTabsSet = new Set(tabs.map(serializeTab));
+  // * Remove any tabs that are not in the action's array of tabs.
+  const nextSavedTabs = localStorage.savedTabs.filter(
+    (tab) => !removedTabsSet.has(serializeTab(tab))
+  );
+
+  await chrome.storage.local.set({
+    "persist:localStorage": {
+      ...localStorage,
+      savedTabs: nextSavedTabs,
+    },
+  });
 }
 
 export function setSavedTabs(savedTabs: Array<chrome.tabs.Tab>): SetSavedTabsAction {
@@ -32,44 +63,49 @@ export function setTotalTabsWrangled(totalTabsWrangled: number): SetTotalTabsWra
   return { totalTabsWrangled, type: "SET_TOTAL_TABS_WRANGLED" };
 }
 
-// This is an ["aliased" action creator][0] that is called by message passing from popup ->
-// background script. The function receives the full de-serialized action as an argument and returns
-// a Thunk to dispatch more actions.
-//
-// This is done in the background script to ensure `chrome` API calls execute even if the popup
-// closes during execution.
-//
-// [0]: https://github.com/tshaddix/webext-redux/tree/95ff156b4afe9bfa697e55bfdb32ec116706aba3#4-optional-implement-actions-whose-logic-only-happens-in-the-background-script-we-call-them-aliases
-export function unwrangleTabs({
-  sessionTabs,
-}: {
+export async function unwrangleTabs(
   sessionTabs: Array<{
     session: chrome.sessions.Session | undefined;
     tab: chrome.tabs.Tab;
-  }>;
-}) {
-  return (dispatch: Dispatch, getState: GetState) => {
-    const { localStorage } = getState();
-    const installDate = localStorage.installDate;
-    let countableTabsUnwrangled = 0;
-    sessionTabs.forEach((sessionTab) => {
+  }>
+) {
+  const data = await chrome.storage.local.get("persist:localStorage");
+  const localStorage: LocalStorage = data["persist:localStorage"];
+  if (localStorage == null) throw new Error("[unwrangleTabs] No data in `chrome.storage.local`");
+
+  const installDate = localStorage.installDate;
+  let countableTabsUnwrangled = 0;
+  sessionTabs.forEach((sessionTab) => {
+    // Count only those tabs closed after install date because users who upgrade will not have
+    // an accurate count of all tabs closed. The updaters' install dates will be the date of
+    // the upgrade, after which point TW will keep an accurate count of closed tabs.
+    // @ts-expect-error `closedAt` is a TW expando property on tabs
+    if (sessionTab.tab.closedAt >= installDate) countableTabsUnwrangled++;
+  });
+
+  // Get all of the restored tabs out of the store.
+  const removedTabsSet = new Set(sessionTabs.map((sessionTab) => serializeTab(sessionTab.tab)));
+  // * Remove any tabs that are not in the action's array of tabs.
+  const nextSavedTabs = localStorage.savedTabs.filter(
+    (tab) => !removedTabsSet.has(serializeTab(tab))
+  );
+
+  const totalTabsUnwrangled = localStorage.totalTabsUnwrangled;
+  await chrome.storage.local.set({
+    "persist:localStorage": {
+      ...localStorage,
+      savedTabs: nextSavedTabs,
+      totalTabsUnwrangled: totalTabsUnwrangled + countableTabsUnwrangled,
+    },
+  });
+
+  await Promise.all(
+    sessionTabs.map((sessionTab) => {
       if (sessionTab.session == null || sessionTab.session.tab == null) {
-        chrome.tabs.create({ active: false, url: sessionTab.tab.url });
+        return chrome.tabs.create({ active: false, url: sessionTab.tab.url });
       } else {
-        chrome.sessions.restore(sessionTab.session.tab.sessionId);
+        return chrome.sessions.restore(sessionTab.session.tab.sessionId);
       }
-
-      // Count only those tabs closed after install date because users who upgrade will not have
-      // an accurate count of all tabs closed. The updaters' install dates will be the date of
-      // the upgrade, after which point TW will keep an accurate count of closed tabs.
-      // @ts-expect-error `closedAt` is a TW expando property on tabs
-      if (sessionTab.tab.closedAt >= installDate) countableTabsUnwrangled++;
-    });
-
-    // Done opening them all, now get all of the restored tabs out of the store.
-    dispatch(removeSavedTabs(sessionTabs.map((sessionTab) => sessionTab.tab)));
-
-    const totalTabsUnwrangled = localStorage.totalTabsUnwrangled;
-    dispatch(setTotalTabsUnwrangled(totalTabsUnwrangled + countableTabsUnwrangled));
-  };
+    })
+  );
 }

@@ -1,7 +1,5 @@
-import { AppState, Dispatch } from "./Types";
 import NavBar, { NavBarTabID } from "./NavBar";
-import { clearTempStorage, fetchSessions } from "./actions/tempStorageActions";
-import { useDispatch, useSelector } from "react-redux";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AboutTab from "./AboutTab";
 import CorralTab from "./CorralTab";
 import LockTab from "./LockTab";
@@ -11,9 +9,27 @@ import { register } from "timeago.js";
 import timeagoLocale from "./timeagoLocale";
 
 export default function Popup() {
-  const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>("corral");
-  const dispatch = useDispatch<Dispatch>();
-  const theme = useSelector((state: AppState) => state.settings.theme);
+  const { data: settingsData } = useQuery({
+    queryFn: async () => {
+      // `settings` was managed by redux-persit, which prefixed the data with "persist:"
+      const data = await chrome.storage.sync.get({ "persist:settings": {} });
+      return data["persist:settings"];
+    },
+    queryKey: ["settingsDataQuery"],
+  });
+
+  const queryClient = useQueryClient();
+  React.useEffect(() => {
+    function handleChanged(
+      changes: { [key: string]: chrome.storage.StorageChange },
+      areaName: chrome.storage.AreaName
+    ) {
+      if (areaName === "sync" && ["persist:settings"].some((key) => key in changes))
+        queryClient.invalidateQueries({ queryKey: ["settingsDataQuery"] });
+    }
+    chrome.storage.onChanged.addListener(handleChanged);
+    return () => chrome.storage.onChanged.removeListener(handleChanged);
+  }, [queryClient]);
 
   React.useEffect(() => {
     // Configure Timeago to use the current UI language of the browser.
@@ -26,32 +42,11 @@ export default function Popup() {
   React.useEffect(() => {
     const body = document.body;
     if (body == null) return;
-    body.classList.toggle("theme-dark", theme === "dark");
-    body.classList.toggle("theme-light", theme === "light");
-  }, [theme]);
+    body.classList.toggle("theme-dark", settingsData?.theme === "dark");
+    body.classList.toggle("theme-light", settingsData?.theme === "light");
+  }, [settingsData?.theme]);
 
-  React.useEffect(() => {
-    function updateSessionsRecentlyClosed() {
-      dispatch(fetchSessions());
-    }
-
-    chrome.sessions.onChanged.addListener(updateSessionsRecentlyClosed);
-    updateSessionsRecentlyClosed();
-
-    return () => {
-      chrome.sessions.onChanged.removeListener(updateSessionsRecentlyClosed);
-    };
-  }, [dispatch]);
-
-  React.useEffect(() => {
-    return () => {
-      // Ensure the temp storage is cleared when the popup is closed to prevent holding references
-      // to objects that may be cleaned up. In Firefox, this can lead to ["DeadObject" errors][1],
-      // which throw exceptions and prevent the popup from displaying.
-      dispatch(clearTempStorage());
-    };
-  }, [dispatch]);
-
+  const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>("corral");
   let activeTab;
   switch (activeTabId) {
     case "about":
@@ -75,5 +70,3 @@ export default function Popup() {
     </>
   );
 }
-
-// [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Dead_object

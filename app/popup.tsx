@@ -3,30 +3,29 @@ import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
 import "./css/fontawesome-free-solid-woff-only.css";
 import "react-virtualized/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Store, applyMiddleware } from "@eduardoac-skimlinks/webext-redux";
+// import { Store, applyMiddleware } from "@eduardoac-skimlinks/webext-redux";
 import Popup from "./js/Popup";
-import { Provider } from "react-redux";
 import React from "react";
 import ReactDOM from "react-dom";
 import settings from "./js/settings";
-import thunk from "redux-thunk";
+// import thunk from "redux-thunk";
 
 const queryClient = new QueryClient();
 
 function PopupWrapper() {
-  const [store, setStore] = React.useState<Store>();
+  // const [store, setStore] = React.useState<Store>();
   const [isDelayed, setIsDelayed] = React.useState(false);
-  const [isStoreReady, setIsStoreReady] = React.useState(false);
+  // const [isStoreReady, setIsStoreReady] = React.useState(false);
   const [isSettingsInit, setIsSettingsInit] = React.useState(false);
 
-  React.useEffect(() => {
-    // Initialize "proxy" store and apply Thunk middleware in order to dispatch thunk-style actions.
-    // See https://github.com/tshaddix/webext-redux
-    let newStore = new Store();
-    const middleware = [thunk];
-    newStore = applyMiddleware(newStore, ...middleware);
-    setStore(newStore);
-  }, []);
+  // React.useEffect(() => {
+  //   // Initialize "proxy" store and apply Thunk middleware in order to dispatch thunk-style actions.
+  //   // See https://github.com/tshaddix/webext-redux
+  //   let newStore = new Store();
+  //   const middleware = [thunk];
+  //   newStore = applyMiddleware(newStore, ...middleware);
+  //   setStore(newStore);
+  // }, []);
 
   React.useEffect(() => {
     const timeout = setTimeout(() => {
@@ -48,22 +47,22 @@ function PopupWrapper() {
     initSettings();
   }, []);
 
-  React.useEffect(() => {
-    setIsStoreReady(false);
-    async function readyStore() {
-      if (store == null) {
-        console.info("[PopupWrapper]: store undefined, noop");
-        return;
-      }
-      console.info("[PopupWrapper]: awaiting store readiness");
-      await store.ready();
-      console.info("[PopupWrapper]: store ready!");
-      setIsStoreReady(true);
-    }
-    readyStore();
-  }, [store]);
+  // React.useEffect(() => {
+  //   setIsStoreReady(false);
+  //   async function readyStore() {
+  //     if (store == null) {
+  //       console.info("[PopupWrapper]: store undefined, noop");
+  //       return;
+  //     }
+  //     console.info("[PopupWrapper]: awaiting store readiness");
+  //     await store.ready();
+  //     console.info("[PopupWrapper]: store ready!");
+  //     setIsStoreReady(true);
+  //   }
+  //   readyStore();
+  // }, [store]);
 
-  const isReady = store != null && isStoreReady && isSettingsInit;
+  const isReady = isSettingsInit;
   if (!isReady && !isDelayed) {
     // Render nothing initially, this happens every time the popup is opened. Start with nothing so
     // there is no flash of unneeded UI if the popup is going to render correctly.
@@ -87,11 +86,9 @@ function PopupWrapper() {
   } else {
     // When everything is initialized as expected, render normally.
     return (
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <Popup />
-        </QueryClientProvider>
-      </Provider>
+      <QueryClientProvider client={queryClient}>
+        <Popup />
+      </QueryClientProvider>
     );
   }
 }

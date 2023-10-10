@@ -2,12 +2,10 @@ import "./CorralTab.scss";
 import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
 import { extractHostname, extractRootDomain, serializeTab } from "./util";
-import { AppState } from "./Types";
+import { removeSavedTabs, unwrangleTabs } from "./actions/localStorageActions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ClosedTabRow from "./ClosedTabRow";
-import type { Dispatch } from "./Types";
-import { connect } from "react-redux";
 import cx from "classnames";
-import { removeSavedTabs } from "./actions/localStorageActions";
 import settings from "./settings";
 
 function keywordFilter(keyword: string) {
@@ -167,88 +165,139 @@ function rowRenderer({
   );
 }
 
-type Props = {
-  dispatch: Dispatch;
-  savedTabs: Array<chrome.tabs.Tab>;
-  sessions: Array<chrome.sessions.Session>;
-  totalTabsRemoved: number;
-  totalTabsWrangled: number;
-};
+export default function CorralTab() {
+  // Focus the search input so it's simple to type immediately. This must be done after the popup
+  // is available, which is roughly 150ms after the popup is opened (determined empirically). Use
+  // 350ms to ensure this always works.
+  const searchRef = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => {
+    const searchRefFocusTimeout = setTimeout(() => {
+      if (searchRef.current != null) searchRef.current.focus();
+    }, 350);
+    return () => {
+      clearTimeout(searchRefFocusTimeout);
+    };
+  }, []);
 
-type State = {
-  filter: string;
-  isSortDropdownOpen: boolean;
-  savedSortOrder: string | null;
-  selectedTabs: Set<string>;
-  sorter: Sorter;
-};
-
-class CorralTab extends React.Component<Props, State> {
-  _dropdownRef: HTMLElement | null = null;
-  _lastSelectedTab: chrome.tabs.Tab | null = null;
-  _searchRefFocusTimeout: NodeJS.Timeout | undefined = undefined;
-  _searchRef: HTMLElement | null = null;
-
-  constructor(props: Props) {
-    super(props);
+  const [filter, setFilter] = React.useState("");
+  const [savedSortOrder, setSavedSortOrder] = React.useState(
+    settings.get<string | null>("corralTabSortOrder")
+  );
+  const [currSorter, setCurrSorter] = React.useState(() => {
     const savedSortOrder = settings.get<string>("corralTabSortOrder");
-    let sorter =
-      savedSortOrder == null
-        ? DEFAULT_SORTER
-        : Sorters.find((sorter) => sorter.key === savedSortOrder);
+    let nextSorter =
+      savedSortOrder == null ? DEFAULT_SORTER : Sorters.find((s) => s.key === savedSortOrder);
 
     // If settings somehow stores a bad value, always fall back to default order.
-    if (sorter == null) sorter = DEFAULT_SORTER;
+    if (nextSorter == null) nextSorter = DEFAULT_SORTER;
+    return nextSorter;
+  });
 
-    this.state = {
-      filter: "",
-      isSortDropdownOpen: false,
-      savedSortOrder,
-      selectedTabs: new Set(),
-      sorter,
+  const queryClient = useQueryClient();
+  const { data: sessions } = useQuery({
+    queryFn: () => chrome.sessions.getRecentlyClosed(),
+    queryKey: ["sessionsData"],
+  });
+  const { data: localStorageData } = useQuery({
+    queryFn: async () => {
+      // `localStorage` is managed by redux-persit, which prefix the data with "persist:"
+      const data = await chrome.storage.local.get({ "persist:localStorage": {} });
+      return data["persist:localStorage"];
+    },
+    queryKey: ["localStorageData"],
+  });
+  React.useEffect(() => {
+    function handleChanged(
+      _changes: { [key: string]: chrome.storage.StorageChange },
+      areaName: chrome.storage.AreaName
+    ) {
+      if (areaName === "local") queryClient.invalidateQueries(["localStorageData"]);
+    }
+    chrome.storage.onChanged.addListener(handleChanged);
+    return () => {
+      chrome.storage.onChanged.removeListener(handleChanged);
     };
+  }, [queryClient]);
+
+  const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
+  const [selectedTabs, setSelectedTabs] = React.useState<Set<string>>(new Set());
+  const closedTabs: chrome.tabs.Tab[] = React.useMemo(() => {
+    if (localStorageData == null || !("savedTabs" in localStorageData)) return [];
+    return localStorageData.savedTabs.filter(keywordFilter(filter)).sort(currSorter.sort);
+  }, [currSorter.sort, filter, localStorageData]);
+
+  const dropdownRef = React.useRef<HTMLElement | null>(null);
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = React.useState(false);
+  const areAllClosedTabsSelected =
+    closedTabs.length > 0 && closedTabs.every((tab) => selectedTabs.has(serializeTab(tab)));
+  const hasVisibleSelectedTabs = closedTabs.some((tab) => selectedTabs.has(serializeTab(tab)));
+  const percentClosed =
+    localStorageData == null ||
+    !("totalTabsRemoved" in localStorageData) ||
+    !("totalTabsWrangled" in localStorageData) ||
+    localStorageData.totalTabsRemoved === 0
+      ? 0
+      : Math.trunc((localStorageData.totalTabsWrangled / localStorageData.totalTabsRemoved) * 100);
+
+  React.useEffect(() => {
+    function handleWindowClick(event: MouseEvent) {
+      if (
+        isSortDropdownOpen &&
+        dropdownRef.current != null &&
+        event.target instanceof Node &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setIsSortDropdownOpen(false);
+      }
+    }
+    window.addEventListener("click", handleWindowClick);
+    return () => {
+      window.removeEventListener("click", handleWindowClick);
+    };
+  }, [isSortDropdownOpen]);
+
+  React.useEffect(() => {
+    function handleKeypress(event: KeyboardEvent) {
+      if (event.key !== "/") return;
+
+      // Focus and prevent default only if the input is not already active. This way the intial act of
+      // focusing does not print a '/' character, but if the input is already active then '/' can be
+      // typed.
+      if (searchRef.current != null && document.activeElement !== searchRef.current) {
+        searchRef.current.focus();
+        event.preventDefault();
+      }
+    }
+    window.addEventListener("keypress", handleKeypress);
+    return () => {
+      window.removeEventListener("keypress", handleKeypress);
+    };
+  }, []);
+
+  function toggleSortDropdown() {
+    setIsSortDropdownOpen((val) => !val);
   }
 
-  componentDidMount() {
-    // Focus the search input so it's simple to type immediately. This must be done after the popup
-    // is available, which is roughly 150ms after the popup is opened (determined empirically). Use
-    // 250ms to ensure this always works.
-    this._searchRefFocusTimeout = setTimeout(() => {
-      if (this._searchRef != null) this._searchRef.focus();
-    }, 350);
-
-    window.addEventListener("click", this._handleWindowClick);
-    window.addEventListener("keypress", this._handleKeypress);
+  function handleChangeSaveSortOrder(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.checked) {
+      settings.set("corralTabSortOrder", currSorter.key);
+      setSavedSortOrder(currSorter.key);
+    } else {
+      settings.set("corralTabSortOrder", null);
+      setSavedSortOrder(null);
+    }
   }
 
-  componentWillUnmount() {
-    clearTimeout(this._searchRefFocusTimeout);
-    window.removeEventListener("click", this._handleWindowClick);
-    window.removeEventListener("keypress", this._handleKeypress);
-  }
-
-  _areAllClosedTabsSelected() {
-    const closedTabs = this._getClosedTabs();
-    return (
-      closedTabs.length > 0 &&
-      closedTabs.every((tab) => this.state.selectedTabs.has(serializeTab(tab)))
-    );
-  }
-
-  _clearFilter = () => {
-    this._setFilter("");
-  };
-
-  _clickSorter(sorter: Sorter, event: React.MouseEvent<HTMLElement>) {
+  function handleClickSorter(sorter: Sorter, event: React.MouseEvent<HTMLElement>) {
     // The dropdown wraps items in bogus `<a href="#">` elements in order to match Bootstrap's
     // style. Prevent default on the event in order to prevent scrolling to the top of the window
     // (the default action for an empty anchor "#").
     event.preventDefault();
 
-    if (sorter === this.state.sorter) {
+    if (sorter === currSorter) {
       // If this is already the active sorter, close the dropdown and do no work since the state is
       // already correct.
-      this.setState({ isSortDropdownOpen: false });
+      setIsSortDropdownOpen(false);
     } else {
       // When the saved sort order is not null then the user wants to preserve it. Update to the
       // new sort order and persist it.
@@ -256,60 +305,49 @@ class CorralTab extends React.Component<Props, State> {
         settings.set("corralTabSortOrder", sorter.key);
       }
 
-      this.setState({
-        isSortDropdownOpen: false,
-        sorter,
-      });
+      setIsSortDropdownOpen(false);
+      setCurrSorter(sorter);
     }
   }
 
-  _getClosedTabs() {
-    const filteredTabs = this._searchTabs();
-    return filteredTabs.sort(this.state.sorter.sort);
+  async function handleRemoveSelectedTabs() {
+    await removeSavedTabs(closedTabs.filter((tab) => selectedTabs.has(serializeTab(tab))));
+    setSelectedTabs(new Set());
   }
 
-  _handleChangeSaveSortOrder = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      settings.set("corralTabSortOrder", this.state.sorter.key);
-      this.setState({ savedSortOrder: this.state.sorter.key });
-    } else {
-      settings.set("corralTabSortOrder", null);
-      this.setState({ savedSortOrder: null });
-    }
-  };
+  async function handleOpenTab(tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) {
+    await unwrangleTabs([{ session, tab }]);
+    const nextSelectedTabs = new Set(selectedTabs);
+    nextSelectedTabs.delete(serializeTab(tab));
+    setSelectedTabs(nextSelectedTabs);
+  }
 
-  _handleKeypress = (event: KeyboardEvent) => {
-    if (event.key !== "/") return;
+  async function handleOpenSelectedTabs() {
+    await unwrangleTabs(
+      closedTabs
+        .filter((tab) => selectedTabs.has(serializeTab(tab)))
+        .map((tab) => ({
+          session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
+          tab,
+        }))
+    );
+    setSelectedTabs(new Set());
+  }
 
-    // Focus and prevent default only if the input is not already active. This way the intial act of
-    // focusing does not print a '/' character, but if the input is already active then '/' can be
-    // typed.
-    if (this._searchRef != null && document.activeElement !== this._searchRef) {
-      this._searchRef.focus();
-      event.preventDefault();
-    }
-  };
+  async function handleRemoveTab(tab: chrome.tabs.Tab) {
+    await removeSavedTabs([tab]);
+    const nextSelectedTabs = new Set(selectedTabs);
+    nextSelectedTabs.delete(serializeTab(tab));
+    setSelectedTabs(nextSelectedTabs);
+  }
 
-  _handleRemoveSelectedTabs = () => {
-    const closedTabs = this._getClosedTabs();
-    const tabs = closedTabs.filter((tab) => this.state.selectedTabs.has(serializeTab(tab)));
-    this.props.dispatch(removeSavedTabs(tabs));
-    this.setState({ selectedTabs: new Set() });
-  };
-
-  _handleRemoveTab = (tab: chrome.tabs.Tab) => {
-    this.props.dispatch(removeSavedTabs([tab]));
-    this.state.selectedTabs.delete(serializeTab(tab));
-    this.forceUpdate();
-  };
-
-  _handleToggleTab = (tab: chrome.tabs.Tab, isSelected: boolean, multiselect: boolean) => {
+  function handleToggleTab(tab: chrome.tabs.Tab, isSelected: boolean, multiselect: boolean) {
     // If this is a multiselect (done by holding the Shift key and clicking), see if the last
     // selected tab is still visible and, if it is, toggle all tabs between it and this new clicked
     // tab.
-    if (multiselect && this._lastSelectedTab != null) {
-      const closedTabs = this._getClosedTabs();
-      const lastSelectedTabIndex = closedTabs.indexOf(this._lastSelectedTab);
+    const nextSelectedTabs = new Set(selectedTabs);
+    if (multiselect && lastSelectedTabRef.current != null) {
+      const lastSelectedTabIndex = closedTabs.indexOf(lastSelectedTabRef.current);
       if (lastSelectedTabIndex >= 0) {
         const tabIndex = closedTabs.indexOf(tab);
         for (
@@ -318,268 +356,224 @@ class CorralTab extends React.Component<Props, State> {
           i++
         ) {
           if (isSelected) {
-            this.state.selectedTabs.add(serializeTab(closedTabs[i]));
+            nextSelectedTabs.add(serializeTab(closedTabs[i]));
           } else {
-            this.state.selectedTabs.delete(serializeTab(closedTabs[i]));
+            nextSelectedTabs.delete(serializeTab(closedTabs[i]));
           }
         }
       }
     } else {
       if (isSelected) {
-        this.state.selectedTabs.add(serializeTab(tab));
+        nextSelectedTabs.add(serializeTab(tab));
       } else {
-        this.state.selectedTabs.delete(serializeTab(tab));
+        nextSelectedTabs.delete(serializeTab(tab));
       }
     }
 
-    this._lastSelectedTab = tab;
-    this.forceUpdate();
-  };
+    lastSelectedTabRef.current = tab;
+    setSelectedTabs(nextSelectedTabs);
+  }
 
-  _handleRestoreSelectedTabs = () => {
-    const closedTabs = this._getClosedTabs();
-    const sessionTabs = closedTabs
-      .filter((tab) => this.state.selectedTabs.has(serializeTab(tab)))
-      .map((tab) => ({
-        session: this.props.sessions.find((session) => sessionFuzzyMatchesTab(session, tab)),
-        tab,
-      }));
-
-    this.props.dispatch({ sessionTabs, type: "UNWRANGLE_TABS_ALIAS" });
-    this.setState({ selectedTabs: new Set() });
-  };
-
-  _handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const filter = event.target.value;
-    this._setFilter(filter);
-  };
-
-  _handleWindowClick = (event: MouseEvent) => {
-    if (
-      this.state.isSortDropdownOpen &&
-      this._dropdownRef != null &&
-      event.target instanceof Node &&
-      !this._dropdownRef.contains(event.target)
-    ) {
-      this.setState({ isSortDropdownOpen: false });
+  function toggleAllTabs() {
+    let nextSelectedTabs: Set<string>;
+    if (areAllClosedTabsSelected) {
+      nextSelectedTabs = new Set(selectedTabs);
+      closedTabs.forEach((tab) => {
+        nextSelectedTabs.delete(serializeTab(tab));
+      });
+    } else {
+      nextSelectedTabs = new Set(closedTabs.map(serializeTab));
     }
-  };
 
-  openTab = (tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) => {
-    this.props.dispatch({ sessionTabs: [{ session, tab }], type: "UNWRANGLE_TABS_ALIAS" });
-    this.state.selectedTabs.delete(serializeTab(tab));
-    this.forceUpdate();
-  };
+    lastSelectedTabRef.current = null;
+    setSelectedTabs(nextSelectedTabs);
+  }
 
-  _renderNoRows = () => {
+  function renderNoRows() {
     return (
       <div aria-label="row" className="ReactVirtualized__Table__row" role="row">
         <div
           className="ReactVirtualized__Table__rowColumn text-center"
           style={{ flex: 1, padding: "8px" }}
         >
-          {this.props.savedTabs.length === 0
+          {localStorageData == null ||
+          !("savedTabs" in localStorageData) ||
+          localStorageData.savedTabs.length === 0
             ? chrome.i18n.getMessage("corral_emptyList")
             : chrome.i18n.getMessage("corral_noTabsMatch")}
         </div>
       </div>
     );
-  };
-
-  _searchTabs(): Array<chrome.tabs.Tab> {
-    return this.props.savedTabs.filter(keywordFilter(this.state.filter));
   }
 
-  _setFilter(filter: string): void {
-    this.setState({ filter });
-  }
-
-  _toggleAllTabs = () => {
-    const closedTabs = this._getClosedTabs();
-    let selectedTabs;
-    if (this._areAllClosedTabsSelected()) {
-      selectedTabs = this.state.selectedTabs;
-      closedTabs.forEach((tab) => this.state.selectedTabs.delete(serializeTab(tab)));
-    } else {
-      selectedTabs = new Set(closedTabs.map(serializeTab));
-    }
-
-    this._lastSelectedTab = null;
-    this.setState({
-      selectedTabs,
-    });
-  };
-
-  _toggleSortDropdown = () => {
-    this.setState({ isSortDropdownOpen: !this.state.isSortDropdownOpen });
-  };
-
-  render() {
-    const closedTabs = this._getClosedTabs();
-    const areAllClosedTabsSelected = this._areAllClosedTabsSelected();
-    const { totalTabsRemoved, totalTabsWrangled } = this.props;
-    const hasVisibleSelectedTabs = closedTabs.some((tab) =>
-      this.state.selectedTabs.has(serializeTab(tab))
-    );
-    const percentClosed =
-      totalTabsRemoved === 0 ? 0 : Math.trunc((totalTabsWrangled / totalTabsRemoved) * 100);
-
-    return (
-      <div className="tab-pane active">
-        <div className="row mb-1">
-          <form className="form-search col">
-            <div className="form-group mb-0">
-              <input
-                className="form-control"
-                name="search"
-                onChange={this._handleSearchChange}
-                placeholder={chrome.i18n.getMessage("corral_searchTabs")}
-                ref={(_searchRef: HTMLElement | null) => {
-                  this._searchRef = _searchRef;
-                }}
-                type="search"
-                value={this.state.filter}
-              />
-            </div>
-          </form>
-          <div className="col text-right" style={{ lineHeight: "30px" }}>
-            {chrome.i18n.getMessage("corral_tabsWrangledFull", [
-              String(totalTabsWrangled),
-              String(percentClosed),
-            ])}
-          </div>
-        </div>
-
-        <div className="corral-tab--control-bar py-2 border-bottom">
-          <div>
-            <button
-              className="btn btn-outline-dark btn-sm"
-              disabled={closedTabs.length === 0}
-              onClick={this._toggleAllTabs}
-              title={
-                areAllClosedTabsSelected
-                  ? chrome.i18n.getMessage("corral_toggleAllTabs_deselectAll")
-                  : chrome.i18n.getMessage("corral_toggleAllTabs_selectAll")
-              }
-            >
-              <input
-                checked={areAllClosedTabsSelected}
-                readOnly
-                style={{ margin: 0 }}
-                type="checkbox"
-              />
-            </button>
-            {hasVisibleSelectedTabs ? (
-              <>
-                <button
-                  className="btn btn-outline-dark btn-sm ml-1 px-3"
-                  onClick={this._handleRemoveSelectedTabs}
-                  title={chrome.i18n.getMessage("corral_removeSelectedTabs")}
-                  type="button"
-                >
-                  <span className="sr-only">
-                    {chrome.i18n.getMessage("corral_removeSelectedTabs")}
-                  </span>
-                  <i className="fas fa-trash-alt" />
-                </button>
-                <button
-                  className="btn btn-outline-dark btn-sm ml-1 px-3"
-                  onClick={this._handleRestoreSelectedTabs}
-                  title={chrome.i18n.getMessage("corral_restoreSelectedTabs")}
-                  type="button"
-                >
-                  <span className="sr-only">
-                    {chrome.i18n.getMessage("corral_removeSelectedTabs")}
-                  </span>
-                  <i className="fas fa-external-link-alt" />
-                </button>
-              </>
-            ) : null}
-          </div>
-          <div className="d-flex">
-            {this.state.filter.length > 0 ? (
-              <span
-                className={"badge badge-pill badge-primary d-flex align-items-center px-2 mr-1"}
-              >
-                {chrome.i18n.getMessage("corral_searchResults_label", `${closedTabs.length}`)}
-                <button
-                  className="close close-xs ml-1"
-                  onClick={this._clearFilter}
-                  style={{ marginTop: "-2px" }}
-                  title={chrome.i18n.getMessage("corral_searchResults_clear")}
-                >
-                  &times;
-                </button>
-              </span>
-            ) : null}
-            <div
-              className="dropdown"
-              ref={(dropdown) => {
-                this._dropdownRef = dropdown;
+  return (
+    <div className="tab-pane active">
+      <div className="row mb-1">
+        <form className="form-search col">
+          <div className="form-group mb-0">
+            <input
+              className="form-control"
+              name="search"
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setFilter(event.target.value);
               }}
-            >
+              placeholder={chrome.i18n.getMessage("corral_searchTabs")}
+              ref={(nextSearchRef: HTMLElement | null) => {
+                searchRef.current = nextSearchRef;
+              }}
+              type="search"
+              value={filter}
+            />
+          </div>
+        </form>
+        <div className="col text-right" style={{ lineHeight: "30px" }}>
+          {chrome.i18n.getMessage("corral_tabsWrangledFull", [
+            String(
+              localStorageData == null || !("totalTabsWrangled" in localStorageData)
+                ? 0
+                : localStorageData.totalTabsWrangled
+            ),
+            String(percentClosed),
+          ])}
+        </div>
+      </div>
+
+      <div className="corral-tab--control-bar py-2 border-bottom">
+        <div>
+          <button
+            className="btn btn-outline-dark btn-sm"
+            disabled={closedTabs.length === 0}
+            onClick={toggleAllTabs}
+            title={
+              areAllClosedTabsSelected
+                ? chrome.i18n.getMessage("corral_toggleAllTabs_deselectAll")
+                : chrome.i18n.getMessage("corral_toggleAllTabs_selectAll")
+            }
+          >
+            <input
+              checked={areAllClosedTabsSelected}
+              readOnly
+              style={{ margin: 0 }}
+              type="checkbox"
+            />
+          </button>
+          {hasVisibleSelectedTabs ? (
+            <>
               <button
-                aria-haspopup="true"
-                className="btn btn-outline-dark btn-sm"
-                id="sort-dropdown"
-                onClick={this._toggleSortDropdown}
-                title={chrome.i18n.getMessage("corral_currentSort", this.state.sorter.label())}
+                className="btn btn-outline-dark btn-sm ml-1 px-3"
+                onClick={handleRemoveSelectedTabs}
+                title={chrome.i18n.getMessage("corral_removeSelectedTabs")}
+                type="button"
               >
-                <span>{chrome.i18n.getMessage("corral_sortBy")}</span>{" "}
-                <span>{this.state.sorter.shortLabel()}</span> <i className="fas fa-caret-down" />
+                <span className="sr-only">
+                  {chrome.i18n.getMessage("corral_removeSelectedTabs")}
+                </span>
+                <i className="fas fa-trash-alt" />
               </button>
-              <div
-                aria-labelledby="sort-dropdown"
-                className={cx("dropdown-menu dropdown-menu-right shadow-sm", {
-                  show: this.state.isSortDropdownOpen,
-                })}
+              <button
+                className="btn btn-outline-dark btn-sm ml-1 px-3"
+                onClick={handleOpenSelectedTabs}
+                title={chrome.i18n.getMessage("corral_restoreSelectedTabs")}
+                type="button"
               >
-                {Sorters.map((sorter) => (
-                  <a
-                    className={cx("dropdown-item", { active: this.state.sorter === sorter })}
-                    href="#"
-                    key={sorter.label()}
-                    onClick={this._clickSorter.bind(this, sorter)}
-                  >
-                    {sorter.label()}
-                  </a>
-                ))}
-                <div className="dropdown-divider" />
-                <form className="px-4 pb-1">
-                  <div className="form-group mb-0">
-                    <div className="form-check">
-                      <input
-                        checked={this.state.savedSortOrder != null}
-                        className="form-check-input"
-                        id="corral-tab--save-sort-order"
-                        onChange={this._handleChangeSaveSortOrder}
-                        type="checkbox"
-                      />
-                      <label className="form-check-label" htmlFor="corral-tab--save-sort-order">
-                        {chrome.i18n.getMessage("options_option_saveSortOrder")}
-                      </label>
-                    </div>
+                <span className="sr-only">
+                  {chrome.i18n.getMessage("corral_removeSelectedTabs")}
+                </span>
+                <i className="fas fa-external-link-alt" />
+              </button>
+            </>
+          ) : null}
+        </div>
+        <div className="d-flex">
+          {filter.length > 0 ? (
+            <span className={"badge badge-pill badge-primary d-flex align-items-center px-2 mr-1"}>
+              {chrome.i18n.getMessage("corral_searchResults_label", `${closedTabs.length}`)}
+              <button
+                className="close close-xs ml-1"
+                onClick={() => {
+                  setFilter("");
+                }}
+                style={{ marginTop: "-2px" }}
+                title={chrome.i18n.getMessage("corral_searchResults_clear")}
+              >
+                &times;
+              </button>
+            </span>
+          ) : null}
+          <div
+            className="dropdown"
+            ref={(dropdown) => {
+              dropdownRef.current = dropdown;
+            }}
+          >
+            <button
+              aria-haspopup="true"
+              className="btn btn-outline-dark btn-sm"
+              id="sort-dropdown"
+              onClick={toggleSortDropdown}
+              title={chrome.i18n.getMessage("corral_currentSort", currSorter.label())}
+            >
+              <span>{chrome.i18n.getMessage("corral_sortBy")}</span>{" "}
+              <span>{currSorter.shortLabel()}</span> <i className="fas fa-caret-down" />
+            </button>
+            <div
+              aria-labelledby="sort-dropdown"
+              className={cx("dropdown-menu dropdown-menu-right shadow-sm", {
+                show: isSortDropdownOpen,
+              })}
+            >
+              {Sorters.map((sorter) => (
+                <a
+                  className={cx("dropdown-item", { active: currSorter === sorter })}
+                  href="#"
+                  key={sorter.label()}
+                  onClick={(event) => {
+                    handleClickSorter(sorter, event);
+                  }}
+                >
+                  {sorter.label()}
+                </a>
+              ))}
+              <div className="dropdown-divider" />
+              <form className="px-4 pb-1">
+                <div className="form-group mb-0">
+                  <div className="form-check">
+                    <input
+                      checked={savedSortOrder != null}
+                      className="form-check-input"
+                      id="corral-tab--save-sort-order"
+                      onChange={handleChangeSaveSortOrder}
+                      type="checkbox"
+                    />
+                    <label className="form-check-label" htmlFor="corral-tab--save-sort-order">
+                      {chrome.i18n.getMessage("options_option_saveSortOrder")}
+                    </label>
                   </div>
-                </form>
-              </div>
+                </div>
+              </form>
             </div>
           </div>
         </div>
+      </div>
 
-        <WindowScroller>
-          {({ height, isScrolling, onChildScroll, scrollTop }: WindowScrollerChildProps) => (
-            <Table
-              autoHeight
-              className="table table-hover"
-              headerHeight={0}
-              height={height}
-              isScrolling={isScrolling}
-              noRowsRenderer={this._renderNoRows}
-              onScroll={onChildScroll}
-              rowCount={closedTabs.length}
-              rowGetter={({ index }: { index: number }) => {
-                const tab = closedTabs[index];
-
+      <WindowScroller>
+        {({ height, isScrolling, onChildScroll, scrollTop }: WindowScrollerChildProps) => (
+          <Table
+            autoHeight
+            className="table table-hover"
+            headerHeight={0}
+            height={height}
+            isScrolling={isScrolling}
+            noRowsRenderer={renderNoRows}
+            onScroll={onChildScroll}
+            rowCount={closedTabs.length}
+            rowGetter={({ index }: { index: number }) => {
+              const tab = closedTabs[index];
+              return {
+                isSelected: selectedTabs.has(serializeTab(tab)),
+                onOpenTab: handleOpenTab,
+                onRemoveTab: handleRemoveTab,
+                onToggleTab: handleToggleTab,
                 // The Chrome extension API claims [`getRecentlyClosed`][0] always returns an
                 // Array<chrome.sessions.Session>, but in at least one case a user is getting an
                 // exception where `this.props.sessions` is null. Because it's safe to continue
@@ -587,40 +581,20 @@ class CorralTab extends React.Component<Props, State> {
                 // is eventually found.
                 //
                 // See https://github.com/tabwrangler/tabwrangler/issues/275
-                const session =
-                  this.props.sessions == null
-                    ? null
-                    : this.props.sessions.find((session) => sessionFuzzyMatchesTab(session, tab));
-
-                return {
-                  isSelected: this.state.selectedTabs.has(serializeTab(tab)),
-                  onOpenTab: this.openTab,
-                  onRemoveTab: this._handleRemoveTab,
-                  onToggleTab: this._handleToggleTab,
-                  session,
-                  tab,
-                };
-              }}
-              rowHeight={38}
-              rowRenderer={rowRenderer}
-              scrollTop={scrollTop}
-              tabIndex={null}
-              width={670}
-            />
-          )}
-        </WindowScroller>
-      </div>
-    );
-  }
+                session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
+                tab,
+              };
+            }}
+            rowHeight={38}
+            rowRenderer={rowRenderer}
+            scrollTop={scrollTop}
+            tabIndex={null}
+            width={670}
+          />
+        )}
+      </WindowScroller>
+    </div>
+  );
 }
-
-export default connect((state: AppState) => ({
-  savedTabs: state.localStorage.savedTabs,
-  sessions: state.tempStorage.sessions,
-  totalTabsRemoved: state.localStorage.totalTabsRemoved,
-  totalTabsWrangled: state.localStorage.totalTabsWrangled,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore:next-line
-}))(CorralTab);
 
 // [0]: https://developer.chrome.com/extensions/sessions#method-getRecentlyClosed

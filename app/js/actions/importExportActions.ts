@@ -66,7 +66,7 @@ function importData(
  * `savedTabs` is acquired by reading it directly from the Store.
  */
 function exportData(): (dispatch: Dispatch, getState: GetState) => Promise<unknown> {
-  return function (_dispatch: Dispatch, getState: GetState): Promise<unknown> {
+  return function (dispatch: Dispatch, getState: GetState): Promise<unknown> {
     const { localStorage } = getState();
     const exportObject = {
       savedTabs: localStorage.savedTabs,

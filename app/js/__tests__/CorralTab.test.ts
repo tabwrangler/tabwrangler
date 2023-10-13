@@ -1,7 +1,33 @@
 import { sessionFuzzyMatchesTab } from "../CorralTab";
 
 beforeAll(() => {
-  jest.clearAllMocks();
+  window.chrome = {
+    extension: {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore:next-line
+      getBackgroundPage: () => {
+        return {
+          TW: { store: {} },
+        };
+      },
+    },
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore:next-line
+    i18n: {
+      getMessage() {
+        return "";
+      },
+      getUILanguage() {
+        return "";
+      },
+    },
+  };
+});
+
+afterAll(() => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore:next-line
+  window.chrome = {};
 });
 
 describe("sessionFuzzyMatchesTab", () => {

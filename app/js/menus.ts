@@ -1,106 +1,89 @@
-import TabManager from "./tabmanager";
 import settings from "./settings";
+import tabmanager from "./tabmanager";
 
 function getDomain(url: string): string | null {
   const match = url.match(/[^:]+:\/\/([^/]+)\//);
   return match == null ? null : match[1];
 }
 
-export default class Menus {
-  tabManager: TabManager | undefined;
+/**
+ * Creates and updates context menus and page action menus.
+ */
+const Menus = {
+  lockDomainId: null as number | string | null,
+  lockTabId: null as number | string | null,
 
-  // Note: intended to be called only once, which is why this function is static. Context menus
-  // should be once when the extension is installed.
-  static install() {
-    chrome.contextMenus.create({
-      id: "corralTab",
-      title: chrome.i18n.getMessage("contextMenu_corralTab"),
-      type: "normal",
-    });
-    chrome.contextMenus.create({ id: "separator", type: "separator" });
-    chrome.contextMenus.create({
-      id: "lockTab",
-      title: chrome.i18n.getMessage("contextMenu_lockTab"),
-      type: "checkbox",
-    });
-    chrome.contextMenus.create({
-      id: "lockDomain",
-      title: chrome.i18n.getMessage("contextMenu_lockDomain"),
-      type: "checkbox",
-    });
-  }
+  pageSpecificActions: {
+    lockTab(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
+      if (selectedTab.id == null) return;
+      tabmanager.lockTab(selectedTab.id);
+    },
 
-  constructor() {
-    chrome.contextMenus.onClicked.addListener(this.onClicked.bind(this));
-  }
+    lockDomain(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
+      // Chrome tabs don't necessarily have URLs. In those cases there is no domain to lock.
+      if (selectedTab.url == null) return;
 
-  corralTab(_onClickData: unknown, tab?: chrome.tabs.Tab | undefined) {
-    if (this.tabManager == null || tab == null) return;
-    this.tabManager.wrangleTabs([tab]);
-  }
-
-  lockTab(_onClickData: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab | undefined) {
-    if (tab?.id == null) return;
-    settings.lockTab(tab.id);
-  }
-
-  lockDomain({ wasChecked }: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab | undefined) {
-    // Tabs don't necessarily have URLs. In those cases there is no domain to lock.
-    if (tab?.url == null) return;
-
-    // If the URL doesn't match our regexp for discovering the domain, do nothing because we have no
-    // domain to lock.
-    const domain = getDomain(tab.url);
-    if (domain == null) return;
-
-    const whitelist = settings.get<Array<string>>("whitelist");
-    if (wasChecked) {
-      settings.set(
-        "whitelist",
-        whitelist.filter((d) => d !== domain)
-      );
-    } else {
-      settings.set("whitelist", [...whitelist, domain]);
-    }
-  }
-
-  onClicked(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab | undefined) {
-    switch (info.menuItemId) {
-      case "corralTab":
-        this.corralTab(info, tab);
-        break;
-      case "lockDomain":
-        this.lockDomain(info, tab);
-        break;
-      case "lockTab":
-        this.lockTab(info, tab);
-        break;
-      default:
-        // No-op, no known item was clicked so there is nothing to do.
-        break;
-    }
-  }
-
-  setTabManager(tabManager: TabManager) {
-    this.tabManager = tabManager;
-  }
-
-  updateContextMenus(tabId: number) {
-    chrome.tabs.get(tabId, (tab) => {
-      // Sets the title again for each page.
-      if (tab.url == null) return;
-      const currentDomain = getDomain(tab.url);
-      if (currentDomain == null) return;
+      // If the URL doesn't match our bulletproof regexp for discovering the domain, do nothing
+      // because we have no domain to lock.
+      const domain = getDomain(selectedTab.url);
+      if (domain == null) return;
 
       const whitelist = settings.get<Array<string>>("whitelist");
-      chrome.contextMenus.update("lockDomain", {
-        checked: whitelist.includes(currentDomain),
-        title: chrome.i18n.getMessage("contextMenu_lockSpecificDomain", currentDomain) || "",
+      whitelist.push(domain);
+      settings.set("whitelist", whitelist);
+    },
+
+    corralTab(_onClickData: unknown, selectedTab: chrome.tabs.Tab) {
+      tabmanager.closedTabs.wrangleTabs([selectedTab]);
+    },
+  },
+
+  createContextMenus() {
+    const lockTab: chrome.contextMenus.CreateProperties = {
+      type: "checkbox",
+      title: chrome.i18n.getMessage("contextMenu_lockTab") || "",
+      onclick: this.pageSpecificActions["lockTab"],
+    };
+
+    const lockDomain: chrome.contextMenus.CreateProperties = {
+      type: "checkbox",
+      title: chrome.i18n.getMessage("contextMenu_lockDomain") || "",
+      onclick: this.pageSpecificActions["lockDomain"],
+    };
+
+    const corralTab: chrome.contextMenus.CreateProperties = {
+      type: "normal",
+      title: chrome.i18n.getMessage("contextMenu_corralTab") || "",
+      onclick: this.pageSpecificActions["corralTab"],
+    };
+
+    this.lockTabId = chrome.contextMenus.create(lockTab);
+    this.lockDomainId = chrome.contextMenus.create(lockDomain);
+    chrome.contextMenus.create(corralTab);
+  },
+
+  updateContextMenus(tabId: number) {
+    // Little bit of a kludge, would be nice to be DRY here but this was simpler.
+    // Sets the title again for each page.
+    const { lockDomainId } = this;
+    if (lockDomainId != null)
+      chrome.tabs.get(tabId, function (tab) {
+        try {
+          if (tab.url == null) return;
+          const currentDomain = getDomain(tab.url);
+          if (currentDomain == null) return;
+          chrome.contextMenus.update(Number(lockDomainId), {
+            title: chrome.i18n.getMessage("contextMenu_lockSpecificDomain", currentDomain) || "",
+          });
+        } catch (e) {
+          console.log(tab, "Error in updating menu");
+          throw e;
+        }
       });
 
-      chrome.contextMenus.update("lockTab", {
-        checked: settings.isTabLocked(tab),
-      });
-    });
-  }
-}
+    if (this.lockTabId != null)
+      chrome.contextMenus.update(Number(this.lockTabId), { checked: tabmanager.isLocked(tabId) });
+  },
+};
+
+export default Menus;

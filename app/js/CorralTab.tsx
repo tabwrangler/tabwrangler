@@ -1,14 +1,15 @@
 import "./CorralTab.scss";
 import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
-import { extractHostname, extractRootDomain, serializeTab } from "./util";
 import { AppState } from "./Types";
 import ClosedTabRow from "./ClosedTabRow";
 import type { Dispatch } from "./Types";
 import { connect } from "react-redux";
 import cx from "classnames";
+import extractHostname from "./extractHostname";
+import extractRootDomain from "./extractRootDomain";
+import { getTW } from "./util";
 import { removeSavedTabs } from "./actions/localStorageActions";
-import settings from "./settings";
 
 function keywordFilter(keyword: string) {
   return function (tab: chrome.tabs.Tab) {
@@ -54,7 +55,8 @@ const ChronoSorter: Sorter = {
     if (tabA == null || tabB == null) {
       return 0;
     } else {
-      // @ts-expect-error `closedAt` is a TW expando property on tabs
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      /* @ts-ignore:next-line `closedAt` is an expando property added by Tab Wrangler */
       return tabA.closedAt - tabB.closedAt;
     }
   },
@@ -132,7 +134,8 @@ export function sessionFuzzyMatchesTab(
     session.tab.url === tab.url &&
     // Ensure the browser's last modified time is within 1s of Tab Wrangler's close to as a fuzzy,
     // but likely always correct, match.
-    // @ts-expect-error `closedAt` is a TW expando property on tabs
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    /* @ts-ignore:next-line `closedAt` is an expando property added by Tab Wrangler */
     Math.abs(lastModifiedMs - tab.closedAt) < 1000
   );
 }
@@ -179,7 +182,7 @@ type State = {
   filter: string;
   isSortDropdownOpen: boolean;
   savedSortOrder: string | null;
-  selectedTabs: Set<string>;
+  selectedTabs: Set<chrome.tabs.Tab>;
   sorter: Sorter;
 };
 
@@ -191,7 +194,7 @@ class CorralTab extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const savedSortOrder = settings.get<string>("corralTabSortOrder");
+    const savedSortOrder = getTW().settings.get<string>("corralTabSortOrder");
     let sorter =
       savedSortOrder == null
         ? DEFAULT_SORTER
@@ -229,10 +232,7 @@ class CorralTab extends React.Component<Props, State> {
 
   _areAllClosedTabsSelected() {
     const closedTabs = this._getClosedTabs();
-    return (
-      closedTabs.length > 0 &&
-      closedTabs.every((tab) => this.state.selectedTabs.has(serializeTab(tab)))
-    );
+    return closedTabs.length > 0 && closedTabs.every((tab) => this.state.selectedTabs.has(tab));
   }
 
   _clearFilter = () => {
@@ -252,8 +252,8 @@ class CorralTab extends React.Component<Props, State> {
     } else {
       // When the saved sort order is not null then the user wants to preserve it. Update to the
       // new sort order and persist it.
-      if (settings.get("corralTabSortOrder") != null) {
-        settings.set("corralTabSortOrder", sorter.key);
+      if (getTW().settings.get("corralTabSortOrder") != null) {
+        getTW().settings.set("corralTabSortOrder", sorter.key);
       }
 
       this.setState({
@@ -270,10 +270,10 @@ class CorralTab extends React.Component<Props, State> {
 
   _handleChangeSaveSortOrder = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      settings.set("corralTabSortOrder", this.state.sorter.key);
+      getTW().settings.set("corralTabSortOrder", this.state.sorter.key);
       this.setState({ savedSortOrder: this.state.sorter.key });
     } else {
-      settings.set("corralTabSortOrder", null);
+      getTW().settings.set("corralTabSortOrder", null);
       this.setState({ savedSortOrder: null });
     }
   };
@@ -292,14 +292,14 @@ class CorralTab extends React.Component<Props, State> {
 
   _handleRemoveSelectedTabs = () => {
     const closedTabs = this._getClosedTabs();
-    const tabs = closedTabs.filter((tab) => this.state.selectedTabs.has(serializeTab(tab)));
+    const tabs = closedTabs.filter((tab) => this.state.selectedTabs.has(tab));
     this.props.dispatch(removeSavedTabs(tabs));
     this.setState({ selectedTabs: new Set() });
   };
 
   _handleRemoveTab = (tab: chrome.tabs.Tab) => {
     this.props.dispatch(removeSavedTabs([tab]));
-    this.state.selectedTabs.delete(serializeTab(tab));
+    this.state.selectedTabs.delete(tab);
     this.forceUpdate();
   };
 
@@ -318,17 +318,17 @@ class CorralTab extends React.Component<Props, State> {
           i++
         ) {
           if (isSelected) {
-            this.state.selectedTabs.add(serializeTab(closedTabs[i]));
+            this.state.selectedTabs.add(closedTabs[i]);
           } else {
-            this.state.selectedTabs.delete(serializeTab(closedTabs[i]));
+            this.state.selectedTabs.delete(closedTabs[i]);
           }
         }
       }
     } else {
       if (isSelected) {
-        this.state.selectedTabs.add(serializeTab(tab));
+        this.state.selectedTabs.add(tab);
       } else {
-        this.state.selectedTabs.delete(serializeTab(tab));
+        this.state.selectedTabs.delete(tab);
       }
     }
 
@@ -339,13 +339,13 @@ class CorralTab extends React.Component<Props, State> {
   _handleRestoreSelectedTabs = () => {
     const closedTabs = this._getClosedTabs();
     const sessionTabs = closedTabs
-      .filter((tab) => this.state.selectedTabs.has(serializeTab(tab)))
+      .filter((tab) => this.state.selectedTabs.has(tab))
       .map((tab) => ({
         session: this.props.sessions.find((session) => sessionFuzzyMatchesTab(session, tab)),
         tab,
       }));
 
-    this.props.dispatch({ sessionTabs, type: "UNWRANGLE_TABS_ALIAS" });
+    getTW().tabmanager.closedTabs.unwrangleTabs(sessionTabs);
     this.setState({ selectedTabs: new Set() });
   };
 
@@ -366,8 +366,8 @@ class CorralTab extends React.Component<Props, State> {
   };
 
   openTab = (tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) => {
-    this.props.dispatch({ sessionTabs: [{ session, tab }], type: "UNWRANGLE_TABS_ALIAS" });
-    this.state.selectedTabs.delete(serializeTab(tab));
+    getTW().tabmanager.closedTabs.unwrangleTabs([{ session, tab }]);
+    this.state.selectedTabs.delete(tab);
     this.forceUpdate();
   };
 
@@ -399,9 +399,9 @@ class CorralTab extends React.Component<Props, State> {
     let selectedTabs;
     if (this._areAllClosedTabsSelected()) {
       selectedTabs = this.state.selectedTabs;
-      closedTabs.forEach((tab) => this.state.selectedTabs.delete(serializeTab(tab)));
+      closedTabs.forEach((tab) => this.state.selectedTabs.delete(tab));
     } else {
-      selectedTabs = new Set(closedTabs.map(serializeTab));
+      selectedTabs = new Set(closedTabs);
     }
 
     this._lastSelectedTab = null;
@@ -418,9 +418,7 @@ class CorralTab extends React.Component<Props, State> {
     const closedTabs = this._getClosedTabs();
     const areAllClosedTabsSelected = this._areAllClosedTabsSelected();
     const { totalTabsRemoved, totalTabsWrangled } = this.props;
-    const hasVisibleSelectedTabs = closedTabs.some((tab) =>
-      this.state.selectedTabs.has(serializeTab(tab))
-    );
+    const hasVisibleSelectedTabs = closedTabs.some((tab) => this.state.selectedTabs.has(tab));
     const percentClosed =
       totalTabsRemoved === 0 ? 0 : Math.trunc((totalTabsWrangled / totalTabsRemoved) * 100);
 
@@ -593,7 +591,7 @@ class CorralTab extends React.Component<Props, State> {
                     : this.props.sessions.find((session) => sessionFuzzyMatchesTab(session, tab));
 
                 return {
-                  isSelected: this.state.selectedTabs.has(serializeTab(tab)),
+                  isSelected: this.state.selectedTabs.has(tab),
                   onOpenTab: this.openTab,
                   onRemoveTab: this._handleRemoveTab,
                   onToggleTab: this._handleToggleTab,

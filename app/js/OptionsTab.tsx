@@ -1,7 +1,6 @@
 import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import type { Dispatch, ThemeSettingValue } from "./Types";
-import { exportData, importData } from "./actions/importExportActions";
 import { AppState } from "./Types";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
@@ -9,8 +8,8 @@ import { connect } from "react-redux";
 import cx from "classnames";
 import debounce from "lodash.debounce";
 import { exportFileName } from "./actions/importExportActions";
+import { getTW } from "./util";
 import { setTheme } from "./actions/settingsActions";
-import settings from "./settings";
 
 function isValidPattern(pattern: string) {
   // some other choices such as '/' also do not make sense; not sure if they should be blocked as
@@ -84,7 +83,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   }
 
   handleClickRemovePattern(pattern: string) {
-    const whitelist = settings.get<Array<string>>("whitelist");
+    const whitelist = getTW().settings.get<Array<string>>("whitelist");
     whitelist.splice(whitelist.indexOf(pattern), 1);
     this.saveOption("whitelist", whitelist);
     this.forceUpdate();
@@ -98,7 +97,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
       return;
     }
 
-    const whitelist = settings.get<Array<string>>("whitelist");
+    const whitelist = getTW().settings.get<Array<string>>("whitelist");
 
     // Only add the pattern again if it's new, not yet in the whitelist.
     if (whitelist.indexOf(newPattern) === -1) {
@@ -129,7 +128,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
     }
 
     try {
-      settings.set(key, value);
+      getTW().settings.set(key, value);
       this.setState({
         errors: [],
         saveAlertVisible: true,
@@ -181,7 +180,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   exportData = (event: React.MouseEvent<HTMLButtonElement>) => {
     this.importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_exporting") || "",
-      exportData,
+      getTW().tabmanager.exportData,
       event,
       (blob) => {
         FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
@@ -192,13 +191,13 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
   importData = (event: React.FormEvent<HTMLInputElement>) => {
     this.importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_importing") || "",
-      importData,
+      getTW().tabmanager.importData,
       event
     );
   };
 
   render() {
-    const whitelist = settings.get<Array<string>>("whitelist");
+    const whitelist = getTW().settings.get<Array<string>>("whitelist");
 
     let errorAlert;
     let saveAlert;
@@ -255,7 +254,9 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
         <form>
           <div className="mb-2">
             <div>
-              <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
+              <label htmlFor="theme">
+                <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
+              </label>
             </div>
             <div className="mb-2">
               <div className="btn-group">
@@ -304,7 +305,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             <div className="form-inline">
               <input
                 className="form-control form-control--time"
-                defaultValue={settings.get("minutesInactive")}
+                defaultValue={getTW().settings.get("minutesInactive")}
                 id="minutesInactive"
                 max="7200"
                 min="0"
@@ -316,7 +317,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               <span className="mx-1"> : </span>
               <input
                 className="form-control form-control--time"
-                defaultValue={settings.get("secondsInactive")}
+                defaultValue={getTW().settings.get("secondsInactive")}
                 id="secondsInactive"
                 max="59"
                 min="0"
@@ -339,7 +340,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             <div className="form-inline">
               <input
                 className="form-control form-control--time mr-1"
-                defaultValue={settings.get("minTabs")}
+                defaultValue={getTW().settings.get("minTabs")}
                 id="minTabs"
                 min="0"
                 name="minTabs"
@@ -361,7 +362,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             <div className="form-inline">
               <input
                 className="form-control form-control--time mr-1"
-                defaultValue={settings.get("maxTabs")}
+                defaultValue={getTW().settings.get("maxTabs")}
                 id="maxTabs"
                 min="0"
                 name="maxTabs"
@@ -377,7 +378,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           <div className="form-check mb-1">
             <input
               className="form-check-input"
-              defaultChecked={settings.get("purgeClosedTabs")}
+              defaultChecked={getTW().settings.get("purgeClosedTabs")}
               id="purgeClosedTabs"
               name="purgeClosedTabs"
               onChange={this.handleSettingsChange}
@@ -390,7 +391,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           <div className="form-check mb-1">
             <input
               className="form-check-input"
-              defaultChecked={settings.get("showBadgeCount")}
+              defaultChecked={getTW().settings.get("showBadgeCount")}
               id="showBadgeCount"
               name="showBadgeCount"
               onChange={this.handleSettingsChange}
@@ -403,7 +404,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           <div className="form-check mb-1">
             <input
               className="form-check-input"
-              defaultChecked={settings.get("debounceOnActivated")}
+              defaultChecked={getTW().settings.get("debounceOnActivated")}
               id="debounceOnActivated"
               name="debounceOnActivated"
               onChange={this.handleSettingsChange}
@@ -413,10 +414,10 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
               {chrome.i18n.getMessage("options_option_debounceOnActivated_label")}
             </label>
           </div>
-          <div className={cx("form-check", this.state.showFilterTabGroupsOption ? "mb-1" : "mb-2")}>
+          <div className="form-check mb-2">
             <input
               className="form-check-input"
-              defaultChecked={settings.get("filterAudio")}
+              defaultChecked={getTW().settings.get("filterAudio")}
               id="filterAudio"
               name="filterAudio"
               onChange={this.handleSettingsChange}
@@ -430,7 +431,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
             <div className="form-check mb-2">
               <input
                 className="form-check-input"
-                defaultChecked={settings.get("filterGroupedTabs")}
+                defaultChecked={getTW().settings.get("filterGroupedTabs")}
                 id="filterGroupedTabs"
                 name="filterGroupedTabs"
                 onChange={this.handleSettingsChange}
@@ -443,7 +444,7 @@ class OptionsTab extends React.Component<OptionsTabProps, OptionsTabState> {
           )}
           <TabWrangleOption
             onChange={this.handleSettingsChange}
-            selectedOption={settings.get("wrangleOption")}
+            selectedOption={getTW().settings.get("wrangleOption")}
           />
         </form>
 

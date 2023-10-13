@@ -1,172 +1,53 @@
-import Menus from "./js/menus";
-import TabManager from "./js/tabmanager";
+import { Persistor } from "redux-persist";
+import { Store } from "redux";
 import configureStore from "./js/configureStore";
 import debounce from "lodash.debounce";
-import { removeAllSavedTabs } from "./js/actions/localStorageActions";
+import menus from "./js/menus";
 import settings from "./js/settings";
+import tabmanager from "./js/tabmanager";
+import watch from "redux-watch";
 
-const tabManager = new TabManager();
-const menus = new Menus();
+const checkToClose = function (cutOff: number | null) {
+  try {
+    cutOff = cutOff || new Date().getTime() - settings.get<number>("stayOpen");
+    const minTabs = settings.get<number>("minTabs");
 
-function setPaused(paused: boolean) {
-  if (paused) {
-    chrome.action.setIcon({ path: "img/icon-paused.png" });
-  } else {
-    chrome.action.setIcon({ path: "img/icon.png" });
+    // Tabs which have been locked via the checkbox.
+    const lockedIds = settings.get<Array<number>>("lockedIds");
+    const toCut = tabmanager.getOlderThen(cutOff);
 
-    // The user has just unpaused, immediately set all tabs to the current time so they will not
-    // be closed.
-    chrome.tabs.query(
-      {
-        windowType: "normal",
-      },
-      (tabs) => {
-        tabManager.initTabs(tabs);
-      }
-    );
-  }
-}
+    if (!window.TW.store.getState().settings.paused) {
+      // Update the selected one to make sure it doesn't get closed.
+      chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabmanager.updateLastAccessed);
 
-const debouncedUpdateLastAccessed = debounce(tabManager.updateLastAccessed.bind(tabManager), 1000);
-chrome.runtime.onInstalled.addListener(Menus.install);
-chrome.tabs.onCreated.addListener(tabManager.onNewTab.bind(tabManager));
-chrome.tabs.onRemoved.addListener(tabManager.removeTab.bind(tabManager));
-chrome.tabs.onReplaced.addListener(tabManager.replaceTab.bind(tabManager));
-chrome.tabs.onActivated.addListener(function (tabInfo) {
-  menus.updateContextMenus(tabInfo.tabId);
-
-  if (settings.get("debounceOnActivated")) {
-    debouncedUpdateLastAccessed(tabInfo.tabId);
-  } else {
-    tabManager.updateLastAccessed(tabInfo.tabId);
-  }
-});
-
-chrome.commands.onCommand.addListener((command) => {
-  switch (command) {
-    case "lock-unlock-active-tab":
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        settings.toggleTabs(tabs);
-      });
-      break;
-    case "wrangle-current-tab":
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        tabManager.wrangleTabs(tabs);
-      });
-      break;
-    default:
-      break;
-  }
-});
-
-chrome.storage.onChanged.addListener((changes, areaName) => {
-  switch (areaName) {
-    case "local": {
-      if (changes.savedTabs) {
-        tabManager.updateClosedCount();
-      }
-      break;
-    }
-
-    case "sync": {
-      if (changes.minutesInactive || changes.secondsInactive) {
-        // Reset stored `tabTimes` because setting was changed otherwise old times may exceed new
-        // setting value.
-        tabManager.resetTabTimes();
+      if (settings.get("filterAudio") === true) {
+        chrome.tabs.query({ audible: true }, tabmanager.updateLastAccessed);
       }
 
-      if (changes["persist:settings"]) {
-        if (
-          changes["persist:settings"].newValue.paused !==
-          changes["persist:settings"].oldValue?.paused
-        ) {
-          setPaused(changes["persist:settings"].newValue.paused);
-        }
-      }
-
-      if (changes.showBadgeCount) {
-        tabManager.updateClosedCount(changes.showBadgeCount.newValue);
-      }
-      break;
-    }
-  }
-});
-
-function closeTabs(tabs: chrome.tabs.Tab[]) {
-  tabManager.wrangleTabs(
-    tabs.filter(
-      (tab) =>
-        !(
-          true === tab.pinned ||
-          (settings.get("filterAudio") && tab.audible) ||
-          (tab.url != null && settings.isWhitelisted(tab.url))
-        )
-    )
-  );
-}
-
-async function startup() {
-  // Load settings before proceeding; Settings reads from async browser storage.
-  await settings.init();
-
-  // Rehydrate store before proceeding; Store reads from async browser storage.
-  const { store } = await new Promise<ReturnType<typeof configureStore>>((resolve) => {
-    const storeConfig = configureStore(() => resolve(storeConfig));
-  });
-
-  tabManager.setStore(store);
-  menus.setTabManager(tabManager);
-
-  async function checkToClose(cutOff: number | null) {
-    try {
-      cutOff = cutOff || new Date().getTime() - settings.get<number>("stayOpen");
-      const minTabs = settings.get<number>("minTabs");
-
-      // Tabs which have been locked via the checkbox.
-      const lockedIds = settings.get<Array<number>>("lockedIds");
-      const toCut = tabManager.getOlderThen(cutOff);
-
-      if (!store.getState().settings.paused) {
-        // Update the selected tabs to make sure they don't get closed.
-        const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-        store.dispatch({
-          tabIds: activeTabs.map((tab) => tab.id),
-          tabTime: Date.now(),
-          type: "SET_TAB_TIMES",
-        });
-
-        // Update audible tabs if the setting is enabled to prevent them from being closed.
-        if (settings.get("filterAudio") === true) {
-          const audibleTabs = await chrome.tabs.query({ audible: true });
-          store.dispatch({
-            tabIds: audibleTabs.map((tab) => tab.id),
-            tabTime: Date.now(),
-            type: "SET_TAB_TIMES",
-          });
-        }
-
-        const windows = await chrome.windows.getAll({ populate: true });
+      chrome.windows.getAll({ populate: true }, function (windows) {
+        // Array of tabs, populated for each window.
+        let tabs: Array<chrome.tabs.Tab> | undefined;
         windows.forEach((myWindow) => {
-          let tabs = myWindow.tabs;
+          tabs = myWindow.tabs;
           if (tabs == null) return;
 
           // Filter out the pinned tabs
           tabs = tabs.filter((tab) => tab.pinned === false);
           // Filter out audible tabs if the option to do so is checked
-          tabs = settings.get<boolean>("filterAudio") ? tabs.filter((tab) => !tab.audible) : tabs;
+          tabs = settings.get("filterAudio") ? tabs.filter((tab) => !tab.audible) : tabs;
           // Filter out tabs that are in a group if the option to do so is checked
-          tabs = settings.get<boolean>("filterGroupedTabs")
+          tabs = settings.get("filterGroupedTabs")
             ? tabs.filter((tab) => !("groupId" in tab) || tab.groupId <= 0)
             : tabs;
 
-          let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.indexOf(tab.id) !== -1);
+          let tabsToCut = tabs.filter((t) => t.id == null || toCut.indexOf(t.id) !== -1);
           if (tabs.length - minTabs <= 0) {
             // We have less than minTab tabs, abort.
             // Also, let's reset the last accessed time of our current tabs so they
             // don't get closed when we add a new one.
             for (let i = 0; i < tabs.length; i++) {
               const tabId = tabs[i].id;
-              if (tabId != null && myWindow.focused) tabManager.updateLastAccessed(tabId);
+              if (tabId != null && myWindow.focused) tabmanager.updateLastAccessed(tabId);
             }
             return;
           }
@@ -178,8 +59,6 @@ async function startup() {
             return;
           }
 
-          const tabsToClose = [];
-          const tabIdsToUpdate = [];
           for (let i = 0; i < tabsToCut.length; i++) {
             const tabId = tabsToCut[i].id;
             if (tabId == null) continue;
@@ -188,75 +67,151 @@ async function startup() {
               // Update its time so it gets checked less frequently.
               // Would also be smart to just never add it.
               // @todo: fix that.
-              tabIdsToUpdate.push(tabId);
+              tabmanager.updateLastAccessed(tabId);
               continue;
             }
-            tabsToClose.push(tabsToCut[i]);
+            closeTab(tabsToCut[i]);
           }
-
-          store.dispatch({ tabIds: tabIdsToUpdate, tabTime: Date.now(), type: "SET_TAB_TIMES" });
-          closeTabs(tabsToClose);
         });
-      }
-    } catch (error) {
-      console.error("[checkToClose]", error);
-    } finally {
-      scheduleCheckToClose();
+      });
     }
+  } finally {
+    scheduleCheckToClose();
+  }
+};
+
+let checkToCloseTimeout: number | null;
+function scheduleCheckToClose() {
+  if (checkToCloseTimeout != null) window.clearTimeout(checkToCloseTimeout);
+  checkToCloseTimeout = window.setTimeout(checkToClose, settings.get("checkInterval"));
+}
+
+// Updates closed count badge in the URL bar whenever the store updates.
+function watchClosedCount(store: Store) {
+  const savedTabsCountWatch = watch(store.getState, "localStorage.savedTabs");
+  store.subscribe(
+    savedTabsCountWatch(() => {
+      tabmanager.updateClosedCount();
+    })
+  );
+}
+
+// Updates icon in tab bar when the extension is paused/resumed.
+function watchPaused(store: Store) {
+  const pausedWatch = watch(store.getState, "settings.paused");
+  store.subscribe(
+    pausedWatch((paused) => {
+      if (paused) {
+        chrome.browserAction.setIcon({ path: "img/icon-paused.png" });
+      } else {
+        chrome.browserAction.setIcon({ path: "img/icon.png" });
+
+        // The user has just unpaused, immediately set all tabs to the current time so they will not
+        // be closed.
+        chrome.tabs.query(
+          {
+            windowType: "normal",
+          },
+          tabmanager.initTabs
+        );
+      }
+    })
+  );
+}
+
+const closeTab = function (tab: chrome.tabs.Tab) {
+  if (true === tab.pinned) {
+    return;
   }
 
-  let checkToCloseTimeout: number | null;
-  function scheduleCheckToClose() {
-    if (checkToCloseTimeout != null) clearTimeout(checkToCloseTimeout);
-    checkToCloseTimeout = setTimeout(checkToClose, 5000);
+  if (settings.get("filterAudio") && tab.audible) {
+    return;
   }
 
-  chrome.tabs.query({ windowType: "normal" }, tabManager.initTabs.bind(tabManager));
+  if (tab.url != null && tabmanager.isWhitelisted(tab.url)) {
+    return;
+  }
 
-  setPaused(store.getState().settings.paused);
+  tabmanager.closedTabs.wrangleTabs([tab]);
+};
 
-  // Because the badge count is external state, this side effect must be run once the value
-  // is read from storage. This could more elequently be handled in an action creator.
-  tabManager.updateClosedCount();
+const onNewTab = function (tab: chrome.tabs.Tab) {
+  // Track new tab's time to close.
+  if (tab.id != null) tabmanager.updateLastAccessed(tab.id);
+};
+
+const startup = function () {
+  const { persistor, store } = configureStore();
+
+  watchClosedCount(store);
+  watchPaused(store);
+
+  settings.init();
+
+  // Declare this global namespace so it can be used from popup.js
+  window.TW = {
+    persistor,
+    settings,
+    store,
+    tabmanager,
+  };
 
   if (settings.get("purgeClosedTabs") !== false) {
-    store.dispatch(removeAllSavedTabs());
+    tabmanager.closedTabs.clear();
   }
+  settings.set("lockedIds", []);
 
-  // Kick off checking for tabs to close
+  const debouncedUpdateLastAccessed = debounce(
+    tabmanager.updateLastAccessed.bind(tabmanager),
+    1000
+  );
+  // Move this to a function somehwere so we can restart the process.
+  chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
+  chrome.tabs.onCreated.addListener(onNewTab);
+  chrome.tabs.onRemoved.addListener(tabmanager.removeTab);
+  chrome.tabs.onReplaced.addListener(tabmanager.replaceTab);
+  chrome.tabs.onActivated.addListener(function (tabInfo) {
+    menus.updateContextMenus(tabInfo["tabId"]);
+
+    if (settings.get("debounceOnActivated")) {
+      debouncedUpdateLastAccessed(tabInfo["tabId"]);
+    } else {
+      tabmanager.updateLastAccessed(tabInfo["tabId"]);
+    }
+  });
   scheduleCheckToClose();
-}
+
+  // Create the "lock tab" context menu:
+  menus.createContextMenus();
+
+  chrome.commands.onCommand.addListener((command) => {
+    switch (command) {
+      case "lock-unlock-active-tab":
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          tabmanager.toggleTabs(tabs);
+        });
+        break;
+      case "wrangle-current-tab":
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          tabmanager.closedTabs.wrangleTabs(tabs);
+        });
+        break;
+      default:
+        break;
+    }
+  });
+};
 
 startup();
 
-// Keep the [service worker (Chrome) / background script (Firefox)] alive so the popup can always
-// talk to it to access the Store.
-// Self-contained workaround for https://crbug.com/1316588 (Apache License)
-// Source: https://bugs.chromium.org/p/chromium/issues/detail?id=1316588#c99
-let lastAlarm = 0;
-(async function lostEventsWatchdog() {
-  let quietCount = 0;
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    await new Promise((resolve) => setTimeout(resolve, 65000));
-    const now = Date.now();
-    const age = now - lastAlarm;
-    console.debug(`lostEventsWatchdog: last alarm ${age / 1000}s ago`);
-    if (age < 95000) {
-      quietCount = 0; // alarm still works.
-    } else if (++quietCount >= 3) {
-      console.warn("lostEventsWatchdog: reloading!");
-      return chrome.runtime.reload();
-    } else {
-      chrome.alarms.create(`lostEventsWatchdog/${now}`, { delayInMinutes: 1 });
-    }
+// Augment global `window` with the TabWrangler object that gets created on startup.
+declare global {
+  interface Window {
+    TW: {
+      persistor: Persistor;
+      settings: typeof settings;
+      store: Store;
+      tabmanager: typeof tabmanager;
+    };
   }
-})();
-chrome.alarms.onAlarm.addListener(() => (lastAlarm = Date.now()));
-chrome.runtime.onMessage.addListener((message) => {
-  if (message === "reload") {
-    console.warn("[runtime.onMessage]: Manual reload");
-    chrome.runtime.reload();
-    return true;
-  } else return false;
-});
+}

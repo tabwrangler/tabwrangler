@@ -1,39 +1,31 @@
 import * as React from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AppState } from "./Types";
+import { isLocked, isManuallyLockable } from "./tab";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
-import { isTabLocked } from "./tabUtil";
-import settings from "./settings";
-import { useSelector } from "react-redux";
+import { getTW } from "./util";
+import memoize from "memoize-one";
 
 type Sorter = {
   key: string;
   label: () => string;
   shortLabel: () => string;
-  sort: (
-    a: chrome.tabs.Tab | null,
-    b: chrome.tabs.Tab | null,
-    tabTimes: {
-      [tabid: string]: number;
-    }
-  ) => number;
+  sort: (a: chrome.tabs.Tab | null, b: chrome.tabs.Tab | null) => number;
 };
 
 const ChronoSorter: Sorter = {
   key: "chrono",
   label: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose") || "",
   shortLabel: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose_short") || "",
-  sort(tabA, tabB, tabTimes) {
+  sort(tabA, tabB) {
     if (tabA == null || tabB == null) {
       return 0;
-    } else if (settings.isTabLocked(tabA) && !settings.isTabLocked(tabB)) {
+    } else if (isLocked(tabA) && !isLocked(tabB)) {
       return 1;
-    } else if (!settings.isTabLocked(tabA) && settings.isTabLocked(tabB)) {
+    } else if (!isLocked(tabA) && isLocked(tabB)) {
       return -1;
     } else {
-      const lastModifiedA = tabA.id == null ? -1 : tabTimes[tabA.id];
-      const lastModifiedB = tabB.id == null ? -1 : tabTimes[tabB.id];
+      const lastModifiedA = tabA.id == null ? -1 : getTW().tabmanager.tabTimes[tabA.id];
+      const lastModifiedB = tabB.id == null ? -1 : getTW().tabmanager.tabTimes[tabB.id];
       return lastModifiedA - lastModifiedB;
     }
   },
@@ -43,8 +35,8 @@ const ReverseChronoSorter: Sorter = {
   key: "reverseChrono",
   label: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose_desc") || "",
   shortLabel: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose_desc_short") || "",
-  sort(tabA, tabB, tabTimes) {
-    return -1 * ChronoSorter.sort(tabA, tabB, tabTimes);
+  sort(tabA, tabB) {
+    return -1 * ChronoSorter.sort(tabA, tabB);
   },
 };
 
@@ -67,141 +59,110 @@ const ReverseTabOrderSorter: Sorter = {
   key: "reverseTabOrder",
   label: () => chrome.i18n.getMessage("tabLock_sort_tabOrder_desc") || "",
   shortLabel: () => chrome.i18n.getMessage("tabLock_sort_tabOrder_desc_short") || "",
-  sort(tabA, tabB, tabTimes) {
-    return -1 * TabOrderSorter.sort(tabA, tabB, tabTimes);
+  sort(tabA, tabB) {
+    return -1 * TabOrderSorter.sort(tabA, tabB);
   },
 };
 
 const DEFAULT_SORTER = TabOrderSorter;
 const Sorters = [TabOrderSorter, ReverseTabOrderSorter, ChronoSorter, ReverseChronoSorter];
 
-export default function LockTab() {
-  const dropdownRef = React.useRef<HTMLElement | null>(null);
-  const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
-  const queryClient = useQueryClient();
-  const [isSortDropdownOpen, setIsSortDropdownOpen] = React.useState<boolean>(false);
-  const [sortOrder, setSortOrder] = React.useState<string | null>(
-    settings.get<string>("lockTabSortOrder")
-  );
-  const [currSorter, setCurrSorter] = React.useState(() => {
+type Props = Record<string, never>;
+
+type State = {
+  isSortDropdownOpen: boolean;
+  savedSortOrder: string | null;
+  sorter: Sorter;
+  tabs: Array<chrome.tabs.Tab>;
+};
+
+export default class LockTab extends React.PureComponent<Props, State> {
+  _dropdownRef: HTMLElement | null = null;
+  _lastSelectedTab: chrome.tabs.Tab | undefined = undefined;
+  _timeLeftInterval: number | undefined;
+
+  constructor(props: Props) {
+    super(props);
+    const savedSortOrder = getTW().settings.get<string>("lockTabSortOrder");
     let sorter =
-      sortOrder == null ? DEFAULT_SORTER : Sorters.find((sorter) => sorter.key === sortOrder);
+      savedSortOrder == null
+        ? DEFAULT_SORTER
+        : Sorters.find((sorter) => sorter.key === savedSortOrder);
 
     // If settings somehow stores a bad value, always fall back to default order.
     if (sorter == null) sorter = DEFAULT_SORTER;
 
-    return sorter;
-  });
-  const tabTimes = useSelector((state: AppState) => state.localStorage.tabTimes);
-  const { data: tabs } = useQuery({ queryFn: () => chrome.tabs.query({}), queryKey: ["tabs"] });
-  const sortedTabs = React.useMemo(
-    () =>
-      tabs == null ? [] : tabs.slice().sort((tabA, tabB) => currSorter.sort(tabA, tabB, tabTimes)),
-    [currSorter, tabTimes, tabs]
-  );
-  const { data: tabLockData } = useQuery({
-    queryFn: () =>
-      chrome.storage.sync.get({
-        filterAudio: settings.defaults.filterAudio,
-        filterGroupedTabs: settings.defaults.filterGroupedTabs,
-        lockedIds: settings.defaults.lockedIds,
-        whitelist: settings.defaults.whitelist,
-      }),
-    queryKey: ["tabLock"],
-  });
-  React.useEffect(() => {
-    function handleChanged(
-      changes: { [key: string]: chrome.storage.StorageChange },
-      areaName: chrome.storage.AreaName
-    ) {
-      if (
-        areaName === "sync" &&
-        ["filterAudio", "filterGroupedTabs", "lockedIds", "whitelist"].some((key) => key in changes)
-      )
-        queryClient.invalidateQueries({ queryKey: ["tabLock"] });
-    }
-    chrome.storage.onChanged.addListener(handleChanged);
-    return () => {
-      chrome.storage.onChanged.removeListener(handleChanged);
+    this.state = {
+      isSortDropdownOpen: false,
+      savedSortOrder,
+      sorter,
+      tabs: [],
     };
-  }, [queryClient]);
+  }
 
-  const lockedTabIds = React.useMemo(
-    () =>
-      tabLockData == null
-        ? new Set()
-        : new Set(
-            sortedTabs
-              .filter((tab) =>
-                isTabLocked(tab, {
-                  filterAudio: tabLockData["filterAudio"],
-                  filterGroupedTabs: tabLockData["filterGroupedTabs"],
-                  lockedIds: tabLockData["lockedIds"],
-                  whitelist: tabLockData["whitelist"],
-                })
-              )
-              .map((tab) => tab.id)
-          ),
-    [sortedTabs, tabLockData]
-  );
+  componentDidMount() {
+    this._timeLeftInterval = window.setInterval(this.forceUpdate.bind(this), 1000);
 
-  React.useEffect(() => {
-    function handleWindowClick(event: MouseEvent) {
-      if (
-        isSortDropdownOpen &&
-        dropdownRef.current != null &&
-        event.target instanceof Node &&
-        !dropdownRef.current.contains(event.target)
-      ) {
-        setIsSortDropdownOpen(false);
-      }
-    }
+    // TODO: THIS WILL BREAK. This is some async stuff inside a synchronous call. Fix this, move
+    // the state into a higher component.
+    chrome.tabs.query({}, (tabs) => {
+      this.setState({ tabs });
+    });
 
-    window.addEventListener("click", handleWindowClick);
-    return () => {
-      window.removeEventListener("click", handleWindowClick);
-    };
-  }, [isSortDropdownOpen]);
+    window.addEventListener("click", this._handleWindowClick);
+  }
 
-  function clickSorter(nextSorter: Sorter, event: React.MouseEvent<HTMLElement>) {
+  componentWillUnmount() {
+    window.removeEventListener("click", this._handleWindowClick);
+    window.clearInterval(this._timeLeftInterval);
+  }
+
+  _clickSorter(sorter: Sorter, event: React.MouseEvent<HTMLElement>) {
     // The dropdown wraps items in bogus `<a href="#">` elements in order to match Bootstrap's
     // style. Prevent default on the event in order to prevent scrolling to the top of the window
     // (the default action for an empty anchor "#").
     event.preventDefault();
 
-    if (nextSorter === currSorter) {
+    if (sorter === this.state.sorter) {
       // If this is already the active sorter, close the dropdown and do no work since the state is
       // already correct.
-      setIsSortDropdownOpen(false);
+      this.setState({ isSortDropdownOpen: false });
     } else {
       // When the saved sort order is not null then the user wants to preserve it. Update to the
       // new sort order and persist it.
-      if (settings.get("lockTabSortOrder") != null) {
-        settings.set("lockTabSortOrder", nextSorter.key);
+      if (getTW().settings.get("lockTabSortOrder") != null) {
+        getTW().settings.set("lockTabSortOrder", sorter.key);
       }
 
-      setIsSortDropdownOpen(false);
-      setCurrSorter(nextSorter);
+      this.setState({
+        isSortDropdownOpen: false,
+        sorter,
+      });
     }
   }
 
-  function handleChangeSaveSortOrder(event: React.ChangeEvent<HTMLInputElement>) {
+  _handleChangeSaveSortOrder = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      settings.set("lockTabSortOrder", currSorter.key);
-      setSortOrder(currSorter.key);
+      getTW().settings.set("lockTabSortOrder", this.state.sorter.key);
+      this.setState({ savedSortOrder: this.state.sorter.key });
     } else {
-      settings.set("lockTabSortOrder", null);
-      setSortOrder(null);
+      getTW().settings.set("lockTabSortOrder", null);
+      this.setState({ savedSortOrder: null });
     }
-  }
+  };
 
-  function handleToggleTab(tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) {
+  _handleToggleTab: (tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) => void = (
+    tab: chrome.tabs.Tab,
+    selected: boolean,
+    multiselect: boolean
+  ) => {
     let tabsToToggle = [tab];
-    if (multiselect && lastSelectedTabRef.current != null) {
-      const lastSelectedTabIndex = sortedTabs.indexOf(lastSelectedTabRef.current);
+    const tabs = this._getSortedTabs(this.state.tabs, this.state.sorter);
+    if (multiselect && this._lastSelectedTab != null) {
+      const lastSelectedTabIndex = tabs.indexOf(this._lastSelectedTab);
       if (lastSelectedTabIndex >= 0) {
-        const tabIndex = sortedTabs.indexOf(tab);
-        tabsToToggle = sortedTabs.slice(
+        const tabIndex = tabs.indexOf(tab);
+        tabsToToggle = tabs.slice(
           Math.min(tabIndex, lastSelectedTabIndex),
           Math.max(tabIndex, lastSelectedTabIndex) + 1
         );
@@ -210,94 +171,106 @@ export default function LockTab() {
 
     // Toggle only the tabs that are manually lockable.
     tabsToToggle
-      .filter((tab) => settings.isTabManuallyLockable(tab))
+      .filter((tab) => isManuallyLockable(tab))
       .forEach((tab) => {
         if (tab.id == null) return;
-        else if (selected) settings.lockTab(tab.id);
-        else settings.unlockTab(tab.id);
+        else if (selected) getTW().tabmanager.lockTab(tab.id);
+        else getTW().tabmanager.unlockTab(tab.id);
       });
 
-    lastSelectedTabRef.current = tab;
-  }
+    this._lastSelectedTab = tab;
+    this.forceUpdate();
+  };
 
-  function toggleSortDropdown() {
-    setIsSortDropdownOpen(!isSortDropdownOpen);
-  }
+  _handleWindowClick: (event: MouseEvent) => void = (event: MouseEvent) => {
+    if (
+      this.state.isSortDropdownOpen &&
+      this._dropdownRef != null &&
+      event.target instanceof Node &&
+      !this._dropdownRef.contains(event.target)
+    ) {
+      this.setState({ isSortDropdownOpen: false });
+    }
+  };
 
-  return (
-    <div className="tab-pane active">
-      <div className="d-flex align-items-center justify-content-between border-bottom pb-2">
-        <div style={{ paddingLeft: "0.55rem", paddingRight: "0.55rem" }}>
-          <abbr title={chrome.i18n.getMessage("tabLock_lockLabel")}>
-            <i className="fas fa-lock" />
-          </abbr>
-        </div>
-        <div
-          className="dropdown"
-          ref={(dropdown) => {
-            dropdownRef.current = dropdown;
-          }}
-        >
-          <button
-            aria-haspopup="true"
-            className="btn btn-outline-dark btn-sm"
-            id="sort-dropdown"
-            onClick={toggleSortDropdown}
-            title={chrome.i18n.getMessage("corral_currentSort", currSorter.label())}
-          >
-            <span>{chrome.i18n.getMessage("corral_sortBy")}</span>
-            <span> {currSorter.shortLabel()}</span> <i className="fas fa-caret-down" />
-          </button>
+  _getSortedTabs: (tabs: Array<chrome.tabs.Tab>, sorter: Sorter) => Array<chrome.tabs.Tab> =
+    memoize((tabs: Array<chrome.tabs.Tab>, sorter: Sorter) => {
+      return tabs.slice().sort(sorter.sort);
+    });
+
+  _toggleSortDropdown: () => void = () => {
+    this.setState({ isSortDropdownOpen: !this.state.isSortDropdownOpen });
+  };
+
+  render() {
+    return (
+      <div className="tab-pane active">
+        <div className="d-flex align-items-center justify-content-between border-bottom pb-2">
+          <div style={{ paddingLeft: "0.55rem", paddingRight: "0.55rem" }}>
+            <abbr title={chrome.i18n.getMessage("tabLock_lockLabel")}>
+              <i className="fas fa-lock" />
+            </abbr>
+          </div>
           <div
-            aria-labelledby="sort-dropdown"
-            className={cx("dropdown-menu dropdown-menu-right shadow-sm", {
-              show: isSortDropdownOpen,
-            })}
+            className="dropdown"
+            ref={(dropdown) => {
+              this._dropdownRef = dropdown;
+            }}
           >
-            {Sorters.map((sorter) => (
-              <a
-                className={cx("dropdown-item", { active: currSorter === sorter })}
-                href="#"
-                key={sorter.label()}
-                onClick={(event) => {
-                  clickSorter(sorter, event);
-                }}
-              >
-                {sorter.label()}
-              </a>
-            ))}
-            <div className="dropdown-divider" />
-            <form className="px-4 pb-1">
-              <div className="form-group mb-0">
-                <div className="form-check">
-                  <input
-                    checked={sortOrder != null}
-                    className="form-check-input"
-                    id="lock-tab--save-sort-order"
-                    onChange={handleChangeSaveSortOrder}
-                    type="checkbox"
-                  />
-                  <label className="form-check-label" htmlFor="lock-tab--save-sort-order">
-                    {chrome.i18n.getMessage("options_option_saveSortOrder")}
-                  </label>
+            <button
+              aria-haspopup="true"
+              className="btn btn-outline-dark btn-sm"
+              id="sort-dropdown"
+              onClick={this._toggleSortDropdown}
+              title={chrome.i18n.getMessage("corral_currentSort", this.state.sorter.label())}
+            >
+              <span>{chrome.i18n.getMessage("corral_sortBy")}</span>
+              <span> {this.state.sorter.shortLabel()}</span> <i className="fas fa-caret-down" />
+            </button>
+            <div
+              aria-labelledby="sort-dropdown"
+              className={cx("dropdown-menu dropdown-menu-right shadow-sm", {
+                show: this.state.isSortDropdownOpen,
+              })}
+            >
+              {Sorters.map((sorter) => (
+                <a
+                  className={cx("dropdown-item", { active: this.state.sorter === sorter })}
+                  href="#"
+                  key={sorter.label()}
+                  onClick={this._clickSorter.bind(this, sorter)}
+                >
+                  {sorter.label()}
+                </a>
+              ))}
+              <div className="dropdown-divider" />
+              <form className="px-4 pb-1">
+                <div className="form-group mb-0">
+                  <div className="form-check">
+                    <input
+                      checked={this.state.savedSortOrder != null}
+                      className="form-check-input"
+                      id="lock-tab--save-sort-order"
+                      onChange={this._handleChangeSaveSortOrder}
+                      type="checkbox"
+                    />
+                    <label className="form-check-label" htmlFor="lock-tab--save-sort-order">
+                      {chrome.i18n.getMessage("options_option_saveSortOrder")}
+                    </label>
+                  </div>
                 </div>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
+        <table className="table table-hover table-sm table-th-unbordered">
+          <tbody>
+            {this._getSortedTabs(this.state.tabs, this.state.sorter).map((tab) => (
+              <OpenTabRow key={tab.id} onToggleTab={this._handleToggleTab} tab={tab} />
+            ))}
+          </tbody>
+        </table>
       </div>
-      <table className="table table-hover table-sm table-th-unbordered">
-        <tbody>
-          {sortedTabs.map((tab) => (
-            <OpenTabRow
-              isLocked={lockedTabIds.has(tab.id)}
-              key={tab.id}
-              onToggleTab={handleToggleTab}
-              tab={tab}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+    );
+  }
 }

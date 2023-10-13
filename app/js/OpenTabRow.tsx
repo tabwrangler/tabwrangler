@@ -1,8 +1,9 @@
 import * as React from "react";
+import { isLocked, isManuallyLockable } from "./tab";
 import { AppState } from "./Types";
 import LazyImage from "./LazyImage";
 import cx from "classnames";
-import settings from "./settings";
+import { getTW } from "./util";
 import { useSelector } from "react-redux";
 
 function secondsToMinutes(seconds: number) {
@@ -12,33 +13,31 @@ function secondsToMinutes(seconds: number) {
 }
 
 type Props = {
-  isLocked: boolean;
   onToggleTab: (tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) => void;
   tab: chrome.tabs.Tab;
 };
 
-export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
+export default function OpenTabRow(props: Props) {
   const paused = useSelector((state: AppState) => state.settings.paused);
-  const tabTime = useSelector((state: AppState) =>
-    tab.id == null ? Date.now() : state.localStorage.tabTimes[tab.id]
-  );
 
   function handleLockedOnClick(event: React.MouseEvent) {
     // Dynamic type check to ensure target is an input element.
     if (!(event.target instanceof HTMLInputElement)) return;
-    onToggleTab(tab, event.target.checked, event.shiftKey);
+    props.onToggleTab(props.tab, event.target.checked, event.shiftKey);
   }
 
-  const tabWhitelistMatch = settings.getWhitelistMatch(tab.url);
+  const { tab } = props;
+  const tabWhitelistMatch = getTW().tabmanager.getWhitelistMatch(tab.url);
+  const tabIsLocked = isLocked(tab);
 
   let lockStatusElement;
-  if (isLocked) {
+  if (tabIsLocked) {
     let reason;
     if (tab.pinned) {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
-    } else if (settings.get("filterAudio") && tab.audible) {
+    } else if (getTW().settings.get("filterAudio") && tab.audible) {
       reason = <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>Locked</abbr>;
-    } else if (settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) {
+    } else if (getTW().settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
     } else if (tabWhitelistMatch) {
       reason = (
@@ -60,8 +59,9 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
     if (paused) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
     } else {
-      const cutOff = new Date().getTime() - settings.get<number>("stayOpen");
-      const timeLeft = -1 * Math.round((cutOff - tabTime) / 1000);
+      const lastModified = tab.id == null ? Date.now() : getTW().tabmanager.tabTimes[tab.id];
+      const cutOff = new Date().getTime() - getTW().settings.get<number>("stayOpen");
+      const timeLeft = -1 * Math.round((cutOff - lastModified) / 1000);
       // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the
       // interval to clean up this tab. It's also possible the number of tabs is not below
       // `minTabs`, which has stopped the countdown and locked this at a negative `timeLeft` until
@@ -77,12 +77,12 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
   }
 
   return (
-    <tr className={cx({ "table-warning": isLocked })}>
+    <tr className={cx({ "table-warning": tabIsLocked })}>
       <td className="text-center" style={{ verticalAlign: "middle", width: "1px" }}>
         <input
-          checked={isLocked}
+          checked={tabIsLocked}
           className="mx-1"
-          disabled={!settings.isTabManuallyLockable(tab)}
+          disabled={!isManuallyLockable(tab)}
           onClick={handleLockedOnClick}
           type="checkbox"
           readOnly
@@ -102,7 +102,7 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
           <div className="flex-fill text-truncate" style={{ width: "1px" }}>
             {tab.title}
             <br />
-            <small className={cx({ "text-muted": !isLocked })}>({tab.url})</small>
+            <small className={cx({ "text-muted": !tabIsLocked })}>({tab.url})</small>
           </div>
         </div>
       </td>

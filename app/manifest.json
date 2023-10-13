@@ -1,7 +1,7 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "__MSG_extName__",
-  "version": "__VERSION__",
+  "version": "6.10.1",
   "default_locale": "en",
   "description": "__MSG_extDescription__",
   "icons": {
@@ -9,12 +9,14 @@
     "48": "img/icon48.png",
     "16": "img/icon16.png"
   },
-  "action": {
+  "browser_action": {
+    "default_title": "__MSG_extName__",
     "default_icon": "img/icon.png",
-    "default_popup": "popup.html",
-    "default_title": "__MSG_extName__"
+    "default_popup": "popup.html"
   },
-  "background": {},
+  "background": {
+    "page": "background.html"
+  },
   "commands": {
     "lock-unlock-active-tab": {
       "description": "__MSG_commandLockUnlockActiveTab__"
@@ -23,26 +25,18 @@
       "description": "__MSG_commandWrangleCurrentTab__"
     }
   },
-  "minimum_chrome_version": "55",
+  "minimum_chrome_version": "28",
   "options_ui": {
     "open_in_tab": true,
     "page": "popup.html"
   },
   "permissions": [
-    "alarms",
     "contextMenus",
     "sessions",
     "storage",
     "tabs"
   ],
   "web_accessible_resources": [
-    {
-      "matches": [
-        "*://*/*"
-      ],
-      "resources": [
-        "img/icon48.png"
-      ]
-    }
+    "img/icon48.png"
   ]
 }

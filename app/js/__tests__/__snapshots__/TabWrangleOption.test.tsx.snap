@@ -1,10 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
+exports[`should render options with exactURLMatch selected 1`] = `
 [
-  <strong>
-    
-  </strong>,
+  <label
+    htmlFor="wrangleOption"
+  >
+    <strong>
+      
+    </strong>
+  </label>,
   <div
     className="form-check"
   >
@@ -116,11 +120,15 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
 ]
 `;
 
-exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`] = `
+exports[`should render options with hostnameAndTitleMatch selected 1`] = `
 [
-  <strong>
-    
-  </strong>,
+  <label
+    htmlFor="wrangleOption"
+  >
+    <strong>
+      
+    </strong>
+  </label>,
   <div
     className="form-check"
   >
@@ -232,11 +240,15 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
 ]
 `;
 
-exports[`TabWrangleOption renders options with withDupes selected 1`] = `
+exports[`should render options with withDupes selected 1`] = `
 [
-  <strong>
-    
-  </strong>,
+  <label
+    htmlFor="wrangleOption"
+  >
+    <strong>
+      
+    </strong>
+  </label>,
   <div
     className="form-check"
   >

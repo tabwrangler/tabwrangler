@@ -3,7 +3,7 @@ import * as React from "react";
 import LazyImage from "./LazyImage";
 import TimeAgo from "timeago-react";
 import cx from "classnames";
-import extractHostname from "./extractHostname";
+import { extractHostname } from "./util";
 
 type Props = {
   isSelected: boolean;
@@ -104,13 +104,11 @@ export default function ClosedTabRow(props: Props) {
         className="ReactVirtualized__Table__rowColumn text-right"
         style={{ verticalAlign: "middle" }}
         title={
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          /* @ts-ignore:next-line `closedAt` is an expando property added by Tab Wrangler */
+          // @ts-expect-error `closedAt` is a TW expando property on tabs
           new Date(tab.closedAt).toLocaleString()
         }
       >
-        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-        {/* @ts-ignore:next-line `closedAt` is an expando property added by Tab Wrangler */}
+        {/* @ts-expect-error `closedAt` is a TW expando property on tabs */}
         <TimeAgo datetime={tab.closedAt} locale={chrome.i18n.getUILanguage()} />
       </div>
       <div className="ReactVirtualized__Table__rowColumn" style={{ width: "11px" }}>

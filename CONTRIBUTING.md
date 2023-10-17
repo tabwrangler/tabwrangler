@@ -34,9 +34,9 @@
 
 ### Building for Release
 
-1. Create a .zip to upload to the Chrome Store and Firefox AMO with the `release` task
+1. Create a .zip to upload to the Chrome Store and Firefox AMO with the `build` task
 
-        $ npm run release
+        $ npm run build
 
 ## Contributing Translations
 

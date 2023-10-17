@@ -3,71 +3,72 @@ import ReactTestUtils from "react-dom/test-utils";
 import TabWrangleOption from "../TabWrangleOption";
 import renderer from "react-test-renderer";
 
-beforeAll(() => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore:next-line
-  global.chrome = {
+describe("TabWrangleOption", () => {
+  let ogGetMessage: typeof chrome.i18n.getMessage;
+
+  beforeEach(() => {
+    ogGetMessage = chrome.i18n.getMessage;
+    chrome.i18n.getMessage = () => "";
+  });
+
+  afterEach(() => {
+    chrome.i18n.getMessage = ogGetMessage;
+  });
+
+  test("renders options with withDupes selected", () => {
+    const mockCallback = jest.fn();
+
+    const two = renderer.create(
+      <TabWrangleOption onChange={mockCallback} selectedOption="withDupes" />
+    );
+
+    expect(two).toMatchSnapshot();
+  });
+
+  test("renders options with exactURLMatch selected", () => {
+    const mockCallback = jest.fn();
+
+    const two = renderer.create(
+      <TabWrangleOption onChange={mockCallback} selectedOption="exactURLMatch" />
+    );
+
+    expect(two).toMatchSnapshot();
+  });
+
+  test("renders options with hostnameAndTitleMatch selected", () => {
+    const mockCallback = jest.fn();
+
+    const two = renderer.create(
+      <TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />
+    );
+
+    expect(two).toMatchSnapshot();
+  });
+
+  test("calls onChange handler callback when clicked", () => {
+    const mockCallback = jest.fn();
+
+    // Must wrap `TabWrangleOption` in a Composite Component in order to find it using ReactTestUtils.
+    class Wrapper extends React.Component {
+      render() {
+        return (
+          <div>
+            <TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />
+          </div>
+        );
+      }
+    }
+
+    const two = ReactTestUtils.renderIntoDocument(<Wrapper />);
+
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
-    i18n: {
-      getMessage: () => "",
-    },
-  };
-});
+    const buttonNode = ReactTestUtils.scryRenderedDOMComponentsWithTag(two, "input");
 
-test("should render options with withDupes selected", () => {
-  const mockCallback = jest.fn();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore:next-line
+    ReactTestUtils.Simulate.change(buttonNode[1], { target: { checked: true } });
 
-  const two = renderer.create(
-    <TabWrangleOption onChange={mockCallback} selectedOption="withDupes" />
-  );
-
-  expect(two).toMatchSnapshot();
-});
-
-test("should render options with exactURLMatch selected", () => {
-  const mockCallback = jest.fn();
-
-  const two = renderer.create(
-    <TabWrangleOption onChange={mockCallback} selectedOption="exactURLMatch" />
-  );
-
-  expect(two).toMatchSnapshot();
-});
-
-test("should render options with hostnameAndTitleMatch selected", () => {
-  const mockCallback = jest.fn();
-
-  const two = renderer.create(
-    <TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />
-  );
-
-  expect(two).toMatchSnapshot();
-});
-
-test("should call onChange handler callback when clicked", () => {
-  const mockCallback = jest.fn();
-
-  // Must wrap `TabWrangleOption` in a Composite Component in order to find it using ReactTestUtils.
-  class Wrapper extends React.Component {
-    render() {
-      return (
-        <div>
-          <TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />
-        </div>
-      );
-    }
-  }
-
-  const two = ReactTestUtils.renderIntoDocument(<Wrapper />);
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore:next-line
-  const buttonNode = ReactTestUtils.scryRenderedDOMComponentsWithTag(two, "input");
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore:next-line
-  ReactTestUtils.Simulate.change(buttonNode[1], { target: { checked: true } });
-
-  expect(mockCallback.mock.calls.length).toBe(1);
+    expect(mockCallback.mock.calls.length).toBe(1);
+  });
 });

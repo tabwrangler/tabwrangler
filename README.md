@@ -83,15 +83,14 @@ usages are described in the following table:
 
 | Setting               | Default                   | Possible Values                                             | Description                                                                                            |
 | --------------------- | ------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `checkInterval`       | `5000`                    | `0` < `checkInterval`                                       | How often Tab Wrangler should check for stale tabs to close (in milliseconds)                          |
 | `corralTabSortOrder`  | `null`                    | `null, 'alpha', 'reverseAlpha', 'chrono', 'reverseChrono', 'domain', 'reverseDomain'` | Saved sort order for closed tabs. When `null`, defaults to `'reverseChrono'` |
-| `debounceOnActivated` | `false`                   |                                                             | Whether to wait 1 second before resetting the active tab's timer                                       |
+| `debounceOnActivated` | `true`                    |                                                             | Whether to wait 1 second before resetting the active tab's timer                                       |
 | `filterAudio`         | `false`                   |                                                             | Whether to prevent auto-closing tabs that are playing audio                                            |
 | `lockedIds`           | `[]`                      |                                                             | Array of tab IDs that have been explicitly locked by the user                                          |
 | `lockTabSortOrder`    | `null`                    | `null, 'chrono', 'reverseChrono', 'tabOrder', 'reverseTabOrder'` | Saved sort order for open tabs. When `null`, defaults to `'tabOrder'`                             |
-| `maxTabs`             | `100`                     | `0` <= `maxTabs` <= `1000`                                  | Maximum number of tabs to keep in the tab list                                                         |
-| `minTabs`             | `5`                       | `0` <= `minTabs`                                            | Auto-close tabs only if there are more than this number open                                           |
-| `minutesInactive`     | `20`                      | `0` <= `minutesInactive`                                    | How much time (+ `secondsInactive`) before a tab is considered "stale" and ready to close              |
+| `maxTabs`             | `1000`                    | `0` <= `maxTabs` <= `1000`                                  | Maximum number of tabs to keep in the tab list                                                         |
+| `minTabs`             | `20`                      | `0` <= `minTabs`                                            | Auto-close tabs only if there are more than this number open                                           |
+| `minutesInactive`     | `60`                      | `0` <= `minutesInactive`                                    | How much time (+ `secondsInactive`) before a tab is considered "stale" and ready to close              |
 | `paused`              | `false`                   |                                                             | Whether TabWrangler is paused (shouldn't count down)                                                   |
 | `purgeClosedTabs`     | `false`                   |                                                             | Whether to empty the closed tab list when the browser closes                                           |
 | `secondsInactive`     | `0`                       | `0` <= `secondsInactive`                                    | How much time (+ `minutesInactive`) before a tab is considered "stale" and ready to close              |
@@ -114,14 +113,16 @@ your tabs but not the content inside those tabs.
 Tab Wrangler's requested permissions are listed in its [manifest.json][manifest.json] under the
 `"permissions"` key.
 
-* [`"contextMenus"`][3] Enables a "Tab Wrangler" menu item when you right click on a webpage that
+* [`"alarms"`][7]: Allows creation of alarms to periodically check Tab Wrangler's background script
+  that checks for stale tabs is running and healthy.
+* [`"contextMenus"`][3]: Allows a "Tab Wrangler" menu item when you right click on a webpage that
   lets you send the tab to the Tab Corral, lock that tab, or lock all tabs on that domain.
-* [`"sessions"`][4] Enables Tab Wrangler to read and restore the full history of a tab including
+* [`"sessions"`][4]: Allows Tab Wrangler to read and restore the full history of a tab including
   enabling the back/forward buttons and your scroll position on the page.
-* [`"storage"`][5]: Enables Tab Wrangler to sync your Tab Wrangler settings with your browser
+* [`"storage"`][5]: Allows Tab Wrangler to sync your Tab Wrangler settings with your browser
   account and enables saving your closed tabs to your local computer. *Note: closed tabs are not
   synced because the "sync" storage area has only a small amount of storage.*
-* [`"tabs"`][6]: Enables Tab Wrangler to read the title and location of any current tabs as well
+* [`"tabs"`][6]: Allows Tab Wrangler to read the title and location of any current tabs as well
   as close those tabs and open new tabs. This permission **does not** enable Tab Wrangler to
   read information on web pages that you visit.
 
@@ -138,7 +139,7 @@ include the following:
 🇨🇳 Chinese (Simplified) by [yfdyh000](https://crowdin.com/profile/yfdyh000),
 🇹🇼 Chinese (Traditional) by [ingrid123](https://crowdin.com/profile/ingrid123) and [xbddc.ho](https://crowdin.com/profile/xbddc.ho),
 🇫🇷 French by [orpheuslummis](https://crowdin.com/profile/orpheuslummis) and [bkazez](https://crowdin.com/profile/bkazez),
-🇩🇪 Germany by [johannesfischer](https://crowdin.com/profile/johannesfischer),
+🇩🇪 German by [johannesfischer](https://crowdin.com/profile/johannesfischer),
 🇭🇺 Hungarian by [kottalovag](https://crowdin.com/profile/kottalovag),
 🇮🇩 Indonesian by [azhe403](https://crowdin.com/profile/azhe403),
 🇰🇷 Korean by [x_nuk](https://crowdin.com/profile/x_nuk),
@@ -166,3 +167,4 @@ working and tested, submit a pull request to this primary project and we'll get 
 [5]: https://developer.chrome.com/extensions/storage
 [6]: https://developer.chrome.com/extensions/tabs
 [manifest.json]: https://github.com/tabwrangler/tabwrangler/blob/master/app/manifest.json
+[7]: https://developer.chrome.com/docs/extensions/reference/alarms/

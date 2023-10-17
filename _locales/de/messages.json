@@ -3,9 +3,17 @@
     "description": "Name of the 'About' section, where users can see information about the extension",
     "message": "Über"
   },
+  "about_changeLog": {
+    "description": "Link to the extension's list of changes per release",
+    "message": "Changelog"
+  },
   "about_sourceCode": {
     "description": "Link to the extension's source code and its license type (MIT)",
     "message": "Quelltext (MIT)"
+  },
+  "about_support": {
+    "description": "Link to the extension's support site",
+    "message": "Hilfe"
   },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
@@ -315,9 +323,33 @@
     "description": "Explanation of time remaining before tab is closed",
     "message": "Schliessen in..."
   },
+  "tabLock_sort_tabOrder": {
+    "description": "Description for sorting tabs by how they appear in browser",
+    "message": "Tab Reihenfolge"
+  },
   "tabLock_sort_tabOrder_short": {
     "description": "Short version of tabLock_sort_tabOrder",
     "message": "Tab Reihenfolge"
+  },
+  "tabLock_sort_tabOrder_desc": {
+    "description": "Description for sorting tabs by how they appear in browser, in reverse",
+    "message": "Tab Reihenfolge (umgekehrt)"
+  },
+  "tabLock_sort_tabOrder_desc_short": {
+    "description": "Short version of tabLock_sort_tabOrder_desc",
+    "message": "Tab Reihenfolge (umgek.)"
+  },
+  "tabLock_sort_timeUntilClose": {
+    "description": "Description for sorting tabs by how much time until TW closes them",
+    "message": "Zeit bis zum schließen"
+  },
+  "tabLock_sort_timeUntilClose_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose",
+    "message": "Zeit bis zum schließen"
+  },
+  "tabLock_sort_timeUntilClose_desc_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose_desc",
+    "message": "Zeit bis zum schließen (absteigend)"
   },
   "settings_setmaxTabs_error": {
     "description": "Error shown when invalid max tabs setting is supplied.",

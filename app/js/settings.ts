@@ -1,20 +1,19 @@
-import tabmanager from "./tabmanager";
+import { getWhitelistMatch, isTabLocked } from "./tabUtil";
 
 const defaultCache: Record<string, unknown> = {};
 const defaultLockedIds: Array<number> = [];
 
+// This is a SINGLETON! It is imported both by backgrounnd.ts and by popup.tsx and used in both
+// environments.
 const Settings = {
   cache: defaultCache,
 
   defaults: {
-    // How often we check for old tabs.
-    checkInterval: 5000,
-
     // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
     corralTabSortOrder: null,
 
     // wait 1 second before updating an active tab
-    debounceOnActivated: false,
+    debounceOnActivated: true,
 
     // Don't close tabs that are playing audio.
     filterAudio: true,
@@ -29,13 +28,13 @@ const Settings = {
     lockTabSortOrder: null,
 
     // Max number of tabs stored before the list starts getting truncated.
-    maxTabs: 100,
+    maxTabs: 1000,
 
     // Stop acting if there are only minTabs tabs open.
-    minTabs: 5,
+    minTabs: 20,
 
     // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
-    minutesInactive: 20,
+    minutesInactive: 60,
 
     // Save closed tabs in between browser sessions.
     purgeClosedTabs: false,
@@ -54,7 +53,7 @@ const Settings = {
   } as Record<string, unknown>,
 
   // Gets all settings from sync and stores them locally.
-  init() {
+  init(): Promise<void> {
     const keys: Array<string> = [];
     for (const i in this.defaults) {
       if (Object.prototype.hasOwnProperty.call(this.defaults, i)) {
@@ -62,18 +61,48 @@ const Settings = {
         keys.push(i);
       }
     }
-    chrome.storage.sync.get(keys, (items) => {
-      for (const i in items) {
-        if (Object.prototype.hasOwnProperty.call(items, i)) {
-          this.cache[i] = items[i];
 
-          // Because the badge count is external state, this side effect must be run once the value
-          // is read from storage. This could more elequently be handled in a reducer, but place it
-          // here to make minimal changes while correctly updating the badge count.
-          if (i === "showBadgeCount") tabmanager.updateClosedCount();
-        }
+    // Sync the cache with the browser's storage area. Changes in the background pages should sync
+    // with those in the popup and vice versa.
+    //
+    // Note: this does NOT integrate with React, this is not a replacement for Redux. React
+    // components will not be notified of the new values. For now this is okay because settings are
+    // only updated via the popup and so React is already aware of the changes.
+    chrome.storage.onChanged.addListener(
+      (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
+        if (areaName !== "sync") return;
+        for (const [key, value] of Object.entries(changes)) this.cache[key] = value.newValue;
       }
+    );
+
+    return new Promise((resolve) => {
+      chrome.storage.sync.get(keys, async (items) => {
+        for (const i in items) {
+          if (Object.prototype.hasOwnProperty.call(items, i)) {
+            this.cache[i] = items[i];
+          }
+        }
+        await this._initLockedIds();
+        resolve();
+      });
     });
+  },
+
+  async _initLockedIds(): Promise<void> {
+    if (this.cache.lockedIds == null) return Promise.resolve();
+
+    // Remove any tab IDs from the `lockedIds` list that no longer exist so the collection does not
+    // grow unbounded. This also ensures tab IDs that are reused are not inadvertently locked.
+    const tabs = await chrome.tabs.query({});
+    const currTabIds = new Set(tabs.map((tab) => tab.id));
+    const nextLockedIds = (this.cache.lockedIds as number[]).filter((lockedId) => {
+      const lockedIdExists = currTabIds.has(lockedId);
+      if (!lockedIdExists)
+        console.debug(`Locked tab ID ${lockedId} no longer exixts; removing from 'lockedIds' list`);
+      return lockedIdExists;
+    });
+    this.set("lockedIds", nextLockedIds);
+    return void 0;
   },
 
   /**
@@ -88,6 +117,41 @@ const Settings = {
       return this[key]();
     }
     return this.cache[key] as T;
+  },
+
+  getWhitelistMatch(url: string | undefined): string | null {
+    return getWhitelistMatch(url, { whitelist: this.get<Array<string>>("whitelist") });
+  },
+
+  isTabLocked(tab: chrome.tabs.Tab): boolean {
+    return isTabLocked(tab, {
+      filterAudio: this.get("filterAudio"),
+      filterGroupedTabs: this.get("filterGroupedTabs"),
+      lockedIds: this.get<Array<number>>("lockedIds"),
+      whitelist: this.get<Array<string>>("whitelist"),
+    });
+  },
+
+  isTabManuallyLockable(tab: chrome.tabs.Tab): boolean {
+    const tabWhitelistMatch = this.getWhitelistMatch(tab.url);
+    return (
+      !tab.pinned &&
+      !tabWhitelistMatch &&
+      !(tab.audible && this.get("filterAudio")) &&
+      !(this.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0)
+    );
+  },
+
+  isWhitelisted(url: string): boolean {
+    return this.getWhitelistMatch(url) !== null;
+  },
+
+  lockTab(tabId: number) {
+    const lockedIds = this.get<Array<number>>("lockedIds");
+    if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {
+      lockedIds.push(tabId);
+    }
+    this.set("lockedIds", lockedIds);
   },
 
   /**
@@ -108,11 +172,8 @@ const Settings = {
     }
   },
 
-  /**
-   * @see Settings.set
-   */
-  setmaxTabs(value: string) {
-    const parsedValue = parseInt(value, 10);
+  setmaxTabs(maxTabs: string) {
+    const parsedValue = parseInt(maxTabs, 10);
     if (isNaN(parsedValue) || parsedValue < 1 || parsedValue > 1000) {
       throw Error(
         chrome.i18n.getMessage("settings_setmaxTabs_error") || "Error: settings.setmaxTabs"
@@ -121,11 +182,8 @@ const Settings = {
     Settings.setValue("maxTabs", parsedValue);
   },
 
-  /**
-   * @see Settings.set
-   */
-  setminTabs(value: string) {
-    const parsedValue = parseInt(value, 10);
+  setminTabs(minTabs: string) {
+    const parsedValue = parseInt(minTabs, 10);
     if (isNaN(parsedValue) || parsedValue < 0) {
       throw Error(
         chrome.i18n.getMessage("settings_setminTabs_error") || "Error: settings.setminTabs"
@@ -134,49 +192,31 @@ const Settings = {
     Settings.setValue("minTabs", parsedValue);
   },
 
-  /**
-   * @see Settings.set
-   */
-  setminutesInactive(value: string): void {
-    const minutes = parseInt(value, 10);
+  setminutesInactive(minutesInactive: string): void {
+    const minutes = parseInt(minutesInactive, 10);
     if (isNaN(minutes) || minutes < 0) {
       throw Error(
         chrome.i18n.getMessage("settings_setminutesInactive_error") ||
           "Error: settings.setminutesInactive"
       );
     }
-
-    // Reset the tabTimes since we changed the setting
-    tabmanager.tabTimes = {};
-    chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
-    Settings.setValue("minutesInactive", value);
+    Settings.setValue("minutesInactive", minutesInactive);
   },
 
-  /**
-   * @see Settings.set
-   */
-  setsecondsInactive(value: string): void {
-    const seconds = parseInt(value, 10);
+  setsecondsInactive(secondsInactive: string): void {
+    const seconds = parseInt(secondsInactive, 10);
     if (isNaN(seconds) || seconds < 0 || seconds > 59) {
       throw Error(
         chrome.i18n.getMessage("settings_setsecondsInactive_error") || "Error: setsecondsInactive"
       );
     }
-
-    // Reset the tabTimes since we changed the setting
-    tabmanager.tabTimes = {};
-    chrome.tabs.query({ windowType: "normal" }, tabmanager.initTabs);
-    Settings.setValue("secondsInactive", value);
-  },
-
-  setshowBadgeCount(value: boolean) {
-    Settings.setValue("showBadgeCount", value);
-    tabmanager.updateClosedCount();
+    Settings.setValue("secondsInactive", secondsInactive);
   },
 
   setValue<T>(key: string, value: T, fx?: () => void) {
     this.cache[key] = value;
-    chrome.storage.sync.set({ [key]: value }, fx);
+    if (fx == null) chrome.storage.sync.set({ [key]: value });
+    else chrome.storage.sync.set({ [key]: value }, fx);
   },
 
   /**
@@ -187,6 +227,22 @@ const Settings = {
       parseInt(this.get("minutesInactive"), 10) * 60000 + // minutes
       parseInt(this.get("secondsInactive"), 10) * 1000 // seconds
     );
+  },
+
+  toggleTabs(tabs: chrome.tabs.Tab[]) {
+    tabs.forEach((tab) => {
+      if (tab.id == null) return;
+      else if (this.isTabLocked(tab)) this.unlockTab(tab.id);
+      else this.lockTab(tab.id);
+    });
+  },
+
+  unlockTab(tabId: number) {
+    const lockedIds = this.get<Array<number>>("lockedIds");
+    if (lockedIds.indexOf(tabId) > -1) {
+      lockedIds.splice(lockedIds.indexOf(tabId), 1);
+    }
+    this.set("lockedIds", lockedIds);
   },
 };
 

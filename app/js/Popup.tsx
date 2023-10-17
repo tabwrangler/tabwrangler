@@ -1,4 +1,3 @@
-import * as React from "react";
 import { AppState, Dispatch } from "./Types";
 import NavBar, { NavBarTabID } from "./NavBar";
 import { clearTempStorage, fetchSessions } from "./actions/tempStorageActions";
@@ -7,6 +6,7 @@ import AboutTab from "./AboutTab";
 import CorralTab from "./CorralTab";
 import LockTab from "./LockTab";
 import OptionsTab from "./OptionsTab";
+import React from "react";
 import { register } from "timeago.js";
 import timeagoLocale from "./timeagoLocale";
 
@@ -75,3 +75,5 @@ export default function Popup() {
     </>
   );
 }
+
+// [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Dead_object

@@ -1,4 +1,4 @@
-import extractRootDomain from "../extractRootDomain";
+import { extractRootDomain } from "../util";
 
 describe("extractRootDomain", () => {
   test("extracts from 2-character TLDs", () => {

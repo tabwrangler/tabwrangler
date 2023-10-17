@@ -1,6 +1,7 @@
 import { Action } from "redux";
 import TabManager from "../tabmanager";
 import configureMockStore from "../__mocks__/configureMockStore";
+import settings from "../settings";
 
 function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
   return {
@@ -22,106 +23,68 @@ function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
 }
 
 beforeEach(() => {
-  const TW = (window.TW = {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    settings: {},
-    store: configureMockStore(),
-  });
-
-  window.chrome = {
-    storage: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
-      local: {},
-    },
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    tabs: {},
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    browserAction: {},
-    extension: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
-      getBackgroundPage: () => {
-        return {
-          TW,
-        };
-      },
-    },
-  };
-});
-
-afterEach(() => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore:next-line
-  window.chrome = {};
+  jest.clearAllMocks();
 });
 
 describe("wrangleTabs", () => {
-  test("should wrangle new tabs", () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    window.TW.settings.get = jest.fn(() => 5); //maxTabs
-    window.chrome.tabs.remove = jest.fn();
+  let store: ReturnType<typeof configureMockStore>;
 
-    const testTabs = [{ id: 2 }, { id: 3 }, { id: 4 }];
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    TabManager.closedTabs.wrangleTabs(testTabs);
+  beforeEach(() => {
+    store = configureMockStore();
+  });
 
+  test("wrangles new tabs", async () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
-    expect(window.chrome.tabs.remove.mock.calls.length).toBe(3);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    expect(window.chrome.tabs.remove.mock.calls).toEqual([[2], [3], [4]]);
+    settings.get = jest.fn(() => 5); //maxTabs
+    const tabManager = new TabManager();
+    tabManager.setStore(<any>store);
 
-    const setSavedTabsAction = window.TW.store
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
+    const testTabs = [createTab({ id: 2 }), createTab({ id: 3 }), createTab({ id: 4 })];
+    await tabManager.wrangleTabs(testTabs);
+
+    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4]);
+
+    const setSavedTabsAction = store
       .getActions()
       .find((action: Action) => action.type === "SET_SAVED_TABS");
     expect(setSavedTabsAction).toBeDefined();
     expect(setSavedTabsAction.savedTabs.map((tab: chrome.tabs.Tab) => tab.id)).toEqual([4, 3, 2]);
   });
 
-  test("should wrangle max tabs", () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    window.TW.settings.get = jest.fn(() => 3);
-    window.chrome.tabs.remove = jest.fn();
+  test("wrangles max tabs", async () => {
+    // @ts-expect-error Only partial implementation of `settings` API
+    settings.get = jest.fn(() => 3);
+    const tabManager = new TabManager();
+    tabManager.setStore(<any>store);
 
-    const testTabs = [{ id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }];
+    const testTabs = [
+      createTab({ id: 2 }),
+      createTab({ id: 3 }),
+      createTab({ id: 4 }),
+      createTab({ id: 5 }),
+    ];
     window.chrome.storage.local.set = jest.fn();
 
-    window.chrome.browserAction.setBadgeText = jest.fn();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    TabManager.closedTabs.wrangleTabs(testTabs);
+    // FIXME: jest-webextension-mock missing `action` declaration
+    // window.chrome.action.setBadgeText = jest.fn();
+    await tabManager.wrangleTabs(testTabs);
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    expect(window.chrome.tabs.remove.mock.calls.length).toBe(4);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    expect(window.chrome.tabs.remove.mock.calls).toEqual([[2], [3], [4], [5]]);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    expect(window.TW.store.getActions()).toContainEqual({
+    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4, 5]);
+    expect(store.getActions()).toContainEqual({
       totalTabsWrangled: 4,
       type: "SET_TOTAL_TABS_WRANGLED",
     });
   });
 
-  test("replaces duplicate tab in the corral if exact URL matches", () => {
-    window.TW.settings.get = jest
+  test("replaces duplicate tab in the corral if exact URL matches", async () => {
+    settings.get = jest
       .fn()
       .mockImplementationOnce(() => 100)
       .mockImplementationOnce(() => "exactURLMatch");
-    window.chrome.tabs.remove = jest.fn();
-    window.TW.store = configureMockStore({
+    store = configureMockStore({
       localStorage: {
         savedTabs: [
           { id: 1, url: "https://www.github.com" },
@@ -130,42 +93,31 @@ describe("wrangleTabs", () => {
         ],
       },
     });
+    const tabManager = new TabManager();
+    tabManager.setStore(<any>store);
 
     window.chrome.storage.local.set = jest.fn();
-    window.chrome.browserAction.setBadgeText = jest.fn();
+    // FIXME: jest-webextension-mock missing `action` declaration
+    // window.chrome.action.setBadgeText = jest.fn();
 
-    // reset all mocks
-    jest.clearAllMocks();
+    const testTabs = [createTab({ id: 4, url: "https://www.nytimes.com" })];
 
-    const testTabs = [{ id: 4, url: "https://www.nytimes.com" }];
+    await tabManager.wrangleTabs(testTabs);
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    TabManager.closedTabs.wrangleTabs(testTabs);
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    expect(window.chrome.tabs.remove.mock.calls.length).toBe(1);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    expect(window.chrome.tabs.remove.mock.calls).toEqual([[4]]);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    expect(window.TW.store.getActions()).toContainEqual({
+    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
+    expect(store.getActions()).toContainEqual({
       totalTabsWrangled: 1,
       type: "SET_TOTAL_TABS_WRANGLED",
     });
-
-    // TODO: Test for tabs
   });
 
-  test("replaces duplicate tab in the corral if hostname and title match", () => {
-    window.TW.settings.get = jest
+  test("replaces duplicate tab in the corral if hostname and title match", async () => {
+    settings.get = jest
       .fn()
       .mockImplementationOnce(() => 100)
       .mockImplementationOnce(() => "hostnameAndTitleMatch");
-    window.chrome.tabs.remove = jest.fn();
-    window.TW.store = configureMockStore({
+    store = configureMockStore({
       localStorage: {
         savedTabs: [
           { id: 1, url: "https://www.github.com", title: "Github" },
@@ -174,39 +126,36 @@ describe("wrangleTabs", () => {
         ],
       },
     });
+    const tabManager = new TabManager();
+    tabManager.setStore(<any>store);
 
     window.chrome.storage.local.set = jest.fn();
-    window.chrome.browserAction.setBadgeText = jest.fn();
+    // FIXME: jest-webextension-mock missing `action` declaration
+    // window.chrome.action.setBadgeText = jest.fn();
 
-    // reset all mocks
     jest.clearAllMocks();
 
-    const testTabs = [{ id: 4, url: "https://www.nytimes.com", title: "New York Times" }];
+    const testTabs = [
+      createTab({ id: 4, url: "https://www.nytimes.com", title: "New York Times" }),
+    ];
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    TabManager.closedTabs.wrangleTabs(testTabs);
+    await tabManager.wrangleTabs(testTabs);
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    expect(window.chrome.tabs.remove.mock.calls.length).toBe(1);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    expect(window.chrome.tabs.remove.mock.calls).toEqual([[4]]);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    expect(window.TW.store.getActions()).toContainEqual({
+    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
+    expect(store.getActions()).toContainEqual({
       totalTabsWrangled: 1,
       type: "SET_TOTAL_TABS_WRANGLED",
     });
-
-    // TODO: Test for tabs
   });
 });
 
 describe("filter", () => {
+  let store: ReturnType<typeof configureMockStore>;
+  let tabManager: TabManager;
+
   beforeEach(() => {
-    window.TW.store = configureMockStore({
+    store = configureMockStore({
       localStorage: {
         savedTabs: [
           { id: 1, url: "https://www.github.com", title: "GitHub" },
@@ -219,27 +168,29 @@ describe("filter", () => {
         ],
       },
     });
+    tabManager = new TabManager();
+    tabManager.setStore(<any>store);
   });
 
   test("should return index of tab if the url matches", () => {
-    expect(TabManager.closedTabs.findPositionByURL("https://www.nytimes.com")).toBe(2);
+    expect(tabManager.findPositionByURL("https://www.nytimes.com")).toBe(2);
   });
 
   test("should return -1 if the url does not match any tab", () => {
-    expect(TabManager.closedTabs.findPositionByURL("https://www.mozilla.org")).toBe(-1);
+    expect(tabManager.findPositionByURL("https://www.mozilla.org")).toBe(-1);
   });
 
   test("should return -1 if the url is undefined", () => {
-    expect(TabManager.closedTabs.findPositionByURL()).toBe(-1);
+    expect(tabManager.findPositionByURL()).toBe(-1);
   });
 
   test("should return -1 if the url is null", () => {
-    expect(TabManager.closedTabs.findPositionByURL(null)).toBe(-1);
+    expect(tabManager.findPositionByURL(null)).toBe(-1);
   });
 
   test("should return index of tab if the url matches", () => {
     expect(
-      TabManager.closedTabs.findPositionByHostnameAndTitle(
+      tabManager.findPositionByHostnameAndTitle(
         "https://www.nytimes.com",
         "The New York Times - Breaking News, World News & Multimedia"
       )
@@ -247,32 +198,36 @@ describe("filter", () => {
   });
 
   test("should return -1 of tab if no title provided", () => {
-    expect(TabManager.closedTabs.findPositionByHostnameAndTitle("https://www.nytimes.com")).toBe(
-      -1
-    );
+    expect(tabManager.findPositionByHostnameAndTitle("https://www.nytimes.com")).toBe(-1);
   });
 });
 
 describe("getURLPositionFilterByWrangleOption", () => {
+  let store: ReturnType<typeof configureMockStore>;
+  let tabManager: TabManager;
+
+  beforeEach(() => {
+    store = configureMockStore();
+    tabManager = new TabManager();
+    tabManager.setStore(<any>store);
+  });
+
   test("should return function that always returns -1", () => {
-    const filterFunction =
-      TabManager.closedTabs.getURLPositionFilterByWrangleOption("withDuplicates");
+    const filterFunction = tabManager.getURLPositionFilterByWrangleOption("withDuplicates");
 
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
   });
 
   test("should return function that will return the tab position by exact URL match", () => {
-    const filterFunction =
-      TabManager.closedTabs.getURLPositionFilterByWrangleOption("exactURLMatch");
+    const filterFunction = tabManager.getURLPositionFilterByWrangleOption("exactURLMatch");
 
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
   });
 
   test("should return function that will return the tab position by hostname and title", () => {
-    const filterFunction =
-      TabManager.closedTabs.getURLPositionFilterByWrangleOption("hostnameAndTitleMatch");
+    const filterFunction = tabManager.getURLPositionFilterByWrangleOption("hostnameAndTitleMatch");
 
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com", title: "test" }))).toBe(-1);

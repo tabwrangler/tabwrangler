@@ -1,165 +1,101 @@
-import { exportData, importData } from "./actions/importExportActions";
 import {
-  removeAllSavedTabs,
-  removeSavedTabs,
   setSavedTabs,
   setTotalTabsRemoved,
-  setTotalTabsUnwrangled,
   setTotalTabsWrangled,
 } from "./actions/localStorageActions";
+import configureStore from "./configureStore";
+import settings from "./settings";
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
-// A map of tabId => timestamp
-const defaultTabTimes: {
-  [tabid: string]: number;
-} = {};
+export default class TabManager {
+  store: ReturnType<typeof configureStore>["store"] | undefined;
 
-/**
- * Stores the tabs in a separate variable to log Last Accessed time.
- */
-const TabManager = {
-  tabTimes: defaultTabTimes,
+  findPositionByURL(url: string | null = ""): number {
+    if (this.store == null) return -1;
+    return this.store
+      .getState()
+      .localStorage.savedTabs.findIndex((item: chrome.tabs.Tab) => item.url === url && url != null);
+  }
 
-  closedTabs: {
-    clear() {
-      window.window.TW.store.dispatch(removeAllSavedTabs());
-    },
+  findPositionByHostnameAndTitle(url = "", title = ""): number {
+    if (this.store == null) return -1;
+    const hostB = new URL(url).hostname;
+    return this.store.getState().localStorage.savedTabs.findIndex((tab: chrome.tabs.Tab) => {
+      const hostA = new URL(tab.url || "").hostname;
+      return hostA === hostB && tab.title === title;
+    });
+  }
 
-    // @todo: move to filter system for consistency
-    findPositionById(id: number): number | null {
-      const { savedTabs } = window.TW.store.getState().localStorage;
-      for (let i = 0; i < savedTabs.length; i++) {
-        if (savedTabs[i].id === id) {
-          return i;
-        }
-      }
-      return null;
-    },
+  getURLPositionFilterByWrangleOption(option: WrangleOption): (tab: chrome.tabs.Tab) => number {
+    if (option === "hostnameAndTitleMatch") {
+      return (tab: chrome.tabs.Tab): number =>
+        this.findPositionByHostnameAndTitle(tab.url, tab.title);
+    } else if (option === "exactURLMatch") {
+      return (tab: chrome.tabs.Tab): number => this.findPositionByURL(tab.url);
+    }
 
-    findPositionByURL(url: string | null = ""): number {
-      return window.TW.store
-        .getState()
-        .localStorage.savedTabs.findIndex((item: chrome.tabs.Tab) => {
-          return item.url === url && url != null;
-        });
-    },
+    // `'withDupes'` && default
+    return () => -1;
+  }
 
-    findPositionByHostnameAndTitle(url = "", title = ""): number {
-      const hostB = new URL(url).hostname;
-      return window.TW.store.getState().localStorage.savedTabs.findIndex((tab: chrome.tabs.Tab) => {
-        const hostA = new URL(tab.url || "").hostname;
-        return hostA === hostB && tab.title === title;
-      });
-    },
+  resetTabTimes() {
+    if (this.store == null) return;
+    this.store.dispatch({ type: "RESET_TAB_TIMES" });
+    chrome.tabs.query({ windowType: "normal" }, (tabs) => {
+      this.initTabs(tabs);
+    });
+  }
 
-    unwrangleTabs(
-      sessionTabs: Array<{
-        session: chrome.sessions.Session | undefined;
-        tab: chrome.tabs.Tab;
-      }>
-    ) {
-      const { localStorage } = window.TW.store.getState();
-      const installDate = localStorage.installDate;
-      let countableTabsUnwrangled = 0;
-      sessionTabs.forEach((sessionTab) => {
-        if (sessionTab.session == null || sessionTab.session.tab == null) {
-          chrome.tabs.create({ active: false, url: sessionTab.tab.url });
-        } else {
-          chrome.sessions.restore(sessionTab.session.tab.sessionId);
-        }
+  wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
+    // Store not yet initialized, nothing to do
+    if (this.store == null) return;
+    // No tabs, nothing to do
+    else if (tabs.length === 0) return;
 
-        // Count only those tabs closed after install date because users who upgrade will not have
-        // an accurate count of all tabs closed. The updaters' install dates will be the date of
-        // the upgrade, after which point TW will keep an accurate count of closed tabs.
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore:next-line
-        if (sessionTab.tab.closedAt >= installDate) countableTabsUnwrangled++;
-      });
+    const maxTabs = settings.get<number>("maxTabs");
+    let totalTabsWrangled = this.store.getState().localStorage.totalTabsWrangled;
+    const wrangleOption = settings.get<WrangleOption>("wrangleOption");
+    const findURLPositionByWrangleOption = this.getURLPositionFilterByWrangleOption(wrangleOption);
 
-      // Done opening them all, now get all of the restored tabs out of the store.
-      window.TW.store.dispatch(removeSavedTabs(sessionTabs.map((sessionTab) => sessionTab.tab)));
+    let nextSavedTabs = this.store.getState().localStorage.savedTabs.slice();
+    const tabIdsToRemove: Array<number> = [];
+    for (let i = 0; i < tabs.length; i++) {
+      const existingTabPosition = findURLPositionByWrangleOption(tabs[i]);
+      const closingDate = Date.now();
 
-      const totalTabsUnwrangled = localStorage.totalTabsUnwrangled;
-      window.TW.store.dispatch(
-        setTotalTabsUnwrangled(totalTabsUnwrangled + countableTabsUnwrangled)
-      );
-    },
-
-    getURLPositionFilterByWrangleOption(option: WrangleOption): (tab: chrome.tabs.Tab) => number {
-      if (option === "hostnameAndTitleMatch") {
-        return (tab: chrome.tabs.Tab): number => {
-          return TabManager.closedTabs.findPositionByHostnameAndTitle(tab.url, tab.title);
-        };
-      } else if (option === "exactURLMatch") {
-        return (tab: chrome.tabs.Tab): number => {
-          return TabManager.closedTabs.findPositionByURL(tab.url);
-        };
+      if (existingTabPosition > -1) {
+        nextSavedTabs.splice(existingTabPosition, 1);
       }
 
-      // `'withDupes'` && default
-      return () => {
-        return -1;
-      };
-    },
+      // @ts-expect-error `closedAt` is a TW expando property on tabs
+      tabs[i].closedAt = closingDate;
+      nextSavedTabs.unshift(tabs[i]);
+      totalTabsWrangled += 1;
 
-    wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
-      const maxTabs = window.TW.settings.get<number>("maxTabs");
-      let totalTabsWrangled = window.TW.store.getState().localStorage.totalTabsWrangled;
-      const wrangleOption = window.TW.settings.get<WrangleOption>("wrangleOption");
-      const findURLPositionByWrangleOption =
-        this.getURLPositionFilterByWrangleOption(wrangleOption);
-
-      let nextSavedTabs = window.TW.store.getState().localStorage.savedTabs.slice();
-      for (let i = 0; i < tabs.length; i++) {
-        if (tabs[i] === null) {
-          console.log("Weird bug, backtrace this...");
-        }
-
-        const existingTabPosition = findURLPositionByWrangleOption(tabs[i]);
-        const closingDate = Date.now();
-
-        if (existingTabPosition > -1) {
-          nextSavedTabs.splice(existingTabPosition, 1);
-        }
-
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore:next-line
-        tabs[i].closedAt = closingDate;
-        nextSavedTabs.unshift(tabs[i]);
-        totalTabsWrangled += 1;
-
-        // Close it in the browser.
-        const tabId = tabs[i].id;
-        if (tabId != null) chrome.tabs.remove(tabId);
+      const tabId = tabs[i].id;
+      if (tabId != null) {
+        tabIdsToRemove.push(tabId);
       }
+    }
 
-      if (nextSavedTabs.length - maxTabs > 0) {
-        nextSavedTabs = nextSavedTabs.splice(0, maxTabs);
-      }
+    // Note: intentionally not awaiting tab removal! If removal does need to be awaited then this
+    // function must be rewritten to get store values before/after async operations.
+    if (tabIdsToRemove.length > 0) chrome.tabs.remove(tabIdsToRemove);
 
-      window.TW.store.dispatch(setSavedTabs(nextSavedTabs));
-      window.TW.store.dispatch(setTotalTabsWrangled(totalTabsWrangled));
-    },
-  },
+    // Trim saved tabs to the max allocated by the setting. Browser extension storage is limited and
+    // thus cannot allow saved tabs to grow indefinitely.
+    if (nextSavedTabs.length - maxTabs > 0) nextSavedTabs = nextSavedTabs.splice(0, maxTabs);
+
+    this.store.dispatch(setSavedTabs(nextSavedTabs));
+    this.store.dispatch(setTotalTabsWrangled(totalTabsWrangled));
+  }
 
   initTabs(tabs: Array<chrome.tabs.Tab>) {
     for (let i = 0; i < tabs.length; i++) {
-      TabManager.updateLastAccessed(tabs[i]);
+      this.updateLastAccessed(tabs[i]);
     }
-  },
-
-  /* Re-export so these can be executed in the context of the Tab Manager. */
-  exportData,
-  importData,
-
-  /**
-   * Wrapper function to get all tab times regardless of time inactive
-   * @return {Array}
-   */
-  getAll(): Array<number> {
-    return TabManager.getOlderThen();
-  },
+  }
 
   /**
    * Returns tab times (hash of tabId : lastAccess)
@@ -168,105 +104,73 @@ const TabManager = {
    * @return {Array}
    */
   getOlderThen(time?: number): Array<number> {
-    const ret = [];
-    for (const i in this.tabTimes) {
-      if (Object.prototype.hasOwnProperty.call(this.tabTimes, i)) {
-        if (!time || this.tabTimes[i] < time) {
+    const ret: Array<number> = [];
+    if (this.store == null) return ret;
+
+    const { tabTimes } = this.store.getState().localStorage;
+    for (const i in tabTimes) {
+      if (Object.prototype.hasOwnProperty.call(tabTimes, i)) {
+        if (!time || tabTimes[i] < time) {
           ret.push(parseInt(i, 10));
         }
       }
     }
     return ret;
-  },
+  }
 
-  getWhitelistMatch(url: string | undefined): string | null {
-    if (url == null) return null;
-    const whitelist = window.TW.settings.get<string>("whitelist");
-    for (let i = 0; i < whitelist.length; i++) {
-      if (url.indexOf(whitelist[i]) !== -1) {
-        return whitelist[i];
-      }
-    }
-    return null;
-  },
-
-  isLocked(tabId: number): boolean {
-    const lockedIds = window.TW.settings.get<Array<number>>("lockedIds");
-    if (lockedIds.indexOf(tabId) !== -1) {
-      return true;
-    }
-    return false;
-  },
-
-  isWhitelisted(url: string): boolean {
-    return this.getWhitelistMatch(url) !== null;
-  },
-
-  lockTab(tabId: number) {
-    const lockedIds = window.TW.settings.get<Array<number>>("lockedIds");
-
-    if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {
-      lockedIds.push(tabId);
-    }
-    window.TW.settings.set("lockedIds", lockedIds);
-  },
+  onNewTab(tab: chrome.tabs.Tab) {
+    // Track new tab's time to close.
+    if (tab.id != null) this.updateLastAccessed(tab.id);
+  }
 
   removeTab(tabId: number) {
-    const totalTabsRemoved = window.TW.store.getState().localStorage.totalTabsRemoved;
-    window.TW.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
-    delete TabManager.tabTimes[String(tabId)];
-  },
+    if (this.store == null) return;
+    const totalTabsRemoved = this.store.getState().localStorage.totalTabsRemoved;
+    this.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
+    settings.unlockTab(tabId);
+    this.store.dispatch({ tabId: String(tabId), type: "REMOVE_TAB_TIME" });
+  }
 
   replaceTab(addedTabId: number, removedTabId: number) {
-    TabManager.removeTab(removedTabId);
-    TabManager.updateLastAccessed(addedTabId);
-  },
+    this.removeTab(removedTabId);
+    this.updateLastAccessed(addedTabId);
+  }
 
-  toggleTabs(tabs: chrome.tabs.Tab[]) {
-    tabs.forEach((tab) => {
-      if (tab.id == null) return;
-      else if (this.isLocked(tab.id)) this.unlockTab(tab.id);
-      else this.lockTab(tab.id);
-    });
-  },
+  setStore(store: ReturnType<typeof configureStore>["store"]) {
+    this.store = store;
+  }
 
-  unlockTab(tabId: number) {
-    const lockedIds = window.TW.settings.get<Array<number>>("lockedIds");
-    if (lockedIds.indexOf(tabId) > -1) {
-      lockedIds.splice(lockedIds.indexOf(tabId), 1);
-    }
-    window.TW.settings.set("lockedIds", lockedIds);
-  },
-
-  updateClosedCount() {
+  updateClosedCount(showBadgeCount: boolean = settings.get("showBadgeCount")) {
+    if (this.store == null) return;
     let text;
-    if (window.TW.settings.get("showBadgeCount")) {
-      const savedTabsLength = window.TW.store.getState().localStorage.savedTabs.length;
-      text = savedTabsLength.length === 0 ? "" : savedTabsLength.toString();
+    if (showBadgeCount) {
+      const savedTabsLength = this.store.getState().localStorage.savedTabs.length;
+      text = savedTabsLength === 0 ? "" : savedTabsLength.toString();
     } else {
       text = "";
     }
-    chrome.browserAction.setBadgeText({ text });
-  },
+    chrome.action.setBadgeText({ text });
+  }
 
-  updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number | Array<chrome.tabs.Tab>) {
+  updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number) {
+    if (this.store == null) return;
     let tabId;
-    if (Array.isArray(tabOrTabId)) {
-      tabOrTabId.map(TabManager.updateLastAccessed.bind(this));
-      return;
-    } else if (typeof tabOrTabId !== "number" && typeof tabOrTabId.id !== "number") {
+    if (typeof tabOrTabId !== "number" && typeof tabOrTabId.id !== "number") {
       console.log("Error: `tabOrTabId.id` is not an number", tabOrTabId.id);
       return;
     } else if (typeof tabOrTabId === "number") {
       tabId = tabOrTabId;
-      TabManager.tabTimes[String(tabId)] = Date.now();
+      this.store.dispatch({ tabId: String(tabId), tabTime: Date.now(), type: "SET_TAB_TIME" });
     } else {
       tabId = tabOrTabId.id;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore:next-line
-      TabManager.tabTimes[String(tabId)] = tabOrTabId?.lastAccessed ?? new Date().getTime();
+      this.store.dispatch({
+        tabId: String(tabId),
+        // `Tab.lastAccessed` not yet added to `chrome.tabs.Tab` type.
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore:next-line
+        tabTime: tabOrTabId?.lastAccessed ?? new Date().getTime(),
+        type: "SET_TAB_TIME",
+      });
     }
-  },
-};
-
-export default TabManager;
+  }
+}

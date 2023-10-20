@@ -1,10 +1,10 @@
 import * as React from "react";
+import settings, { SETTINGS_DEFAULTS } from "./settings";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppState } from "./Types";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
 import { isTabLocked } from "./tabUtil";
-import settings from "./settings";
 import { useSelector } from "react-redux";
 
 type Sorter = {
@@ -100,13 +100,7 @@ export default function LockTab() {
     [currSorter, tabTimes, tabs]
   );
   const { data: tabLockData } = useQuery({
-    queryFn: () =>
-      chrome.storage.sync.get({
-        filterAudio: settings.defaults.filterAudio,
-        filterGroupedTabs: settings.defaults.filterGroupedTabs,
-        lockedIds: settings.defaults.lockedIds,
-        whitelist: settings.defaults.whitelist,
-      }),
+    queryFn: () => chrome.storage.sync.get(SETTINGS_DEFAULTS),
     queryKey: ["tabLock"],
   });
   React.useEffect(() => {

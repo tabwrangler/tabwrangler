@@ -3,61 +3,61 @@ import { getWhitelistMatch, isTabLocked } from "./tabUtil";
 const defaultCache: Record<string, unknown> = {};
 const defaultLockedIds: Array<number> = [];
 
+export const SETTINGS_DEFAULTS = {
+  // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
+  corralTabSortOrder: null,
+
+  // wait 1 second before updating an active tab
+  debounceOnActivated: true,
+
+  // Don't close tabs that are playing audio.
+  filterAudio: true,
+
+  // Don't close tabs that are a member of a group.
+  filterGroupedTabs: false,
+
+  // An array of tabids which have been explicitly locked by the user.
+  lockedIds: defaultLockedIds,
+
+  // Saved sort order for list of open tabs. When null, default sort is used (tab order)
+  lockTabSortOrder: null,
+
+  // Max number of tabs stored before the list starts getting truncated.
+  maxTabs: 1000,
+
+  // Stop acting if there are only minTabs tabs open.
+  minTabs: 20,
+
+  // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
+  minutesInactive: 60,
+
+  // Save closed tabs in between browser sessions.
+  purgeClosedTabs: false,
+
+  // How many seconds (+ minutesInactive) before a tab is "stale" and ready to close.
+  secondsInactive: 0,
+
+  // When true, shows the number of closed tabs in the list as a badge on the browser icon.
+  showBadgeCount: false,
+
+  // An array of patterns to check against. If a URL matches a pattern, it is never locked.
+  whitelist: ["about:", "chrome://"],
+
+  // We allow duplicate entries in the closed/wrangled tabs list
+  wrangleOption: "withDupes",
+} as Record<string, unknown>;
+
 // This is a SINGLETON! It is imported both by backgrounnd.ts and by popup.tsx and used in both
 // environments.
 const Settings = {
   cache: defaultCache,
 
-  defaults: {
-    // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
-    corralTabSortOrder: null,
-
-    // wait 1 second before updating an active tab
-    debounceOnActivated: true,
-
-    // Don't close tabs that are playing audio.
-    filterAudio: true,
-
-    // Don't close tabs that are a member of a group.
-    filterGroupedTabs: false,
-
-    // An array of tabids which have been explicitly locked by the user.
-    lockedIds: defaultLockedIds,
-
-    // Saved sort order for list of open tabs. When null, default sort is used (tab order)
-    lockTabSortOrder: null,
-
-    // Max number of tabs stored before the list starts getting truncated.
-    maxTabs: 1000,
-
-    // Stop acting if there are only minTabs tabs open.
-    minTabs: 20,
-
-    // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
-    minutesInactive: 60,
-
-    // Save closed tabs in between browser sessions.
-    purgeClosedTabs: false,
-
-    // How many seconds (+ minutesInactive) before a tab is "stale" and ready to close.
-    secondsInactive: 0,
-
-    // When true, shows the number of closed tabs in the list as a badge on the browser icon.
-    showBadgeCount: false,
-
-    // An array of patterns to check against. If a URL matches a pattern, it is never locked.
-    whitelist: ["about:", "chrome://"],
-
-    // We allow duplicate entries in the closed/wrangled tabs list
-    wrangleOption: "withDupes",
-  } as Record<string, unknown>,
-
   // Gets all settings from sync and stores them locally.
   init(): Promise<void> {
     const keys: Array<string> = [];
-    for (const i in this.defaults) {
-      if (Object.prototype.hasOwnProperty.call(this.defaults, i)) {
-        this.cache[i] = this.defaults[i];
+    for (const i in SETTINGS_DEFAULTS) {
+      if (Object.prototype.hasOwnProperty.call(SETTINGS_DEFAULTS, i)) {
+        this.cache[i] = SETTINGS_DEFAULTS[i];
         keys.push(i);
       }
     }

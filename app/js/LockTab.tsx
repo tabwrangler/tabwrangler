@@ -1,11 +1,9 @@
 import * as React from "react";
 import settings, { SETTINGS_DEFAULTS } from "./settings";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AppState } from "./Types";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
 import { isTabLocked } from "./tabUtil";
-import { useSelector } from "react-redux";
 
 type Sorter = {
   key: string;
@@ -83,6 +81,7 @@ export default function LockTab() {
   const [sortOrder, setSortOrder] = React.useState<string | null>(
     settings.get<string>("lockTabSortOrder")
   );
+
   const [currSorter, setCurrSorter] = React.useState(() => {
     let sorter = sortOrder == null ? DEFAULT_SORTER : Sorters.find((s) => s.key === sortOrder);
 
@@ -90,27 +89,37 @@ export default function LockTab() {
     if (sorter == null) sorter = DEFAULT_SORTER;
     return sorter;
   });
-  const tabTimes = useSelector((state: AppState) => state.localStorage.tabTimes);
+
+  const { data: persistLocalData } = useQuery({
+    queryFn: async () => {
+      // `local` was managed by redux-persit, which prefixed the data with "persist:"
+      const data = await chrome.storage.local.get({ "persist:localStorage": {} });
+      return data["persist:localStorage"];
+    },
+    queryKey: ["localQuery", { type: "persist" }],
+  });
+
   const { data: tabs } = useQuery({ queryFn: () => chrome.tabs.query({}), queryKey: ["tabs"] });
   const sortedTabs = React.useMemo(
     () =>
-      tabs == null ? [] : tabs.slice().sort((tabA, tabB) => currSorter.sort(tabA, tabB, tabTimes)),
-    [currSorter, tabTimes, tabs]
+      tabs == null || persistLocalData?.tabTimes == null
+        ? []
+        : tabs.slice().sort((tabA, tabB) => currSorter.sort(tabA, tabB, persistLocalData.tabTimes)),
+    [currSorter, persistLocalData?.tabTimes, tabs]
   );
+
   const { data: tabLockData } = useQuery({
     queryFn: () => chrome.storage.sync.get(SETTINGS_DEFAULTS),
-    queryKey: ["tabLock"],
+    queryKey: ["settingsQuery"],
   });
+
   React.useEffect(() => {
     function handleChanged(
-      changes: { [key: string]: chrome.storage.StorageChange },
+      _changes: { [key: string]: chrome.storage.StorageChange },
       areaName: chrome.storage.AreaName
     ) {
-      if (
-        areaName === "sync" &&
-        ["filterAudio", "filterGroupedTabs", "lockedIds", "whitelist"].some((key) => key in changes)
-      )
-        queryClient.invalidateQueries({ queryKey: ["tabLock"] });
+      if (areaName === "sync") queryClient.invalidateQueries({ queryKey: ["settingsQuery"] });
+      if (areaName === "local") queryClient.invalidateQueries({ queryKey: ["tabTimesQuery"] });
     }
     chrome.storage.onChanged.addListener(handleChanged);
     return () => {

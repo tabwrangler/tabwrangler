@@ -1,14 +1,35 @@
 import * as React from "react";
-// import { AppState } from "./Types";
+import { useStorageLocalPersistQuery, useStorageSyncPersistQuery } from "./hooks";
 import LazyImage from "./LazyImage";
 import cx from "classnames";
 import settings from "./settings";
-// import { useSelector } from "react-redux";
 
 function secondsToMinutes(seconds: number) {
   const minutes = seconds % 60;
   const minutesString = minutes >= 10 ? String(minutes) : `0${String(minutes)}`;
   return `${String(Math.floor(seconds / 60))}:${minutesString}`;
+}
+
+let useNowCount = 0;
+function useNow() {
+  const [now, setNow] = React.useState(new Date().getTime());
+  const intervalRef = React.useRef<number>();
+  React.useEffect(() => {
+    useNowCount += 1;
+    if (useNowCount === 1) {
+      intervalRef.current = window.setInterval(() => {
+        setNow(new Date().getTime());
+      }, 1000);
+    }
+    return () => {
+      useNowCount -= 1;
+      if (useNowCount === 0) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = undefined;
+      }
+    };
+  }, []);
+  return now;
 }
 
 type Props = {
@@ -18,13 +39,17 @@ type Props = {
 };
 
 export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
-  // const paused = useSelector((state: AppState) => state.settings.paused);
-  // const tabTime = useSelector((state: AppState) =>
-  //   tab.id == null ? Date.now() : state.localStorage.tabTimes[tab.id]
-  // );
+  const { data: syncPersistData } = useStorageSyncPersistQuery();
+  const { data: localPersistData } = useStorageLocalPersistQuery();
+  const now = useNow();
+  const paused = syncPersistData?.paused;
+  const tabTime =
+    tab.id == null || localPersistData == null ? Date.now() : localPersistData.tabTimes[tab.id];
 
+  console.log("tabTime", tabTime);
+  console.log("now", now);
   function handleLockedOnClick(event: React.MouseEvent) {
-    // Dynamic type check to ensure target is an input element.
+    // Dynamically check target is an input element.
     if (!(event.target instanceof HTMLInputElement)) return;
     onToggleTab(tab, event.target.checked, event.shiftKey);
   }
@@ -50,25 +75,27 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
     }
 
+    console.log("LOCKED");
     lockStatusElement = (
       <td className="text-center muted" style={{ verticalAlign: "middle" }}>
         {reason}
       </td>
     );
   } else {
-    // let timeLeftContent;
-    // if (paused) {
-    //   timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
-    // } else {
-    const cutOff = new Date().getTime() - settings.get<number>("stayOpen");
-    const timeLeft = -1 * Math.round((cutOff - 100) / 1000);
-    // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the
-    // interval to clean up this tab. It's also possible the number of tabs is not below
-    // `minTabs`, which has stopped the countdown and locked this at a negative `timeLeft` until
-    // another tab is opened to jump start the countdown again.
-    const timeLeftContent = timeLeft < 0 ? "..." : secondsToMinutes(timeLeft);
-    // }
+    let timeLeftContent;
+    if (paused) {
+      timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
+    } else {
+      const cutOff = now - settings.get<number>("stayOpen");
+      const timeLeft = -1 * Math.round((cutOff - tabTime) / 1000);
+      // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the
+      // interval to clean up this tab. It's also possible the number of tabs is not below
+      // `minTabs`, which has stopped the countdown and locked this at a negative `timeLeft` until
+      // another tab is opened to jump start the countdown again.
+      timeLeftContent = timeLeft < 0 ? "…" : secondsToMinutes(timeLeft);
+    }
 
+    console.log("NOT LOCKED", timeLeftContent);
     lockStatusElement = (
       <td className="text-center" style={{ verticalAlign: "middle" }}>
         {timeLeftContent}

@@ -1,12 +1,14 @@
 import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { exportData, importData } from "./actions/importExportActions";
-import settings, { SETTINGS_DEFAULTS } from "./settings";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { mutatePersistSetting, mutateSetting } from "./mutations";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useStorageSyncPersistQuery, useStorageSyncQuery } from "./hooks";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
 import cx from "classnames";
 import { exportFileName } from "./actions/importExportActions";
+import settings from "./settings";
 import { useDebounceCallback } from "@react-hook/debounce";
 
 function isValidPattern(pattern: string) {
@@ -15,37 +17,9 @@ function isValidPattern(pattern: string) {
   return pattern != null && pattern.length > 0 && /\S/.test(pattern);
 }
 
-async function mutatePersistSetting({
-  key,
-  value,
-}: {
-  key: string;
-  value: unknown;
-}): Promise<void> {
-  const data = await chrome.storage.sync.get({ "persist:settings": {} });
-  return chrome.storage.sync.set({
-    "persist:settings": { ...data["persist:settings"], [key]: value },
-  });
-}
-
-async function mutateSetting({ key, value }: { key: string; value: unknown }): Promise<void> {
-  return chrome.storage.sync.set({ [key]: value });
-}
-
 export default function OptionsTab() {
-  const { data: persistSettingsData } = useQuery({
-    queryFn: async () => {
-      // `settings` was managed by redux-persit, which prefixed the data with "persist:"
-      const data = await chrome.storage.sync.get({ "persist:settings": {} });
-      return data["persist:settings"];
-    },
-    queryKey: ["settingsQuery", { type: "persist" }],
-  });
-
-  const { data: settingsData } = useQuery({
-    queryFn: () => chrome.storage.sync.get(SETTINGS_DEFAULTS),
-    queryKey: ["settingsQuery"],
-  });
+  const { data: syncPersistData } = useStorageSyncPersistQuery();
+  const { data: syncData } = useStorageSyncQuery();
 
   const queryClient = useQueryClient();
   React.useEffect(() => {
@@ -63,8 +37,8 @@ export default function OptionsTab() {
 
   const fileSelectorRef = React.useRef<HTMLInputElement | null>(null);
   const importExportAlertTimeoutRef = React.useRef<number>();
-  const theme: string = persistSettingsData?.theme ?? "system";
-  const whitelist: string[] = settingsData?.whitelist ?? [];
+  const theme: string = syncPersistData?.theme ?? "system";
+  const whitelist: string[] = syncData?.whitelist ?? [];
   const [errors, setErrors] = React.useState<Error[]>([]);
   const [importExportAlertVisible, setImportExportAlertVisible] = React.useState(false);
   const [importExportErrors, setImportExportErrors] = React.useState<Error[]>([]);

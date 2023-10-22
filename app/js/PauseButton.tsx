@@ -1,38 +1,13 @@
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-async function mutatePaused(nextPaused: boolean) {
-  const settingsData = await chrome.storage.sync.get({ "persist:settings": {} });
-  return chrome.storage.sync.set({
-    "persist:settings": { ...settingsData, paused: nextPaused },
-  });
-}
+import { mutateStorageSyncPersist } from "./mutations";
+import { useMutation } from "@tanstack/react-query";
+import { useStorageSyncPersistQuery } from "./hooks";
 
 export default function PauseButton() {
-  const { data: settingsData } = useQuery({
-    queryFn: async () => {
-      // `settings` was managed by redux-persit, which prefixed the data with "persist:"
-      const data = await chrome.storage.sync.get({ "persist:settings": {} });
-      return data["persist:settings"];
-    },
-    queryKey: ["settingsDataQuery"],
-  });
-
-  const queryClient = useQueryClient();
-  React.useEffect(() => {
-    function handleChanged(
-      changes: { [key: string]: chrome.storage.StorageChange },
-      areaName: chrome.storage.AreaName
-    ) {
-      if (areaName === "sync" && ["persist:settings"].some((key) => key in changes))
-        queryClient.invalidateQueries({ queryKey: ["settingsDataQuery"] });
-    }
-    chrome.storage.onChanged.addListener(handleChanged);
-    return () => chrome.storage.onChanged.removeListener(handleChanged);
-  }, [queryClient]);
-
+  const { data: settingsData } = useStorageSyncPersistQuery();
   const pausedMutation = useMutation({
-    mutationFn: mutatePaused,
+    mutationFn: (nextPaused: boolean) =>
+      mutateStorageSyncPersist({ key: "paused", value: nextPaused }),
   });
 
   function pause() {

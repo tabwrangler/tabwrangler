@@ -3,10 +3,11 @@ import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
 import { extractHostname, extractRootDomain, serializeTab } from "./util";
 import { removeSavedTabs, unwrangleTabs } from "./actions/localStorageActions";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ClosedTabRow from "./ClosedTabRow";
 import cx from "classnames";
 import settings from "./settings";
+import { useQuery } from "@tanstack/react-query";
+import { useStorageLocalPersistQuery } from "./hooks";
 
 function keywordFilter(keyword: string) {
   return function (tab: chrome.tabs.Tab) {
@@ -193,31 +194,11 @@ export default function CorralTab() {
     return nextSorter;
   });
 
-  const queryClient = useQueryClient();
   const { data: sessions } = useQuery({
     queryFn: () => chrome.sessions.getRecentlyClosed(),
     queryKey: ["sessionsData"],
   });
-  const { data: localStorageData } = useQuery({
-    queryFn: async () => {
-      // `localStorage` is managed by redux-persit, which prefix the data with "persist:"
-      const data = await chrome.storage.local.get({ "persist:localStorage": {} });
-      return data["persist:localStorage"];
-    },
-    queryKey: ["localStorageData"],
-  });
-  React.useEffect(() => {
-    function handleChanged(
-      _changes: { [key: string]: chrome.storage.StorageChange },
-      areaName: chrome.storage.AreaName
-    ) {
-      if (areaName === "local") queryClient.invalidateQueries(["localStorageData"]);
-    }
-    chrome.storage.onChanged.addListener(handleChanged);
-    return () => {
-      chrome.storage.onChanged.removeListener(handleChanged);
-    };
-  }, [queryClient]);
+  const { data: localStorageData } = useStorageLocalPersistQuery();
 
   const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
   const [selectedTabs, setSelectedTabs] = React.useState<Set<string>>(new Set());

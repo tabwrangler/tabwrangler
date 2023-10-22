@@ -3,29 +3,15 @@ import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
 import "./css/fontawesome-free-solid-woff-only.css";
 import "react-virtualized/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-// import { Store, applyMiddleware } from "@eduardoac-skimlinks/webext-redux";
 import Popup from "./js/Popup";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import settings from "./js/settings";
-// import thunk from "redux-thunk";
 
 const queryClient = new QueryClient();
-
 function PopupWrapper() {
-  // const [store, setStore] = React.useState<Store>();
   const [isDelayed, setIsDelayed] = React.useState(false);
-  // const [isStoreReady, setIsStoreReady] = React.useState(false);
   const [isSettingsInit, setIsSettingsInit] = React.useState(false);
-
-  // React.useEffect(() => {
-  //   // Initialize "proxy" store and apply Thunk middleware in order to dispatch thunk-style actions.
-  //   // See https://github.com/tshaddix/webext-redux
-  //   let newStore = new Store();
-  //   const middleware = [thunk];
-  //   newStore = applyMiddleware(newStore, ...middleware);
-  //   setStore(newStore);
-  // }, []);
 
   React.useEffect(() => {
     const timeout = setTimeout(() => {
@@ -46,21 +32,6 @@ function PopupWrapper() {
     }
     initSettings();
   }, []);
-
-  // React.useEffect(() => {
-  //   setIsStoreReady(false);
-  //   async function readyStore() {
-  //     if (store == null) {
-  //       console.info("[PopupWrapper]: store undefined, noop");
-  //       return;
-  //     }
-  //     console.info("[PopupWrapper]: awaiting store readiness");
-  //     await store.ready();
-  //     console.info("[PopupWrapper]: store ready!");
-  //     setIsStoreReady(true);
-  //   }
-  //   readyStore();
-  // }, [store]);
 
   const isReady = isSettingsInit;
   if (!isReady && !isDelayed) {
@@ -97,12 +68,13 @@ const popupElement = document.getElementById("popup");
 if (popupElement == null)
   throw new Error("Could not find #popup element. Re-open the popup to try again.");
 
-ReactDOM.render(<PopupWrapper />, popupElement);
+const root = createRoot(popupElement);
+root.render(<PopupWrapper />);
 
 // The popup fires `pagehide` when the popup is going away. Make sure to unmount the component so
 // it can unsubscribe from the Store events.
 const unmountPopup = function unmountPopup() {
-  ReactDOM.unmountComponentAtNode(popupElement);
+  root.unmount();
   window.removeEventListener("pagehide", unmountPopup);
 };
 

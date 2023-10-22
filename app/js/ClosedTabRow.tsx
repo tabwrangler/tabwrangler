@@ -15,27 +15,33 @@ type Props = {
   tab: chrome.tabs.Tab;
 };
 
-export default function ClosedTabRow(props: Props) {
-  const { isSelected, session, style, tab } = props;
-
+export default function ClosedTabRow({
+  isSelected,
+  onOpenTab,
+  onRemoveTab,
+  onToggleTab,
+  session,
+  style,
+  tab,
+}: Props) {
   function _handleClickAnchor(event: React.MouseEvent) {
     event.preventDefault();
-    props.onOpenTab(tab, props.session);
+    onOpenTab(tab, session);
   }
 
   function _handleClickCheckbox(event: React.MouseEvent) {
     // Dynamic type check to ensure target is an input element.
     if (!(event.target instanceof HTMLInputElement)) return;
-    props.onToggleTab(props.tab, event.target.checked, event.shiftKey);
+    onToggleTab(tab, event.target.checked, event.shiftKey);
   }
 
   function _handleClickRemove() {
-    props.onRemoveTab(props.tab);
+    onRemoveTab(tab);
   }
 
   function _handleClickTd(event: React.MouseEvent) {
     if (event.currentTarget.nodeName === "input") return;
-    props.onToggleTab(props.tab, !props.isSelected, event.shiftKey);
+    onToggleTab(tab, !isSelected, event.shiftKey);
   }
 
   return (

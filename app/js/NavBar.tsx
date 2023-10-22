@@ -10,25 +10,25 @@ type Props = {
   onClickTab: (tabId: NavBarTabID) => void;
 };
 
-export default function NavBar(props: Props) {
+export default function NavBar({ activeTabId, onClickTab }: Props) {
   function handleClickAboutTab(event: React.MouseEvent) {
     event.preventDefault();
-    props.onClickTab("about");
+    onClickTab("about");
   }
 
   function handleClickCorralTab(event: React.MouseEvent) {
     event.preventDefault();
-    props.onClickTab("corral");
+    onClickTab("corral");
   }
 
   function handleClickLockTab(event: React.MouseEvent) {
     event.preventDefault();
-    props.onClickTab("lock");
+    onClickTab("lock");
   }
 
   function handleClickOptionsTab(event: React.MouseEvent) {
     event.preventDefault();
-    props.onClickTab("options");
+    onClickTab("options");
   }
 
   return (
@@ -39,7 +39,7 @@ export default function NavBar(props: Props) {
       <ul className="nav nav-tabs">
         <li className="nav-item">
           <a
-            className={cx("nav-link", { active: props.activeTabId === "corral" })}
+            className={cx("nav-link", { active: activeTabId === "corral" })}
             href="#corral"
             onClick={handleClickCorralTab}
           >
@@ -48,7 +48,7 @@ export default function NavBar(props: Props) {
         </li>
         <li className="nav-item">
           <a
-            className={cx("nav-link", { active: props.activeTabId === "lock" })}
+            className={cx("nav-link", { active: activeTabId === "lock" })}
             href="#lock"
             onClick={handleClickLockTab}
           >
@@ -57,7 +57,7 @@ export default function NavBar(props: Props) {
         </li>
         <li className="nav-item">
           <a
-            className={cx("nav-link", { active: props.activeTabId === "options" })}
+            className={cx("nav-link", { active: activeTabId === "options" })}
             href="#options"
             onClick={handleClickOptionsTab}
           >
@@ -66,7 +66,7 @@ export default function NavBar(props: Props) {
         </li>
         <li className="nav-item">
           <a
-            className={cx("nav-link", { active: props.activeTabId === "about" })}
+            className={cx("nav-link", { active: activeTabId === "about" })}
             href="#about"
             onClick={handleClickAboutTab}
           >

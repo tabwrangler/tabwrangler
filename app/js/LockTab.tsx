@@ -1,9 +1,10 @@
 import * as React from "react";
-import settings, { SETTINGS_DEFAULTS } from "./settings";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useStorageLocalPersistQuery, useStorageSyncQuery } from "./hooks";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
 import { isTabLocked } from "./tabUtil";
+import settings from "./settings";
+import { useQuery } from "@tanstack/react-query";
 
 type Sorter = {
   key: string;
@@ -76,7 +77,6 @@ const Sorters = [TabOrderSorter, ReverseTabOrderSorter, ChronoSorter, ReverseChr
 export default function LockTab() {
   const dropdownRef = React.useRef<HTMLElement | null>(null);
   const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
-  const queryClient = useQueryClient();
   const [isSortDropdownOpen, setIsSortDropdownOpen] = React.useState<boolean>(false);
   const [sortOrder, setSortOrder] = React.useState<string | null>(
     settings.get<string>("lockTabSortOrder")
@@ -90,15 +90,7 @@ export default function LockTab() {
     return sorter;
   });
 
-  const { data: persistLocalData } = useQuery({
-    queryFn: async () => {
-      // `local` was managed by redux-persit, which prefixed the data with "persist:"
-      const data = await chrome.storage.local.get({ "persist:localStorage": {} });
-      return data["persist:localStorage"];
-    },
-    queryKey: ["localQuery", { type: "persist" }],
-  });
-
+  const { data: persistLocalData } = useStorageLocalPersistQuery();
   const { data: tabs } = useQuery({ queryFn: () => chrome.tabs.query({}), queryKey: ["tabs"] });
   const sortedTabs = React.useMemo(
     () =>
@@ -108,42 +100,24 @@ export default function LockTab() {
     [currSorter, persistLocalData?.tabTimes, tabs]
   );
 
-  const { data: tabLockData } = useQuery({
-    queryFn: () => chrome.storage.sync.get(SETTINGS_DEFAULTS),
-    queryKey: ["settingsQuery"],
-  });
-
-  React.useEffect(() => {
-    function handleChanged(
-      _changes: { [key: string]: chrome.storage.StorageChange },
-      areaName: chrome.storage.AreaName
-    ) {
-      if (areaName === "sync") queryClient.invalidateQueries({ queryKey: ["settingsQuery"] });
-      if (areaName === "local") queryClient.invalidateQueries({ queryKey: ["tabTimesQuery"] });
-    }
-    chrome.storage.onChanged.addListener(handleChanged);
-    return () => {
-      chrome.storage.onChanged.removeListener(handleChanged);
-    };
-  }, [queryClient]);
-
+  const { data: syncData } = useStorageSyncQuery();
   const lockedTabIds = React.useMemo(
     () =>
-      tabLockData == null
+      syncData == null
         ? new Set()
         : new Set(
             sortedTabs
               .filter((tab) =>
                 isTabLocked(tab, {
-                  filterAudio: tabLockData["filterAudio"],
-                  filterGroupedTabs: tabLockData["filterGroupedTabs"],
-                  lockedIds: tabLockData["lockedIds"],
-                  whitelist: tabLockData["whitelist"],
+                  filterAudio: syncData["filterAudio"],
+                  filterGroupedTabs: syncData["filterGroupedTabs"],
+                  lockedIds: syncData["lockedIds"],
+                  whitelist: syncData["whitelist"],
                 })
               )
               .map((tab) => tab.id)
           ),
-    [sortedTabs, tabLockData]
+    [sortedTabs, syncData]
   );
 
   React.useEffect(() => {

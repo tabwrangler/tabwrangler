@@ -1,4 +1,4 @@
-export async function mutatePersistSetting({
+export async function mutateStorageSyncPersist({
   key,
   value,
 }: {
@@ -11,7 +11,7 @@ export async function mutatePersistSetting({
   });
 }
 
-export async function mutateSetting({
+export async function mutateStorageSync({
   key,
   value,
 }: {

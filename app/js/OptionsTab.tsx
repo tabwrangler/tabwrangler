@@ -1,8 +1,7 @@
 import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { exportData, importData } from "./actions/importExportActions";
-import { mutatePersistSetting, mutateSetting } from "./mutations";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { mutateStorageSync, mutateStorageSyncPersist } from "./mutations";
 import { useStorageSyncPersistQuery, useStorageSyncQuery } from "./hooks";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
@@ -10,6 +9,7 @@ import cx from "classnames";
 import { exportFileName } from "./actions/importExportActions";
 import settings from "./settings";
 import { useDebounceCallback } from "@react-hook/debounce";
+import { useMutation } from "@tanstack/react-query";
 
 function isValidPattern(pattern: string) {
   // some other choices such as '/' also do not make sense; not sure if they should be blocked as
@@ -20,20 +20,6 @@ function isValidPattern(pattern: string) {
 export default function OptionsTab() {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const { data: syncData } = useStorageSyncQuery();
-
-  const queryClient = useQueryClient();
-  React.useEffect(() => {
-    function handleChanged(
-      _changes: { [key: string]: chrome.storage.StorageChange },
-      areaName: chrome.storage.AreaName
-    ) {
-      if (areaName === "sync") queryClient.invalidateQueries({ queryKey: ["settingsQuery"] });
-    }
-    chrome.storage.onChanged.addListener(handleChanged);
-    return () => {
-      chrome.storage.onChanged.removeListener(handleChanged);
-    };
-  });
 
   const fileSelectorRef = React.useRef<HTMLInputElement | null>(null);
   const importExportAlertTimeoutRef = React.useRef<number>();
@@ -49,11 +35,11 @@ export default function OptionsTab() {
   const [showFilterTabGroupsOption, setShowFilterTabGroupsOption] = React.useState(false);
 
   const persistSettingMutation = useMutation({
-    mutationFn: mutatePersistSetting,
+    mutationFn: mutateStorageSyncPersist,
   });
 
   const settingMutation = useMutation({
-    mutationFn: mutateSetting,
+    mutationFn: mutateStorageSync,
   });
 
   function handleClickRemovePattern(pattern: string) {
@@ -138,7 +124,7 @@ export default function OptionsTab() {
     }
 
     try {
-      await mutateSetting({ key, value });
+      await mutateStorageSync({ key, value });
       setErrors([]);
       setSaveAlertVisible(true);
       saveAlertTimeoutRef.current = window.setTimeout(() => {

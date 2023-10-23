@@ -126,7 +126,7 @@ async function startup() {
         // Update the selected tabs to make sure they don't get closed.
         const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         store.dispatch({
-          tabIds: activeTabs.map((tab) => tab.id),
+          tabIds: activeTabs.map((tab) => String(tab.id)),
           tabTime: Date.now(),
           type: "SET_TAB_TIMES",
         });
@@ -135,7 +135,7 @@ async function startup() {
         if (settings.get("filterAudio") === true) {
           const audibleTabs = await chrome.tabs.query({ audible: true });
           store.dispatch({
-            tabIds: audibleTabs.map((tab) => tab.id),
+            tabIds: audibleTabs.map((tab) => String(tab.id)),
             tabTime: Date.now(),
             type: "SET_TAB_TIMES",
           });
@@ -184,7 +184,7 @@ async function startup() {
               // Update its time so it gets checked less frequently.
               // Would also be smart to just never add it.
               // @todo: fix that.
-              tabIdsToUpdate.push(tabId);
+              tabIdsToUpdate.push(String(tabId));
               continue;
             }
             tabsToClose.push(tabsToCut[i]);

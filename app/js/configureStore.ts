@@ -2,7 +2,6 @@ import { PersistedState, persistReducer, persistStore } from "redux-persist";
 import { applyMiddleware, combineReducers, createStore } from "redux";
 import { localStorage } from "redux-persist-webextension-storage";
 import localStorageReducer from "./reducers/localStorageReducer";
-import tempStorageReducer from "./reducers/tempStorageReducer";
 import thunk from "redux-thunk";
 import { wrapStore } from "@eduardoac-skimlinks/webext-redux";
 
@@ -55,7 +54,6 @@ const localStoragePersistConfig = {
 
 const rootReducer = combineReducers({
   localStorage: persistReducer(localStoragePersistConfig, localStorageReducer),
-  tempStorage: tempStorageReducer,
 });
 
 export default function configureStore(afterRehydrate?: () => unknown) {

@@ -1,6 +1,7 @@
 import {
+  incrementTotalTabsRemoved,
+  removeTabTime,
   setSavedTabs,
-  setTotalTabsRemoved,
   setTotalTabsWrangled,
 } from "./actions/localStorageActions";
 import configureStore from "./configureStore";
@@ -8,36 +9,39 @@ import settings from "./settings";
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
+function findPositionByURL(savedTabs: chrome.tabs.Tab[], url: string | null = ""): number {
+  return savedTabs.findIndex((item: chrome.tabs.Tab) => item.url === url && url != null);
+}
+
+function findPositionByHostnameAndTitle(
+  savedTabs: chrome.tabs.Tab[],
+  url = "",
+  title = ""
+): number {
+  const hostB = new URL(url).hostname;
+  return savedTabs.findIndex((tab: chrome.tabs.Tab) => {
+    const hostA = new URL(tab.url || "").hostname;
+    return hostA === hostB && tab.title === title;
+  });
+}
+
+function getURLPositionFilterByWrangleOption(
+  savedTabs: chrome.tabs.Tab[],
+  option: WrangleOption
+): (tab: chrome.tabs.Tab) => number {
+  if (option === "hostnameAndTitleMatch") {
+    return (tab: chrome.tabs.Tab): number =>
+      findPositionByHostnameAndTitle(savedTabs, tab.url, tab.title);
+  } else if (option === "exactURLMatch") {
+    return (tab: chrome.tabs.Tab): number => findPositionByURL(savedTabs, tab.url);
+  }
+
+  // `'withDupes'` && default
+  return () => -1;
+}
+
 export default class TabManager {
   store: ReturnType<typeof configureStore>["store"] | undefined;
-
-  findPositionByURL(url: string | null = ""): number {
-    if (this.store == null) return -1;
-    return this.store
-      .getState()
-      .localStorage.savedTabs.findIndex((item: chrome.tabs.Tab) => item.url === url && url != null);
-  }
-
-  findPositionByHostnameAndTitle(url = "", title = ""): number {
-    if (this.store == null) return -1;
-    const hostB = new URL(url).hostname;
-    return this.store.getState().localStorage.savedTabs.findIndex((tab: chrome.tabs.Tab) => {
-      const hostA = new URL(tab.url || "").hostname;
-      return hostA === hostB && tab.title === title;
-    });
-  }
-
-  getURLPositionFilterByWrangleOption(option: WrangleOption): (tab: chrome.tabs.Tab) => number {
-    if (option === "hostnameAndTitleMatch") {
-      return (tab: chrome.tabs.Tab): number =>
-        this.findPositionByHostnameAndTitle(tab.url, tab.title);
-    } else if (option === "exactURLMatch") {
-      return (tab: chrome.tabs.Tab): number => this.findPositionByURL(tab.url);
-    }
-
-    // `'withDupes'` && default
-    return () => -1;
-  }
 
   resetTabTimes() {
     if (this.store == null) return;
@@ -56,7 +60,10 @@ export default class TabManager {
     const maxTabs = settings.get<number>("maxTabs");
     let totalTabsWrangled = this.store.getState().localStorage.totalTabsWrangled;
     const wrangleOption = settings.get<WrangleOption>("wrangleOption");
-    const findURLPositionByWrangleOption = this.getURLPositionFilterByWrangleOption(wrangleOption);
+    const findURLPositionByWrangleOption = getURLPositionFilterByWrangleOption(
+      this.store.getState().localStorage.savedTabs,
+      wrangleOption
+    );
 
     let nextSavedTabs = this.store.getState().localStorage.savedTabs.slice();
     const tabIdsToRemove: Array<number> = [];
@@ -123,16 +130,15 @@ export default class TabManager {
     if (tab.id != null) this.updateLastAccessed(tab.id);
   }
 
-  removeTab(tabId: number) {
+  async removeTab(tabId: number) {
     if (this.store == null) return;
-    const totalTabsRemoved = this.store.getState().localStorage.totalTabsRemoved;
-    this.store.dispatch(setTotalTabsRemoved(totalTabsRemoved + 1));
+    await incrementTotalTabsRemoved();
     settings.unlockTab(tabId);
-    this.store.dispatch({ tabId: String(tabId), type: "REMOVE_TAB_TIME" });
+    await removeTabTime(String(tabId));
   }
 
-  replaceTab(addedTabId: number, removedTabId: number) {
-    this.removeTab(removedTabId);
+  async replaceTab(addedTabId: number, removedTabId: number) {
+    await this.removeTab(removedTabId);
     this.updateLastAccessed(addedTabId);
   }
 

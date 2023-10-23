@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SETTINGS_DEFAULTS } from "./settings";
+import { getStorageSyncPersist } from "./queries";
 import { useEffect } from "react";
 
 const STORAGE_LOCAL_PERSIST_QUERY_KEY = ["storageLocalQuery", { type: "persist" }];
@@ -43,11 +44,7 @@ export function useStorageSyncPersistQuery() {
     return () => chrome.storage.onChanged.removeListener(handleChanged);
   }, [queryClient]);
   return useQuery({
-    queryFn: async () => {
-      // `sync` was managed by redux-persit, which prefixed the data with "persist:"
-      const data = await chrome.storage.sync.get({ "persist:settings": {} });
-      return data["persist:settings"];
-    },
+    queryFn: getStorageSyncPersist,
     queryKey: STORAGE_SYNC_PERSIST_QUERY_KEY,
   });
 }

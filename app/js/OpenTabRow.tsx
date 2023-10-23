@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useStorageLocalPersistQuery, useStorageSyncPersistQuery } from "./hooks";
 import LazyImage from "./LazyImage";
+import { UseNowContext } from "./LockTab";
 import cx from "classnames";
 import settings from "./settings";
 
@@ -8,28 +9,6 @@ function secondsToMinutes(seconds: number) {
   const minutes = seconds % 60;
   const minutesString = minutes >= 10 ? String(minutes) : `0${String(minutes)}`;
   return `${String(Math.floor(seconds / 60))}:${minutesString}`;
-}
-
-let useNowCount = 0;
-function useNow() {
-  const [now, setNow] = React.useState(new Date().getTime());
-  const intervalRef = React.useRef<number>();
-  React.useEffect(() => {
-    useNowCount += 1;
-    if (useNowCount === 1) {
-      intervalRef.current = window.setInterval(() => {
-        setNow(new Date().getTime());
-      }, 1000);
-    }
-    return () => {
-      useNowCount -= 1;
-      if (useNowCount === 0) {
-        window.clearInterval(intervalRef.current);
-        intervalRef.current = undefined;
-      }
-    };
-  }, []);
-  return now;
 }
 
 type Props = {
@@ -41,7 +20,7 @@ type Props = {
 export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const { data: localPersistData } = useStorageLocalPersistQuery();
-  const now = useNow();
+  const now = React.useContext(UseNowContext);
   const paused = syncPersistData?.paused;
   const tabTime =
     tab.id == null || localPersistData == null ? Date.now() : localPersistData.tabTimes[tab.id];

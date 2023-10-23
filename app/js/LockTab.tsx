@@ -74,9 +74,26 @@ const ReverseTabOrderSorter: Sorter = {
 const DEFAULT_SORTER = TabOrderSorter;
 const Sorters = [TabOrderSorter, ReverseTabOrderSorter, ChronoSorter, ReverseChronoSorter];
 
+export const UseNowContext = React.createContext(new Date().getTime());
+function useNow() {
+  const [now, setNow] = React.useState(new Date().getTime());
+  const intervalRef = React.useRef<number>();
+  React.useEffect(() => {
+    intervalRef.current = window.setInterval(() => {
+      setNow(new Date().getTime());
+    }, 1000);
+    return () => {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = undefined;
+    };
+  }, []);
+  return now;
+}
+
 export default function LockTab() {
   const dropdownRef = React.useRef<HTMLElement | null>(null);
   const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
+  const now = useNow();
   const [isSortDropdownOpen, setIsSortDropdownOpen] = React.useState<boolean>(false);
   const [sortOrder, setSortOrder] = React.useState<string | null>(
     settings.get<string>("lockTabSortOrder")
@@ -263,14 +280,16 @@ export default function LockTab() {
       </div>
       <table className="table table-hover table-sm table-th-unbordered">
         <tbody>
-          {sortedTabs.map((tab) => (
-            <OpenTabRow
-              isLocked={lockedTabIds.has(tab.id)}
-              key={tab.id}
-              onToggleTab={handleToggleTab}
-              tab={tab}
-            />
-          ))}
+          <UseNowContext.Provider value={now}>
+            {sortedTabs.map((tab) => (
+              <OpenTabRow
+                isLocked={lockedTabIds.has(tab.id)}
+                key={tab.id}
+                onToggleTab={handleToggleTab}
+                tab={tab}
+              />
+            ))}
+          </UseNowContext.Provider>
         </tbody>
       </table>
     </div>

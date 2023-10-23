@@ -1,7 +1,6 @@
 import {
   RemoveAllSavedTabsAction,
   SetSavedTabsAction,
-  SetTotalTabsRemovedAction,
   SetTotalTabsUnwrangledAction,
   SetTotalTabsWrangledAction,
 } from "../reducers/localStorageReducer";
@@ -31,7 +30,7 @@ export function removeAllSavedTabs(): RemoveAllSavedTabsAction {
 export async function removeSavedTabs(tabs: Array<chrome.tabs.Tab>) {
   const data = await chrome.storage.local.get("persist:localStorage");
   const localStorage: LocalStorage = data["persist:localStorage"];
-  if (localStorage == null) throw new Error("[unwrangleTabs] No data in `chrome.storage.local`");
+  if (localStorage == null) throw new Error("[removeSavedTabs] No data in `chrome.storage.local`");
 
   const removedTabsSet = new Set(tabs.map(serializeTab));
   // * Remove any tabs that are not in the action's array of tabs.
@@ -51,8 +50,33 @@ export function setSavedTabs(savedTabs: Array<chrome.tabs.Tab>): SetSavedTabsAct
   return { savedTabs, type: "SET_SAVED_TABS" };
 }
 
-export function setTotalTabsRemoved(totalTabsRemoved: number): SetTotalTabsRemovedAction {
-  return { totalTabsRemoved, type: "SET_TOTAL_TABS_REMOVED" };
+export async function incrementTotalTabsRemoved() {
+  const data = await chrome.storage.local.get("persist:localStorage");
+  const localStorage: LocalStorage = data["persist:localStorage"];
+  if (localStorage == null)
+    throw new Error("[setTotalTabsRemoved] No data in `chrome.storage.local`");
+
+  await chrome.storage.local.set({
+    "persist:localStorage": {
+      ...localStorage,
+      totalTabsRemoved: localStorage.totalTabsRemoved + 1,
+    },
+  });
+}
+
+export async function removeTabTime(tabId: string) {
+  const data = await chrome.storage.local.get("persist:localStorage");
+  const localStorage: LocalStorage = data["persist:localStorage"];
+  if (localStorage == null) throw new Error("[removeTabTime] No data in `chrome.storage.local`");
+
+  const nextTabTimes = { ...localStorage.tabTimes };
+  delete nextTabTimes[tabId];
+  await chrome.storage.local.set({
+    "persist:localStorage": {
+      ...localStorage,
+      tabTimes: nextTabTimes,
+    },
+  });
 }
 
 export function setTotalTabsUnwrangled(totalTabsUnwrangled: number): SetTotalTabsUnwrangledAction {

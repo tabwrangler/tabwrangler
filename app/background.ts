@@ -2,13 +2,14 @@ import Menus from "./js/menus";
 import TabManager from "./js/tabmanager";
 import configureStore from "./js/configureStore";
 import debounce from "lodash.debounce";
+import { getStorageSyncPersist } from "./js/queries";
 import { removeAllSavedTabs } from "./js/actions/localStorageActions";
 import settings from "./js/settings";
 
 const tabManager = new TabManager();
 const menus = new Menus();
 
-function setPaused(paused: boolean) {
+async function setPaused(paused: boolean) {
   if (paused) {
     chrome.action.setIcon({ path: "img/icon-paused.png" });
   } else {
@@ -16,14 +17,8 @@ function setPaused(paused: boolean) {
 
     // The user has just unpaused, immediately set all tabs to the current time so they will not
     // be closed.
-    chrome.tabs.query(
-      {
-        windowType: "normal",
-      },
-      (tabs) => {
-        tabManager.initTabs(tabs);
-      }
-    );
+    const tabs = await chrome.tabs.query({ windowType: "normal" });
+    tabManager.initTabs(tabs);
   }
 }
 
@@ -126,7 +121,8 @@ async function startup() {
       const lockedIds = settings.get<Array<number>>("lockedIds");
       const toCut = tabManager.getOlderThen(cutOff);
 
-      if (!store.getState().settings.paused) {
+      const storageSyncPersist = await getStorageSyncPersist();
+      if (!storageSyncPersist.paused) {
         // Update the selected tabs to make sure they don't get closed.
         const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
         store.dispatch({
@@ -213,7 +209,8 @@ async function startup() {
 
   chrome.tabs.query({ windowType: "normal" }, tabManager.initTabs.bind(tabManager));
 
-  setPaused(store.getState().settings.paused);
+  const storageSyncPersist = await getStorageSyncPersist();
+  setPaused(storageSyncPersist.paused);
 
   // Because the badge count is external state, this side effect must be run once the value
   // is read from storage. This could more elequently be handled in an action creator.
@@ -252,6 +249,7 @@ let lastAlarm = 0;
     }
   }
 })();
+
 chrome.alarms.onAlarm.addListener(() => (lastAlarm = Date.now()));
 chrome.runtime.onMessage.addListener((message) => {
   if (message === "reload") {

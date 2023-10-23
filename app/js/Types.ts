@@ -2,7 +2,6 @@ import {
   Action as LocalStorageAction,
   State as LocalStorageState,
 } from "./reducers/localStorageReducer";
-import { Action as SettingsAction, State as SettingsState } from "./reducers/settingsReducer";
 import {
   Action as TempStorageAction,
   State as TempStorageState,
@@ -10,11 +9,10 @@ import {
 
 export type ThemeSettingValue = "dark" | "light" | "system";
 
-type StoreAction = LocalStorageAction | SettingsAction | TempStorageAction;
+type StoreAction = LocalStorageAction | TempStorageAction;
 
 export type AppState = {
   localStorage: LocalStorageState;
-  settings: SettingsState;
   tempStorage: TempStorageState;
 };
 

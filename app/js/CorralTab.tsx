@@ -3,10 +3,10 @@ import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
 import { extractHostname, extractRootDomain, serializeTab } from "./util";
 import { removeSavedTabs, unwrangleTabs } from "./actions/localStorageActions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ClosedTabRow from "./ClosedTabRow";
 import cx from "classnames";
 import settings from "./settings";
-import { useQuery } from "@tanstack/react-query";
 import { useStorageLocalPersistQuery } from "./hooks";
 
 function keywordFilter(keyword: string) {
@@ -194,12 +194,22 @@ export default function CorralTab() {
     return nextSorter;
   });
 
+  const queryClient = useQueryClient();
   const { data: sessions } = useQuery({
     queryFn: () => chrome.sessions.getRecentlyClosed(),
-    queryKey: ["sessionsData"],
+    queryKey: ["sessionsQuery"],
   });
-  const { data: localStorageData } = useStorageLocalPersistQuery();
+  React.useEffect(() => {
+    function handleChanged() {
+      queryClient.invalidateQueries({ queryKey: ["sessionsQuery"] });
+    }
+    chrome.sessions.onChanged.addListener(handleChanged);
+    return () => {
+      chrome.sessions.onChanged.removeListener(handleChanged);
+    };
+  }, [queryClient]);
 
+  const { data: localStorageData } = useStorageLocalPersistQuery();
   const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
   const [selectedTabs, setSelectedTabs] = React.useState<Set<string>>(new Set());
   const closedTabs: chrome.tabs.Tab[] = React.useMemo(() => {

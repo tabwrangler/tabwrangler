@@ -25,8 +25,6 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
   const tabTime =
     tab.id == null || localPersistData == null ? Date.now() : localPersistData.tabTimes[tab.id];
 
-  console.log("tabTime", tabTime);
-  console.log("now", now);
   function handleLockedOnClick(event: React.MouseEvent) {
     // Dynamically check target is an input element.
     if (!(event.target instanceof HTMLInputElement)) return;
@@ -54,7 +52,6 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
     }
 
-    console.log("LOCKED");
     lockStatusElement = (
       <td className="text-center muted" style={{ verticalAlign: "middle" }}>
         {reason}
@@ -74,7 +71,6 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
       timeLeftContent = timeLeft < 0 ? "…" : secondsToMinutes(timeLeft);
     }
 
-    console.log("NOT LOCKED", timeLeftContent);
     lockStatusElement = (
       <td className="text-center" style={{ verticalAlign: "middle" }}>
         {timeLeftContent}

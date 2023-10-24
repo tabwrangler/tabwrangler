@@ -16,20 +16,16 @@ function importData(event: React.FormEvent<HTMLInputElement>): Promise<void> {
           if (Object.keys(json).length < 4) {
             reject(new Error("Invalid backup"));
           } else {
-            const savedTabs = json.savedTabs;
-            const totalTabsRemoved = json.totalTabsRemoved;
-            const totalTabsUnwrangled = json.totalTabsUnwrangled;
-            const totalTabsWrangled = json.totalTabsWrangled;
             chrome.storage.local
               .get("persist:localStorage")
               .then((data) =>
                 chrome.storage.local.set({
                   "persist:localStorage": {
                     ...data["persist:localStorage"],
-                    savedTabs,
-                    totalTabsRemoved,
-                    totalTabsUnwrangled,
-                    totalTabsWrangled,
+                    savedTabs: json.savedTabs,
+                    totalTabsRemoved: json.totalTabsRemoved,
+                    totalTabsUnwrangled: json.totalTabsUnwrangled,
+                    totalTabsWrangled: json.totalTabsWrangled,
                   },
                 })
               )
@@ -43,6 +39,7 @@ function importData(event: React.FormEvent<HTMLInputElement>): Promise<void> {
       fileReader.onerror = (arg) => {
         reject(arg);
       };
+
       fileReader.readAsText(files[0], "utf-8");
     });
   } else {
@@ -57,23 +54,19 @@ function importData(event: React.FormEvent<HTMLInputElement>): Promise<void> {
  * - totalTabsRemoved
  * - totalTabsUnwrangled
  * - totalTabsWrangled
- *
- * `savedTabs` is acquired by reading it directly from the Store.
  */
-async function exportData(): Promise<unknown> {
+async function exportData(): Promise<Blob> {
   const data = await chrome.storage.local.get("persist:localStorage");
   const localStorage = data["persist:localStorage"];
-  const exportObject = {
+  const exportData = JSON.stringify({
     savedTabs: localStorage.savedTabs,
     totalTabsRemoved: localStorage.totalTabsRemoved,
     totalTabsUnwrangled: localStorage.totalTabsUnwrangled,
     totalTabsWrangled: localStorage.totalTabsWrangled,
-  };
-  const exportData = JSON.stringify(exportObject);
-  const blob = new Blob([exportData], {
+  });
+  return new Blob([exportData], {
     type: "application/json;charset=utf-8",
   });
-  return Promise.resolve(blob);
 }
 
 const exportFileName = (date: Date): string => {

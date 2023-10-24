@@ -1,10 +1,10 @@
 import * as React from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useStorageLocalPersistQuery, useStorageSyncQuery } from "./hooks";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
 import { isTabLocked } from "./tabUtil";
 import settings from "./settings";
-import { useQuery } from "@tanstack/react-query";
 
 type Sorter = {
   key: string;
@@ -107,8 +107,24 @@ export default function LockTab() {
     return sorter;
   });
 
+  const queryClient = useQueryClient();
+  const { data: tabs } = useQuery({
+    queryFn: () => chrome.tabs.query({}),
+    queryKey: ["tabsQuery"],
+  });
+  React.useEffect(() => {
+    function handleChanged() {
+      queryClient.invalidateQueries({ queryKey: ["tabsQuery"] });
+    }
+    chrome.tabs.onCreated.addListener(handleChanged);
+    chrome.tabs.onRemoved.addListener(handleChanged);
+    return () => {
+      chrome.tabs.onCreated.removeListener(handleChanged);
+      chrome.tabs.onRemoved.removeListener(handleChanged);
+    };
+  }, [queryClient]);
+
   const { data: persistLocalData } = useStorageLocalPersistQuery();
-  const { data: tabs } = useQuery({ queryFn: () => chrome.tabs.query({}), queryKey: ["tabs"] });
   const sortedTabs = React.useMemo(
     () =>
       tabs == null || persistLocalData?.tabTimes == null

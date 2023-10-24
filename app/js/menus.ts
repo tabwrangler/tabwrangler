@@ -86,9 +86,10 @@ export default class Menus {
   }
 
   updateContextMenus(tabId: number) {
+    // Sets the title again for each page.
     chrome.tabs.get(tabId, (tab) => {
-      // Sets the title again for each page.
-      if (tab.url == null) return;
+      if (tab == null || tab.url == null) return;
+
       const currentDomain = getDomain(tab.url);
       if (currentDomain == null) return;
 

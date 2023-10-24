@@ -25,9 +25,9 @@ function PopupWrapper() {
   React.useEffect(() => {
     async function initSettings() {
       // Await settings that are loaded from async browser storage before rendering.
-      console.info("[PopupWrapper]: awaiting settings.init");
+      console.debug("[PopupWrapper]: awaiting settings.init");
       await settings.init();
-      console.info("[PopupWrapper]: settings ready!");
+      console.debug("[PopupWrapper]: settings ready!");
       setIsSettingsInit(true);
     }
     initSettings();

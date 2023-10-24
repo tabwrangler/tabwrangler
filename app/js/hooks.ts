@@ -11,8 +11,9 @@ export function useStorageLocalPersistQuery() {
       changes: { [key: string]: chrome.storage.StorageChange },
       areaName: chrome.storage.AreaName
     ) {
-      if (areaName === "local" && "persist:localStorage" in changes)
+      if (areaName === "local" && "persist:localStorage" in changes) {
         queryClient.invalidateQueries(STORAGE_LOCAL_PERSIST_QUERY_KEY);
+      }
     }
     chrome.storage.onChanged.addListener(handleChanged);
     return () => {
@@ -21,7 +22,6 @@ export function useStorageLocalPersistQuery() {
   }, [queryClient]);
   return useQuery({
     queryFn: async () => {
-      // `local` was managed by redux-persit, which prefixed the data with "persist:"
       const data = await chrome.storage.local.get({ "persist:localStorage": {} });
       return data["persist:localStorage"];
     },

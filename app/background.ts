@@ -1,9 +1,8 @@
+import { removeAllSavedTabs, setTabTimes } from "./js/actions/localStorageActions";
 import Menus from "./js/menus";
 import TabManager from "./js/tabmanager";
-import configureStore from "./js/configureStore";
 import debounce from "lodash.debounce";
 import { getStorageSyncPersist } from "./js/queries";
-import { removeAllSavedTabs } from "./js/actions/localStorageActions";
 import settings from "./js/settings";
 
 const tabManager = new TabManager();
@@ -14,11 +13,6 @@ async function setPaused(paused: boolean) {
     chrome.action.setIcon({ path: "img/icon-paused.png" });
   } else {
     chrome.action.setIcon({ path: "img/icon.png" });
-
-    // The user has just unpaused, immediately set all tabs to the current time so they will not
-    // be closed.
-    const tabs = await chrome.tabs.query({ windowType: "normal" });
-    tabManager.initTabs(tabs);
   }
 }
 
@@ -67,7 +61,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
       if (changes.minutesInactive || changes.secondsInactive) {
         // Reset stored `tabTimes` because setting was changed otherwise old times may exceed new
         // setting value.
-        tabManager.resetTabTimes();
+        tabManager.initTabs();
       }
 
       if (changes["persist:settings"]) {
@@ -87,8 +81,9 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-function closeTabs(tabs: chrome.tabs.Tab[]) {
-  tabManager.wrangleTabs(
+function closeTabs(tabs: chrome.tabs.Tab[]): Promise<void> {
+  console.debug("[closeTabs] CLOSING TABS", tabs);
+  return tabManager.wrangleTabs(
     tabs.filter(
       (tab) =>
         !(
@@ -104,49 +99,43 @@ async function startup() {
   // Load settings before proceeding; Settings reads from async browser storage.
   await settings.init();
 
-  // Rehydrate store before proceeding; Store reads from async browser storage.
-  const { store } = await new Promise<ReturnType<typeof configureStore>>((resolve) => {
-    const storeConfig = configureStore(() => resolve(storeConfig));
-  });
-
-  tabManager.setStore(store);
   menus.setTabManager(tabManager);
 
   async function checkToClose(cutOff: number | null) {
+    console.debug("[checkToClose] start ⬇️");
     try {
       cutOff = cutOff || new Date().getTime() - settings.get<number>("stayOpen");
       const minTabs = settings.get<number>("minTabs");
 
       // Tabs which have been locked via the checkbox.
       const lockedIds = settings.get<Array<number>>("lockedIds");
-      const toCut = tabManager.getOlderThen(cutOff);
+      const toCut = await tabManager.getOlderThen(cutOff);
 
+      console.debug("[checkToClose] toCut", toCut);
       const storageSyncPersist = await getStorageSyncPersist();
       if (!storageSyncPersist.paused) {
         // Update the selected tabs to make sure they don't get closed.
         const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-        store.dispatch({
-          tabIds: activeTabs.map((tab) => String(tab.id)),
-          tabTime: Date.now(),
-          type: "SET_TAB_TIMES",
-        });
+        await setTabTimes(
+          activeTabs.map((tab) => String(tab.id)),
+          Date.now()
+        );
 
         // Update audible tabs if the setting is enabled to prevent them from being closed.
         if (settings.get("filterAudio") === true) {
           const audibleTabs = await chrome.tabs.query({ audible: true });
-          store.dispatch({
-            tabIds: audibleTabs.map((tab) => String(tab.id)),
-            tabTime: Date.now(),
-            type: "SET_TAB_TIMES",
-          });
+          await setTabTimes(
+            audibleTabs.map((tab) => String(tab.id)),
+            Date.now()
+          );
         }
 
         const windows = await chrome.windows.getAll({ populate: true });
-        windows.forEach((myWindow) => {
-          let tabs = myWindow.tabs;
-          if (tabs == null) return;
+        for (const currWindow of windows) {
+          let tabs = currWindow.tabs;
+          if (tabs == null) continue;
 
-          // Filter out the pinned tabs
+          // Filter out pinned tabs
           tabs = tabs.filter((tab) => tab.pinned === false);
           // Filter out audible tabs if the option to do so is checked
           tabs = settings.get<boolean>("filterAudio") ? tabs.filter((tab) => !tab.audible) : tabs;
@@ -162,16 +151,17 @@ async function startup() {
             // don't get closed when we add a new one.
             for (let i = 0; i < tabs.length; i++) {
               const tabId = tabs[i].id;
-              if (tabId != null && myWindow.focused) tabManager.updateLastAccessed(tabId);
+              if (tabId != null && currWindow.focused) tabManager.updateLastAccessed(tabId);
             }
-            return;
+            continue;
           }
 
-          // If cutting will reduce us below 5 tabs, only remove the first N to get to 5.
+          // If cutting will reduce us below `minTabs`, only remove the first N to get to `minTabs`.
           tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
 
+          console.debug("[checkToClose] filtered tabsToCut", tabsToCut);
           if (tabsToCut.length === 0) {
-            return;
+            continue;
           }
 
           const tabsToClose = [];
@@ -190,9 +180,9 @@ async function startup() {
             tabsToClose.push(tabsToCut[i]);
           }
 
-          store.dispatch({ tabIds: tabIdsToUpdate, tabTime: Date.now(), type: "SET_TAB_TIMES" });
-          closeTabs(tabsToClose);
-        });
+          await setTabTimes(tabIdsToUpdate, Date.now());
+          await closeTabs(tabsToClose);
+        }
       }
     } catch (error) {
       console.error("[checkToClose]", error);
@@ -207,17 +197,15 @@ async function startup() {
     checkToCloseTimeout = setTimeout(checkToClose, 5000);
   }
 
-  chrome.tabs.query({ windowType: "normal" }, tabManager.initTabs.bind(tabManager));
-
   const storageSyncPersist = await getStorageSyncPersist();
   setPaused(storageSyncPersist.paused);
 
   // Because the badge count is external state, this side effect must be run once the value
-  // is read from storage. This could more elequently be handled in an action creator.
+  // is read from storage.
   tabManager.updateClosedCount();
 
   if (settings.get("purgeClosedTabs") !== false) {
-    store.dispatch(removeAllSavedTabs());
+    await removeAllSavedTabs();
   }
 
   // Kick off checking for tabs to close

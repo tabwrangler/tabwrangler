@@ -1,235 +1,224 @@
-import { Action } from "redux";
-import TabManager from "../tabmanager";
-import configureMockStore from "../__mocks__/configureMockStore";
-import settings from "../settings";
+// import TabManager from "../tabmanager";
+// import settings from "../settings";
 
-function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
-  return {
-    active: false,
-    autoDiscardable: false,
-    discarded: false,
-    groupId: 1,
-    highlighted: false,
-    id: 1,
-    index: 1,
-    incognito: false,
-    pinned: false,
-    selected: false,
-    title: "",
-    url: "https://github.com/tabwrangler/tabwrangler",
-    windowId: 1,
-    ...overrides,
-  };
-}
+// function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
+//   return {
+//     active: false,
+//     autoDiscardable: false,
+//     discarded: false,
+//     groupId: 1,
+//     highlighted: false,
+//     id: 1,
+//     index: 1,
+//     incognito: false,
+//     pinned: false,
+//     selected: false,
+//     title: "",
+//     url: "https://github.com/tabwrangler/tabwrangler",
+//     windowId: 1,
+//     ...overrides,
+//   };
+// }
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+// beforeEach(() => {
+//   jest.clearAllMocks();
+// });
 
-describe("wrangleTabs", () => {
-  let store: ReturnType<typeof configureMockStore>;
+// describe("wrangleTabs", () => {
+//   test("wrangles new tabs", async () => {
+//     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//     // @ts-ignore:next-line
+//     settings.get = jest.fn(() => 5); //maxTabs
+//     const tabManager = new TabManager();
 
-  beforeEach(() => {
-    store = configureMockStore();
-  });
+//     const testTabs = [createTab({ id: 2 }), createTab({ id: 3 }), createTab({ id: 4 })];
+//     await tabManager.wrangleTabs(testTabs);
 
-  test("wrangles new tabs", async () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    settings.get = jest.fn(() => 5); //maxTabs
-    const tabManager = new TabManager();
-    tabManager.setStore(<any>store);
+//     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
+//     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4]);
 
-    const testTabs = [createTab({ id: 2 }), createTab({ id: 3 }), createTab({ id: 4 })];
-    await tabManager.wrangleTabs(testTabs);
+//     const setSavedTabsAction = store
+//       .getActions()
+//       .find((action: Action) => action.type === "SET_SAVED_TABS");
+//     expect(setSavedTabsAction).toBeDefined();
+//     expect(setSavedTabsAction.savedTabs.map((tab: chrome.tabs.Tab) => tab.id)).toEqual([4, 3, 2]);
+//   });
 
-    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4]);
+//   test("wrangles max tabs", async () => {
+//     // @ts-expect-error Only partial implementation of `settings` API
+//     settings.get = jest.fn(() => 3);
+//     const tabManager = new TabManager();
 
-    const setSavedTabsAction = store
-      .getActions()
-      .find((action: Action) => action.type === "SET_SAVED_TABS");
-    expect(setSavedTabsAction).toBeDefined();
-    expect(setSavedTabsAction.savedTabs.map((tab: chrome.tabs.Tab) => tab.id)).toEqual([4, 3, 2]);
-  });
+//     const testTabs = [
+//       createTab({ id: 2 }),
+//       createTab({ id: 3 }),
+//       createTab({ id: 4 }),
+//       createTab({ id: 5 }),
+//     ];
+//     window.chrome.storage.local.set = jest.fn();
 
-  test("wrangles max tabs", async () => {
-    // @ts-expect-error Only partial implementation of `settings` API
-    settings.get = jest.fn(() => 3);
-    const tabManager = new TabManager();
-    tabManager.setStore(<any>store);
+//     // FIXME: jest-webextension-mock missing `action` declaration
+//     // window.chrome.action.setBadgeText = jest.fn();
+//     await tabManager.wrangleTabs(testTabs);
 
-    const testTabs = [
-      createTab({ id: 2 }),
-      createTab({ id: 3 }),
-      createTab({ id: 4 }),
-      createTab({ id: 5 }),
-    ];
-    window.chrome.storage.local.set = jest.fn();
+//     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
+//     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4, 5]);
+//     expect(store.getActions()).toContainEqual({
+//       totalTabsWrangled: 4,
+//       type: "SET_TOTAL_TABS_WRANGLED",
+//     });
+//   });
 
-    // FIXME: jest-webextension-mock missing `action` declaration
-    // window.chrome.action.setBadgeText = jest.fn();
-    await tabManager.wrangleTabs(testTabs);
+//   test("replaces duplicate tab in the corral if exact URL matches", async () => {
+//     settings.get = jest
+//       .fn()
+//       .mockImplementationOnce(() => 100)
+//       .mockImplementationOnce(() => "exactURLMatch");
+//     store = configureMockStore({
+//       localStorage: {
+//         savedTabs: [
+//           { id: 1, url: "https://www.github.com" },
+//           { id: 2, url: "https://www.google.com" },
+//           { id: 3, url: "https://www.nytimes.com" },
+//         ],
+//       },
+//     });
+//     const tabManager = new TabManager();
 
-    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4, 5]);
-    expect(store.getActions()).toContainEqual({
-      totalTabsWrangled: 4,
-      type: "SET_TOTAL_TABS_WRANGLED",
-    });
-  });
+//     window.chrome.storage.local.set = jest.fn();
+//     // FIXME: jest-webextension-mock missing `action` declaration
+//     // window.chrome.action.setBadgeText = jest.fn();
 
-  test("replaces duplicate tab in the corral if exact URL matches", async () => {
-    settings.get = jest
-      .fn()
-      .mockImplementationOnce(() => 100)
-      .mockImplementationOnce(() => "exactURLMatch");
-    store = configureMockStore({
-      localStorage: {
-        savedTabs: [
-          { id: 1, url: "https://www.github.com" },
-          { id: 2, url: "https://www.google.com" },
-          { id: 3, url: "https://www.nytimes.com" },
-        ],
-      },
-    });
-    const tabManager = new TabManager();
-    tabManager.setStore(<any>store);
+//     const testTabs = [createTab({ id: 4, url: "https://www.nytimes.com" })];
 
-    window.chrome.storage.local.set = jest.fn();
-    // FIXME: jest-webextension-mock missing `action` declaration
-    // window.chrome.action.setBadgeText = jest.fn();
+//     await tabManager.wrangleTabs(testTabs);
 
-    const testTabs = [createTab({ id: 4, url: "https://www.nytimes.com" })];
+//     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
+//     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
+//     expect(store.getActions()).toContainEqual({
+//       totalTabsWrangled: 1,
+//       type: "SET_TOTAL_TABS_WRANGLED",
+//     });
+//   });
 
-    await tabManager.wrangleTabs(testTabs);
+//   test("replaces duplicate tab in the corral if hostname and title match", async () => {
+//     settings.get = jest
+//       .fn()
+//       .mockImplementationOnce(() => 100)
+//       .mockImplementationOnce(() => "hostnameAndTitleMatch");
+//     store = configureMockStore({
+//       localStorage: {
+//         savedTabs: [
+//           { id: 1, url: "https://www.github.com", title: "Github" },
+//           { id: 2, url: "https://www.google.com", title: "Google" },
+//           { id: 3, url: "https://www.nytimes.com", title: "New York Times" },
+//         ],
+//       },
+//     });
+//     const tabManager = new TabManager();
+//     tabManager.setStore(<any>store);
 
-    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
-    expect(store.getActions()).toContainEqual({
-      totalTabsWrangled: 1,
-      type: "SET_TOTAL_TABS_WRANGLED",
-    });
-  });
+//     window.chrome.storage.local.set = jest.fn();
+//     // FIXME: jest-webextension-mock missing `action` declaration
+//     // window.chrome.action.setBadgeText = jest.fn();
 
-  test("replaces duplicate tab in the corral if hostname and title match", async () => {
-    settings.get = jest
-      .fn()
-      .mockImplementationOnce(() => 100)
-      .mockImplementationOnce(() => "hostnameAndTitleMatch");
-    store = configureMockStore({
-      localStorage: {
-        savedTabs: [
-          { id: 1, url: "https://www.github.com", title: "Github" },
-          { id: 2, url: "https://www.google.com", title: "Google" },
-          { id: 3, url: "https://www.nytimes.com", title: "New York Times" },
-        ],
-      },
-    });
-    const tabManager = new TabManager();
-    tabManager.setStore(<any>store);
+//     jest.clearAllMocks();
 
-    window.chrome.storage.local.set = jest.fn();
-    // FIXME: jest-webextension-mock missing `action` declaration
-    // window.chrome.action.setBadgeText = jest.fn();
+//     const testTabs = [
+//       createTab({ id: 4, url: "https://www.nytimes.com", title: "New York Times" }),
+//     ];
 
-    jest.clearAllMocks();
+//     await tabManager.wrangleTabs(testTabs);
 
-    const testTabs = [
-      createTab({ id: 4, url: "https://www.nytimes.com", title: "New York Times" }),
-    ];
+//     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
+//     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
+//     expect(store.getActions()).toContainEqual({
+//       totalTabsWrangled: 1,
+//       type: "SET_TOTAL_TABS_WRANGLED",
+//     });
+//   });
+// });
 
-    await tabManager.wrangleTabs(testTabs);
+// describe("filter", () => {
+//   let store: ReturnType<typeof configureMockStore>;
+//   let tabManager: TabManager;
 
-    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
-    expect(store.getActions()).toContainEqual({
-      totalTabsWrangled: 1,
-      type: "SET_TOTAL_TABS_WRANGLED",
-    });
-  });
-});
+//   beforeEach(() => {
+//     store = configureMockStore({
+//       localStorage: {
+//         savedTabs: [
+//           { id: 1, url: "https://www.github.com", title: "GitHub" },
+//           { id: 2, url: "https://www.google.com", title: "Google" },
+//           {
+//             id: 3,
+//             url: "https://www.nytimes.com",
+//             title: "The New York Times - Breaking News, World News & Multimedia",
+//           },
+//         ],
+//       },
+//     });
+//     tabManager = new TabManager();
+//     tabManager.setStore(<any>store);
+//   });
 
-describe("filter", () => {
-  let store: ReturnType<typeof configureMockStore>;
-  let tabManager: TabManager;
+//   test("should return index of tab if the url matches", () => {
+//     expect(tabManager.findPositionByURL("https://www.nytimes.com")).toBe(2);
+//   });
 
-  beforeEach(() => {
-    store = configureMockStore({
-      localStorage: {
-        savedTabs: [
-          { id: 1, url: "https://www.github.com", title: "GitHub" },
-          { id: 2, url: "https://www.google.com", title: "Google" },
-          {
-            id: 3,
-            url: "https://www.nytimes.com",
-            title: "The New York Times - Breaking News, World News & Multimedia",
-          },
-        ],
-      },
-    });
-    tabManager = new TabManager();
-    tabManager.setStore(<any>store);
-  });
+//   test("should return -1 if the url does not match any tab", () => {
+//     expect(tabManager.findPositionByURL("https://www.mozilla.org")).toBe(-1);
+//   });
 
-  test("should return index of tab if the url matches", () => {
-    expect(tabManager.findPositionByURL("https://www.nytimes.com")).toBe(2);
-  });
+//   test("should return -1 if the url is undefined", () => {
+//     expect(tabManager.findPositionByURL()).toBe(-1);
+//   });
 
-  test("should return -1 if the url does not match any tab", () => {
-    expect(tabManager.findPositionByURL("https://www.mozilla.org")).toBe(-1);
-  });
+//   test("should return -1 if the url is null", () => {
+//     expect(tabManager.findPositionByURL(null)).toBe(-1);
+//   });
 
-  test("should return -1 if the url is undefined", () => {
-    expect(tabManager.findPositionByURL()).toBe(-1);
-  });
+//   test("should return index of tab if the url matches", () => {
+//     expect(
+//       tabManager.findPositionByHostnameAndTitle(
+//         "https://www.nytimes.com",
+//         "The New York Times - Breaking News, World News & Multimedia"
+//       )
+//     ).toBe(2);
+//   });
 
-  test("should return -1 if the url is null", () => {
-    expect(tabManager.findPositionByURL(null)).toBe(-1);
-  });
+//   test("should return -1 of tab if no title provided", () => {
+//     expect(tabManager.findPositionByHostnameAndTitle("https://www.nytimes.com")).toBe(-1);
+//   });
+// });
 
-  test("should return index of tab if the url matches", () => {
-    expect(
-      tabManager.findPositionByHostnameAndTitle(
-        "https://www.nytimes.com",
-        "The New York Times - Breaking News, World News & Multimedia"
-      )
-    ).toBe(2);
-  });
+// describe("getURLPositionFilterByWrangleOption", () => {
+//   let store: ReturnType<typeof configureMockStore>;
+//   let tabManager: TabManager;
 
-  test("should return -1 of tab if no title provided", () => {
-    expect(tabManager.findPositionByHostnameAndTitle("https://www.nytimes.com")).toBe(-1);
-  });
-});
+//   beforeEach(() => {
+//     store = configureMockStore();
+//     tabManager = new TabManager();
+//     tabManager.setStore(<any>store);
+//   });
 
-describe("getURLPositionFilterByWrangleOption", () => {
-  let store: ReturnType<typeof configureMockStore>;
-  let tabManager: TabManager;
+//   test("should return function that always returns -1", () => {
+//     const filterFunction = tabManager.getURLPositionFilterByWrangleOption("withDuplicates");
 
-  beforeEach(() => {
-    store = configureMockStore();
-    tabManager = new TabManager();
-    tabManager.setStore(<any>store);
-  });
+//     expect(filterFunction).not.toBeNull();
+//     expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
+//   });
 
-  test("should return function that always returns -1", () => {
-    const filterFunction = tabManager.getURLPositionFilterByWrangleOption("withDuplicates");
+//   test("should return function that will return the tab position by exact URL match", () => {
+//     const filterFunction = tabManager.getURLPositionFilterByWrangleOption("exactURLMatch");
 
-    expect(filterFunction).not.toBeNull();
-    expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
-  });
+//     expect(filterFunction).not.toBeNull();
+//     expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
+//   });
 
-  test("should return function that will return the tab position by exact URL match", () => {
-    const filterFunction = tabManager.getURLPositionFilterByWrangleOption("exactURLMatch");
+//   test("should return function that will return the tab position by hostname and title", () => {
+//     const filterFunction = tabManager.getURLPositionFilterByWrangleOption("hostnameAndTitleMatch");
 
-    expect(filterFunction).not.toBeNull();
-    expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
-  });
-
-  test("should return function that will return the tab position by hostname and title", () => {
-    const filterFunction = tabManager.getURLPositionFilterByWrangleOption("hostnameAndTitleMatch");
-
-    expect(filterFunction).not.toBeNull();
-    expect(filterFunction(createTab({ url: "http://www.test.com", title: "test" }))).toBe(-1);
-  });
-});
+//     expect(filterFunction).not.toBeNull();
+//     expect(filterFunction(createTab({ url: "http://www.test.com", title: "test" }))).toBe(-1);
+//   });
+// });

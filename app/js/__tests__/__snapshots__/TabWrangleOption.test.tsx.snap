@@ -2,9 +2,7 @@
 
 exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
 [
-  <strong>
-    
-  </strong>,
+  <strong />,
   <div
     className="form-check"
   >
@@ -20,9 +18,7 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
     <label
       className="form-check-label"
       htmlFor="withDupes"
-    >
-      
-    </label>
+    />
   </div>,
   <div
     className="form-check"
@@ -39,9 +35,7 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
     <label
       className="form-check-label"
       htmlFor="exactURLMatch"
-    >
-      
-    </label>
+    />
   </div>,
   <div
     className="form-check"
@@ -58,9 +52,7 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
     <label
       className="form-check-label"
       htmlFor="hostnameAndTitleMatch"
-    >
-      
-    </label>
+    />
   </div>,
   <div
     className="row"
@@ -80,36 +72,24 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
           }
         }
       >
-        <dt>
-          
-        </dt>
-        <dd>
-          
-        </dd>
+        <dt />
+        <dd />
         <dt
           style={
             {
               "marginTop": "10px",
             }
           }
-        >
-          
-        </dt>
-        <dd>
-          
-        </dd>
+        />
+        <dd />
         <dt
           style={
             {
               "marginTop": "10px",
             }
           }
-        >
-          
-        </dt>
-        <dd>
-          
-        </dd>
+        />
+        <dd />
       </dl>
     </div>
   </div>,
@@ -118,9 +98,7 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
 
 exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`] = `
 [
-  <strong>
-    
-  </strong>,
+  <strong />,
   <div
     className="form-check"
   >
@@ -136,9 +114,7 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
     <label
       className="form-check-label"
       htmlFor="withDupes"
-    >
-      
-    </label>
+    />
   </div>,
   <div
     className="form-check"
@@ -155,9 +131,7 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
     <label
       className="form-check-label"
       htmlFor="exactURLMatch"
-    >
-      
-    </label>
+    />
   </div>,
   <div
     className="form-check"
@@ -174,9 +148,7 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
     <label
       className="form-check-label"
       htmlFor="hostnameAndTitleMatch"
-    >
-      
-    </label>
+    />
   </div>,
   <div
     className="row"
@@ -196,36 +168,24 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
           }
         }
       >
-        <dt>
-          
-        </dt>
-        <dd>
-          
-        </dd>
+        <dt />
+        <dd />
         <dt
           style={
             {
               "marginTop": "10px",
             }
           }
-        >
-          
-        </dt>
-        <dd>
-          
-        </dd>
+        />
+        <dd />
         <dt
           style={
             {
               "marginTop": "10px",
             }
           }
-        >
-          
-        </dt>
-        <dd>
-          
-        </dd>
+        />
+        <dd />
       </dl>
     </div>
   </div>,
@@ -234,9 +194,7 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
 
 exports[`TabWrangleOption renders options with withDupes selected 1`] = `
 [
-  <strong>
-    
-  </strong>,
+  <strong />,
   <div
     className="form-check"
   >
@@ -252,9 +210,7 @@ exports[`TabWrangleOption renders options with withDupes selected 1`] = `
     <label
       className="form-check-label"
       htmlFor="withDupes"
-    >
-      
-    </label>
+    />
   </div>,
   <div
     className="form-check"
@@ -271,9 +227,7 @@ exports[`TabWrangleOption renders options with withDupes selected 1`] = `
     <label
       className="form-check-label"
       htmlFor="exactURLMatch"
-    >
-      
-    </label>
+    />
   </div>,
   <div
     className="form-check"
@@ -290,9 +244,7 @@ exports[`TabWrangleOption renders options with withDupes selected 1`] = `
     <label
       className="form-check-label"
       htmlFor="hostnameAndTitleMatch"
-    >
-      
-    </label>
+    />
   </div>,
   <div
     className="row"
@@ -312,36 +264,24 @@ exports[`TabWrangleOption renders options with withDupes selected 1`] = `
           }
         }
       >
-        <dt>
-          
-        </dt>
-        <dd>
-          
-        </dd>
+        <dt />
+        <dd />
         <dt
           style={
             {
               "marginTop": "10px",
             }
           }
-        >
-          
-        </dt>
-        <dd>
-          
-        </dd>
+        />
+        <dd />
         <dt
           style={
             {
               "marginTop": "10px",
             }
           }
-        >
-          
-        </dt>
-        <dd>
-          
-        </dd>
+        />
+        <dd />
       </dl>
     </div>
   </div>,

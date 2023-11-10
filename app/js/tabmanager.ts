@@ -11,11 +11,11 @@ import settings from "./settings";
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
-function findPositionByURL(savedTabs: chrome.tabs.Tab[], url: string | null = ""): number {
+export function findPositionByURL(savedTabs: chrome.tabs.Tab[], url: string | null = ""): number {
   return savedTabs.findIndex((item: chrome.tabs.Tab) => item.url === url && url != null);
 }
 
-function findPositionByHostnameAndTitle(
+export function findPositionByHostnameAndTitle(
   savedTabs: chrome.tabs.Tab[],
   url = "",
   title = ""
@@ -27,7 +27,7 @@ function findPositionByHostnameAndTitle(
   });
 }
 
-function getURLPositionFilterByWrangleOption(
+export function getURLPositionFilterByWrangleOption(
   savedTabs: chrome.tabs.Tab[],
   option: WrangleOption
 ): (tab: chrome.tabs.Tab) => number {

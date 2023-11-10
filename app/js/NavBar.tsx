@@ -11,26 +11,6 @@ type Props = {
 };
 
 export default function NavBar({ activeTabId, onClickTab }: Props) {
-  function handleClickAboutTab(event: React.MouseEvent) {
-    event.preventDefault();
-    onClickTab("about");
-  }
-
-  function handleClickCorralTab(event: React.MouseEvent) {
-    event.preventDefault();
-    onClickTab("corral");
-  }
-
-  function handleClickLockTab(event: React.MouseEvent) {
-    event.preventDefault();
-    onClickTab("lock");
-  }
-
-  function handleClickOptionsTab(event: React.MouseEvent) {
-    event.preventDefault();
-    onClickTab("options");
-  }
-
   return (
     <>
       <div className="nav-bar--buttons">
@@ -41,7 +21,10 @@ export default function NavBar({ activeTabId, onClickTab }: Props) {
           <a
             className={cx("nav-link", { active: activeTabId === "corral" })}
             href="#corral"
-            onClick={handleClickCorralTab}
+            onClick={(event) => {
+              event.preventDefault();
+              onClickTab("corral");
+            }}
           >
             {chrome.i18n.getMessage("tabCorral_name")}
           </a>
@@ -50,7 +33,10 @@ export default function NavBar({ activeTabId, onClickTab }: Props) {
           <a
             className={cx("nav-link", { active: activeTabId === "lock" })}
             href="#lock"
-            onClick={handleClickLockTab}
+            onClick={(event) => {
+              event.preventDefault();
+              onClickTab("lock");
+            }}
           >
             {chrome.i18n.getMessage("tabLock_name")}
           </a>
@@ -59,7 +45,10 @@ export default function NavBar({ activeTabId, onClickTab }: Props) {
           <a
             className={cx("nav-link", { active: activeTabId === "options" })}
             href="#options"
-            onClick={handleClickOptionsTab}
+            onClick={(event) => {
+              event.preventDefault();
+              onClickTab("options");
+            }}
           >
             {chrome.i18n.getMessage("options_name")}
           </a>
@@ -68,7 +57,10 @@ export default function NavBar({ activeTabId, onClickTab }: Props) {
           <a
             className={cx("nav-link", { active: activeTabId === "about" })}
             href="#about"
-            onClick={handleClickAboutTab}
+            onClick={(event) => {
+              event.preventDefault();
+              onClickTab("about");
+            }}
           >
             {chrome.i18n.getMessage("about_name")}
           </a>

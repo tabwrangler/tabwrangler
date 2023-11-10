@@ -1,4 +1,4 @@
-import { ASYNC_LOCK } from "../mutations";
+import { ASYNC_LOCK } from "../storage";
 import { getStorageLocalPersist } from "../queries";
 import { serializeTab } from "../util";
 

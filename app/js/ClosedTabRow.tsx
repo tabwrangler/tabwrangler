@@ -24,26 +24,6 @@ export default function ClosedTabRow({
   style,
   tab,
 }: Props) {
-  function _handleClickAnchor(event: React.MouseEvent) {
-    event.preventDefault();
-    onOpenTab(tab, session);
-  }
-
-  function _handleClickCheckbox(event: React.MouseEvent) {
-    // Dynamic type check to ensure target is an input element.
-    if (!(event.target instanceof HTMLInputElement)) return;
-    onToggleTab(tab, event.target.checked, event.shiftKey);
-  }
-
-  function _handleClickRemove() {
-    onRemoveTab(tab);
-  }
-
-  function _handleClickTd(event: React.MouseEvent) {
-    if (event.currentTarget.nodeName === "input") return;
-    onToggleTab(tab, !isSelected, event.shiftKey);
-  }
-
   return (
     <div
       aria-label="row"
@@ -51,15 +31,15 @@ export default function ClosedTabRow({
       role="row"
       style={style}
     >
-      <div
-        className="ReactVirtualized__Table__rowColumn"
-        onClick={_handleClickTd}
-        style={{ verticalAlign: "middle" }}
-      >
+      <div className="ReactVirtualized__Table__rowColumn" style={{ verticalAlign: "middle" }}>
         <input
           checked={isSelected}
           className="checkbox--td"
-          onClick={_handleClickCheckbox}
+          onClick={(event: React.MouseEvent) => {
+            // Dynamic type check to ensure target is an input element.
+            if (!(event.target instanceof HTMLInputElement)) return;
+            onToggleTab(tab, event.target.checked, event.shiftKey);
+          }}
           type="checkbox"
           readOnly
         />
@@ -77,7 +57,9 @@ export default function ClosedTabRow({
         />
         <span
           className="faviconCol--hover-shown"
-          onClick={_handleClickRemove}
+          onClick={() => {
+            onRemoveTab(tab);
+          }}
           role="button"
           style={{ cursor: "pointer", height: 16, width: 16 }}
           tabIndex={0}
@@ -91,7 +73,10 @@ export default function ClosedTabRow({
           <div className="CorralTabRow-content">
             <a
               href={tab.url}
-              onClick={_handleClickAnchor}
+              onClick={(event: React.MouseEvent) => {
+                event.preventDefault();
+                onOpenTab(tab, session);
+              }}
               rel="noopener noreferrer"
               style={{ flex: 1 }}
               target="_blank"

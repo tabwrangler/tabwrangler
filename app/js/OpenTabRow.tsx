@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useStorageLocalPersistQuery, useStorageSyncPersistQuery } from "./hooks";
+import { useStorageLocalPersistQuery, useStorageSyncPersistQuery } from "./storage";
 import LazyImage from "./LazyImage";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
@@ -24,12 +24,6 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
   const paused = syncPersistData?.paused;
   const tabTime =
     tab.id == null || localPersistData == null ? Date.now() : localPersistData.tabTimes[tab.id];
-
-  function handleLockedOnClick(event: React.MouseEvent) {
-    // Dynamically check target is an input element.
-    if (!(event.target instanceof HTMLInputElement)) return;
-    onToggleTab(tab, event.target.checked, event.shiftKey);
-  }
 
   const tabWhitelistMatch = settings.getWhitelistMatch(tab.url);
 
@@ -85,7 +79,11 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
           checked={isLocked}
           className="mx-1"
           disabled={!settings.isTabManuallyLockable(tab)}
-          onClick={handleLockedOnClick}
+          onClick={(event: React.MouseEvent) => {
+            // Dynamically check target is an input element.
+            if (!(event.target instanceof HTMLInputElement)) return;
+            onToggleTab(tab, event.target.checked, event.shiftKey);
+          }}
           type="checkbox"
           readOnly
         />

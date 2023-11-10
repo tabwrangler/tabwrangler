@@ -1,6 +1,7 @@
 import * as React from "react";
+import { lockTabId, unlockTabId } from "./storage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useStorageLocalPersistQuery, useStorageSyncQuery } from "./hooks";
+import { useStorageLocalPersistQuery, useStorageSyncQuery } from "./storage";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
 import { isTabLocked } from "./tabUtil";
@@ -101,7 +102,6 @@ export default function LockTab() {
 
   const [currSorter, setCurrSorter] = React.useState(() => {
     let sorter = sortOrder == null ? DEFAULT_SORTER : Sorters.find((s) => s.key === sortOrder);
-
     // If settings somehow stores a bad value, always fall back to default order.
     if (sorter == null) sorter = DEFAULT_SORTER;
     return sorter;
@@ -125,33 +125,26 @@ export default function LockTab() {
   }, [queryClient]);
 
   const { data: persistLocalData } = useStorageLocalPersistQuery();
-  const sortedTabs = React.useMemo(
-    () =>
-      tabs == null || persistLocalData?.tabTimes == null
-        ? []
-        : tabs.slice().sort((tabA, tabB) => currSorter.sort(tabA, tabB, persistLocalData.tabTimes)),
-    [currSorter, persistLocalData?.tabTimes, tabs]
-  );
-
+  const sortedTabs =
+    tabs == null || persistLocalData?.tabTimes == null
+      ? []
+      : tabs.slice().sort((tabA, tabB) => currSorter.sort(tabA, tabB, persistLocalData.tabTimes));
   const { data: syncData } = useStorageSyncQuery();
-  const lockedTabIds = React.useMemo(
-    () =>
-      syncData == null
-        ? new Set()
-        : new Set(
-            sortedTabs
-              .filter((tab) =>
-                isTabLocked(tab, {
-                  filterAudio: syncData["filterAudio"],
-                  filterGroupedTabs: syncData["filterGroupedTabs"],
-                  lockedIds: syncData["lockedIds"],
-                  whitelist: syncData["whitelist"],
-                })
-              )
-              .map((tab) => tab.id)
-          ),
-    [sortedTabs, syncData]
-  );
+  const lockedTabIds =
+    syncData == null
+      ? new Set()
+      : new Set(
+          sortedTabs
+            .filter((tab) =>
+              isTabLocked(tab, {
+                filterAudio: syncData["filterAudio"],
+                filterGroupedTabs: syncData["filterGroupedTabs"],
+                lockedIds: syncData["lockedIds"],
+                whitelist: syncData["whitelist"],
+              })
+            )
+            .map((tab) => tab.id)
+        );
 
   React.useEffect(() => {
     function handleWindowClick(event: MouseEvent) {
@@ -171,39 +164,7 @@ export default function LockTab() {
     };
   }, [isSortDropdownOpen]);
 
-  function clickSorter(nextSorter: Sorter, event: React.MouseEvent<HTMLElement>) {
-    // The dropdown wraps items in bogus `<a href="#">` elements in order to match Bootstrap's
-    // style. Prevent default on the event in order to prevent scrolling to the top of the window
-    // (the default action for an empty anchor "#").
-    event.preventDefault();
-
-    if (nextSorter === currSorter) {
-      // If this is already the active sorter, close the dropdown and do no work since the state is
-      // already correct.
-      setIsSortDropdownOpen(false);
-    } else {
-      // When the saved sort order is not null then the user wants to preserve it. Update to the
-      // new sort order and persist it.
-      if (settings.get("lockTabSortOrder") != null) {
-        settings.set("lockTabSortOrder", nextSorter.key);
-      }
-
-      setIsSortDropdownOpen(false);
-      setCurrSorter(nextSorter);
-    }
-  }
-
-  function handleChangeSaveSortOrder(event: React.ChangeEvent<HTMLInputElement>) {
-    if (event.target.checked) {
-      settings.set("lockTabSortOrder", currSorter.key);
-      setSortOrder(currSorter.key);
-    } else {
-      settings.set("lockTabSortOrder", null);
-      setSortOrder(null);
-    }
-  }
-
-  function handleToggleTab(tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) {
+  async function handleToggleTab(tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) {
     let tabsToToggle = [tab];
     if (multiselect && lastSelectedTabRef.current != null) {
       const lastSelectedTabIndex = sortedTabs.indexOf(lastSelectedTabRef.current);
@@ -217,19 +178,17 @@ export default function LockTab() {
     }
 
     // Toggle only the tabs that are manually lockable.
-    tabsToToggle
-      .filter((tab) => settings.isTabManuallyLockable(tab))
-      .forEach((tab) => {
-        if (tab.id == null) return;
-        else if (selected) settings.lockTab(tab.id);
-        else settings.unlockTab(tab.id);
-      });
+    await Promise.all(
+      tabsToToggle
+        .filter((tab) => settings.isTabManuallyLockable(tab))
+        .map((tab) => {
+          if (tab.id == null) return Promise.resolve();
+          else if (selected) return lockTabId(tab.id);
+          else return unlockTabId(tab.id);
+        })
+    );
 
     lastSelectedTabRef.current = tab;
-  }
-
-  function toggleSortDropdown() {
-    setIsSortDropdownOpen(!isSortDropdownOpen);
   }
 
   return (
@@ -250,7 +209,9 @@ export default function LockTab() {
             aria-haspopup="true"
             className="btn btn-outline-dark btn-sm"
             id="sort-dropdown"
-            onClick={toggleSortDropdown}
+            onClick={() => {
+              setIsSortDropdownOpen(!isSortDropdownOpen);
+            }}
             title={chrome.i18n.getMessage("corral_currentSort", currSorter.label())}
           >
             <span>{chrome.i18n.getMessage("corral_sortBy")}</span>
@@ -267,8 +228,26 @@ export default function LockTab() {
                 className={cx("dropdown-item", { active: currSorter === sorter })}
                 href="#"
                 key={sorter.label()}
-                onClick={(event) => {
-                  clickSorter(sorter, event);
+                onClick={(event: React.MouseEvent<HTMLElement>) => {
+                  // The dropdown wraps items in bogus `<a href="#">` elements in order to match
+                  // Bootstrap's style. Prevent default on the event in order to prevent scrolling
+                  // to the top of the window (the default action for an empty anchor "#").
+                  event.preventDefault();
+
+                  if (sorter === currSorter) {
+                    // If this is already the active sorter, close the dropdown and do no work since
+                    // the state is already correct.
+                    setIsSortDropdownOpen(false);
+                  } else {
+                    // When the saved sort order is not null then the user wants to preserve it.
+                    // Update to the new sort order and persist it.
+                    if (syncData != null) {
+                      settings.set("lockTabSortOrder", sorter.key);
+                    }
+
+                    setIsSortDropdownOpen(false);
+                    setCurrSorter(sorter);
+                  }
                 }}
               >
                 {sorter.label()}
@@ -282,7 +261,15 @@ export default function LockTab() {
                     checked={sortOrder != null}
                     className="form-check-input"
                     id="lock-tab--save-sort-order"
-                    onChange={handleChangeSaveSortOrder}
+                    onChange={(event) => {
+                      if (event.target.checked) {
+                        settings.set("lockTabSortOrder", currSorter.key);
+                        setSortOrder(currSorter.key);
+                      } else {
+                        settings.set("lockTabSortOrder", null);
+                        setSortOrder(null);
+                      }
+                    }}
                     type="checkbox"
                   />
                   <label className="form-check-label" htmlFor="lock-tab--save-sort-order">

@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ClosedTabRow from "./ClosedTabRow";
 import cx from "classnames";
 import settings from "./settings";
-import { useStorageLocalPersistQuery } from "./hooks";
+import { useStorageLocalPersistQuery } from "./storage";
 
 function keywordFilter(keyword: string) {
   return function (tab: chrome.tabs.Tab) {
@@ -279,28 +279,6 @@ export default function CorralTab() {
     }
   }
 
-  function handleClickSorter(sorter: Sorter, event: React.MouseEvent<HTMLElement>) {
-    // The dropdown wraps items in bogus `<a href="#">` elements in order to match Bootstrap's
-    // style. Prevent default on the event in order to prevent scrolling to the top of the window
-    // (the default action for an empty anchor "#").
-    event.preventDefault();
-
-    if (sorter === currSorter) {
-      // If this is already the active sorter, close the dropdown and do no work since the state is
-      // already correct.
-      setIsSortDropdownOpen(false);
-    } else {
-      // When the saved sort order is not null then the user wants to preserve it. Update to the
-      // new sort order and persist it.
-      if (settings.get("corralTabSortOrder") != null) {
-        settings.set("corralTabSortOrder", sorter.key);
-      }
-
-      setIsSortDropdownOpen(false);
-      setCurrSorter(sorter);
-    }
-  }
-
   async function handleRemoveSelectedTabs() {
     await removeSavedTabs(closedTabs.filter((tab) => selectedTabs.has(serializeTab(tab))));
     setSelectedTabs(new Set());
@@ -518,8 +496,26 @@ export default function CorralTab() {
                   className={cx("dropdown-item", { active: currSorter === sorter })}
                   href="#"
                   key={sorter.label()}
-                  onClick={(event) => {
-                    handleClickSorter(sorter, event);
+                  onClick={(event: React.MouseEvent<HTMLElement>) => {
+                    // The dropdown wraps items in bogus `<a href="#">` elements in order to match
+                    // Bootstrap's style. Prevent default on the event in order to prevent scrolling
+                    // to the top of the window (the default action for an empty anchor "#").
+                    event.preventDefault();
+
+                    if (sorter === currSorter) {
+                      // If this is already the active sorter, close the dropdown and do no work
+                      // since the state is already correct.
+                      setIsSortDropdownOpen(false);
+                    } else {
+                      // When the saved sort order is not null then the user wants to preserve it.
+                      // Update to the ``new sort order and persist it.
+                      if (settings.get("corralTabSortOrder") != null) {
+                        settings.set("corralTabSortOrder", sorter.key);
+                      }
+
+                      setIsSortDropdownOpen(false);
+                      setCurrSorter(sorter);
+                    }
                   }}
                 >
                   {sorter.label()}

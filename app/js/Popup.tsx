@@ -6,10 +6,10 @@ import OptionsTab from "./OptionsTab";
 import React from "react";
 import { register } from "timeago.js";
 import timeagoLocale from "./timeagoLocale";
-import { useStorageSyncPersistQuery } from "./hooks";
+import { useStorageSyncPersistQuery } from "./storage";
 
 export default function Popup() {
-  const { data: settingsData } = useStorageSyncPersistQuery();
+  const { data: storageSyncPersistData } = useStorageSyncPersistQuery();
 
   React.useEffect(() => {
     // Configure Timeago to use the current UI language of the browser.
@@ -22,9 +22,9 @@ export default function Popup() {
   React.useEffect(() => {
     const body = document.body;
     if (body == null) return;
-    body.classList.toggle("theme-dark", settingsData?.theme === "dark");
-    body.classList.toggle("theme-light", settingsData?.theme === "light");
-  }, [settingsData?.theme]);
+    body.classList.toggle("theme-dark", storageSyncPersistData?.theme === "dark");
+    body.classList.toggle("theme-light", storageSyncPersistData?.theme === "light");
+  }, [storageSyncPersistData?.theme]);
 
   const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>("corral");
   let activeTab;

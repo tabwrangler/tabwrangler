@@ -1,10 +1,10 @@
 import * as React from "react";
-import { mutateStorageSyncPersist } from "./mutations";
+import { mutateStorageSyncPersist } from "./storage";
 import { useMutation } from "@tanstack/react-query";
-import { useStorageSyncPersistQuery } from "./hooks";
+import { useStorageSyncPersistQuery } from "./storage";
 
 export default function PauseButton() {
-  const { data: settingsData } = useStorageSyncPersistQuery();
+  const { data: storageSyncPersistData } = useStorageSyncPersistQuery();
   const pausedMutation = useMutation({
     mutationFn: (nextPaused: boolean) =>
       mutateStorageSyncPersist({ key: "paused", value: nextPaused }),
@@ -21,11 +21,11 @@ export default function PauseButton() {
   return (
     <button
       className="btn btn-outline-dark btn-sm"
-      disabled={settingsData == null}
-      onClick={settingsData == null || !settingsData.paused ? pause : play}
+      disabled={storageSyncPersistData == null}
+      onClick={storageSyncPersistData == null || !storageSyncPersistData.paused ? pause : play}
       type="button"
     >
-      {settingsData == null || !settingsData.paused ? (
+      {storageSyncPersistData == null || !storageSyncPersistData.paused ? (
         <>
           <i className="fas fa-pause" /> {chrome.i18n.getMessage("extension_pause")}
         </>

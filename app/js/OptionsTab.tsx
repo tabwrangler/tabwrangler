@@ -1,8 +1,8 @@
 import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { exportData, importData } from "./actions/importExportActions";
-import { mutateStorageSync, mutateStorageSyncPersist } from "./mutations";
-import { useStorageSyncPersistQuery, useStorageSyncQuery } from "./hooks";
+import { mutateStorageSync, mutateStorageSyncPersist } from "./storage";
+import { useStorageSyncPersistQuery, useStorageSyncQuery } from "./storage";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
 import cx from "classnames";

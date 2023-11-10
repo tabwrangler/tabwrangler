@@ -31,6 +31,7 @@ module.exports = {
     "no-console": "off",
     "no-unused-expressions": "error",
     "sort-imports": "error",
+    "require-await": "error",
 
     // React Hooks
     "react-hooks/rules-of-hooks": "error",

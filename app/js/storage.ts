@@ -7,7 +7,7 @@ import { useEffect } from "react";
 
 export const ASYNC_LOCK = new AsyncLock();
 
-export async function mutateStorageSyncPersist({
+export function mutateStorageSyncPersist({
   key,
   value,
 }: {
@@ -22,17 +22,11 @@ export async function mutateStorageSyncPersist({
   });
 }
 
-export async function mutateStorageSync({
-  key,
-  value,
-}: {
-  key: string;
-  value: unknown;
-}): Promise<void> {
+export function mutateStorageSync({ key, value }: { key: string; value: unknown }): Promise<void> {
   return chrome.storage.sync.set({ [key]: value });
 }
 
-export async function lockTabId(tabId: number) {
+export function lockTabId(tabId: number) {
   return ASYNC_LOCK.acquire("persist:settings", async () => {
     const { lockedIds } = await chrome.storage.sync.get({ lockedIds: [] });
     if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {

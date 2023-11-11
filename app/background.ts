@@ -8,11 +8,11 @@ import settings from "./js/settings";
 const tabManager = new TabManager();
 const menus = new Menus();
 
-async function setPaused(paused: boolean) {
+function setPaused(paused: boolean): Promise<void> {
   if (paused) {
-    chrome.action.setIcon({ path: "img/icon-paused.png" });
+    return chrome.action.setIcon({ path: "img/icon-paused.png" });
   } else {
-    chrome.action.setIcon({ path: "img/icon.png" });
+    return chrome.action.setIcon({ path: "img/icon.png" });
   }
 }
 

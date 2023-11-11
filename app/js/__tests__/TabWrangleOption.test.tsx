@@ -4,20 +4,8 @@ import TabWrangleOption from "../TabWrangleOption";
 import renderer from "react-test-renderer";
 
 describe("TabWrangleOption", () => {
-  let ogGetMessage: typeof chrome.i18n.getMessage;
-
-  beforeEach(() => {
-    ogGetMessage = chrome.i18n.getMessage;
-    chrome.i18n.getMessage = () => "";
-  });
-
-  afterEach(() => {
-    chrome.i18n.getMessage = ogGetMessage;
-  });
-
   test("renders options with withDupes selected", () => {
     const mockCallback = jest.fn();
-
     const two = renderer.create(
       <TabWrangleOption onChange={mockCallback} selectedOption="withDupes" />
     );
@@ -27,7 +15,6 @@ describe("TabWrangleOption", () => {
 
   test("renders options with exactURLMatch selected", () => {
     const mockCallback = jest.fn();
-
     const two = renderer.create(
       <TabWrangleOption onChange={mockCallback} selectedOption="exactURLMatch" />
     );
@@ -37,7 +24,6 @@ describe("TabWrangleOption", () => {
 
   test("renders options with hostnameAndTitleMatch selected", () => {
     const mockCallback = jest.fn();
-
     const two = renderer.create(
       <TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />
     );

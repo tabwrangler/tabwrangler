@@ -60,7 +60,7 @@
     "babel-loader": "^8.0.2",
     "copy-webpack-plugin": "^5.0.0",
     "core-js": "^3.5.0",
-    "css-loader": "^3.0.0",
+    "css-loader": "^6.8.1",
     "eslint": "^8.23.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-prettier": "^3.3.0",

@@ -1,5 +1,5 @@
-import TabManager from "./tabmanager";
 import settings from "./settings";
+import { wrangleTabs } from "./tabUtil";
 
 function getDomain(url: string): string | null {
   const match = url.match(/[^:]+:\/\/([^/]+)\//);
@@ -7,8 +7,6 @@ function getDomain(url: string): string | null {
 }
 
 export default class Menus {
-  tabManager: TabManager | undefined;
-
   // Note: intended to be called only once, which is why this function is static. Context menus
   // should be once when the extension is installed.
   static install() {
@@ -35,8 +33,8 @@ export default class Menus {
   }
 
   corralTab(_onClickData: unknown, tab?: chrome.tabs.Tab | undefined) {
-    if (this.tabManager == null || tab == null) return;
-    this.tabManager.wrangleTabs([tab]);
+    if (tab == null) return;
+    wrangleTabs([tab]);
   }
 
   lockTab(_onClickData: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab | undefined) {
@@ -79,10 +77,6 @@ export default class Menus {
         // No-op, no known item was clicked so there is nothing to do.
         break;
     }
-  }
-
-  setTabManager(tabManager: TabManager) {
-    this.tabManager = tabManager;
   }
 
   updateContextMenus(tabId: number) {

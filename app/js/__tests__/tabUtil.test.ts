@@ -1,8 +1,9 @@
-import TabManager, {
+import {
   findPositionByHostnameAndTitle,
   findPositionByURL,
   getURLPositionFilterByWrangleOption,
-} from "../tabmanager";
+  wrangleTabs,
+} from "../tabUtil";
 import { setSavedTabs } from "../actions/localStorageActions";
 import settings from "../settings";
 
@@ -35,10 +36,9 @@ describe("wrangleTabs", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
     settings.get = jest.fn(() => 5); //maxTabs
-    const tabManager = new TabManager();
 
     const testTabs = [createTab({ id: 2 }), createTab({ id: 3 }), createTab({ id: 4 })];
-    await tabManager.wrangleTabs(testTabs);
+    await wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4]);
@@ -57,8 +57,7 @@ describe("wrangleTabs", () => {
       createTab({ id: 5 }),
     ];
 
-    const tabManager = new TabManager();
-    await tabManager.wrangleTabs(testTabs);
+    await wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4, 5]);
@@ -78,10 +77,9 @@ describe("wrangleTabs", () => {
       createTab({ id: 3, url: "https://www.nytimes.com" }),
     ]);
 
-    const tabManager = new TabManager();
     const testTabs = [createTab({ id: 4, url: "https://www.nytimes.com" })];
 
-    await tabManager.wrangleTabs(testTabs);
+    await wrangleTabs(testTabs);
     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
     const data = await chrome.storage.local.get("persist:localStorage");
     expect(data["persist:localStorage"].totalTabsWrangled).toEqual(1);
@@ -98,12 +96,11 @@ describe("wrangleTabs", () => {
       createTab({ id: 3, url: "https://www.nytimes.com", title: "New York Times" }),
     ]);
 
-    const tabManager = new TabManager();
     const testTabs = [
       createTab({ id: 4, url: "https://www.nytimes.com", title: "New York Times" }),
     ];
 
-    await tabManager.wrangleTabs(testTabs);
+    await wrangleTabs(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);

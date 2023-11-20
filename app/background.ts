@@ -1,11 +1,19 @@
+import {
+  getOlderThen,
+  initTabs,
+  onNewTab,
+  removeTab,
+  replaceTab,
+  updateClosedCount,
+  updateLastAccessed,
+  wrangleTabs,
+} from "./js/tabUtil";
 import { removeAllSavedTabs, setTabTimes } from "./js/actions/localStorageActions";
 import Menus from "./js/menus";
-import TabManager from "./js/tabmanager";
 import debounce from "lodash.debounce";
 import { getStorageSyncPersist } from "./js/queries";
 import settings from "./js/settings";
 
-const tabManager = new TabManager();
 const menus = new Menus();
 
 function setPaused(paused: boolean): Promise<void> {
@@ -16,18 +24,18 @@ function setPaused(paused: boolean): Promise<void> {
   }
 }
 
-const debouncedUpdateLastAccessed = debounce(tabManager.updateLastAccessed.bind(tabManager), 1000);
+const debouncedUpdateLastAccessed = debounce(updateLastAccessed, 1000);
 chrome.runtime.onInstalled.addListener(Menus.install);
-chrome.tabs.onCreated.addListener(tabManager.onNewTab.bind(tabManager));
-chrome.tabs.onRemoved.addListener(tabManager.removeTab.bind(tabManager));
-chrome.tabs.onReplaced.addListener(tabManager.replaceTab.bind(tabManager));
+chrome.tabs.onCreated.addListener(onNewTab);
+chrome.tabs.onRemoved.addListener(removeTab);
+chrome.tabs.onReplaced.addListener(replaceTab);
 chrome.tabs.onActivated.addListener(function (tabInfo) {
   menus.updateContextMenus(tabInfo.tabId);
 
   if (settings.get("debounceOnActivated")) {
     debouncedUpdateLastAccessed(tabInfo.tabId);
   } else {
-    tabManager.updateLastAccessed(tabInfo.tabId);
+    updateLastAccessed(tabInfo.tabId);
   }
 });
 
@@ -40,7 +48,7 @@ chrome.commands.onCommand.addListener((command) => {
       break;
     case "wrangle-current-tab":
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        tabManager.wrangleTabs(tabs);
+        wrangleTabs(tabs);
       });
       break;
     default:
@@ -52,7 +60,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   switch (areaName) {
     case "local": {
       if (changes.savedTabs) {
-        tabManager.updateClosedCount();
+        updateClosedCount();
       }
       break;
     }
@@ -61,7 +69,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
       if (changes.minutesInactive || changes.secondsInactive) {
         // Reset stored `tabTimes` because setting was changed otherwise old times may exceed new
         // setting value.
-        tabManager.initTabs();
+        initTabs();
       }
 
       if (changes["persist:settings"]) {
@@ -74,7 +82,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
       }
 
       if (changes.showBadgeCount) {
-        tabManager.updateClosedCount(changes.showBadgeCount.newValue);
+        updateClosedCount(changes.showBadgeCount.newValue);
       }
       break;
     }
@@ -83,7 +91,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
 function closeTabs(tabs: chrome.tabs.Tab[]): Promise<void> {
   console.debug("[closeTabs] CLOSING TABS", tabs);
-  return tabManager.wrangleTabs(
+  return wrangleTabs(
     tabs.filter(
       (tab) =>
         !(
@@ -98,9 +106,6 @@ function closeTabs(tabs: chrome.tabs.Tab[]): Promise<void> {
 async function startup() {
   // Load settings before proceeding; Settings reads from async browser storage.
   await settings.init();
-
-  menus.setTabManager(tabManager);
-
   async function checkToClose(cutOff: number | null) {
     console.debug("[checkToClose] start ⬇️");
     try {
@@ -109,7 +114,7 @@ async function startup() {
 
       // Tabs which have been locked via the checkbox.
       const lockedIds = settings.get<Array<number>>("lockedIds");
-      const toCut = await tabManager.getOlderThen(cutOff);
+      const toCut = await getOlderThen(cutOff);
 
       console.debug("[checkToClose] toCut", toCut);
       const storageSyncPersist = await getStorageSyncPersist();
@@ -151,7 +156,7 @@ async function startup() {
             // don't get closed when we add a new one.
             for (let i = 0; i < tabs.length; i++) {
               const tabId = tabs[i].id;
-              if (tabId != null && currWindow.focused) tabManager.updateLastAccessed(tabId);
+              if (tabId != null && currWindow.focused) updateLastAccessed(tabId);
             }
             continue;
           }
@@ -202,7 +207,7 @@ async function startup() {
 
   // Because the badge count is external state, this side effect must be run once the value
   // is read from storage.
-  tabManager.updateClosedCount();
+  updateClosedCount();
 
   if (settings.get("purgeClosedTabs") !== false) {
     await removeAllSavedTabs();

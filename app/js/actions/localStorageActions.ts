@@ -113,18 +113,6 @@ export function removeTabTime(tabId: string) {
   });
 }
 
-export function setTotalTabsWrangled(totalTabsWrangled: number) {
-  return ASYNC_LOCK.acquire("persist:localStorage", async () => {
-    const localStorage = await getStorageLocalPersist();
-    await chrome.storage.local.set({
-      "persist:localStorage": {
-        ...localStorage,
-        totalTabsWrangled,
-      },
-    });
-  });
-}
-
 export async function unwrangleTabs(
   sessionTabs: Array<{
     session: chrome.sessions.Session | undefined;

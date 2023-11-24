@@ -1,10 +1,8 @@
 import {
   incrementTotalTabsRemoved,
   removeTabTime,
-  setSavedTabs,
   setTabTime,
   setTabTimes,
-  setTotalTabsWrangled,
 } from "./actions/localStorageActions";
 import { getStorageLocalPersist } from "./queries";
 import settings from "./settings";
@@ -48,29 +46,27 @@ export async function wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
 
   console.debug("[wrangleTabs] WRANGLING TABS", tabs);
 
-  const localStorage = await getStorageLocalPersist();
+  const storageLocalPersist = await getStorageLocalPersist();
   const maxTabs = settings.get<number>("maxTabs");
-  let totalTabsWrangled = localStorage.totalTabsWrangled;
   const wrangleOption = settings.get<WrangleOption>("wrangleOption");
   const findURLPositionByWrangleOption = getURLPositionFilterByWrangleOption(
-    localStorage.savedTabs,
+    storageLocalPersist.savedTabs,
     wrangleOption
   );
 
-  let nextSavedTabs = localStorage.savedTabs.slice();
   const tabIdsToRemove: Array<number> = [];
   for (let i = 0; i < tabs.length; i++) {
     const existingTabPosition = findURLPositionByWrangleOption(tabs[i]);
     const closingDate = Date.now();
 
     if (existingTabPosition > -1) {
-      nextSavedTabs.splice(existingTabPosition, 1);
+      storageLocalPersist.savedTabs.splice(existingTabPosition, 1);
     }
 
     // @ts-expect-error `closedAt` is a TW expando property on tabs
     tabs[i].closedAt = closingDate;
-    nextSavedTabs.unshift(tabs[i]);
-    totalTabsWrangled += 1;
+    storageLocalPersist.savedTabs.unshift(tabs[i]);
+    storageLocalPersist.totalTabsWrangled += 1;
 
     const tabId = tabs[i].id;
     if (tabId != null) {
@@ -84,10 +80,12 @@ export async function wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
 
   // Trim saved tabs to the max allocated by the setting. Browser extension storage is limited and
   // thus cannot allow saved tabs to grow indefinitely.
-  if (nextSavedTabs.length - maxTabs > 0) nextSavedTabs = nextSavedTabs.splice(0, maxTabs);
+  if (storageLocalPersist.savedTabs.length - maxTabs > 0)
+    storageLocalPersist.savedTabs = storageLocalPersist.savedTabs.splice(0, maxTabs);
 
-  await setSavedTabs(nextSavedTabs);
-  await setTotalTabsWrangled(totalTabsWrangled);
+  await chrome.storage.local.set({
+    "persist:localStorage": storageLocalPersist,
+  });
 }
 
 export async function initTabs() {

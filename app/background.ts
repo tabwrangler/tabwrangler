@@ -8,10 +8,10 @@ import {
   updateLastAccessed,
   wrangleTabs,
 } from "./js/tabUtil";
-import { removeAllSavedTabs, setTabTimes } from "./js/actions/localStorageActions";
+import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
 import Menus from "./js/menus";
 import debounce from "lodash.debounce";
-import { getStorageSyncPersist } from "./js/queries";
+import { removeAllSavedTabs } from "./js/actions/localStorageActions";
 import settings from "./js/settings";
 
 const menus = new Menus();
@@ -117,22 +117,23 @@ async function startup() {
       const toCut = await getOlderThen(cutOff);
 
       console.debug("[checkToClose] toCut", toCut);
+      const storageLocalPersist = await getStorageLocalPersist();
       const storageSyncPersist = await getStorageSyncPersist();
       if (!storageSyncPersist.paused) {
+        const updatedAt = Date.now();
+
         // Update the selected tabs to make sure they don't get closed.
         const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-        await setTabTimes(
-          activeTabs.map((tab) => String(tab.id)),
-          Date.now()
-        );
+        activeTabs.forEach((tab) => {
+          storageLocalPersist.tabTimes[String(tab.id)] = updatedAt;
+        });
 
         // Update audible tabs if the setting is enabled to prevent them from being closed.
         if (settings.get("filterAudio") === true) {
           const audibleTabs = await chrome.tabs.query({ audible: true });
-          await setTabTimes(
-            audibleTabs.map((tab) => String(tab.id)),
-            Date.now()
-          );
+          audibleTabs.forEach((tab) => {
+            storageLocalPersist.tabTimes[String(tab.id)] = updatedAt;
+          });
         }
 
         const windows = await chrome.windows.getAll({ populate: true });
@@ -151,12 +152,13 @@ async function startup() {
 
           let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.indexOf(tab.id) !== -1);
           if (tabs.length - minTabs <= 0) {
-            // We have less than minTab tabs, abort.
-            // Also, let's reset the last accessed time of our current tabs so they
-            // don't get closed when we add a new one.
+            // * We have less than minTab tabs, abort.
+            // * Also, reset the last accessed time of our current tabs so they don't get closed
+            //   when we add a new one
             for (let i = 0; i < tabs.length; i++) {
               const tabId = tabs[i].id;
-              if (tabId != null && currWindow.focused) updateLastAccessed(tabId);
+              if (tabId != null && currWindow.focused)
+                storageLocalPersist.tabTimes[tabId] = updatedAt;
             }
             continue;
           }
@@ -170,22 +172,22 @@ async function startup() {
           }
 
           const tabsToClose = [];
-          const tabIdsToUpdate = [];
           for (let i = 0; i < tabsToCut.length; i++) {
             const tabId = tabsToCut[i].id;
             if (tabId == null) continue;
-
             if (lockedIds.indexOf(tabId) !== -1) {
               // Update its time so it gets checked less frequently.
               // Would also be smart to just never add it.
               // @todo: fix that.
-              tabIdsToUpdate.push(String(tabId));
+              storageLocalPersist.tabTimes[String(tabId)] = updatedAt;
               continue;
             }
             tabsToClose.push(tabsToCut[i]);
           }
 
-          await setTabTimes(tabIdsToUpdate, Date.now());
+          await chrome.storage.local.set({
+            "persist:localStorage": storageLocalPersist,
+          });
           await closeTabs(tabsToClose);
         }
       }

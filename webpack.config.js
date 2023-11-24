@@ -126,7 +126,7 @@ module.exports = [
             manifest.browser_specific_settings = {
               gecko: {
                 id: "{81b74d53-9416-4fb3-afa2-ab46684b253b}",
-                strict_min_version: "52.0",
+                strict_min_version: "109.0",
               },
             };
 

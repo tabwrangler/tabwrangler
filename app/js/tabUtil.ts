@@ -1,10 +1,10 @@
+import { StorageLocalPersistState, getStorageLocalPersist } from "./queries";
 import {
   incrementTotalTabsRemoved,
   removeTabTime,
   setTabTime,
   setTabTimes,
 } from "./actions/localStorageActions";
-import { getStorageLocalPersist } from "./queries";
 import settings from "./settings";
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
@@ -40,13 +40,16 @@ export function getURLPositionFilterByWrangleOption(
   return () => -1;
 }
 
-export async function wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
+// Note: Mutates `storageLocalPersist`!
+export function wrangleTabs(
+  storageLocalPersist: StorageLocalPersistState,
+  tabs: Array<chrome.tabs.Tab>
+) {
   // No tabs, nothing to do
   if (tabs.length === 0) return;
 
   console.debug("[wrangleTabs] WRANGLING TABS", tabs);
 
-  const storageLocalPersist = await getStorageLocalPersist();
   const maxTabs = settings.get<number>("maxTabs");
   const wrangleOption = settings.get<WrangleOption>("wrangleOption");
   const findURLPositionByWrangleOption = getURLPositionFilterByWrangleOption(
@@ -82,7 +85,14 @@ export async function wrangleTabs(tabs: Array<chrome.tabs.Tab>) {
   // thus cannot allow saved tabs to grow indefinitely.
   if (storageLocalPersist.savedTabs.length - maxTabs > 0)
     storageLocalPersist.savedTabs = storageLocalPersist.savedTabs.splice(0, maxTabs);
+}
 
+export async function wrangleTabsAndPersist(tabs: Array<chrome.tabs.Tab>) {
+  // No tabs, nothing to do
+  if (tabs.length === 0) return;
+
+  const storageLocalPersist = await getStorageLocalPersist();
+  wrangleTabs(storageLocalPersist, tabs);
   await chrome.storage.local.set({
     "persist:localStorage": storageLocalPersist,
   });
@@ -94,22 +104,6 @@ export async function initTabs() {
     tabs.map((tab) => String(tab.id)),
     Date.now()
   );
-}
-
-/**
- * @param time - if null, returns all
- */
-export async function getOlderThen(time?: number): Promise<Array<number>> {
-  const ret: Array<number> = [];
-  const { tabTimes } = await getStorageLocalPersist();
-  for (const i in tabTimes) {
-    if (Object.prototype.hasOwnProperty.call(tabTimes, i)) {
-      if (!time || tabTimes[i] < time) {
-        ret.push(parseInt(i, 10));
-      }
-    }
-  }
-  return ret;
 }
 
 export function onNewTab(tab: chrome.tabs.Tab) {

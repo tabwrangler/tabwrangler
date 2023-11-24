@@ -17,7 +17,7 @@ export async function getStorageSyncPersist(): Promise<StorageSyncPersistState> 
   return Object.assign({}, STORAGE_SYNC_PERSIST_DEFAULTS, data["persist:settings"]);
 }
 
-type StorageLocalPersistState = {
+export type StorageLocalPersistState = {
   // Date of installation of Tab Wrangler
   installDate: number;
   // Tabs closed by Tab Wrangler

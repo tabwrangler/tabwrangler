@@ -1,5 +1,5 @@
 import settings from "./settings";
-import { wrangleTabs } from "./tabUtil";
+import { wrangleTabsAndPersist } from "./tabUtil";
 
 function getDomain(url: string): string | null {
   const match = url.match(/[^:]+:\/\/([^/]+)\//);
@@ -34,7 +34,7 @@ export default class Menus {
 
   corralTab(_onClickData: unknown, tab?: chrome.tabs.Tab | undefined) {
     if (tab == null) return;
-    wrangleTabs([tab]);
+    wrangleTabsAndPersist([tab]);
   }
 
   lockTab(_onClickData: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab | undefined) {

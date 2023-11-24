@@ -2,7 +2,7 @@ import {
   findPositionByHostnameAndTitle,
   findPositionByURL,
   getURLPositionFilterByWrangleOption,
-  wrangleTabs,
+  wrangleTabsAndPersist,
 } from "../tabUtil";
 import { setSavedTabs } from "../actions/localStorageActions";
 import settings from "../settings";
@@ -31,14 +31,14 @@ beforeEach(async () => {
   jest.clearAllMocks();
 });
 
-describe("wrangleTabs", () => {
+describe("wrangleTabsAndPersist", () => {
   test("wrangles new tabs", async () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
     settings.get = jest.fn(() => 5); //maxTabs
 
     const testTabs = [createTab({ id: 2 }), createTab({ id: 3 }), createTab({ id: 4 })];
-    await wrangleTabs(testTabs);
+    await wrangleTabsAndPersist(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4]);
@@ -57,7 +57,7 @@ describe("wrangleTabs", () => {
       createTab({ id: 5 }),
     ];
 
-    await wrangleTabs(testTabs);
+    await wrangleTabsAndPersist(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4, 5]);
@@ -79,7 +79,7 @@ describe("wrangleTabs", () => {
 
     const testTabs = [createTab({ id: 4, url: "https://www.nytimes.com" })];
 
-    await wrangleTabs(testTabs);
+    await wrangleTabsAndPersist(testTabs);
     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
     const data = await chrome.storage.local.get("persist:localStorage");
     expect(data["persist:localStorage"].totalTabsWrangled).toEqual(1);
@@ -100,7 +100,7 @@ describe("wrangleTabs", () => {
       createTab({ id: 4, url: "https://www.nytimes.com", title: "New York Times" }),
     ];
 
-    await wrangleTabs(testTabs);
+    await wrangleTabsAndPersist(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
     expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);

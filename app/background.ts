@@ -1,5 +1,9 @@
 import {
-  getOlderThen,
+  StorageLocalPersistState,
+  getStorageLocalPersist,
+  getStorageSyncPersist,
+} from "./js/queries";
+import {
   initTabs,
   onNewTab,
   removeTab,
@@ -7,8 +11,8 @@ import {
   updateClosedCount,
   updateLastAccessed,
   wrangleTabs,
+  wrangleTabsAndPersist,
 } from "./js/tabUtil";
-import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
 import Menus from "./js/menus";
 import debounce from "lodash.debounce";
 import { removeAllSavedTabs } from "./js/actions/localStorageActions";
@@ -48,7 +52,7 @@ chrome.commands.onCommand.addListener((command) => {
       break;
     case "wrangle-current-tab":
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        wrangleTabs(tabs);
+        wrangleTabsAndPersist(tabs);
       });
       break;
     default:
@@ -89,18 +93,19 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-function closeTabs(tabs: chrome.tabs.Tab[]): Promise<void> {
-  console.debug("[closeTabs] CLOSING TABS", tabs);
-  return wrangleTabs(
-    tabs.filter(
-      (tab) =>
-        !(
-          true === tab.pinned ||
-          (settings.get("filterAudio") && tab.audible) ||
-          (tab.url != null && settings.isWhitelisted(tab.url))
-        )
-    )
-  );
+function getTabsOlderThan(
+  tabTimes: StorageLocalPersistState["tabTimes"],
+  time: number
+): Array<number> {
+  const ret: Array<number> = [];
+  for (const i in tabTimes) {
+    if (Object.prototype.hasOwnProperty.call(tabTimes, i)) {
+      if (!time || tabTimes[i] < time) {
+        ret.push(parseInt(i, 10));
+      }
+    }
+  }
+  return ret;
 }
 
 async function startup() {
@@ -111,14 +116,14 @@ async function startup() {
     try {
       cutOff = cutOff || new Date().getTime() - settings.get<number>("stayOpen");
       const minTabs = settings.get<number>("minTabs");
+      const storageLocalPersist = await getStorageLocalPersist();
+      const storageSyncPersist = await getStorageSyncPersist();
 
       // Tabs which have been locked via the checkbox.
       const lockedIds = settings.get<Array<number>>("lockedIds");
-      const toCut = await getOlderThen(cutOff);
-
+      const toCut = getTabsOlderThan(storageLocalPersist.tabTimes, cutOff);
       console.debug("[checkToClose] toCut", toCut);
-      const storageLocalPersist = await getStorageLocalPersist();
-      const storageSyncPersist = await getStorageSyncPersist();
+
       if (!storageSyncPersist.paused) {
         const updatedAt = Date.now();
 
@@ -185,10 +190,20 @@ async function startup() {
             tabsToClose.push(tabsToCut[i]);
           }
 
+          wrangleTabs(
+            storageLocalPersist,
+            tabsToClose.filter(
+              (tab) =>
+                !(
+                  true === tab.pinned ||
+                  (settings.get("filterAudio") && tab.audible) ||
+                  (tab.url != null && settings.isWhitelisted(tab.url))
+                )
+            )
+          );
           await chrome.storage.local.set({
             "persist:localStorage": storageLocalPersist,
           });
-          await closeTabs(tabsToClose);
         }
       }
     } catch (error) {

@@ -112,7 +112,6 @@ async function startup() {
   // Load settings before proceeding; Settings reads from async browser storage.
   await settings.init();
   async function checkToClose(cutOff: number | null) {
-    console.debug("[checkToClose] start ⬇️");
     try {
       cutOff = cutOff || new Date().getTime() - settings.get<number>("stayOpen");
       const minTabs = settings.get<number>("minTabs");
@@ -122,7 +121,6 @@ async function startup() {
       // Tabs which have been locked via the checkbox.
       const lockedIds = settings.get<Array<number>>("lockedIds");
       const toCut = getTabsOlderThan(storageLocalPersist.tabTimes, cutOff);
-      console.debug("[checkToClose] toCut", toCut);
 
       if (!storageSyncPersist.paused) {
         const updatedAt = Date.now();
@@ -141,6 +139,7 @@ async function startup() {
           });
         }
 
+        const tabsToClose = [];
         const windows = await chrome.windows.getAll({ populate: true });
         for (const currWindow of windows) {
           let tabs = currWindow.tabs;
@@ -170,13 +169,10 @@ async function startup() {
 
           // If cutting will reduce us below `minTabs`, only remove the first N to get to `minTabs`.
           tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
-
-          console.debug("[checkToClose] filtered tabsToCut", tabsToCut);
           if (tabsToCut.length === 0) {
             continue;
           }
 
-          const tabsToClose = [];
           for (let i = 0; i < tabsToCut.length; i++) {
             const tabId = tabsToCut[i].id;
             if (tabId == null) continue;
@@ -189,22 +185,22 @@ async function startup() {
             }
             tabsToClose.push(tabsToCut[i]);
           }
-
-          wrangleTabs(
-            storageLocalPersist,
-            tabsToClose.filter(
-              (tab) =>
-                !(
-                  true === tab.pinned ||
-                  (settings.get("filterAudio") && tab.audible) ||
-                  (tab.url != null && settings.isWhitelisted(tab.url))
-                )
-            )
-          );
-          await chrome.storage.local.set({
-            "persist:localStorage": storageLocalPersist,
-          });
         }
+
+        wrangleTabs(
+          storageLocalPersist,
+          tabsToClose.filter(
+            (tab) =>
+              !(
+                true === tab.pinned ||
+                (settings.get("filterAudio") && tab.audible) ||
+                (tab.url != null && settings.isWhitelisted(tab.url))
+              )
+          )
+        );
+        await chrome.storage.local.set({
+          "persist:localStorage": storageLocalPersist,
+        });
       }
     } catch (error) {
       console.error("[checkToClose]", error);

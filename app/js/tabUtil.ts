@@ -48,8 +48,6 @@ export function wrangleTabs(
   // No tabs, nothing to do
   if (tabs.length === 0) return;
 
-  console.debug("[wrangleTabs] WRANGLING TABS", tabs);
-
   const maxTabs = settings.get<number>("maxTabs");
   const wrangleOption = settings.get<WrangleOption>("wrangleOption");
   const findURLPositionByWrangleOption = getURLPositionFilterByWrangleOption(

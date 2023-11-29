@@ -194,7 +194,18 @@ async function checkToClose() {
         }
       }
 
-      await chrome.storage.local.set({ tabTimes });
+      // Populate and cull `tabTimes` before storing again.
+      // * Tab was missing from the object? the `tabs.query` will return it and its time will be
+      //   populated
+      // * Tab no longer exists? reducing `tabs.query` will not yield that dead tab ID and it will
+      //   not exist in resulting `nextTabTimes`
+      const allTabs = await chrome.tabs.query({});
+      const nextTabTimes: { [key: string]: number } = allTabs.reduce((acc, tab) => {
+        if (tab.id != null) acc[tab.id] = tabTimes[tab.id] || updatedAt;
+        return acc;
+      }, {} as { [key: string]: number });
+
+      await chrome.storage.local.set({ tabTimes: nextTabTimes });
     });
 
     const tabsToClose = tabsToCloseCandidates.filter(

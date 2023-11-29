@@ -1,9 +1,9 @@
 import * as React from "react";
-import { useStorageLocalPersistQuery, useStorageSyncPersistQuery } from "./storage";
 import LazyImage from "./LazyImage";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
 import settings from "./settings";
+import { useStorageSyncPersistQuery } from "./storage";
 
 function secondsToMinutes(seconds: number) {
   const minutes = seconds % 60;
@@ -15,16 +15,13 @@ type Props = {
   isLocked: boolean;
   onToggleTab: (tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) => void;
   tab: chrome.tabs.Tab;
+  tabTime: number | undefined;
 };
 
-export default function OpenTabRow({ isLocked, onToggleTab, tab }: Props) {
+export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.now() }: Props) {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
-  const { data: localPersistData } = useStorageLocalPersistQuery();
   const now = React.useContext(UseNowContext);
   const paused = syncPersistData?.paused;
-  const tabTime =
-    tab.id == null || localPersistData == null ? Date.now() : localPersistData.tabTimes[tab.id];
-
   const tabWhitelistMatch = settings.getWhitelistMatch(tab.url);
 
   let lockStatusElement;

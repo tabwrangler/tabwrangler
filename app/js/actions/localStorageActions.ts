@@ -32,18 +32,6 @@ export function removeSavedTabs(tabs: Array<chrome.tabs.Tab>) {
   });
 }
 
-export function resetTabTimes() {
-  return ASYNC_LOCK.acquire("persist:localStorage", async () => {
-    const localStorage = await getStorageLocalPersist();
-    await chrome.storage.local.set({
-      "persist:localStorage": {
-        ...localStorage,
-        tabTimes: [],
-      },
-    });
-  });
-}
-
 export function setSavedTabs(savedTabs: Array<chrome.tabs.Tab>): Promise<void> {
   return ASYNC_LOCK.acquire("persist:localStorage", async () => {
     const localStorage = await getStorageLocalPersist();
@@ -57,32 +45,25 @@ export function setSavedTabs(savedTabs: Array<chrome.tabs.Tab>): Promise<void> {
 }
 
 export function setTabTime(tabId: string, tabTime: number) {
-  return ASYNC_LOCK.acquire("persist:localStorage", async () => {
-    const localStorage = await getStorageLocalPersist();
+  return ASYNC_LOCK.acquire("local.tabTimes", async () => {
+    const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
     await chrome.storage.local.set({
-      "persist:localStorage": {
-        ...localStorage,
-        tabTimes: {
-          ...localStorage.tabTimes,
-          [tabId]: tabTime,
-        },
+      tabTimes: {
+        ...tabTimes,
+        [tabId]: tabTime,
       },
     });
   });
 }
 
 export function setTabTimes(tabIds: string[], tabTime: number) {
-  return ASYNC_LOCK.acquire("persist:localStorage", async () => {
-    const localStorage = await getStorageLocalPersist();
-    const nextTabTimes = { ...localStorage.tabTimes };
+  return ASYNC_LOCK.acquire("local.tabTimes", async () => {
+    const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
     tabIds.forEach((tabId) => {
-      nextTabTimes[tabId] = tabTime;
+      tabTimes[tabId] = tabTime;
     });
     await chrome.storage.local.set({
-      "persist:localStorage": {
-        ...localStorage,
-        tabTimes: nextTabTimes,
-      },
+      tabTimes,
     });
   });
 }
@@ -100,15 +81,11 @@ export function incrementTotalTabsRemoved() {
 }
 
 export function removeTabTime(tabId: string) {
-  return ASYNC_LOCK.acquire("persist:localStorage", async () => {
-    const localStorage = await getStorageLocalPersist();
-    const nextTabTimes = { ...localStorage.tabTimes };
-    delete nextTabTimes[tabId];
+  return ASYNC_LOCK.acquire("local.tabTimes", async () => {
+    const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
+    delete tabTimes[tabId];
     await chrome.storage.local.set({
-      "persist:localStorage": {
-        ...localStorage,
-        tabTimes: nextTabTimes,
-      },
+      tabTimes,
     });
   });
 }

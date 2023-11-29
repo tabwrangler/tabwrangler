@@ -1,11 +1,11 @@
 import * as React from "react";
 import { lockTabId, unlockTabId } from "./storage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useStorageLocalPersistQuery, useStorageSyncQuery } from "./storage";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
 import { isTabLocked } from "./tabUtil";
 import settings from "./settings";
+import { useStorageSyncQuery } from "./storage";
 
 type Sorter = {
   key: string;
@@ -91,6 +91,51 @@ function useNow() {
   return now;
 }
 
+function useTabsQuery() {
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    queryFn: () => chrome.tabs.query({}),
+    queryKey: ["tabsQuery"],
+  });
+  React.useEffect(() => {
+    function invalidateTabsQuery() {
+      queryClient.invalidateQueries({ queryKey: ["tabsQuery"] });
+    }
+    chrome.tabs.onCreated.addListener(invalidateTabsQuery);
+    chrome.tabs.onRemoved.addListener(invalidateTabsQuery);
+    return () => {
+      chrome.tabs.onCreated.removeListener(invalidateTabsQuery);
+      chrome.tabs.onRemoved.removeListener(invalidateTabsQuery);
+    };
+  }, [queryClient]);
+  return query;
+}
+
+function useTabTimesQuery() {
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    queryFn: () => chrome.storage.local.get({ tabTimes: {} }),
+    queryKey: ["tabTimesQuery"],
+  });
+  React.useEffect(() => {
+    function invalidateTabTimesQuery(
+      changes: { [key: string]: chrome.storage.StorageChange },
+      areaName: chrome.storage.AreaName
+    ) {
+      if (areaName === "local" && "tabTimes" in changes)
+        queryClient.invalidateQueries({ queryKey: ["tabTimesQuery"] });
+    }
+    chrome.storage.onChanged.addListener(invalidateTabTimesQuery);
+    return () => {
+      chrome.storage.onChanged.removeListener(invalidateTabTimesQuery);
+    };
+  }, [queryClient]);
+  return {
+    ...query,
+    data: query.data?.tabTimes, // unwrap `StorageArea.get` response since `tabTimes` is implied
+  };
+}
+
 export default function LockTab() {
   const dropdownRef = React.useRef<HTMLElement | null>(null);
   const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
@@ -107,28 +152,14 @@ export default function LockTab() {
     return sorter;
   });
 
-  const queryClient = useQueryClient();
-  const { data: tabs } = useQuery({
-    queryFn: () => chrome.tabs.query({}),
-    queryKey: ["tabsQuery"],
-  });
-  React.useEffect(() => {
-    function handleChanged() {
-      queryClient.invalidateQueries({ queryKey: ["tabsQuery"] });
-    }
-    chrome.tabs.onCreated.addListener(handleChanged);
-    chrome.tabs.onRemoved.addListener(handleChanged);
-    return () => {
-      chrome.tabs.onCreated.removeListener(handleChanged);
-      chrome.tabs.onRemoved.removeListener(handleChanged);
-    };
-  }, [queryClient]);
-
-  const { data: persistLocalData } = useStorageLocalPersistQuery();
+  const tabsQuery = useTabsQuery();
+  const tabTimesQuery = useTabTimesQuery();
   const sortedTabs =
-    tabs == null || persistLocalData?.tabTimes == null
+    tabsQuery.data == null || tabTimesQuery.data == null
       ? []
-      : tabs.slice().sort((tabA, tabB) => currSorter.sort(tabA, tabB, persistLocalData.tabTimes));
+      : tabsQuery.data
+          .slice()
+          .sort((tabA, tabB) => currSorter.sort(tabA, tabB, tabTimesQuery.data));
   const { data: syncData } = useStorageSyncQuery();
   const lockedTabIds =
     syncData == null
@@ -164,7 +195,7 @@ export default function LockTab() {
     };
   }, [isSortDropdownOpen]);
 
-  async function handleToggleTab(tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) {
+  async function toggleTab(tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) {
     let tabsToToggle = [tab];
     if (multiselect && lastSelectedTabRef.current != null) {
       const lastSelectedTabIndex = sortedTabs.indexOf(lastSelectedTabRef.current);
@@ -288,8 +319,13 @@ export default function LockTab() {
               <OpenTabRow
                 isLocked={lockedTabIds.has(tab.id)}
                 key={tab.id}
-                onToggleTab={handleToggleTab}
+                onToggleTab={toggleTab}
                 tab={tab}
+                tabTime={
+                  tabTimesQuery.data == null || tab.id == null
+                    ? undefined
+                    : tabTimesQuery.data[tab.id]
+                }
               />
             ))}
           </UseNowContext.Provider>

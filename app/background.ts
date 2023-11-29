@@ -1,3 +1,4 @@
+import { ASYNC_LOCK, migrateLocal } from "./js/storage";
 import {
   StorageLocalPersistState,
   getStorageLocalPersist,
@@ -29,7 +30,10 @@ function setPaused(paused: boolean): Promise<void> {
 }
 
 const debouncedUpdateLastAccessed = debounce(updateLastAccessed, 1000);
-chrome.runtime.onInstalled.addListener(Menus.install);
+chrome.runtime.onInstalled.addListener(() => {
+  Menus.install();
+  migrateLocal();
+});
 chrome.tabs.onCreated.addListener(onNewTab);
 chrome.tabs.onRemoved.addListener(removeTab);
 chrome.tabs.onReplaced.addListener(replaceTab);
@@ -108,112 +112,119 @@ function getTabsOlderThan(
   return ret;
 }
 
-async function startup() {
-  // Load settings before proceeding; Settings reads from async browser storage.
-  await settings.init();
-  async function checkToClose(cutOff: number | null) {
-    try {
-      cutOff = cutOff || new Date().getTime() - settings.get<number>("stayOpen");
-      const minTabs = settings.get<number>("minTabs");
-      const storageLocalPersist = await getStorageLocalPersist();
-      const storageSyncPersist = await getStorageSyncPersist();
+let checkToCloseTimeout: NodeJS.Timeout | undefined;
+function scheduleCheckToClose() {
+  if (checkToCloseTimeout != null) clearTimeout(checkToCloseTimeout);
+  checkToCloseTimeout = setTimeout(checkToClose, 5000);
+}
+
+async function checkToClose() {
+  try {
+    const storageSyncPersist = await getStorageSyncPersist();
+    if (storageSyncPersist.paused) return; // Extension is paused, no work needs to be done.
+
+    const cutOff = new Date().getTime() - settings.get<number>("stayOpen");
+    const minTabs = settings.get<number>("minTabs");
+    const tabsToCloseCandidates: chrome.tabs.Tab[] = [];
+    await ASYNC_LOCK.acquire("local.tabTimes", async () => {
+      const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
 
       // Tabs which have been locked via the checkbox.
       const lockedIds = settings.get<Array<number>>("lockedIds");
-      const toCut = getTabsOlderThan(storageLocalPersist.tabTimes, cutOff);
+      const toCut = getTabsOlderThan(tabTimes, cutOff);
+      const updatedAt = Date.now();
 
-      if (!storageSyncPersist.paused) {
-        const updatedAt = Date.now();
+      // Update selected tabs to make sure they don't get closed.
+      const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+      activeTabs.forEach((tab) => {
+        tabTimes[String(tab.id)] = updatedAt;
+      });
 
-        // Update the selected tabs to make sure they don't get closed.
-        const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-        activeTabs.forEach((tab) => {
-          storageLocalPersist.tabTimes[String(tab.id)] = updatedAt;
+      // Update audible tabs if the setting is enabled to prevent them from being closed.
+      if (settings.get("filterAudio") === true) {
+        const audibleTabs = await chrome.tabs.query({ audible: true });
+        audibleTabs.forEach((tab) => {
+          tabTimes[String(tab.id)] = updatedAt;
         });
+      }
 
-        // Update audible tabs if the setting is enabled to prevent them from being closed.
-        if (settings.get("filterAudio") === true) {
-          const audibleTabs = await chrome.tabs.query({ audible: true });
-          audibleTabs.forEach((tab) => {
-            storageLocalPersist.tabTimes[String(tab.id)] = updatedAt;
-          });
+      const windows = await chrome.windows.getAll({ populate: true });
+      for (const currWindow of windows) {
+        let tabs = currWindow.tabs;
+        if (tabs == null) continue;
+
+        // Filter out pinned tabs
+        tabs = tabs.filter((tab) => tab.pinned === false);
+        // Filter out audible tabs if the option to do so is checked
+        tabs = settings.get<boolean>("filterAudio") ? tabs.filter((tab) => !tab.audible) : tabs;
+        // Filter out tabs that are in a group if the option to do so is checked
+        tabs = settings.get<boolean>("filterGroupedTabs")
+          ? tabs.filter((tab) => !("groupId" in tab) || tab.groupId <= 0)
+          : tabs;
+
+        let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.indexOf(tab.id) !== -1);
+        if (tabs.length - minTabs <= 0) {
+          // * We have less than minTab tabs, abort.
+          // * Also, reset the last accessed time of our current tabs so they don't get closed
+          //   when we add a new one
+          for (let i = 0; i < tabs.length; i++) {
+            const tabId = tabs[i].id;
+            if (tabId != null && currWindow.focused) tabTimes[tabId] = updatedAt;
+          }
+          continue;
         }
 
-        const tabsToClose = [];
-        const windows = await chrome.windows.getAll({ populate: true });
-        for (const currWindow of windows) {
-          let tabs = currWindow.tabs;
-          if (tabs == null) continue;
-
-          // Filter out pinned tabs
-          tabs = tabs.filter((tab) => tab.pinned === false);
-          // Filter out audible tabs if the option to do so is checked
-          tabs = settings.get<boolean>("filterAudio") ? tabs.filter((tab) => !tab.audible) : tabs;
-          // Filter out tabs that are in a group if the option to do so is checked
-          tabs = settings.get<boolean>("filterGroupedTabs")
-            ? tabs.filter((tab) => !("groupId" in tab) || tab.groupId <= 0)
-            : tabs;
-
-          let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.indexOf(tab.id) !== -1);
-          if (tabs.length - minTabs <= 0) {
-            // * We have less than minTab tabs, abort.
-            // * Also, reset the last accessed time of our current tabs so they don't get closed
-            //   when we add a new one
-            for (let i = 0; i < tabs.length; i++) {
-              const tabId = tabs[i].id;
-              if (tabId != null && currWindow.focused)
-                storageLocalPersist.tabTimes[tabId] = updatedAt;
-            }
-            continue;
-          }
-
-          // If cutting will reduce us below `minTabs`, only remove the first N to get to `minTabs`.
-          tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
-          if (tabsToCut.length === 0) {
-            continue;
-          }
-
-          for (let i = 0; i < tabsToCut.length; i++) {
-            const tabId = tabsToCut[i].id;
-            if (tabId == null) continue;
-            if (lockedIds.indexOf(tabId) !== -1) {
-              // Update its time so it gets checked less frequently.
-              // Would also be smart to just never add it.
-              // @todo: fix that.
-              storageLocalPersist.tabTimes[String(tabId)] = updatedAt;
-              continue;
-            }
-            tabsToClose.push(tabsToCut[i]);
-          }
+        // If cutting will reduce us below `minTabs`, only remove the first N to get to `minTabs`.
+        tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
+        if (tabsToCut.length === 0) {
+          continue;
         }
 
-        wrangleTabs(
-          storageLocalPersist,
-          tabsToClose.filter(
-            (tab) =>
-              !(
-                true === tab.pinned ||
-                (settings.get("filterAudio") && tab.audible) ||
-                (tab.url != null && settings.isWhitelisted(tab.url))
-              )
-          )
-        );
+        for (let i = 0; i < tabsToCut.length; i++) {
+          const tabId = tabsToCut[i].id;
+          if (tabId == null) continue;
+          if (lockedIds.indexOf(tabId) !== -1) {
+            // Update its time so it gets checked less frequently.
+            // Would also be smart to just never add it.
+            // @todo: fix that.
+            tabTimes[String(tabId)] = updatedAt;
+            continue;
+          }
+          tabsToCloseCandidates.push(tabsToCut[i]);
+        }
+      }
+
+      await chrome.storage.local.set({ tabTimes });
+    });
+
+    const tabsToClose = tabsToCloseCandidates.filter(
+      (tab) =>
+        !(
+          true === tab.pinned ||
+          (settings.get("filterAudio") && tab.audible) ||
+          (tab.url != null && settings.isWhitelisted(tab.url))
+        )
+    );
+
+    if (tabsToClose.length > 0) {
+      await ASYNC_LOCK.acquire("persist:localStorage", async () => {
+        const storageLocalPersist = await getStorageLocalPersist();
+        wrangleTabs(storageLocalPersist, tabsToClose);
         await chrome.storage.local.set({
           "persist:localStorage": storageLocalPersist,
         });
-      }
-    } catch (error) {
-      console.error("[checkToClose]", error);
-    } finally {
-      scheduleCheckToClose();
+      });
     }
+  } catch (error) {
+    console.error("[checkToClose]", error);
+  } finally {
+    scheduleCheckToClose();
   }
+}
 
-  let checkToCloseTimeout: number | null;
-  function scheduleCheckToClose() {
-    if (checkToCloseTimeout != null) clearTimeout(checkToCloseTimeout);
-    checkToCloseTimeout = setTimeout(checkToClose, 5000);
-  }
+async function startup() {
+  // Load settings before proceeding; Settings reads from async browser storage.
+  await settings.init();
 
   const storageSyncPersist = await getStorageSyncPersist();
   setPaused(storageSyncPersist.paused);

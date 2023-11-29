@@ -6,6 +6,38 @@ import { setTabTime } from "./actions/localStorageActions";
 import { useEffect } from "react";
 
 export const ASYNC_LOCK = new AsyncLock();
+const STORAGE_LOCAL_VERSION = 1;
+
+export async function migrateLocal() {
+  const { storageVersion } = await chrome.storage.local.get("storageVersion");
+
+  // New installation or migrating from unversioned -> versioned
+  if (storageVersion == null) {
+    // Move `tabTimes` from legacy "redux-persist" object into a root key so it can be read/written
+    // without having to read the entirety of stored tabs.
+    await ASYNC_LOCK.acquire(["local.tabTimes", "persist:localStorage"], async () => {
+      let nextTabTimes;
+      const { "persist:localStorage": persistLocalStorage } = await chrome.storage.local.get(
+        "persist:localStorage"
+      );
+
+      if (persistLocalStorage != null && "tabTimes" in persistLocalStorage) {
+        nextTabTimes = persistLocalStorage.tabTimes;
+        delete persistLocalStorage.tabTimes;
+        await chrome.storage.local.set({ "persist:localStorage": persistLocalStorage });
+      } else {
+        nextTabTimes = {};
+      }
+
+      await chrome.storage.local.set({
+        storageVersion: STORAGE_LOCAL_VERSION,
+        tabTimes: nextTabTimes,
+      });
+    });
+
+    console.debug("[migrateLocal]: Migrated to version 1");
+  }
+}
 
 export function mutateStorageSyncPersist({
   key,

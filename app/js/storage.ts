@@ -17,10 +17,8 @@ export async function migrateLocal() {
     // without having to read the entirety of stored tabs.
     await ASYNC_LOCK.acquire(["local.tabTimes", "persist:localStorage"], async () => {
       let nextTabTimes;
-      const { "persist:localStorage": persistLocalStorage } = await chrome.storage.local.get(
-        "persist:localStorage"
-      );
-
+      const data = await chrome.storage.local.get("persist:localStorage");
+      const persistLocalStorage = data["persist:localStorage"];
       if (persistLocalStorage != null && "tabTimes" in persistLocalStorage) {
         nextTabTimes = persistLocalStorage.tabTimes;
         delete persistLocalStorage.tabTimes;

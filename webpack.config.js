@@ -19,16 +19,9 @@ const COMMON_CONFIG = {
     rules: [
       {
         exclude: /node_modules/,
-        test: /\.tsx?$/,
+        test: /\.[t|j]sx?$/,
         use: {
           loader: "ts-loader",
-        },
-      },
-      {
-        exclude: /node_modules/,
-        test: /\.js$/,
-        use: {
-          loader: "babel-loader",
         },
       },
       {

@@ -5,7 +5,9 @@ import { getStorageSyncPersist } from "./queries";
 import { setTabTime } from "./actions/localStorageActions";
 import { useEffect } from "react";
 
-export const ASYNC_LOCK = new AsyncLock();
+/* Give an (arbitrary) maxExecutionTime to ensure no dead locks occur. Throwing an error is better
+ * than a permanent deadlock. */
+export const ASYNC_LOCK = new AsyncLock({ maxExecutionTime: 3000 });
 const STORAGE_LOCAL_VERSION = 1;
 
 export async function migrateLocal() {

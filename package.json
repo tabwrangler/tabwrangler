@@ -1,6 +1,6 @@
 {
   "name": "tabwrangler",
-  "version": "7.2.2",
+  "version": "7.2.3",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "scripts": {
     "build": "gulp",

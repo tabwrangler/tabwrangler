@@ -1,9 +1,5 @@
 import { sessionFuzzyMatchesTab } from "../CorralTab";
 
-beforeAll(() => {
-  jest.clearAllMocks();
-});
-
 describe("sessionFuzzyMatchesTab", () => {
   const tab = {
     active: false,

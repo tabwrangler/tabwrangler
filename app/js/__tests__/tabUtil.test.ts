@@ -28,7 +28,6 @@ function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
 
 beforeEach(async () => {
   await chrome.storage.local.clear();
-  jest.clearAllMocks();
 });
 
 describe("wrangleTabsAndPersist", () => {

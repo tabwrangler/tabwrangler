@@ -1,10 +1,6 @@
 import { exportData, exportFileName, importData } from "../actions/importExportActions";
 
 describe("importExportActions", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   test("exports the bookmark data", async () => {
     await chrome.storage.local.set({
       "persist:localStorage": {

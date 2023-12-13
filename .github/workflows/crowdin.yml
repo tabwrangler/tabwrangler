@@ -2,22 +2,21 @@ name: Crowdin Action
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   synchronize-with-crowdin:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - name: Crowdin action
-      uses: crowdin/github-action@1.4.8
-      with:
-        download_translations: true
-      env:
-        CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
-        CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Crowdin action
+        uses: crowdin/github-action@1.4.8
+        with:
+          download_translations: true
+        env:
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

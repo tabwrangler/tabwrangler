@@ -20,7 +20,7 @@ export function removeSavedTabs(tabs: Array<chrome.tabs.Tab>) {
     const removedTabsSet = new Set(tabs.map(serializeTab));
     // * Remove any tabs that are not in the action's array of tabs.
     const nextSavedTabs = localStorage.savedTabs.filter(
-      (tab) => !removedTabsSet.has(serializeTab(tab))
+      (tab) => !removedTabsSet.has(serializeTab(tab)),
     );
 
     await chrome.storage.local.set({
@@ -94,7 +94,7 @@ export async function unwrangleTabs(
   sessionTabs: Array<{
     session: chrome.sessions.Session | undefined;
     tab: chrome.tabs.Tab;
-  }>
+  }>,
 ): Promise<void> {
   await ASYNC_LOCK.acquire("persist:localStorage", async () => {
     const localStorage = await getStorageLocalPersist();
@@ -111,7 +111,7 @@ export async function unwrangleTabs(
     const removedTabsSet = new Set(sessionTabs.map((sessionTab) => serializeTab(sessionTab.tab)));
     // * Remove any tabs that are not in the action's array of tabs.
     const nextSavedTabs = localStorage.savedTabs.filter(
-      (tab) => !removedTabsSet.has(serializeTab(tab))
+      (tab) => !removedTabsSet.has(serializeTab(tab)),
     );
 
     const totalTabsUnwrangled = localStorage.totalTabsUnwrangled;
@@ -131,6 +131,6 @@ export async function unwrangleTabs(
       } else {
         return chrome.sessions.restore(sessionTab.session.tab.sessionId);
       }
-    })
+    }),
   );
 }

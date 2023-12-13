@@ -16,7 +16,7 @@ export function findPositionByURL(savedTabs: chrome.tabs.Tab[], url: string | nu
 export function findPositionByHostnameAndTitle(
   savedTabs: chrome.tabs.Tab[],
   url = "",
-  title = ""
+  title = "",
 ): number {
   const hostB = new URL(url).hostname;
   return savedTabs.findIndex((tab: chrome.tabs.Tab) => {
@@ -27,7 +27,7 @@ export function findPositionByHostnameAndTitle(
 
 export function getURLPositionFilterByWrangleOption(
   savedTabs: chrome.tabs.Tab[],
-  option: WrangleOption
+  option: WrangleOption,
 ): (tab: chrome.tabs.Tab) => number {
   if (option === "hostnameAndTitleMatch") {
     return (tab: chrome.tabs.Tab): number =>
@@ -43,7 +43,7 @@ export function getURLPositionFilterByWrangleOption(
 // Note: Mutates `storageLocalPersist`!
 export function wrangleTabs(
   storageLocalPersist: StorageLocalPersistState,
-  tabs: Array<chrome.tabs.Tab>
+  tabs: Array<chrome.tabs.Tab>,
 ) {
   // No tabs, nothing to do
   if (tabs.length === 0) return;
@@ -52,7 +52,7 @@ export function wrangleTabs(
   const wrangleOption = settings.get<WrangleOption>("wrangleOption");
   const findURLPositionByWrangleOption = getURLPositionFilterByWrangleOption(
     storageLocalPersist.savedTabs,
-    wrangleOption
+    wrangleOption,
   );
 
   const tabIdsToRemove: Array<number> = [];
@@ -100,7 +100,7 @@ export async function initTabs() {
   const tabs = await chrome.tabs.query({ windowType: "normal" });
   await setTabTimes(
     tabs.map((tab) => String(tab.id)),
-    Date.now()
+    Date.now(),
   );
 }
 
@@ -117,7 +117,7 @@ export async function removeTab(tabId: number) {
 }
 
 export async function updateClosedCount(
-  showBadgeCount: boolean = settings.get("showBadgeCount")
+  showBadgeCount: boolean = settings.get("showBadgeCount"),
 ): Promise<void> {
   let text;
   if (showBadgeCount) {
@@ -152,7 +152,7 @@ export async function replaceTab(addedTabId: number, removedTabId: number) {
 
 export function getWhitelistMatch(
   url: string | undefined,
-  { whitelist }: { whitelist: string[] }
+  { whitelist }: { whitelist: string[] },
 ): string | null {
   if (url == null) return null;
   for (let i = 0; i < whitelist.length; i++) {
@@ -170,7 +170,7 @@ export function isTabLocked(
     filterGroupedTabs,
     lockedIds,
     whitelist,
-  }: { filterAudio: boolean; filterGroupedTabs: boolean; lockedIds: number[]; whitelist: string[] }
+  }: { filterAudio: boolean; filterGroupedTabs: boolean; lockedIds: number[]; whitelist: string[] },
 ): boolean {
   const tabWhitelistMatch = getWhitelistMatch(tab.url, { whitelist });
   return (

@@ -37,8 +37,8 @@ body {
   transition: opacity 400ms ease-in;
 }
 
-@import './_includes';
-@import './_bootstrap';
+@import "./_includes";
+@import "./_bootstrap";
 
 .alert-sticky {
   position: fixed;
@@ -61,4 +61,4 @@ body {
  * Include Darkmode at the bottom so it has highest document-order precedence
  */
 
-@import './_darkmode';
+@import "./_darkmode";

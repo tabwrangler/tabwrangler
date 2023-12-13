@@ -28,21 +28,11 @@
     "open_in_tab": true,
     "page": "popup.html"
   },
-  "permissions": [
-    "alarms",
-    "contextMenus",
-    "sessions",
-    "storage",
-    "tabs"
-  ],
+  "permissions": ["alarms", "contextMenus", "sessions", "storage", "tabs"],
   "web_accessible_resources": [
     {
-      "matches": [
-        "*://*/*"
-      ],
-      "resources": [
-        "img/icon48.png"
-      ]
+      "matches": ["*://*/*"],
+      "resources": ["img/icon48.png"]
     }
   ]
 }

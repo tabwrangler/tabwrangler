@@ -114,7 +114,7 @@ const Sorters: Array<Sorter> = [
 
 export function sessionFuzzyMatchesTab(
   session: chrome.sessions.Session,
-  tab: chrome.tabs.Tab
+  tab: chrome.tabs.Tab,
 ): boolean {
   // Sessions' `lastModified` is only accurate to the second in Chrome whereas `closedAt` is
   // accurate to the millisecond. Convert to ms if needed.
@@ -182,7 +182,7 @@ export default function CorralTab() {
 
   const [filter, setFilter] = React.useState("");
   const [savedSortOrder, setSavedSortOrder] = React.useState(
-    settings.get<string | null>("corralTabSortOrder")
+    settings.get<string | null>("corralTabSortOrder"),
   );
   const [currSorter, setCurrSorter] = React.useState(() => {
     const savedSortOrder = settings.get<string>("corralTabSortOrder");
@@ -298,7 +298,7 @@ export default function CorralTab() {
         .map((tab) => ({
           session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
           tab,
-        }))
+        })),
     );
     setSelectedTabs(new Set());
   }
@@ -400,7 +400,7 @@ export default function CorralTab() {
             String(
               localStorageData == null || !("totalTabsWrangled" in localStorageData)
                 ? 0
-                : localStorageData.totalTabsWrangled
+                : localStorageData.totalTabsWrangled,
             ),
             String(percentClosed),
           ])}

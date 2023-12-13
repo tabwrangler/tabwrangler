@@ -2,39 +2,45 @@
 
 ### Chrome
 
-1. Clone the repository
+1.  Clone the repository
 
         $ git clone https://github.com/tabwrangler/tabwrangler
-2. Install all dependencies
+
+2.  Install all dependencies
 
         $ npm install
-3. Build, output, and watch the contents to `dist/chrome/`
+
+3.  Build, output, and watch the contents to `dist/chrome/`
 
         $ npm run start
-4. Open the Extensions page in Chrome via *Window > Extensions*
-5. Check the "Developer mode" checkbox in upper right
-6. Click the "Load unpacked extension..." button and select the `dist/chrome/` directory created in
-   step 3.
+
+4.  Open the Extensions page in Chrome via _Window > Extensions_
+5.  Check the "Developer mode" checkbox in upper right
+6.  Click the "Load unpacked extension..." button and select the `dist/chrome/` directory created in
+    step 3.
 
 ### Firefox
 
-1. Clone the repository
+1.  Clone the repository
 
         $ git clone https://github.com/tabwrangler/tabwrangler
-2. Install all dependencies
+
+2.  Install all dependencies
 
         $ npm install
-3. Build, output, and watch the contents to `dist/firefox/`
+
+3.  Build, output, and watch the contents to `dist/firefox/`
 
         $ npm run start
-4. Open the Add-ons page in Firefox via *Tools > Add-ons*
-5. Open the cog wheel dropdown and select *Debug Add-ons*
-6. Click the "Load Temporary Add-on" button and select the `dist/firefox/manifest.json` file created
-   in step 3.
+
+4.  Open the Add-ons page in Firefox via _Tools > Add-ons_
+5.  Open the cog wheel dropdown and select _Debug Add-ons_
+6.  Click the "Load Temporary Add-on" button and select the `dist/firefox/manifest.json` file created
+    in step 3.
 
 ### Building for Release
 
-1. Create a .zip to upload to the Chrome Store and Firefox AMO with the `build` task
+1.  Create a .zip to upload to the Chrome Store and Firefox AMO with the `build` task
 
         $ npm run build
 

@@ -7,7 +7,7 @@ describe("TabWrangleOption", () => {
   test("renders options with withDupes selected", () => {
     const mockCallback = jest.fn();
     const two = renderer.create(
-      <TabWrangleOption onChange={mockCallback} selectedOption="withDupes" />
+      <TabWrangleOption onChange={mockCallback} selectedOption="withDupes" />,
     );
 
     expect(two).toMatchSnapshot();
@@ -16,7 +16,7 @@ describe("TabWrangleOption", () => {
   test("renders options with exactURLMatch selected", () => {
     const mockCallback = jest.fn();
     const two = renderer.create(
-      <TabWrangleOption onChange={mockCallback} selectedOption="exactURLMatch" />
+      <TabWrangleOption onChange={mockCallback} selectedOption="exactURLMatch" />,
     );
 
     expect(two).toMatchSnapshot();
@@ -25,7 +25,7 @@ describe("TabWrangleOption", () => {
   test("renders options with hostnameAndTitleMatch selected", () => {
     const mockCallback = jest.fn();
     const two = renderer.create(
-      <TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />
+      <TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />,
     );
 
     expect(two).toMatchSnapshot();

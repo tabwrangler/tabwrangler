@@ -55,7 +55,7 @@ export default class Menus {
     if (wasChecked) {
       settings.set(
         "whitelist",
-        whitelist.filter((d) => d !== domain)
+        whitelist.filter((d) => d !== domain),
       );
     } else {
       settings.set("whitelist", [...whitelist, domain]);

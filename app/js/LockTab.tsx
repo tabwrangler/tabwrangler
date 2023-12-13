@@ -16,7 +16,7 @@ type Sorter = {
     b: chrome.tabs.Tab | null,
     tabTimes: {
       [tabid: string]: number;
-    }
+    },
   ) => number;
 };
 
@@ -120,7 +120,7 @@ function useTabTimesQuery() {
   React.useEffect(() => {
     function invalidateTabTimesQuery(
       changes: { [key: string]: chrome.storage.StorageChange },
-      areaName: chrome.storage.AreaName
+      areaName: chrome.storage.AreaName,
     ) {
       if (areaName === "local" && "tabTimes" in changes)
         queryClient.invalidateQueries({ queryKey: ["tabTimesQuery"] });
@@ -142,7 +142,7 @@ export default function LockTab() {
   const now = useNow();
   const [isSortDropdownOpen, setIsSortDropdownOpen] = React.useState<boolean>(false);
   const [sortOrder, setSortOrder] = React.useState<string | null>(
-    settings.get<string>("lockTabSortOrder")
+    settings.get<string>("lockTabSortOrder"),
   );
 
   const [currSorter, setCurrSorter] = React.useState(() => {
@@ -172,9 +172,9 @@ export default function LockTab() {
                 filterGroupedTabs: syncData["filterGroupedTabs"],
                 lockedIds: syncData["lockedIds"],
                 whitelist: syncData["whitelist"],
-              })
+              }),
             )
-            .map((tab) => tab.id)
+            .map((tab) => tab.id),
         );
 
   React.useEffect(() => {
@@ -203,7 +203,7 @@ export default function LockTab() {
         const tabIndex = sortedTabs.indexOf(tab);
         tabsToToggle = sortedTabs.slice(
           Math.min(tabIndex, lastSelectedTabIndex),
-          Math.max(tabIndex, lastSelectedTabIndex) + 1
+          Math.max(tabIndex, lastSelectedTabIndex) + 1,
         );
       }
     }
@@ -216,7 +216,7 @@ export default function LockTab() {
           if (tab.id == null) return Promise.resolve();
           else if (selected) return lockTabId(tab.id);
           else return unlockTabId(tab.id);
-        })
+        }),
     );
 
     lastSelectedTabRef.current = tab;

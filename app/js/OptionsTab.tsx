@@ -145,7 +145,7 @@ export default function OptionsTab() {
         saveOption(event.target.id, event.target.value);
       }
     },
-    150
+    150,
   );
 
   function handleAddPatternSubmit(event: React.FormEvent<HTMLElement>) {
@@ -172,7 +172,7 @@ export default function OptionsTab() {
     operationName: string,
     func: (arg: T) => Promise<unknown>,
     funcArg: T,
-    onSuccess?: (blob: string | Blob) => void
+    onSuccess?: (blob: string | Blob) => void,
   ) {
     if (importExportAlertTimeoutRef.current != null) {
       window.clearTimeout(importExportAlertTimeoutRef.current);
@@ -201,7 +201,7 @@ export default function OptionsTab() {
       event,
       (blob) => {
         FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
-      }
+      },
     );
   }
 
@@ -209,7 +209,7 @@ export default function OptionsTab() {
     importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_importing") || "",
       importData,
-      event
+      event,
     );
   }
 

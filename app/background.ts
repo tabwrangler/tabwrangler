@@ -99,7 +99,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
 function getTabsOlderThan(
   tabTimes: StorageLocalPersistState["tabTimes"],
-  time: number
+  time: number,
 ): Array<number> {
   const ret: Array<number> = [];
   for (const i in tabTimes) {
@@ -200,10 +200,13 @@ async function checkToClose() {
       // * Tab no longer exists? reducing `tabs.query` will not yield that dead tab ID and it will
       //   not exist in resulting `nextTabTimes`
       const allTabs = await chrome.tabs.query({});
-      const nextTabTimes: { [key: string]: number } = allTabs.reduce((acc, tab) => {
-        if (tab.id != null) acc[tab.id] = tabTimes[tab.id] || updatedAt;
-        return acc;
-      }, {} as { [key: string]: number });
+      const nextTabTimes: { [key: string]: number } = allTabs.reduce(
+        (acc, tab) => {
+          if (tab.id != null) acc[tab.id] = tabTimes[tab.id] || updatedAt;
+          return acc;
+        },
+        {} as { [key: string]: number },
+      );
 
       await chrome.storage.local.set({ tabTimes: nextTabTimes });
     });
@@ -214,7 +217,7 @@ async function checkToClose() {
           true === tab.pinned ||
           (settings.get("filterAudio") && tab.audible) ||
           (tab.url != null && settings.isWhitelisted(tab.url))
-        )
+        ),
     );
 
     if (tabsToClose.length > 0) {

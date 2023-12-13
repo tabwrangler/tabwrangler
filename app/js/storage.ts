@@ -87,7 +87,7 @@ export function useStorageLocalPersistQuery() {
   useEffect(() => {
     function handleChanged(
       changes: { [key: string]: chrome.storage.StorageChange },
-      areaName: chrome.storage.AreaName
+      areaName: chrome.storage.AreaName,
     ) {
       if (areaName === "local" && "persist:localStorage" in changes) {
         queryClient.invalidateQueries(STORAGE_LOCAL_PERSIST_QUERY_KEY);
@@ -113,7 +113,7 @@ export function useStorageSyncPersistQuery() {
   useEffect(() => {
     function handleChanged(
       changes: { [key: string]: chrome.storage.StorageChange },
-      areaName: chrome.storage.AreaName
+      areaName: chrome.storage.AreaName,
     ) {
       if (areaName === "sync" && "persist:settings" in changes)
         queryClient.invalidateQueries({ queryKey: STORAGE_SYNC_PERSIST_QUERY_KEY });

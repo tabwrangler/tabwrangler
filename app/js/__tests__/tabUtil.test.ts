@@ -141,8 +141,8 @@ describe("filter", () => {
       findPositionByHostnameAndTitle(
         savedTabs,
         "https://www.nytimes.com",
-        "The New York Times - Breaking News, World News & Multimedia"
-      )
+        "The New York Times - Breaking News, World News & Multimedia",
+      ),
     ).toBe(2);
   });
 

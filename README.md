@@ -1,4 +1,4 @@
- [![Crowdin](https://d322cqt584bo4o.cloudfront.net/tab-wrangler/localized.svg)](https://crowdin.com/project/tab-wrangler)
+[![Crowdin](https://d322cqt584bo4o.cloudfront.net/tab-wrangler/localized.svg)](https://crowdin.com/project/tab-wrangler)
 
 <h1 align="center">
  Tab Wrangler
@@ -7,48 +7,48 @@
 A Chrome & Firefox extension that automatically closes tabs you haven't used in a while so you can
 focus on the tabs that matter
 
-* [Installation](#installation)
-* [Features](#features)
-* [Usage](#usage)
-  * [Backup & Restore](#back-up--restore)
-  * [Settings](#settings)
-* [Privacy Policy](#privacy-policy)
-  * [Explanation of Requested Permissions](#explanation-of-requested-permissions)
-* [Contributing](#contributing)
-  * [Translation](#translation)
-  * [Development](#development)
+- [Installation](#installation)
+- [Features](#features)
+- [Usage](#usage)
+  - [Backup & Restore](#back-up--restore)
+  - [Settings](#settings)
+- [Privacy Policy](#privacy-policy)
+  - [Explanation of Requested Permissions](#explanation-of-requested-permissions)
+- [Contributing](#contributing)
+  - [Translation](#translation)
+  - [Development](#development)
 
 ## Installation
 
-* Tab Wrangler for Chrome:
+- Tab Wrangler for Chrome:
   https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
-* Tab Wrangler for Firefox: https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/
+- Tab Wrangler for Firefox: https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/
 
 ## Features
 
-* *The Corral*: Stores tabs which have been auto-closed so you can re-open as required.
-* *Exclude list*: Provide the urls or domain names of the sites you never want auto-closed.
-* *Tab Lock*: Pick open tabs to "lock".  Locked tabs will not be auto-closed.
-* *Configurable*: Pick how long a tab should be considered ready to close and how many tabs should
+- _The Corral_: Stores tabs which have been auto-closed so you can re-open as required.
+- _Exclude list_: Provide the urls or domain names of the sites you never want auto-closed.
+- _Tab Lock_: Pick open tabs to "lock". Locked tabs will not be auto-closed.
+- _Configurable_: Pick how long a tab should be considered ready to close and how many tabs should
   be open at a minimum.
-* *Smart*: Doesn't autoclose pinned tabs, doesn't close all your tabs, just enough to make your
+- _Smart_: Doesn't autoclose pinned tabs, doesn't close all your tabs, just enough to make your
   browser usable.
 
 ## Usage
 
 1. Click on the icon next to the URL bar
-    * Tab Corral
-      * Stores tabs which have been auto-closed. Restoring tabs with green leaf icons on their right
-        sides will have their full history and scroll positions saved. (Full history restore is
-        limited by the browser to the last 25 closed tabs.)
-    * Tab Lock
-      * Selectively lock tabs which you want to stay open.
-      * See the time remaining before each tab will be checked for auto-closing.
-    * Options
-      * Whitelist certain URLs to never be closed.
-      * Set the amount of time to wait before closing inactive tabs.
-      * Set the ideal number of tabs to have in your browser.
-      * Configure keyboard shortcuts.
+   - Tab Corral
+     - Stores tabs which have been auto-closed. Restoring tabs with green leaf icons on their right
+       sides will have their full history and scroll positions saved. (Full history restore is
+       limited by the browser to the last 25 closed tabs.)
+   - Tab Lock
+     - Selectively lock tabs which you want to stay open.
+     - See the time remaining before each tab will be checked for auto-closing.
+   - Options
+     - Whitelist certain URLs to never be closed.
+     - Set the amount of time to wait before closing inactive tabs.
+     - Set the ideal number of tabs to have in your browser.
+     - Configure keyboard shortcuts.
 
 ### Back up & Restore
 
@@ -58,9 +58,9 @@ using the import/export functionality in the Settings tab.
 #### Back up / Export
 
 1. Open Tab Wrangler
-2. Switch to the *Settings* tab
-3. Scroll to *Import / Export*
-4. Click *Export*
+2. Switch to the _Settings_ tab
+3. Scroll to _Import / Export_
+4. Click _Export_
 
 #### Restore / Import
 
@@ -69,9 +69,9 @@ Tab Wrangler. **Note: this will overwrite Tab Wrangler's tabs list;** ensure you
 tabs that you wanted to save.
 
 1. Open Tab Wrangler
-2. Switch to the *Settings* tab
-3. Scroll to *Import / Export*
-4. Click *Import*
+2. Switch to the _Settings_ tab
+3. Scroll to _Import / Export_
+4. Click _Import_
 5. Select the file created during back up, it will be named similarly to
    "TabWranglerExport-6-18-2017.json"
 
@@ -81,23 +81,26 @@ Tab Wrangler's settings are saved and synced by your browser, like [Chrome sync]
 all of your logged in browser sessions if you have sync enabled. Their possible values and their
 usages are described in the following table:
 
-| Setting               | Default                   | Possible Values                                             | Description                                                                                            |
-| --------------------- | ------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `corralTabSortOrder`  | `null`                    | `null, 'alpha', 'reverseAlpha', 'chrono', 'reverseChrono', 'domain', 'reverseDomain'` | Saved sort order for closed tabs. When `null`, defaults to `'reverseChrono'` |
-| `debounceOnActivated` | `true`                    |                                                             | Whether to wait 1 second before resetting the active tab's timer                                       |
-| `filterAudio`         | `false`                   |                                                             | Whether to prevent auto-closing tabs that are playing audio                                            |
-| `lockedIds`           | `[]`                      |                                                             | Array of tab IDs that have been explicitly locked by the user                                          |
-| `lockTabSortOrder`    | `null`                    | `null, 'chrono', 'reverseChrono', 'tabOrder', 'reverseTabOrder'` | Saved sort order for open tabs. When `null`, defaults to `'tabOrder'`                             |
-| `maxTabs`             | `1000`                    | `0` <= `maxTabs` <= `1000`                                  | Maximum number of tabs to keep in the tab list                                                         |
-| `minTabs`             | `20`                      | `0` <= `minTabs`                                            | Auto-close tabs only if there are more than this number open                                           |
-| `minutesInactive`     | `60`                      | `0` <= `minutesInactive`                                    | How much time (+ `secondsInactive`) before a tab is considered "stale" and ready to close              |
-| `paused`              | `false`                   |                                                             | Whether TabWrangler is paused (shouldn't count down)                                                   |
-| `purgeClosedTabs`     | `false`                   |                                                             | Whether to empty the closed tab list when the browser closes                                           |
-| `secondsInactive`     | `0`                       | `0` <= `secondsInactive`                                    | How much time (+ `minutesInactive`) before a tab is considered "stale" and ready to close              |
-| `showBadgeCount`      | `false`                   |                                                             | Whether to show the length of the closed tab list as a badge on the URL bar icon                       |
-| `theme`               | `'system'`                | `'dark'`, `'light'`, `'system'`                             | The color theme to use for Tab Wrangler's popup                                                        |
-| `whitelist`           | `['about:', 'chrome://']` |                                                             | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed    |
-| `wrangleOption`       | `'withDupes'`             | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'` | How to handle duplicate entries in the closed tabs list                                                |
+<!-- prettier-ignore-start -->
+<!-- Maintain vertical table layout with unlimited-length lines, ignore auto-formatting -->
+| Setting               | Default                   | Possible Values                                                  | Description                                                                                            |
+| --------------------- | ------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `corralTabSortOrder`  | `null`                    | `null, 'alpha', 'reverseAlpha', 'chrono', 'reverseChrono', 'domain', 'reverseDomain'` | Saved sort order for closed tabs. When `null`, defaults to `'reverseChrono'`      |
+| `debounceOnActivated` | `true`                    |                                                                  | Whether to wait 1 second before resetting the active tab's timer                                       |
+| `filterAudio`         | `false`                   |                                                                  | Whether to prevent auto-closing tabs that are playing audio                                            |
+| `lockedIds`           | `[]`                      |                                                                  | Array of tab IDs that have been explicitly locked by the user                                          |
+| `lockTabSortOrder`    | `null`                    | `null, 'chrono', 'reverseChrono', 'tabOrder', 'reverseTabOrder'` | Saved sort order for open tabs. When `null`, defaults to `'tabOrder'`                                  |
+| `maxTabs`             | `1000`                    | `0` <= `maxTabs` <= `1000`                                       | Maximum number of tabs to keep in the tab list                                                         |
+| `minTabs`             | `20`                      | `0` <= `minTabs`                                                 | Auto-close tabs only if there are more than this number open                                           |
+| `minutesInactive`     | `60`                      | `0` <= `minutesInactive`                                         | How much time (+ `secondsInactive`) before a tab is considered "stale" and ready to close              |
+| `paused`              | `false`                   |                                                                  | Whether TabWrangler is paused (shouldn't count down)                                                   |
+| `purgeClosedTabs`     | `false`                   |                                                                  | Whether to empty the closed tab list when the browser closes                                           |
+| `secondsInactive`     | `0`                       | `0` <= `secondsInactive`                                         | How much time (+ `minutesInactive`) before a tab is considered "stale" and ready to close              |
+| `showBadgeCount`      | `false`                   |                                                                  | Whether to show the length of the closed tab list as a badge on the URL bar icon                       |
+| `theme`               | `'system'`                | `'dark'`, `'light'`, `'system'`                                  | The color theme to use for Tab Wrangler's popup                                                        |
+| `whitelist`           | `['about:', 'chrome://']` |                                                                  | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed    |
+| `wrangleOption`       | `'withDupes'`             | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'`      | How to handle duplicate entries in the closed tabs list                                                |
+<!-- prettier-ignore-end -->
 
 ## Privacy Policy
 
@@ -113,16 +116,16 @@ your tabs but not the content inside those tabs.
 Tab Wrangler's requested permissions are listed in its [manifest.json][manifest.json] under the
 `"permissions"` key.
 
-* [`"alarms"`][7]: Allows creation of alarms to periodically check Tab Wrangler's background script
+- [`"alarms"`][7]: Allows creation of alarms to periodically check Tab Wrangler's background script
   that checks for stale tabs is running and healthy.
-* [`"contextMenus"`][3]: Allows a "Tab Wrangler" menu item when you right click on a webpage that
+- [`"contextMenus"`][3]: Allows a "Tab Wrangler" menu item when you right click on a webpage that
   lets you send the tab to the Tab Corral, lock that tab, or lock all tabs on that domain.
-* [`"sessions"`][4]: Allows Tab Wrangler to read and restore the full history of a tab including
+- [`"sessions"`][4]: Allows Tab Wrangler to read and restore the full history of a tab including
   enabling the back/forward buttons and your scroll position on the page.
-* [`"storage"`][5]: Allows Tab Wrangler to sync your Tab Wrangler settings with your browser
-  account and enables saving your closed tabs to your local computer. *Note: closed tabs are not
-  synced because the "sync" storage area has only a small amount of storage.*
-* [`"tabs"`][6]: Allows Tab Wrangler to read the title and location of any current tabs as well
+- [`"storage"`][5]: Allows Tab Wrangler to sync your Tab Wrangler settings with your browser
+  account and enables saving your closed tabs to your local computer. _Note: closed tabs are not
+  synced because the "sync" storage area has only a small amount of storage._
+- [`"tabs"`][6]: Allows Tab Wrangler to read the title and location of any current tabs as well
   as close those tabs and open new tabs. This permission **does not** enable Tab Wrangler to
   read information on web pages that you visit.
 
@@ -155,9 +158,9 @@ Pull requests for bug fixes and features are more than welcome. Please check out
 ["Developing" section][2] of the CONTRIBUTING doc to see how to get started. Once your code is
 working and tested, submit a pull request to this primary project and we'll get going.
 
-* Modernized and maintained by [ssorallen](https://github.com/ssorallen) in 2017
-* Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012
-* Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010
+- Modernized and maintained by [ssorallen](https://github.com/ssorallen) in 2017
+- Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012
+- Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010
 
 [0]: https://chrome.google.com/sync
 [1]: https://crowdin.com/project/tab-wrangler

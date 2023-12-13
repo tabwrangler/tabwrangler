@@ -87,7 +87,7 @@ module.exports = [
       ]),
       new webpack.DefinePlugin({
         EXTENSION_URL: JSON.stringify(
-          "https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/"
+          "https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/",
         ),
         BROWSER: JSON.stringify("chrome"),
       }),
@@ -132,7 +132,7 @@ module.exports = [
       ]),
       new webpack.DefinePlugin({
         EXTENSION_URL: JSON.stringify(
-          "https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/"
+          "https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/",
         ),
         BROWSER: JSON.stringify("firefox"),
       }),

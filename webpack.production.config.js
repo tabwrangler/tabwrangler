@@ -18,7 +18,7 @@ module.exports = developmentConfig.map(function (platformConfig) {
         output: path.join(
           __dirname,
           "dist",
-          `tabwrangler-${platformConfig.name}-${packageJson.version}`
+          `tabwrangler-${platformConfig.name}-${packageJson.version}`,
         ),
       }),
     ]),

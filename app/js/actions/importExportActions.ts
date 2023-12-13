@@ -27,7 +27,7 @@ function importData(event: React.FormEvent<HTMLInputElement>): Promise<void> {
                     totalTabsUnwrangled: json.totalTabsUnwrangled,
                     totalTabsWrangled: json.totalTabsWrangled,
                   },
-                })
+                }),
               )
               .then(resolve);
           }

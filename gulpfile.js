@@ -40,7 +40,7 @@ function webpackLog(stats) {
       chunks: false, // Limit chunk information output; it's slow and not too useful
       colors: true,
       modules: false,
-    })
+    }),
   );
 }
 
@@ -75,7 +75,7 @@ gulp.task("webpack:watch", function (done) {
         firstRun = false;
         done();
       }
-    }
+    },
   );
 });
 
@@ -90,8 +90,8 @@ gulp.task(
       gulp.watch("app/**/*.js", { ignoreInitial: false }, gulp.series("lint"));
       done();
     },
-    "webpack:watch"
-  )
+    "webpack:watch",
+  ),
 );
 
 gulp.task("default", gulp.series("clean", "webpack:production"));

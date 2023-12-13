@@ -72,7 +72,7 @@ const Settings = {
       (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
         if (areaName !== "sync") return;
         for (const [key, value] of Object.entries(changes)) this.cache[key] = value.newValue;
-      }
+      },
     );
 
     return new Promise((resolve) => {
@@ -176,7 +176,7 @@ const Settings = {
     const parsedValue = parseInt(maxTabs, 10);
     if (isNaN(parsedValue) || parsedValue < 1 || parsedValue > 1000) {
       throw Error(
-        chrome.i18n.getMessage("settings_setmaxTabs_error") || "Error: settings.setmaxTabs"
+        chrome.i18n.getMessage("settings_setmaxTabs_error") || "Error: settings.setmaxTabs",
       );
     }
     Settings.setValue("maxTabs", parsedValue);
@@ -186,7 +186,7 @@ const Settings = {
     const parsedValue = parseInt(minTabs, 10);
     if (isNaN(parsedValue) || parsedValue < 0) {
       throw Error(
-        chrome.i18n.getMessage("settings_setminTabs_error") || "Error: settings.setminTabs"
+        chrome.i18n.getMessage("settings_setminTabs_error") || "Error: settings.setminTabs",
       );
     }
     Settings.setValue("minTabs", parsedValue);
@@ -197,7 +197,7 @@ const Settings = {
     if (isNaN(minutes) || minutes < 0) {
       throw Error(
         chrome.i18n.getMessage("settings_setminutesInactive_error") ||
-          "Error: settings.setminutesInactive"
+          "Error: settings.setminutesInactive",
       );
     }
     Settings.setValue("minutesInactive", minutesInactive);
@@ -207,7 +207,7 @@ const Settings = {
     const seconds = parseInt(secondsInactive, 10);
     if (isNaN(seconds) || seconds < 0 || seconds > 59) {
       throw Error(
-        chrome.i18n.getMessage("settings_setsecondsInactive_error") || "Error: setsecondsInactive"
+        chrome.i18n.getMessage("settings_setsecondsInactive_error") || "Error: setsecondsInactive",
       );
     }
     Settings.setValue("secondsInactive", secondsInactive);

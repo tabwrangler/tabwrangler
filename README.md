@@ -169,5 +169,5 @@ working and tested, submit a pull request to this primary project and we'll get 
 [4]: https://developer.chrome.com/extensions/sessions
 [5]: https://developer.chrome.com/extensions/storage
 [6]: https://developer.chrome.com/extensions/tabs
-[manifest.json]: https://github.com/tabwrangler/tabwrangler/blob/master/app/manifest.json
+[manifest.json]: https://github.com/tabwrangler/tabwrangler/blob/main/app/manifest.json
 [7]: https://developer.chrome.com/docs/extensions/reference/alarms/

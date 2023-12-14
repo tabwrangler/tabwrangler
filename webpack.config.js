@@ -54,6 +54,7 @@ const COMMON_CONFIG = {
   resolve: {
     extensions: [".js", ".ts", ".tsx"],
   },
+  stats: { children: false },
 };
 
 module.exports = [

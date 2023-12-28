@@ -1,16 +1,15 @@
-// Variables
-//
-// Variables should follow the `$component-state-property-size` formula for
-// consistent naming. Ex: $nav-link-disabled-color and $modal-content-box-shadow-xs.
+/**
+ * The order of imports should follow that in Bootstrap's own [bootstrap.css][0] file.
+ *
+ * [0]: https://github.com/twbs/bootstrap/blob/v5.3.2/scss/bootstrap.scss
+ */
 
-$enable-print-styles: false;
+$nav-link-transition: none; // Prevent flash of wrong bg-color while loading color theme
 
-// Typography
-//
-// Font, line-height, and color for body text, headings, and more.
-
-$font-size-base: 0.875rem;
-
+// Configuration
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../../node_modules/bootstrap/scss/variables";
+@import "../../node_modules/bootstrap/scss/variables-dark";
+@import "../../node_modules/bootstrap/scss/maps";
 @import "../../node_modules/bootstrap/scss/mixins";
+@import "../../node_modules/bootstrap/scss/utilities";

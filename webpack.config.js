@@ -3,7 +3,6 @@
 
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 const package = require("./package.json");
 const webpack = require("webpack");
@@ -26,7 +25,21 @@ const COMMON_CONFIG = {
       },
       {
         test: /\.s?css$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+        use: [
+          "style-loader",
+          "css-loader",
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins() {
+                  return [require("autoprefixer")];
+                },
+              },
+            },
+          },
+          "sass-loader",
+        ],
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
@@ -41,9 +54,6 @@ const COMMON_CONFIG = {
       { from: "MIT-LICENSE.txt" },
       { from: "README.md" },
     ]),
-    new MiniCssExtractPlugin({
-      filename: "[name].css",
-    }),
     new HtmlWebpackPlugin({
       cache: false, // Disable cache to always create file in multi-compiler build
       chunks: ["popup"],

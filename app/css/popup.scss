@@ -56,9 +56,3 @@ body {
     justify-content: flex-start;
   }
 }
-
-/**
- * Include Darkmode at the bottom so it has highest document-order precedence
- */
-
-@import "./_darkmode";

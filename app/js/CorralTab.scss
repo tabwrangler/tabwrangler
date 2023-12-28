@@ -1,7 +1,7 @@
-@import "../css/_includes";
+@import "../css/includes";
 
 .corral-tab--control-bar {
-  background: $body-bg;
+  background: var(--bs-body-bg);
   display: flex;
   justify-content: space-between;
   position: sticky;
@@ -22,15 +22,15 @@
 }
 
 .table-hover .ReactVirtualized__Table__row:not(.table-warning):hover {
-  background-color: #f5f5f5;
+  background-color: rgba(var(--bs-emphasis-color-rgb), $table-hover-bg-factor);
 }
 
 .ReactVirtualized__Table__row {
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--bs-table-border-color);
 }
 
 .ReactVirtualized__Table__row.table-warning {
-  border-top-color: #ffdf7e;
+  border-top-color: var(--bs-table-border-color);
 }
 
 .ReactVirtualized__Table__row:hover .faviconCol--hover-hidden,

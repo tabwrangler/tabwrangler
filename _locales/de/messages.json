@@ -273,10 +273,6 @@
     "description": "Header for the import/export feature section of the options tab",
     "message": "Importieren / Exportieren"
   },
-  "options_section_settings": {
-    "description": "Header for settings section of the options tab",
-    "message": "Einstellungen"
-  },
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
     "message": "Tab Liste"

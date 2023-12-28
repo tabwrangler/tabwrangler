@@ -289,10 +289,6 @@
     "description": "Header for the import/export feature section of the options tab",
     "message": "가져오기 / 내보내기"
   },
-  "options_section_settings": {
-    "description": "Header for settings section of the options tab",
-    "message": "설정"
-  },
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
     "message": "탭 보관"

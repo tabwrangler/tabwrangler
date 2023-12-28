@@ -377,7 +377,7 @@ export default function CorralTab() {
 
   return (
     <div className="tab-pane active">
-      <div className="row mb-1">
+      <div className="row align-items-center mb-1">
         <form className="form-search col">
           <div className="form-group mb-0">
             <input
@@ -395,7 +395,7 @@ export default function CorralTab() {
             />
           </div>
         </form>
-        <div className="col text-right" style={{ lineHeight: "30px" }}>
+        <div className="col text-end">
           {chrome.i18n.getMessage("corral_tabsWrangledFull", [
             String(
               localStorageData == null || !("totalTabsWrangled" in localStorageData)
@@ -410,7 +410,7 @@ export default function CorralTab() {
       <div className="corral-tab--control-bar py-2 border-bottom">
         <div>
           <button
-            className="btn btn-outline-dark btn-sm"
+            className="btn btn-secondary btn-sm"
             disabled={closedTabs.length === 0}
             onClick={toggleAllTabs}
             title={
@@ -429,18 +429,7 @@ export default function CorralTab() {
           {hasVisibleSelectedTabs ? (
             <>
               <button
-                className="btn btn-outline-dark btn-sm ml-1 px-3"
-                onClick={handleRemoveSelectedTabs}
-                title={chrome.i18n.getMessage("corral_removeSelectedTabs")}
-                type="button"
-              >
-                <span className="sr-only">
-                  {chrome.i18n.getMessage("corral_removeSelectedTabs")}
-                </span>
-                <i className="fas fa-trash-alt" />
-              </button>
-              <button
-                className="btn btn-outline-dark btn-sm ml-1 px-3"
+                className="btn btn-secondary btn-sm ms-1 px-3"
                 onClick={handleOpenSelectedTabs}
                 title={chrome.i18n.getMessage("corral_restoreSelectedTabs")}
                 type="button"
@@ -450,15 +439,26 @@ export default function CorralTab() {
                 </span>
                 <i className="fas fa-external-link-alt" />
               </button>
+              <button
+                className="btn btn-secondary btn-sm ms-1 px-3"
+                onClick={handleRemoveSelectedTabs}
+                title={chrome.i18n.getMessage("corral_removeSelectedTabs")}
+                type="button"
+              >
+                <span className="sr-only">
+                  {chrome.i18n.getMessage("corral_removeSelectedTabs")}
+                </span>
+                <i className="fas fa-trash-alt" />
+              </button>
             </>
           ) : null}
         </div>
         <div className="d-flex">
           {filter.length > 0 ? (
-            <span className={"badge badge-pill badge-primary d-flex align-items-center px-2 mr-1"}>
+            <span className={"badge badge-pill badge-primary d-flex align-items-center px-2 me-1"}>
               {chrome.i18n.getMessage("corral_searchResults_label", `${closedTabs.length}`)}
               <button
-                className="close close-xs ml-1"
+                className="close close-xs ms-1"
                 onClick={() => {
                   setFilter("");
                 }}
@@ -477,7 +477,7 @@ export default function CorralTab() {
           >
             <button
               aria-haspopup="true"
-              className="btn btn-outline-dark btn-sm"
+              className="btn btn-secondary btn-sm"
               id="sort-dropdown"
               onClick={toggleSortDropdown}
               title={chrome.i18n.getMessage("corral_currentSort", currSorter.label())}

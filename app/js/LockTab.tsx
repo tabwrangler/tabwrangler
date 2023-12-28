@@ -225,7 +225,7 @@ export default function LockTab() {
   return (
     <div className="tab-pane active">
       <div className="d-flex align-items-center justify-content-between border-bottom pb-2">
-        <div style={{ paddingLeft: "0.55rem", paddingRight: "0.55rem" }}>
+        <div className="px-2">
           <abbr title={chrome.i18n.getMessage("tabLock_lockLabel")}>
             <i className="fas fa-lock" />
           </abbr>
@@ -238,7 +238,7 @@ export default function LockTab() {
         >
           <button
             aria-haspopup="true"
-            className="btn btn-outline-dark btn-sm"
+            className="btn btn-secondary btn-sm"
             id="sort-dropdown"
             onClick={() => {
               setIsSortDropdownOpen(!isSortDropdownOpen);

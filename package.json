@@ -26,7 +26,7 @@
     "@react-hook/debounce": "^4.0.0",
     "@tanstack/react-query": "^4.36.1",
     "async-lock": "^1.4.0",
-    "bootstrap": "^4.3.1",
+    "bootstrap": "^5.3.2",
     "classnames": "^2.2.5",
     "color-hash": "^2.0.1",
     "file-saver": "^2.0.0",

@@ -148,7 +148,7 @@ export default function OptionsTab() {
     150,
   );
 
-  function handleAddPatternSubmit(event: React.FormEvent<HTMLElement>) {
+  function addWhitelistPattern(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
 
     if (!isValidPattern(newPattern)) {
@@ -215,57 +215,60 @@ export default function OptionsTab() {
 
   return (
     <div className="tab-pane active">
-      <h4>{chrome.i18n.getMessage("options_section_settings")}</h4>
       <form>
-        <div className="mb-2">
-          <div>
-            <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
+        <label className="form-label">
+          <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
+        </label>
+        <div>
+          <div className="btn-group">
+            <button
+              className={cx("btn", {
+                active: theme == null || theme === "system",
+                "btn-secondary": theme == null || theme === "system",
+                "btn-outline-secondary": !(theme == null || theme === "system"),
+              })}
+              onClick={() => {
+                persistSettingMutation.mutate({ key: "theme", value: "system" });
+              }}
+              type="button"
+            >
+              {chrome.i18n.getMessage("options_option_theme_system")}
+            </button>
+            <button
+              className={cx("btn", {
+                active: theme === "light",
+                "btn-secondary": theme === "light",
+                "btn-outline-secondary": theme !== "light",
+              })}
+              onClick={() => {
+                persistSettingMutation.mutate({ key: "theme", value: "light" });
+              }}
+              type="button"
+            >
+              <i className="fas fa-sun me-1" />
+              {chrome.i18n.getMessage("options_option_theme_light")}
+            </button>
+            <button
+              className={cx("btn", {
+                active: theme === "dark",
+                "btn-secondary": theme === "dark",
+                "btn-outline-secondary": theme !== "dark",
+              })}
+              onClick={() => {
+                persistSettingMutation.mutate({ key: "theme", value: "dark" });
+              }}
+              type="button"
+            >
+              <i className="fas fa-moon me-1" />
+              {chrome.i18n.getMessage("options_option_theme_dark")}
+            </button>
           </div>
-          <div className="mb-2">
-            <div className="btn-group">
-              <button
-                className={cx("btn btn-outline-dark", { active: theme === "system" })}
-                onClick={() => {
-                  persistSettingMutation.mutate({ key: "theme", value: "system" });
-                }}
-                type="button"
-              >
-                {chrome.i18n.getMessage("options_option_theme_system")}
-              </button>
-              <button
-                className={cx("btn btn-outline-dark", { active: theme === "light" })}
-                onClick={() => {
-                  persistSettingMutation.mutate({ key: "theme", value: "light" });
-                }}
-                type="button"
-              >
-                <i
-                  className="fas fa-sun mr-1"
-                  style={{ fontSize: "11px", position: "relative", top: "-1px" }}
-                />
-                {chrome.i18n.getMessage("options_option_theme_light")}
-              </button>
-              <button
-                className={cx("btn btn-outline-dark", { active: theme === "dark" })}
-                onClick={() => {
-                  persistSettingMutation.mutate({ key: "theme", value: "dark" });
-                }}
-                type="button"
-              >
-                <i
-                  className="fas fa-moon mr-1"
-                  style={{ fontSize: "11px", position: "relative", top: "-1px" }}
-                />
-                {chrome.i18n.getMessage("options_option_theme_dark")}
-              </button>
-            </div>
-          </div>
-          <div>
-            <label className="mr-1" htmlFor="minutesInactive">
-              <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
-            </label>
-          </div>
-          <div className="form-inline">
+        </div>
+        <label className="form-label mt-3" htmlFor="minutesInactive">
+          <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
+        </label>
+        <div className="row align-items-center">
+          <div className="col-2">
             <input
               className="form-control form-control--time"
               defaultValue={settings.get("minutesInactive")}
@@ -277,7 +280,9 @@ export default function OptionsTab() {
               title={chrome.i18n.getMessage("options_option_timeInactive_minutes")}
               type="number"
             />
-            <span className="mx-1"> : </span>
+          </div>
+          <div className="w-auto p-0">:</div>
+          <div className="col-2">
             <input
               className="form-control form-control--time"
               defaultValue={settings.get("secondsInactive")}
@@ -289,20 +294,18 @@ export default function OptionsTab() {
               title={chrome.i18n.getMessage("options_option_timeInactive_seconds")}
               type="number"
             />
-            <span className="form-control-static ml-1">
-              {chrome.i18n.getMessage("options_option_timeInactive_postLabel")}
-            </span>
+          </div>
+          <div className="w-auto p-0">
+            {chrome.i18n.getMessage("options_option_timeInactive_postLabel")}
           </div>
         </div>
-        <div className="mb-2">
-          <div>
-            <label htmlFor="minTabs">
-              <strong>{chrome.i18n.getMessage("options_option_minTabs_label")}</strong>
-            </label>
-          </div>
-          <div className="form-inline">
+        <label className="form-label mt-3" htmlFor="minTabs">
+          <strong>{chrome.i18n.getMessage("options_option_minTabs_label")}</strong>
+        </label>
+        <div className="row align-items-center">
+          <div className="col-3">
             <input
-              className="form-control form-control--time mr-1"
+              className="form-control form-control--time"
               defaultValue={settings.get("minTabs")}
               id="minTabs"
               min="0"
@@ -311,20 +314,18 @@ export default function OptionsTab() {
               title={chrome.i18n.getMessage("options_option_minTabs_tabs")}
               type="number"
             />
-            <span className="form-control-static">
-              {chrome.i18n.getMessage("options_option_minTabs_postLabel")}
-            </span>
+          </div>
+          <div className="w-auto p-0">
+            {chrome.i18n.getMessage("options_option_minTabs_postLabel")}
           </div>
         </div>
-        <div className="mb-2">
-          <div>
-            <label htmlFor="maxTabs">
-              <strong>{chrome.i18n.getMessage("options_option_rememberTabs_label")}</strong>
-            </label>
-          </div>
-          <div className="form-inline">
+        <label className="form-label mt-3" htmlFor="maxTabs">
+          <strong>{chrome.i18n.getMessage("options_option_rememberTabs_label")}</strong>
+        </label>
+        <div className="row align-items-center">
+          <div className="col-3">
             <input
-              className="form-control form-control--time mr-1"
+              className="form-control form-control--time me-1"
               defaultValue={settings.get("maxTabs")}
               id="maxTabs"
               min="0"
@@ -333,12 +334,12 @@ export default function OptionsTab() {
               title={chrome.i18n.getMessage("options_option_rememberTabs_tabs")}
               type="number"
             />
-            <span className="form-control-static">
-              {chrome.i18n.getMessage("options_option_rememberTabs_postLabel")}
-            </span>
+          </div>
+          <div className="w-auto p-0">
+            {chrome.i18n.getMessage("options_option_rememberTabs_postLabel")}
           </div>
         </div>
-        <div className="form-check mb-1">
+        <div className="form-check mb-1 mt-3">
           <input
             className="form-check-input"
             defaultChecked={settings.get("purgeClosedTabs")}
@@ -414,8 +415,8 @@ export default function OptionsTab() {
       <h4 className="mt-3">{chrome.i18n.getMessage("options_section_autoLock")}</h4>
       <div className="row">
         <div className="col-8">
-          <form onSubmit={handleAddPatternSubmit} style={{ marginBottom: "20px" }}>
-            <label htmlFor="wl-add">
+          <form onSubmit={addWhitelistPattern}>
+            <label className="form-label" htmlFor="wl-add">
               {chrome.i18n.getMessage("options_option_autoLock_label")}
             </label>
             <div className="input-group">
@@ -428,24 +429,20 @@ export default function OptionsTab() {
                 type="text"
                 value={newPattern}
               />
-              <span className="input-group-append">
-                <button
-                  className="btn btn-outline-dark"
-                  disabled={!isValidPattern(newPattern)}
-                  id="addToWL"
-                  type="submit"
-                >
-                  {chrome.i18n.getMessage("options_option_autoLock_add")}
-                </button>
-              </span>
+              <button
+                className="btn btn-secondary"
+                disabled={!isValidPattern(newPattern)}
+                id="addToWL"
+                type="submit"
+              >
+                {chrome.i18n.getMessage("options_option_autoLock_add")}
+              </button>
             </div>
-            <p className="form-text text-muted">
-              {chrome.i18n.getMessage("options_option_autoLock_example")}
-            </p>
+            <p className="form-text">{chrome.i18n.getMessage("options_option_autoLock_example")}</p>
           </form>
         </div>
       </div>
-      <table className="table table-hover table-sm">
+      <table className="table table-hover">
         <thead>
           <tr>
             <th style={{ width: "100%" }}>
@@ -486,18 +483,21 @@ export default function OptionsTab() {
 
       <h4 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h4>
       <div className="row">
+        <div className="col-8">{chrome.i18n.getMessage("options_importExport_description")}</div>
+      </div>
+      <div className="row my-2">
         <div className="col-8 mb-1">
-          <button className="btn btn-outline-dark btn-sm" onClick={handleExportData}>
-            <i className="fas fa-file-export mr-1" />
+          <button className="btn btn-secondary" onClick={handleExportData}>
+            <i className="fas fa-file-export me-1" />
             {chrome.i18n.getMessage("options_importExport_export")}
           </button>{" "}
           <button
-            className="btn btn-outline-dark btn-sm"
+            className="btn btn-secondary"
             onClick={() => {
               if (fileSelectorRef.current != null) fileSelectorRef.current.click();
             }}
           >
-            <i className="fas fa-file-import mr-1" />
+            <i className="fas fa-file-import me-1" />
             {chrome.i18n.getMessage("options_importExport_import")}
           </button>
           <input
@@ -510,13 +510,12 @@ export default function OptionsTab() {
             type="file"
           />
         </div>
+      </div>
+      <div className="row">
         <div className="col-8">
-          <p className="form-text text-muted">
-            {chrome.i18n.getMessage("options_importExport_description")}
-          </p>
-          <p className="alert alert-warning">
+          <div className="alert alert-warning">
             {chrome.i18n.getMessage("options_importExport_importWarning")}
-          </p>
+          </div>
         </div>
       </div>
       {importExportErrors.length === 0 ? (

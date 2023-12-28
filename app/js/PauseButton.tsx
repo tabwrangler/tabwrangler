@@ -20,7 +20,7 @@ export default function PauseButton() {
 
   return (
     <button
-      className="btn btn-outline-dark btn-sm"
+      className="btn btn-secondary btn-sm"
       disabled={storageSyncPersistData == null}
       onClick={storageSyncPersistData == null || !storageSyncPersistData.paused ? pause : play}
       type="button"

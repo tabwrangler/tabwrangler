@@ -385,7 +385,7 @@ export default function OptionsTab() {
             {chrome.i18n.getMessage("options_option_debounceOnActivated_label")}
           </label>
         </div>
-        <div className={cx("form-check", showFilterTabGroupsOption ? "mb-1" : "mb-2")}>
+        <div className={cx("form-check", showFilterTabGroupsOption ? "mb-1" : "mb-3")}>
           <input
             className="form-check-input"
             defaultChecked={settings.get("filterAudio")}
@@ -399,7 +399,7 @@ export default function OptionsTab() {
           </label>
         </div>
         {showFilterTabGroupsOption && (
-          <div className="form-check mb-2">
+          <div className="form-check mb-3">
             <input
               className="form-check-input"
               defaultChecked={settings.get("filterGroupedTabs")}
@@ -419,7 +419,7 @@ export default function OptionsTab() {
         />
       </form>
 
-      <h4 className="mt-3">{chrome.i18n.getMessage("options_section_autoLock")}</h4>
+      <h5 className="mt-3">{chrome.i18n.getMessage("options_section_autoLock")}</h5>
       <div className="row">
         <div className="col-8">
           <form onSubmit={addWhitelistPattern}>
@@ -467,17 +467,16 @@ export default function OptionsTab() {
             </tr>
           ) : (
             whitelist.map((pattern) => (
-              <tr key={pattern}>
+              <tr className="align-middle" key={pattern}>
                 <td>
                   <code>{pattern}</code>
                 </td>
                 <td>
                   <button
-                    className="btn btn-link btn-sm"
+                    className="btn btn-outline-secondary btn-sm my-n1"
                     onClick={() => {
                       handleClickRemovePattern(pattern);
                     }}
-                    style={{ marginBottom: "-4px", marginTop: "-4px" }}
                   >
                     {chrome.i18n.getMessage("options_option_autoLock_remove")}
                   </button>
@@ -488,7 +487,7 @@ export default function OptionsTab() {
         </tbody>
       </table>
 
-      <h4 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h4>
+      <h5 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h5>
       <div className="row">
         <div className="col-8">{chrome.i18n.getMessage("options_importExport_description")}</div>
       </div>

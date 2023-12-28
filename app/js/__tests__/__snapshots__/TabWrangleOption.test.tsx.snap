@@ -2,9 +2,13 @@
 
 exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
 [
-  <strong>
-    Translated&lt;options_dedupe_label&gt;
-  </strong>,
+  <label
+    className="form-label"
+  >
+    <strong>
+      Translated&lt;options_dedupe_label&gt;
+    </strong>
+  </label>,
   <div
     className="form-check"
   >
@@ -118,9 +122,13 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
 
 exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`] = `
 [
-  <strong>
-    Translated&lt;options_dedupe_label&gt;
-  </strong>,
+  <label
+    className="form-label"
+  >
+    <strong>
+      Translated&lt;options_dedupe_label&gt;
+    </strong>
+  </label>,
   <div
     className="form-check"
   >
@@ -234,9 +242,13 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
 
 exports[`TabWrangleOption renders options with withDupes selected 1`] = `
 [
-  <strong>
-    Translated&lt;options_dedupe_label&gt;
-  </strong>,
+  <label
+    className="form-label"
+  >
+    <strong>
+      Translated&lt;options_dedupe_label&gt;
+    </strong>
+  </label>,
   <div
     className="form-check"
   >

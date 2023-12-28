@@ -175,7 +175,7 @@
   },
   "options_option_autoLock_add": {
     "description": "Button label for adding to whitelist",
-    "message": "Add"
+    "message": "Add pattern"
   },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",

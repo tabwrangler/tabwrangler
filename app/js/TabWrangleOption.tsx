@@ -22,7 +22,9 @@ export default function TabWrangleOption(props: Props) {
 
   return (
     <>
-      <strong>{chrome.i18n.getMessage("options_dedupe_label")}</strong>
+      <label className="form-label">
+        <strong>{chrome.i18n.getMessage("options_dedupe_label")}</strong>
+      </label>
       {OPTIONS.map((option) => (
         <div className="form-check" key={option.name}>
           <input

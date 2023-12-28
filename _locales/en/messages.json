@@ -135,7 +135,7 @@
   },
   "options_dedupe_option_withDupes": {
     "description": "Label for option to never de-duplicate the tab corral",
-    "message": "Never (Default)"
+    "message": "Never (default)"
   },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
@@ -215,7 +215,7 @@
   },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Auto-close tabs only if I have more than:"
+    "message": "Auto-close tabs only if there are more than:"
   },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
@@ -269,9 +269,13 @@
     "description": "Input title for number of minutes before closing tabs",
     "message": "Must be a number greater than 0 and less than 7200"
   },
-  "options_option_timeInactive_postLabel": {
+  "options_option_timeInactive_label_minutes": {
     "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "minutes : seconds"
+    "message": "minutes"
+  },
+  "options_option_timeInactive_label_seconds": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "seconds"
   },
   "options_option_timeInactive_seconds": {
     "description": "Input title for number of seconds before closing tabs",

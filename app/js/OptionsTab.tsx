@@ -264,39 +264,46 @@ export default function OptionsTab() {
             </button>
           </div>
         </div>
-        <label className="form-label mt-3" htmlFor="minutesInactive">
+        <label className="form-label mt-3">
           <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
         </label>
         <div className="row align-items-center">
-          <div className="col-2">
-            <input
-              className="form-control form-control--time"
-              defaultValue={settings.get("minutesInactive")}
-              id="minutesInactive"
-              max="7200"
-              min="0"
-              name="minutesInactive"
-              onChange={handleSettingsChange}
-              title={chrome.i18n.getMessage("options_option_timeInactive_minutes")}
-              type="number"
-            />
+          <div className="col-3">
+            <div className="form-floating">
+              <input
+                className="form-control"
+                defaultValue={settings.get("minutesInactive")}
+                id="minutesInactive"
+                max="7200"
+                min="0"
+                name="minutesInactive"
+                onChange={handleSettingsChange}
+                title={chrome.i18n.getMessage("options_option_timeInactive_minutes")}
+                type="number"
+              />
+              <label htmlFor="minutesInactive">
+                {chrome.i18n.getMessage("options_option_timeInactive_label_minutes")}
+              </label>
+            </div>
           </div>
           <div className="w-auto p-0">:</div>
-          <div className="col-2">
-            <input
-              className="form-control form-control--time"
-              defaultValue={settings.get("secondsInactive")}
-              id="secondsInactive"
-              max="59"
-              min="0"
-              name="secondsInactive"
-              onChange={handleSettingsChange}
-              title={chrome.i18n.getMessage("options_option_timeInactive_seconds")}
-              type="number"
-            />
-          </div>
-          <div className="w-auto p-0">
-            {chrome.i18n.getMessage("options_option_timeInactive_postLabel")}
+          <div className="col-3">
+            <div className="form-floating">
+              <input
+                className="form-control"
+                defaultValue={settings.get("secondsInactive")}
+                id="secondsInactive"
+                max="59"
+                min="0"
+                name="secondsInactive"
+                onChange={handleSettingsChange}
+                title={chrome.i18n.getMessage("options_option_timeInactive_seconds")}
+                type="number"
+              />
+              <label htmlFor="secondsInactive">
+                {chrome.i18n.getMessage("options_option_timeInactive_label_seconds")}
+              </label>
+            </div>
           </div>
         </div>
         <label className="form-label mt-3" htmlFor="minTabs">
@@ -305,7 +312,7 @@ export default function OptionsTab() {
         <div className="row align-items-center">
           <div className="col-3">
             <input
-              className="form-control form-control--time"
+              className="form-control"
               defaultValue={settings.get("minTabs")}
               id="minTabs"
               min="0"
@@ -325,7 +332,7 @@ export default function OptionsTab() {
         <div className="row align-items-center">
           <div className="col-3">
             <input
-              className="form-control form-control--time me-1"
+              className="form-control me-1"
               defaultValue={settings.get("maxTabs")}
               id="maxTabs"
               min="0"

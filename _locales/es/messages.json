@@ -125,10 +125,6 @@
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Si el dominio y el título de la página coinciden"
   },
-  "options_dedupe_option_withDupes": {
-    "description": "Label for option to never de-duplicate the tab corral",
-    "message": "Nunca (Por defecto)"
-  },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
     "message": "Cuando una pestaña se cierre, se añadirá al registro. No se hará ningún otro cambio al registro."
@@ -165,10 +161,6 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Opciones"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "Añadir"
-  },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
     "message": "No hay URLs auto-bloqueadas todavía. Utilice el formulario superior para añadir alguna a la lista blanca."
@@ -201,10 +193,6 @@
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "No cerrar pestañas que estén reproduciendo audio"
   },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Auto-cerrar pestañas sólo si tengo más de:"
-  },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
     "message": "pestañas abiertas (no incluye las pestañas bloqueadas o ancladas)."
@@ -232,10 +220,6 @@
   "options_option_timeInactive_minutes": {
     "description": "Input title for number of minutes before closing tabs",
     "message": "Deber ser un número mayor que 0 y menor que 7200"
-  },
-  "options_option_timeInactive_postLabel": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "minutos : segundos"
   },
   "options_option_timeInactive_seconds": {
     "description": "Input title for number of seconds before closing tabs",

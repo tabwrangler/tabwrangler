@@ -125,10 +125,6 @@
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "如果網域名稱及標題符合"
   },
-  "options_dedupe_option_withDupes": {
-    "description": "Label for option to never de-duplicate the tab corral",
-    "message": "永遠不要 (預設)"
-  },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
     "message": "如果分頁被移出，它會被置於擱置區。不再有其他變更。"
@@ -165,10 +161,6 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "選項"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "新增"
-  },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
     "message": "還沒有自動鎖定的網址。請使用上方的表單新增至名單中。"
@@ -201,10 +193,6 @@
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "不要關閉正在播放媒體的分頁"
   },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "只在分頁數超過這個數量時自動關閉分頁："
-  },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
     "message": "分頁數量 (不包含釘選及鎖定的分頁)"
@@ -236,10 +224,6 @@
   "options_option_timeInactive_minutes": {
     "description": "Input title for number of minutes before closing tabs",
     "message": "必須是一個大於 0 且小於 7200 的數字"
-  },
-  "options_option_timeInactive_postLabel": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "分 : 秒"
   },
   "options_option_timeInactive_seconds": {
     "description": "Input title for number of seconds before closing tabs",

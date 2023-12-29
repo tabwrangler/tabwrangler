@@ -28,6 +28,11 @@ export const SETTINGS_DEFAULTS = {
   // Stop acting if there are only minTabs tabs open.
   minTabs: 20,
 
+  // Strategy for counting minTabs
+  // * "allWindows" - sum tabs across all open browser windows
+  // * "givenWindow" (default) - count tabs within any given window
+  minTabsStrategy: "givenWindow",
+
   // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
   minutesInactive: 60,
 
@@ -43,7 +48,7 @@ export const SETTINGS_DEFAULTS = {
   // An array of patterns to check against. If a URL matches a pattern, it is never locked.
   whitelist: ["about:", "chrome://"],
 
-  // We allow duplicate entries in the closed/wrangled tabs list
+  // Allow duplicate entries in the closed/wrangled tabs list
   wrangleOption: "withDupes",
 } as Record<string, unknown>;
 

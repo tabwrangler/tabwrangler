@@ -118,31 +118,33 @@ export default function OptionsTab() {
     );
   }
 
-  async function saveOption(key: string, value: unknown) {
+  async function saveSetting(key: string, value: unknown) {
     if (saveAlertTimeoutRef.current != null) {
       window.clearTimeout(saveAlertTimeoutRef.current);
     }
 
     try {
       await mutateStorageSync({ key, value });
-      setErrors([]);
-      setSaveAlertVisible(true);
-      saveAlertTimeoutRef.current = window.setTimeout(() => {
-        setSaveAlertVisible(false);
-      }, 400);
     } catch (err) {
       if (err instanceof Error) setErrors([...errors, err]);
+      return;
     }
+
+    setErrors([]);
+    setSaveAlertVisible(true);
+    saveAlertTimeoutRef.current = window.setTimeout(() => {
+      setSaveAlertVisible(false);
+    }, 400);
   }
 
   const debouncedHandleSettingsChange = useDebounceCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.type === "checkbox") {
-        saveOption(event.target.id, !!event.target.checked);
+        saveSetting(event.target.id, !!event.target.checked);
       } else if (event.target.type === "radio") {
-        saveOption(event.target.name, event.target.value);
+        saveSetting(event.target.name, event.target.value);
       } else {
-        saveOption(event.target.id, event.target.value);
+        saveSetting(event.target.id, event.target.value);
       }
     },
     150,
@@ -268,8 +270,8 @@ export default function OptionsTab() {
           <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
         </label>
         <div className="row align-items-center">
-          <div className="col-3">
-            <div className="form-floating">
+          <div className="col-4">
+            <div className="input-group">
               <input
                 className="form-control"
                 defaultValue={settings.get("minutesInactive")}
@@ -281,14 +283,14 @@ export default function OptionsTab() {
                 title={chrome.i18n.getMessage("options_option_timeInactive_minutes")}
                 type="number"
               />
-              <label htmlFor="minutesInactive">
+              <span className="input-group-text">
                 {chrome.i18n.getMessage("options_option_timeInactive_label_minutes")}
-              </label>
+              </span>
             </div>
           </div>
-          <div className="w-auto p-0">:</div>
-          <div className="col-3">
-            <div className="form-floating">
+          <div className="w-auto p-0 mx-n1">:</div>
+          <div className="col-4">
+            <div className="input-group">
               <input
                 className="form-control"
                 defaultValue={settings.get("secondsInactive")}
@@ -300,9 +302,9 @@ export default function OptionsTab() {
                 title={chrome.i18n.getMessage("options_option_timeInactive_seconds")}
                 type="number"
               />
-              <label htmlFor="secondsInactive">
+              <span className="input-group-text">
                 {chrome.i18n.getMessage("options_option_timeInactive_label_seconds")}
-              </label>
+              </span>
             </div>
           </div>
         </div>
@@ -310,22 +312,36 @@ export default function OptionsTab() {
           <strong>{chrome.i18n.getMessage("options_option_minTabs_label")}</strong>
         </label>
         <div className="row align-items-center">
-          <div className="col-3">
-            <input
-              className="form-control"
-              defaultValue={settings.get("minTabs")}
-              id="minTabs"
-              min="0"
-              name="minTabs"
-              onChange={handleSettingsChange}
-              title={chrome.i18n.getMessage("options_option_minTabs_tabs")}
-              type="number"
-            />
-          </div>
-          <div className="w-auto p-0">
-            {chrome.i18n.getMessage("options_option_minTabs_postLabel")}
+          <div className="col-8">
+            <div className="input-group">
+              <input
+                className="form-control"
+                defaultValue={settings.get("minTabs")}
+                id="minTabs"
+                min="0"
+                name="minTabs"
+                onChange={handleSettingsChange}
+                title={chrome.i18n.getMessage("options_option_minTabs_tabs")}
+                type="number"
+              />
+              <div className="input-group-text">open tabs</div>
+              <select
+                className="form-select"
+                id="minTabsStrategy"
+                name="minTabsStrategy"
+                onChange={(event) => {
+                  saveSetting("minTabsStrategy", event.target.value);
+                }}
+                style={{ flex: 3 }}
+                value={settings.get("minTabsStrategy")}
+              >
+                <option value="allWindows">total (across all windows)</option>
+                <option value="givenWindow">in a given window</option>
+              </select>
+            </div>
           </div>
         </div>
+        <div className="form-text">(does not include pinned or locked tabs)</div>
         <label className="form-label mt-3" htmlFor="maxTabs">
           <strong>{chrome.i18n.getMessage("options_option_rememberTabs_label")}</strong>
         </label>

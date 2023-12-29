@@ -125,7 +125,8 @@ async function checkToClose() {
 
     const cutOff = new Date().getTime() - settings.get<number>("stayOpen");
     const minTabs = settings.get<number>("minTabs");
-    const tabsToCloseCandidates: chrome.tabs.Tab[] = [];
+    let tabsToCloseCandidates: chrome.tabs.Tab[] = [];
+
     await ASYNC_LOCK.acquire("local.tabTimes", async () => {
       const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
 
@@ -148,11 +149,10 @@ async function checkToClose() {
         });
       }
 
-      const windows = await chrome.windows.getAll({ populate: true });
-      for (const currWindow of windows) {
-        let tabs = currWindow.tabs;
-        if (tabs == null) continue;
-
+      function findTabsToCloseCandidates(
+        tabs: chrome.tabs.Tab[],
+        { resetIfNoCandidates }: { resetIfNoCandidates: boolean },
+      ): chrome.tabs.Tab[] {
         // Filter out pinned tabs
         tabs = tabs.filter((tab) => tab.pinned === false);
         // Filter out audible tabs if the option to do so is checked
@@ -169,17 +169,18 @@ async function checkToClose() {
           //   when we add a new one
           for (let i = 0; i < tabs.length; i++) {
             const tabId = tabs[i].id;
-            if (tabId != null && currWindow.focused) tabTimes[tabId] = updatedAt;
+            if (tabId != null && resetIfNoCandidates) tabTimes[tabId] = updatedAt;
           }
-          continue;
+          return [];
         }
 
         // If cutting will reduce us below `minTabs`, only remove the first N to get to `minTabs`.
         tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
         if (tabsToCut.length === 0) {
-          continue;
+          return [];
         }
 
+        const candidates = [];
         for (let i = 0; i < tabsToCut.length; i++) {
           const tabId = tabsToCut[i].id;
           if (tabId == null) continue;
@@ -190,8 +191,27 @@ async function checkToClose() {
             tabTimes[String(tabId)] = updatedAt;
             continue;
           }
-          tabsToCloseCandidates.push(tabsToCut[i]);
+          candidates.push(tabsToCut[i]);
         }
+        return candidates;
+      }
+
+      if (settings.get("minTabsStrategy") === "allWindows") {
+        // * "allWindows" - sum tabs across all open browser windows
+        const tabs = await chrome.tabs.query({});
+        tabsToCloseCandidates = findTabsToCloseCandidates(tabs, {
+          resetIfNoCandidates: false,
+        });
+      } else {
+        // * "givenWindow" (default) - count tabs within any given window
+        const windows = await chrome.windows.getAll({ populate: true });
+        tabsToCloseCandidates = windows
+          .map((win) =>
+            win.tabs == null
+              ? []
+              : findTabsToCloseCandidates(win.tabs, { resetIfNoCandidates: win.focused }),
+          )
+          .reduce((acc, candidates) => acc.concat(candidates), []);
       }
 
       // Populate and cull `tabTimes` before storing again.
@@ -200,7 +220,7 @@ async function checkToClose() {
       // * Tab no longer exists? reducing `tabs.query` will not yield that dead tab ID and it will
       //   not exist in resulting `nextTabTimes`
       const allTabs = await chrome.tabs.query({});
-      const nextTabTimes: { [key: string]: number } = allTabs.reduce(
+      const nextTabTimes = allTabs.reduce(
         (acc, tab) => {
           if (tab.id != null) acc[tab.id] = tabTimes[tab.id] || updatedAt;
           return acc;

@@ -133,10 +133,6 @@
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "호스트 이름과 페이지 제목이 일치하는 경우"
   },
-  "options_dedupe_option_withDupes": {
-    "description": "Label for option to never de-duplicate the tab corral",
-    "message": "하지않음 (기본값)"
-  },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
     "message": "탭이 이미 보관되어있어도 새로운 탭이 보관함에 추가됩니다. 보관함에 다른 변경 사항은 없습니다."
@@ -173,10 +169,6 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "설정"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "추가"
-  },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
     "message": "아직 자동 잠금 URL이 없습니다. 위의 양식을 사용하여 허용 목록에 일부를 추가하십시오."
@@ -212,10 +204,6 @@
   "options_option_filterGroupedTabs_label": {
     "description": "Label for checkbox to lock tabs that are in a tab group",
     "message": "탭 그룹 안에 있는 탭을 닫지 않기"
-  },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "다음보다 많은 경우에만 탭을 자동으로 닫습니다:"
   },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
@@ -268,10 +256,6 @@
   "options_option_timeInactive_minutes": {
     "description": "Input title for number of minutes before closing tabs",
     "message": "0보다 크고 7200보다 작은 숫자여야 합니다."
-  },
-  "options_option_timeInactive_postLabel": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "분 : 초"
   },
   "options_option_timeInactive_seconds": {
     "description": "Input title for number of seconds before closing tabs",

@@ -133,10 +133,6 @@
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Ja resursdatora nosaukums un lapas nosaukums sakrīt"
   },
-  "options_dedupe_option_withDupes": {
-    "description": "Label for option to never de-duplicate the tab corral",
-    "message": "Nekad (pēc noklusējuma)"
-  },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
     "message": "Kad cilne tiek iedzīta aplokā, tā tiek pievienota aplokam. Nekādas citas izmaiņas aplokā netiek veiktas."
@@ -173,10 +169,6 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Iestatījumi"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "Pievienot"
-  },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
     "message": "Vēl nav nevienas automātiski bloķētas vietņu URL. Izmantojiet augstāk esošo veidlapu, lai pievienotu dažas baltajam sarakstam."
@@ -212,10 +204,6 @@
   "options_option_filterGroupedTabs_label": {
     "description": "Label for checkbox to lock tabs that are in a tab group",
     "message": "Neaizvērt cilnes, kuras ir sagrupētas"
-  },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Automātiski aizvērt cilnes tikai tad, ja ir vairāk nekā:"
   },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
@@ -268,10 +256,6 @@
   "options_option_timeInactive_minutes": {
     "description": "Input title for number of minutes before closing tabs",
     "message": "Jābūt skaitlim, kas ir lielāks par 0 un mazāks par 7200"
-  },
-  "options_option_timeInactive_postLabel": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "minūtes : sekundes"
   },
   "options_option_timeInactive_seconds": {
     "description": "Input title for number of seconds before closing tabs",

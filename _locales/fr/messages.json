@@ -125,10 +125,6 @@
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Si le nom d'hôte et le titre correspondent"
   },
-  "options_dedupe_option_withDupes": {
-    "description": "Label for option to never de-duplicate the tab corral",
-    "message": "Jamais (par défaut)"
-  },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
     "message": "Quand un onglet est enlevé, il est ajouté au Corail. Aucun autre changement ne sera fait au Corail."
@@ -165,10 +161,6 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Paramètres"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "Ajouter"
-  },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
     "message": "Il n'y a pas encore de verrouillage automatique. Utilisez le formulaire ci-dessus pour ajouter à la liste de souhaits."
@@ -201,10 +193,6 @@
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "Ne fermez pas les onglets qui sont en lecture audio"
   },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Fermer automatiquement les onglets si j'en ai plus que:"
-  },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
     "message": "onglets ouverts (n’inclut pas les onglets épinglés ou verrouillés)."
@@ -236,10 +224,6 @@
   "options_option_timeInactive_minutes": {
     "description": "Input title for number of minutes before closing tabs",
     "message": "Doit être un nombre supérieur à 0 et inférieur à 7200"
-  },
-  "options_option_timeInactive_postLabel": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "minutes : secondes"
   },
   "options_option_timeInactive_seconds": {
     "description": "Input title for number of seconds before closing tabs",

@@ -135,7 +135,7 @@
   },
   "options_dedupe_option_withDupes": {
     "description": "Label for option to never de-duplicate the tab corral",
-    "message": "하지않음 (기본값)"
+    "message": "하지 않음 (기본값)"
   },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
@@ -175,7 +175,7 @@
   },
   "options_option_autoLock_add": {
     "description": "Button label for adding to whitelist",
-    "message": "추가"
+    "message": "패턴 추가"
   },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
@@ -215,7 +215,7 @@
   },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "다음보다 많은 경우에만 탭을 자동으로 닫습니다:"
+    "message": "탭이 이보다 많은 경우에만 자동으로 닫음:"
   },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
@@ -269,9 +269,13 @@
     "description": "Input title for number of minutes before closing tabs",
     "message": "0보다 크고 7200보다 작은 숫자여야 합니다."
   },
-  "options_option_timeInactive_postLabel": {
+  "options_option_timeInactive_label_minutes": {
     "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "분 : 초"
+    "message": "분"
+  },
+  "options_option_timeInactive_label_seconds": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "초"
   },
   "options_option_timeInactive_seconds": {
     "description": "Input title for number of seconds before closing tabs",
@@ -448,6 +452,10 @@
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "도메인 (역순)"
+  },
+  "extDescription": {
+    "description": "Brief description of the extension",
+    "message": "사용하지 않는 탭들을 알아서 닫고 다시 손쉽게 열 수 있게 해줍니다"
   },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",

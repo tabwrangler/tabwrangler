@@ -51,7 +51,7 @@ jobs:
       - run: npm run build
         env:
           NODE_OPTIONS: "--openssl-legacy-provider"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: tabwrangler-builds
           path: dist/tabwrangler-*.zip

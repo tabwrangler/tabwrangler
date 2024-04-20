@@ -17,9 +17,8 @@ jobs:
       - name: Crowdin action
         uses: crowdin/github-action@v1.20.2
         with:
-          export_only_approved: true
           download_translations: true
-          skip_untranslated_files: true
+          export_only_approved: true
         env:
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}

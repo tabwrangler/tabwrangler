@@ -73,6 +73,10 @@
       }
     }
   },
+  "extName": {
+    "description": "The name of this extension",
+    "message": "Tab Wrangler"
+  },
   "extension_pause": {
     "description": "Label for button that pauses the extension",
     "message": "இடைநிறுத்து"

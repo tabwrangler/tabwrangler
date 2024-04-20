@@ -18,5 +18,9 @@
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
     "message": "Tutup tab dan simpan URL dengan segera"
+  },
+  "extName": {
+    "description": "The name of this extension",
+    "message": "Tab Wrangler"
   }
 }

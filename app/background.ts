@@ -257,31 +257,6 @@ async function startup() {
 
 startup();
 
-// Keep the [service worker (Chrome) / background script (Firefox)] alive so the popup can always
-// talk to it to access the Store.
-// Self-contained workaround for https://crbug.com/1316588 (Apache License)
-// Source: https://bugs.chromium.org/p/chromium/issues/detail?id=1316588#c99
-let lastAlarm = 0;
-(async function lostEventsWatchdog() {
-  let quietCount = 0;
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    await new Promise((resolve) => setTimeout(resolve, 65000));
-    const now = Date.now();
-    const age = now - lastAlarm;
-    console.debug(`lostEventsWatchdog: last alarm ${age / 1000}s ago`);
-    if (age < 95000) {
-      quietCount = 0; // alarm still works.
-    } else if (++quietCount >= 3) {
-      console.warn("lostEventsWatchdog: reloading!");
-      return chrome.runtime.reload();
-    } else {
-      chrome.alarms.create(`lostEventsWatchdog/${now}`, { delayInMinutes: 1 });
-    }
-  }
-})();
-
-chrome.alarms.onAlarm.addListener(() => (lastAlarm = Date.now()));
 chrome.runtime.onMessage.addListener((message) => {
   if (message === "reload") {
     console.warn("[runtime.onMessage]: Manual reload");

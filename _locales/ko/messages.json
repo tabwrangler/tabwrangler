@@ -213,10 +213,6 @@
     "description": "Label for checkbox to lock tabs that are in a tab group",
     "message": "탭 그룹 안에 있는 탭을 닫지 않기"
   },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "탭이 이보다 많은 경우에만 자동으로 닫음:"
-  },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
     "message": "개의 탭이 열림 (고정되거나 잠긴 탭은 포함되지 않음)."

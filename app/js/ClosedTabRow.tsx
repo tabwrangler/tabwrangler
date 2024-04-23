@@ -1,4 +1,4 @@
-import "./CoralTabRow.css";
+import "./CorralTabRow.css";
 import * as React from "react";
 import LazyImage from "./LazyImage";
 import TimeAgo from "timeago-react";

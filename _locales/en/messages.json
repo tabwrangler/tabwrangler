@@ -215,7 +215,7 @@
   },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Auto-close tabs only if there are more than:"
+    "message": "Auto-close inactive tabs if there are more than:"
   },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",

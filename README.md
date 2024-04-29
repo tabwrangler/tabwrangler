@@ -75,6 +75,24 @@ tabs that you wanted to save.
 5. Select the file created during back up, it will be named similarly to
    "TabWranglerExport-6-18-2017.json"
 
+#### Back up file format
+
+The "Back up / Export" button creates a JSON file with saved tabs and other usage data. The JSON
+file has the following format:
+
+```ts
+/**
+ * The `chrome.tabs.Tab` type comes from `@types/chrome`
+ * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/d693ab3ced5aa2b8d86838f721006b16414bb21e/types/chrome/index.d.ts#L9406
+ */
+type TabWranglerExportFormat = {
+  savedTabs: Array<chrome.tabs.Tab>,
+  totalTabsRemoved: number,
+  totalTabsUnwrangled: number,
+  totalTabsWrangled: number
+};
+```
+
 ### Settings
 
 Tab Wrangler's settings are saved and synced by your browser, like [Chrome sync][0] for example, to

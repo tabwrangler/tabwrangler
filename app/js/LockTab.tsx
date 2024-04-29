@@ -250,9 +250,10 @@ export default function LockTab() {
           </button>
           <div
             aria-labelledby="sort-dropdown"
-            className={cx("dropdown-menu dropdown-menu-right shadow-sm", {
+            className={cx("dropdown-menu shadow-sm", {
               show: isSortDropdownOpen,
             })}
+            style={{ right: "0" }}
           >
             {Sorters.map((sorter) => (
               <a

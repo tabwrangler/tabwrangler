@@ -341,7 +341,47 @@ export default function OptionsTab() {
             </div>
           </div>
         </div>
-        <div className="form-text">(does not include pinned or locked tabs)</div>
+        <div className="form-text mb-1">(does not include pinned or locked tabs)</div>
+        <div className="form-check mb-1">
+          <input
+            className="form-check-input"
+            defaultChecked={settings.get("debounceOnActivated")}
+            id="debounceOnActivated"
+            name="debounceOnActivated"
+            onChange={handleSettingsChange}
+            type="checkbox"
+          />
+          <label className="form-check-label" htmlFor="debounceOnActivated">
+            {chrome.i18n.getMessage("options_option_debounceOnActivated_label")}
+          </label>
+        </div>
+        <div className="form-check mb-1">
+          <input
+            className="form-check-input"
+            defaultChecked={settings.get("filterAudio")}
+            id="filterAudio"
+            name="filterAudio"
+            onChange={handleSettingsChange}
+            type="checkbox"
+          />
+          <label className="form-check-label" htmlFor="filterAudio">
+            {chrome.i18n.getMessage("options_option_filterAudio_label")}
+          </label>
+        </div>
+        <div className="form-check">
+          <input
+            className="form-check-input"
+            defaultChecked={settings.get("filterGroupedTabs")}
+            disabled={!showFilterTabGroupsOption}
+            id="filterGroupedTabs"
+            name="filterGroupedTabs"
+            onChange={handleSettingsChange}
+            type="checkbox"
+          />
+          <label className="form-check-label" htmlFor="filterGroupedTabs">
+            {chrome.i18n.getMessage("options_option_filterGroupedTabs_label")}
+          </label>
+        </div>
         <label className="form-label mt-3" htmlFor="maxTabs">
           <strong>{chrome.i18n.getMessage("options_option_rememberTabs_label")}</strong>
         </label>
@@ -362,7 +402,7 @@ export default function OptionsTab() {
             {chrome.i18n.getMessage("options_option_rememberTabs_postLabel")}
           </div>
         </div>
-        <div className="form-check mb-1 mt-3">
+        <div className="form-check mb-1 mt-2">
           <input
             className="form-check-input"
             defaultChecked={settings.get("purgeClosedTabs")}
@@ -375,7 +415,7 @@ export default function OptionsTab() {
             {chrome.i18n.getMessage("options_option_clearOnQuit_label")}
           </label>
         </div>
-        <div className="form-check mb-1">
+        <div className="form-check mb-3">
           <input
             className="form-check-input"
             defaultChecked={settings.get("showBadgeCount")}
@@ -388,47 +428,6 @@ export default function OptionsTab() {
             {chrome.i18n.getMessage("options_option_showBadgeCount_label")}
           </label>
         </div>
-        <div className="form-check mb-1">
-          <input
-            className="form-check-input"
-            defaultChecked={settings.get("debounceOnActivated")}
-            id="debounceOnActivated"
-            name="debounceOnActivated"
-            onChange={handleSettingsChange}
-            type="checkbox"
-          />
-          <label className="form-check-label" htmlFor="debounceOnActivated">
-            {chrome.i18n.getMessage("options_option_debounceOnActivated_label")}
-          </label>
-        </div>
-        <div className={cx("form-check", showFilterTabGroupsOption ? "mb-1" : "mb-3")}>
-          <input
-            className="form-check-input"
-            defaultChecked={settings.get("filterAudio")}
-            id="filterAudio"
-            name="filterAudio"
-            onChange={handleSettingsChange}
-            type="checkbox"
-          />
-          <label className="form-check-label" htmlFor="filterAudio">
-            {chrome.i18n.getMessage("options_option_filterAudio_label")}
-          </label>
-        </div>
-        {showFilterTabGroupsOption && (
-          <div className="form-check mb-3">
-            <input
-              className="form-check-input"
-              defaultChecked={settings.get("filterGroupedTabs")}
-              id="filterGroupedTabs"
-              name="filterGroupedTabs"
-              onChange={handleSettingsChange}
-              type="checkbox"
-            />
-            <label className="form-check-label" htmlFor="filterGroupedTabs">
-              {chrome.i18n.getMessage("options_option_filterGroupedTabs_label")}
-            </label>
-          </div>
-        )}
         <TabWrangleOption
           onChange={handleSettingsChange}
           selectedOption={settings.get("wrangleOption")}

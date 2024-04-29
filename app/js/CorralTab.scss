@@ -21,6 +21,11 @@
   text-align: center;
 }
 
+.ReactVirtualized__Table__headerColumn:first-of-type,
+.ReactVirtualized__Table__rowColumn:first-of-type {
+  margin-left: 2px;
+}
+
 .table-hover .ReactVirtualized__Table__row:not(.table-warning):hover {
   background-color: rgba(var(--bs-emphasis-color-rgb), $table-hover-bg-factor);
 }

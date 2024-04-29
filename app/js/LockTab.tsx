@@ -20,6 +20,28 @@ type Sorter = {
   ) => number;
 };
 
+const AlphaSorter: Sorter = {
+  key: "alpha",
+  label: () => chrome.i18n.getMessage("corral_sortPageTitle") || "",
+  shortLabel: () => chrome.i18n.getMessage("corral_sortPageTitle_short") || "",
+  sort(tabA, tabB) {
+    if (tabA == null || tabB == null || tabA.title == null || tabB.title == null) {
+      return 0;
+    } else {
+      return tabA.title.localeCompare(tabB.title);
+    }
+  },
+};
+
+const ReverseAlphaSorter: Sorter = {
+  key: "reverseAlpha",
+  label: () => chrome.i18n.getMessage("corral_sortPageTitle_descending") || "",
+  shortLabel: () => chrome.i18n.getMessage("corral_sortPageTitle_descending_short") || "",
+  sort(tabA, tabB) {
+    return -1 * AlphaSorter.sort(tabA, tabB, {});
+  },
+};
+
 const ChronoSorter: Sorter = {
   key: "chrono",
   label: () => chrome.i18n.getMessage("tabLock_sort_timeUntilClose") || "",
@@ -73,7 +95,14 @@ const ReverseTabOrderSorter: Sorter = {
 };
 
 const DEFAULT_SORTER = TabOrderSorter;
-const Sorters = [TabOrderSorter, ReverseTabOrderSorter, ChronoSorter, ReverseChronoSorter];
+const Sorters = [
+  TabOrderSorter,
+  ReverseTabOrderSorter,
+  AlphaSorter,
+  ReverseAlphaSorter,
+  ChronoSorter,
+  ReverseChronoSorter,
+];
 
 export const UseNowContext = React.createContext(new Date().getTime());
 function useNow() {

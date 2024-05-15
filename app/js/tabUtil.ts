@@ -140,7 +140,6 @@ export async function updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number): 
     await setTabTime(String(tabId), Date.now());
   } else {
     tabId = tabOrTabId.id;
-    // @ts-expect-error `Tab.lastAccessed` not yet added to `chrome.tabs.Tab` type.
     await setTabTime(String(tabId), tabOrTabId?.lastAccessed ?? new Date().getTime());
   }
 }

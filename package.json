@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@types/async-lock": "^1.4.1",
-    "@types/chrome": "^0.0.246",
+    "@types/chrome": "^0.0.268",
     "@types/color-hash": "^1.0.2",
     "@types/file-saver": "^2.0.5",
     "@types/jest": "^29.0.0",

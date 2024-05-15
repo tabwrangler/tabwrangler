@@ -9,7 +9,16 @@ function getDomain(url: string): string | null {
 export default class Menus {
   // Note: intended to be called only once, which is why this function is static. Context menus
   // should be once when the extension is installed.
-  static install() {
+  static async install() {
+    // Failsafe: remove all context menus before creating new ones in case `install` gets called
+    // twice. Why does it get called twice? Unknown but have seen it happen and don't want it to
+    // break installation.
+    await new Promise<void>((resolve) => {
+      console.debug("[menus] Removing context menu");
+      chrome.contextMenus.removeAll(resolve);
+    });
+
+    console.debug("[menus] Creating context menu");
     chrome.contextMenus.create({
       id: "corralTab",
       title: chrome.i18n.getMessage("contextMenu_corralTab"),
@@ -87,6 +96,7 @@ export default class Menus {
       const currentDomain = getDomain(tab.url);
       if (currentDomain == null) return;
 
+      console.debug("[menus] Updating context menu for tab ID ", tabId);
       const whitelist = settings.get<Array<string>>("whitelist");
       chrome.contextMenus.update("lockDomain", {
         checked: whitelist.includes(currentDomain),

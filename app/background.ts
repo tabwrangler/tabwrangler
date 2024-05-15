@@ -34,6 +34,7 @@ chrome.runtime.onInstalled.addListener(() => {
   Menus.install();
   migrateLocal();
 });
+
 chrome.tabs.onCreated.addListener(onNewTab);
 chrome.tabs.onRemoved.addListener(removeTab);
 chrome.tabs.onReplaced.addListener(replaceTab);
@@ -119,6 +120,8 @@ function scheduleCheckToClose() {
 }
 
 async function checkToClose() {
+  console.debug("[checkToClose] Checking…", new Date().toISOString());
+  const startTime = Date.now();
   try {
     const storageSyncPersist = await getStorageSyncPersist();
     if (storageSyncPersist.paused) return; // Extension is paused, no work needs to be done.
@@ -252,6 +255,9 @@ async function checkToClose() {
   } catch (error) {
     console.error("[checkToClose]", error);
   } finally {
+    const elapsedTime = Date.now() - startTime;
+    if (elapsedTime > 5_000)
+      console.warn(`[checkToClose] Took longer than maxExecutionTime: ${elapsedTime}ms`);
     scheduleCheckToClose();
   }
 }

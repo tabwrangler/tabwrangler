@@ -134,6 +134,8 @@ your tabs but not the content inside those tabs.
 Tab Wrangler's requested permissions are listed in its [manifest.json][manifest.json] under the
 `"permissions"` key.
 
+- [`"alarms"`][7]: Allows creation of alarms to periodically check Tab Wrangler's background script
+  that checks for stale tabs is running and healthy.
 - [`"contextMenus"`][3]: Allows a "Tab Wrangler" menu item when you right click on a webpage that
   lets you send the tab to the Tab Corral, lock that tab, or lock all tabs on that domain.
 - [`"sessions"`][4]: Allows Tab Wrangler to read and restore the full history of a tab including
@@ -186,3 +188,4 @@ working and tested, submit a pull request to this primary project and we'll get 
 [5]: https://developer.chrome.com/extensions/storage
 [6]: https://developer.chrome.com/extensions/tabs
 [manifest.json]: https://github.com/tabwrangler/tabwrangler/blob/main/app/manifest.json
+[7]: https://developer.chrome.com/docs/extensions/reference/alarms/

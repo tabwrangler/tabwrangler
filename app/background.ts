@@ -120,7 +120,6 @@ function scheduleCheckToClose() {
 }
 
 async function checkToClose() {
-  console.debug("[checkToClose] Checking…", new Date().toISOString());
   const startTime = Date.now();
   try {
     const storageSyncPersist = await getStorageSyncPersist();
@@ -283,8 +282,8 @@ async function startup() {
 
 startup();
 
-// Keep the [service worker (Chrome) / background script (Firefox)] alive so the popup can always
-// talk to it to access the Store.
+// Keep the [service worker (Chrome) / background script (Firefox)] alive so background can check
+// for tabs to close frequently.
 // Self-contained workaround for https://crbug.com/1316588 (Apache License)
 // Source: https://bugs.chromium.org/p/chromium/issues/detail?id=1316588#c99
 let lastAlarm = 0;
@@ -295,14 +294,18 @@ let lastAlarm = 0;
     await new Promise((resolve) => setTimeout(resolve, 65000));
     const now = Date.now();
     const age = now - lastAlarm;
-    console.debug(`lostEventsWatchdog: last alarm ${age / 1000}s ago`);
+    console.debug(
+      lastAlarm === 0
+        ? `[lostEventsWatchdog]: first alarm`
+        : `[lostEventsWatchdog]: last alarm ${age / 1000}s ago`,
+    );
     if (age < 95000) {
       quietCount = 0; // alarm still works.
     } else if (++quietCount >= 3) {
-      console.warn("lostEventsWatchdog: reloading!");
+      console.warn("[lostEventsWatchdog]: reloading!");
       return chrome.runtime.reload();
     } else {
-      chrome.alarms.create(`lostEventsWatchdog/${now}`, { delayInMinutes: 1 });
+      chrome.alarms.create(`lostEventsWatchdog/${now}`, { delayInMinutes: 0.5 });
     }
   }
 })();

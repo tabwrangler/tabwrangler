@@ -8,7 +8,6 @@ import {
   initTabs,
   onNewTab,
   removeTab,
-  replaceTab,
   updateClosedCount,
   updateLastAccessed,
   wrangleTabs,
@@ -35,9 +34,6 @@ chrome.runtime.onInstalled.addListener(() => {
   migrateLocal();
 });
 
-chrome.tabs.onCreated.addListener(onNewTab);
-chrome.tabs.onRemoved.addListener(removeTab);
-chrome.tabs.onReplaced.addListener(replaceTab);
 chrome.tabs.onActivated.addListener(function (tabInfo) {
   menus.updateContextMenus(tabInfo.tabId);
 
@@ -46,6 +42,29 @@ chrome.tabs.onActivated.addListener(function (tabInfo) {
   } else {
     updateLastAccessed(tabInfo.tabId);
   }
+});
+chrome.tabs.onCreated.addListener(onNewTab);
+chrome.tabs.onRemoved.addListener(removeTab);
+
+chrome.tabs.onReplaced.addListener(function replaceTab(addedTabId: number, removedTabId: number) {
+  ASYNC_LOCK.acquire(["local.tabTimes", "persist:settings"], async () => {
+    // Replace tab ID in array of locked IDs if the removed tab was locked
+    const { lockedIds } = await chrome.storage.sync.get({ lockedIds: [] });
+    if (lockedIds.indexOf(removedTabId) !== -1) {
+      lockedIds.splice(lockedIds.indexOf(removedTabId), 1, addedTabId);
+      await chrome.storage.sync.set({ lockedIds });
+      console.debug("[onReplaced] Re-locked tab: removedId, addedId", removedTabId, addedTabId);
+    }
+
+    // Replace tab ID in object of tab times keeping the same time remaining for the added tab ID
+    const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
+    tabTimes[addedTabId] = tabTimes[removedTabId];
+    delete tabTimes[removedTabId];
+    await chrome.storage.local.set({
+      tabTimes,
+    });
+    console.debug("[onReplaced] Replaced tab time: removedId, addedId", removedTabId, addedTabId);
+  });
 });
 
 chrome.commands.onCommand.addListener((command) => {

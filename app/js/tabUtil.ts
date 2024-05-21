@@ -144,11 +144,6 @@ export async function updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number): 
   }
 }
 
-export async function replaceTab(addedTabId: number, removedTabId: number) {
-  await removeTab(removedTabId);
-  await updateLastAccessed(addedTabId);
-}
-
 export function getWhitelistMatch(
   url: string | undefined,
   { whitelist }: { whitelist: string[] },

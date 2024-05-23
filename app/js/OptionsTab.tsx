@@ -1,12 +1,12 @@
 import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { exportData, importData } from "./actions/importExportActions";
-import { mutateStorageSync, mutateStorageSyncPersist } from "./storage";
 import { useStorageSyncPersistQuery, useStorageSyncQuery } from "./storage";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
 import cx from "classnames";
 import { exportFileName } from "./actions/importExportActions";
+import { mutateStorageSyncPersist } from "./storage";
 import settings from "./settings";
 import { useDebounceCallback } from "@react-hook/debounce";
 import { useMutation } from "@tanstack/react-query";
@@ -39,7 +39,8 @@ export default function OptionsTab() {
   });
 
   const settingMutation = useMutation({
-    mutationFn: mutateStorageSync,
+    mutationFn: ({ key, value }: { key: string; value: unknown }) =>
+      chrome.storage.sync.set({ [key]: value }),
   });
 
   function handleClickRemovePattern(pattern: string) {
@@ -124,7 +125,7 @@ export default function OptionsTab() {
     }
 
     try {
-      await mutateStorageSync({ key, value });
+      await settings.set(key, value);
     } catch (err) {
       if (err instanceof Error) setErrors([...errors, err]);
       return;
@@ -415,7 +416,7 @@ export default function OptionsTab() {
             {chrome.i18n.getMessage("options_option_clearOnQuit_label")}
           </label>
         </div>
-        <div className="form-check mb-3">
+        <div className="form-check mb-1">
           <input
             className="form-check-input"
             defaultChecked={settings.get("showBadgeCount")}
@@ -426,6 +427,19 @@ export default function OptionsTab() {
           />
           <label className="form-check-label" htmlFor="showBadgeCount">
             {chrome.i18n.getMessage("options_option_showBadgeCount_label")}
+          </label>
+        </div>
+        <div className="form-check mb-3">
+          <input
+            className="form-check-input"
+            defaultChecked={settings.get("createContextMenu")}
+            id="createContextMenu"
+            name="createContextMenu"
+            onChange={handleSettingsChange}
+            type="checkbox"
+          />
+          <label className="form-check-label" htmlFor="createContextMenu">
+            {chrome.i18n.getMessage("options_option_createContextMenu_label")}
           </label>
         </div>
         <TabWrangleOption

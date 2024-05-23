@@ -29,13 +29,16 @@ function setPaused(paused: boolean): Promise<void> {
 }
 
 const debouncedUpdateLastAccessed = debounce(updateLastAccessed, 1000);
-chrome.runtime.onInstalled.addListener(() => {
-  Menus.install();
+chrome.runtime.onInstalled.addListener(async () => {
+  await settings.init();
+  if (settings.get("createContextMenu")) Menus.create();
   migrateLocal();
 });
 
-chrome.tabs.onActivated.addListener(function (tabInfo) {
-  menus.updateContextMenus(tabInfo.tabId);
+chrome.tabs.onActivated.addListener(async function onActivated(tabInfo) {
+  await settings.init();
+
+  if (settings.get("createContextMenu")) menus.updateContextMenus(tabInfo.tabId);
 
   if (settings.get("debounceOnActivated")) {
     debouncedUpdateLastAccessed(tabInfo.tabId);

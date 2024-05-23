@@ -201,6 +201,10 @@
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
     "message": "Clear closed tabs list on quit"
   },
+  "options_option_createContextMenu_label": {
+    "description": "Label for checkbox to create a 'Tab Wrangler' context menu item",
+    "message": "Create a \"Tab Wrangler\" context menu item"
+  },
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Reset a tab's timer only after it is active for 1 second"

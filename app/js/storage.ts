@@ -54,10 +54,6 @@ export function mutateStorageSyncPersist({
   });
 }
 
-export function mutateStorageSync({ key, value }: { key: string; value: unknown }): Promise<void> {
-  return chrome.storage.sync.set({ [key]: value });
-}
-
 export function lockTabId(tabId: number) {
   return ASYNC_LOCK.acquire("persist:settings", async () => {
     const { lockedIds } = await chrome.storage.sync.get({ lockedIds: [] });

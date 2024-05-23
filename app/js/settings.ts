@@ -1,4 +1,5 @@
 import { getWhitelistMatch, isTabLocked } from "./tabUtil";
+import Menus from "./menus";
 
 const defaultCache: Record<string, unknown> = {};
 const defaultLockedIds: Array<number> = [];
@@ -6,6 +7,9 @@ const defaultLockedIds: Array<number> = [];
 export const SETTINGS_DEFAULTS = {
   // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
   corralTabSortOrder: null,
+
+  // Create a context menu for accessing Tab Wrangler functionality on click
+  createContextMenu: true,
 
   // wait 1 second before updating an active tab
   debounceOnActivated: true,
@@ -55,10 +59,13 @@ export const SETTINGS_DEFAULTS = {
 // This is a SINGLETON! It is imported both by backgrounnd.ts and by popup.tsx and used in both
 // environments.
 const Settings = {
+  _initPromise: undefined as Promise<void> | undefined,
   cache: defaultCache,
 
   // Gets all settings from sync and stores them locally.
   init(): Promise<void> {
+    if (this._initPromise != null) return this._initPromise;
+
     const keys: Array<string> = [];
     for (const i in SETTINGS_DEFAULTS) {
       if (Object.prototype.hasOwnProperty.call(SETTINGS_DEFAULTS, i)) {
@@ -80,7 +87,7 @@ const Settings = {
       },
     );
 
-    return new Promise((resolve) => {
+    this._initPromise = new Promise((resolve) => {
       chrome.storage.sync.get(keys, async (items) => {
         for (const i in items) {
           if (Object.prototype.hasOwnProperty.call(items, i)) {
@@ -91,6 +98,8 @@ const Settings = {
         resolve();
       });
     });
+
+    return this._initPromise;
   },
 
   async _initLockedIds(): Promise<void> {
@@ -151,12 +160,12 @@ const Settings = {
     return this.getWhitelistMatch(url) !== null;
   },
 
-  lockTab(tabId: number) {
+  lockTab(tabId: number): Promise<void> {
     const lockedIds = this.get<Array<number>>("lockedIds");
     if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {
       lockedIds.push(tabId);
     }
-    this.set("lockedIds", lockedIds);
+    return this.set("lockedIds", lockedIds);
   },
 
   /**
@@ -164,40 +173,46 @@ const Settings = {
    *
    * If the value is a struct (object or array) it is JSONified.
    */
-  set<T>(key: string, value: T): void {
+  set<T>(key: string, value: T): Promise<void> {
     // Magic setter functions are set{fieldname}
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line
     if (typeof this["set" + key] == "function") {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore:next-line
-      this["set" + key](value);
+      return this["set" + key](value);
     } else {
-      Settings.setValue(key, value);
+      return Settings.setValue(key, value);
     }
   },
 
-  setmaxTabs(maxTabs: string) {
+  setcreateContextMenu(nextCreateContextMenu: boolean): Promise<void> {
+    if (nextCreateContextMenu) Menus.create();
+    else Menus.destroy();
+    return Settings.setValue("createContextMenu", nextCreateContextMenu);
+  },
+
+  setmaxTabs(maxTabs: string): Promise<void> {
     const parsedValue = parseInt(maxTabs, 10);
     if (isNaN(parsedValue) || parsedValue < 1 || parsedValue > 1000) {
       throw Error(
         chrome.i18n.getMessage("settings_setmaxTabs_error") || "Error: settings.setmaxTabs",
       );
     }
-    Settings.setValue("maxTabs", parsedValue);
+    return Settings.setValue("maxTabs", parsedValue);
   },
 
-  setminTabs(minTabs: string) {
+  setminTabs(minTabs: string): Promise<void> {
     const parsedValue = parseInt(minTabs, 10);
     if (isNaN(parsedValue) || parsedValue < 0) {
       throw Error(
         chrome.i18n.getMessage("settings_setminTabs_error") || "Error: settings.setminTabs",
       );
     }
-    Settings.setValue("minTabs", parsedValue);
+    return Settings.setValue("minTabs", parsedValue);
   },
 
-  setminutesInactive(minutesInactive: string): void {
+  setminutesInactive(minutesInactive: string): Promise<void> {
     const minutes = parseInt(minutesInactive, 10);
     if (isNaN(minutes) || minutes < 0) {
       throw Error(
@@ -205,23 +220,22 @@ const Settings = {
           "Error: settings.setminutesInactive",
       );
     }
-    Settings.setValue("minutesInactive", minutesInactive);
+    return Settings.setValue("minutesInactive", minutesInactive);
   },
 
-  setsecondsInactive(secondsInactive: string): void {
+  setsecondsInactive(secondsInactive: string): Promise<void> {
     const seconds = parseInt(secondsInactive, 10);
     if (isNaN(seconds) || seconds < 0 || seconds > 59) {
       throw Error(
         chrome.i18n.getMessage("settings_setsecondsInactive_error") || "Error: setsecondsInactive",
       );
     }
-    Settings.setValue("secondsInactive", secondsInactive);
+    return Settings.setValue("secondsInactive", secondsInactive);
   },
 
-  setValue<T>(key: string, value: T, fx?: () => void) {
+  setValue<T>(key: string, value: T): Promise<void> {
     this.cache[key] = value;
-    if (fx == null) chrome.storage.sync.set({ [key]: value });
-    else chrome.storage.sync.set({ [key]: value }, fx);
+    return chrome.storage.sync.set({ [key]: value });
   },
 
   /**
@@ -235,19 +249,21 @@ const Settings = {
   },
 
   toggleTabs(tabs: chrome.tabs.Tab[]) {
-    tabs.forEach((tab) => {
-      if (tab.id == null) return;
-      else if (this.isTabLocked(tab)) this.unlockTab(tab.id);
-      else this.lockTab(tab.id);
-    });
+    return Promise.all(
+      tabs.map((tab) => {
+        if (tab.id == null) return Promise.resolve();
+        else if (this.isTabLocked(tab)) return this.unlockTab(tab.id);
+        else return this.lockTab(tab.id);
+      }),
+    );
   },
 
-  unlockTab(tabId: number) {
+  unlockTab(tabId: number): Promise<void> {
     const lockedIds = this.get<Array<number>>("lockedIds");
     if (lockedIds.indexOf(tabId) > -1) {
       lockedIds.splice(lockedIds.indexOf(tabId), 1);
     }
-    this.set("lockedIds", lockedIds);
+    return this.set("lockedIds", lockedIds);
   },
 };
 

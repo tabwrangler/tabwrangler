@@ -9,6 +9,8 @@ import settings from "./settings";
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
+export const AVERAGE_TAB_BYTES_SIZE = 600;
+
 export function findPositionByURL(savedTabs: chrome.tabs.Tab[], url: string | null = ""): number {
   return savedTabs.findIndex((item: chrome.tabs.Tab) => item.url === url && url != null);
 }

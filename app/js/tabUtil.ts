@@ -9,6 +9,8 @@ import settings from "./settings";
 
 type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
 
+export const AVERAGE_TAB_BYTES_SIZE = 600;
+
 export function findPositionByURL(savedTabs: chrome.tabs.Tab[], url: string | null = ""): number {
   return savedTabs.findIndex((item: chrome.tabs.Tab) => item.url === url && url != null);
 }
@@ -81,8 +83,12 @@ export function wrangleTabs(
 
   // Trim saved tabs to the max allocated by the setting. Browser extension storage is limited and
   // thus cannot allow saved tabs to grow indefinitely.
-  if (storageLocalPersist.savedTabs.length - maxTabs > 0)
+  if (storageLocalPersist.savedTabs.length - maxTabs > 0) {
+    const tabsToTrim = storageLocalPersist.savedTabs.splice(maxTabs);
+    console.log("Exceeded maxTabs (%d), trimming older tabs:", maxTabs);
+    console.log(tabsToTrim.map((t) => t.url));
     storageLocalPersist.savedTabs = storageLocalPersist.savedTabs.splice(0, maxTabs);
+  }
 }
 
 export async function wrangleTabsAndPersist(tabs: Array<chrome.tabs.Tab>) {

@@ -389,9 +389,23 @@
       }
     }
   },
-  "settings_setmaxTabs_error": {
+  "settings_setmaxTabs_error_invalid": {
     "description": "Error shown when invalid max tabs setting is supplied.",
-    "message": "Max tabs must be a number between 1 and 1000"
+    "message": "Max tabs must be a number greater than 1"
+  },
+  "settings_setmaxTabs_error_too_big": {
+    "description": "Error shown when the supplied max tabs setting could exceed quota.",
+    "message": "Max tabs must not exceed the bound allowed by storage quota ( $upperBound$ tabs, estimated from $quota$ bytes of storage quota)",
+    "placeholders": {
+      "upperBound": {
+        "content": "$1",
+        "example": "18"
+      },
+      "quota": {
+        "content": "$2",
+        "example": "5242880"
+      }
+    }
   },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",

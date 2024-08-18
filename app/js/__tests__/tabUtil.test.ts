@@ -1,9 +1,11 @@
 import {
+  AVERAGE_TAB_BYTES_SIZE,
   findPositionByHostnameAndTitle,
   findPositionByURL,
   getURLPositionFilterByWrangleOption,
   wrangleTabsAndPersist,
 } from "../tabUtil";
+import { TextEncoder } from "util";
 import { setSavedTabs } from "../actions/localStorageActions";
 import settings from "../settings";
 
@@ -106,6 +108,56 @@ describe("wrangleTabsAndPersist", () => {
     const data = await chrome.storage.local.get("persist:localStorage");
     expect(data["persist:localStorage"].totalTabsWrangled).toEqual(1);
   });
+
+  test("Tab saved size should not be higher than average", async () => {
+    // respectively: 237, 1050 and 240 bytes as stored, when this test has been added
+    const testTabs = [
+      createTab({ id: 1, url: "https://www.github.com" }),
+      createTab({
+        id: 2,
+        url: "https://httpbin.org/get?a=longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls",
+      }),
+      createTab({ id: 3, url: "https://www.wikipedia.org" }),
+    ];
+
+    await wrangleTabsAndPersist(testTabs);
+
+    const encodedSize = (value: Array<chrome.tabs.Tab>) =>
+      new TextEncoder().encode(JSON.stringify(value)).length;
+
+    const data = await chrome.storage.local.get("persist:localStorage");
+
+    const wrangledTabs = data["persist:localStorage"].totalTabsWrangled;
+    const savedTabsSize = encodedSize(
+      data["persist:localStorage"].savedTabs.splice(0, wrangledTabs),
+    );
+    expect(savedTabsSize).toBeGreaterThan(0);
+    expect(savedTabsSize / testTabs.length).toBeLessThanOrEqual(AVERAGE_TAB_BYTES_SIZE);
+  });
+
+  test.failing(
+    "Tab saved size should not be higher than average (using getBytesInUse)",
+    async () => {
+      // respectively: 237, 1050 and 240 bytes as stored, when this test has been added
+      const testTabs = [
+        createTab({ id: 1, url: "https://www.github.com" }),
+        createTab({
+          id: 2,
+          url: "https://httpbin.org/get?a=longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls_longargumenttochecksizeofurls",
+        }),
+        createTab({ id: 3, url: "https://www.wikipedia.org" }),
+      ];
+
+      await wrangleTabsAndPersist(testTabs);
+
+      // StorageLocalPersistState has some extra overhead compared to the bare `savedTabs`
+      // but AVERAGE_TAB_BYTES_SIZE should be generous enough to cover that
+      const size = await chrome.storage.local.getBytesInUse();
+
+      expect(size).toBeGreaterThan(0); // fails here because getBytesInUse() returns 0 in nodejs
+      expect(size / testTabs.length).toBeLessThanOrEqual(AVERAGE_TAB_BYTES_SIZE);
+    },
+  );
 });
 
 describe("filter", () => {

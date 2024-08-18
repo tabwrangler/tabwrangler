@@ -17,6 +17,9 @@ export async function getStorageSyncPersist(): Promise<StorageSyncPersistState> 
   return Object.assign({}, STORAGE_SYNC_PERSIST_DEFAULTS, data["persist:settings"]);
 }
 
+// StorageLocalPersistState grows linearly with the size of tabTimes and savedTabs
+// We defined an estimate of the size of an individual tab at tabUtil.AVERAGE_TAB_BYTES_SIZE
+
 export type StorageLocalPersistState = {
   // Date of installation of Tab Wrangler
   installDate: number;

@@ -1,4 +1,4 @@
-import { getWhitelistMatch, isTabLocked } from "./tabUtil";
+import { AVERAGE_TAB_BYTES_SIZE, getWhitelistMatch, isTabLocked } from "./tabUtil";
 import Menus from "./menus";
 
 const defaultCache: Record<string, unknown> = {};
@@ -112,7 +112,7 @@ const Settings = {
     const nextLockedIds = (this.cache.lockedIds as number[]).filter((lockedId) => {
       const lockedIdExists = currTabIds.has(lockedId);
       if (!lockedIdExists)
-        console.debug(`Locked tab ID ${lockedId} no longer exixts; removing from 'lockedIds' list`);
+        console.debug(`Locked tab ID ${lockedId} no longer exists; removing from 'lockedIds' list`);
       return lockedIdExists;
     });
     this.set("lockedIds", nextLockedIds);
@@ -192,11 +192,36 @@ const Settings = {
     return Settings.setValue("createContextMenu", nextCreateContextMenu);
   },
 
+  _getStorageQuota(): number {
+    const quota: number | undefined = chrome.storage.local.QUOTA_BYTES;
+    if (quota === undefined) {
+      // Firefox doesn't implement QUOTA_BYTES
+      // According to https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/storage/local
+      // it'll use the "same storage limits as applied to IndexedDB databases"
+      // According to https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria#how_much_data_can_be_stored
+      // that should be "10% of the total disk size where the profile of the user is store"
+      // But to be conservative, and since that's the documented limit for window.localStorage, we're going to limit it to 5MiB
+      return 5 * 1024 * 1024;
+    } else {
+      return quota;
+    }
+  },
+
   setmaxTabs(maxTabs: string): Promise<void> {
+    const storageQuota = this._getStorageQuota();
+    const tabsUpperBound = Math.floor(storageQuota / AVERAGE_TAB_BYTES_SIZE);
+
     const parsedValue = parseInt(maxTabs, 10);
-    if (isNaN(parsedValue) || parsedValue < 1 || parsedValue > 1000) {
+    if (isNaN(parsedValue) || parsedValue < 1) {
       throw Error(
-        chrome.i18n.getMessage("settings_setmaxTabs_error") || "Error: settings.setmaxTabs",
+        chrome.i18n.getMessage("settings_setmaxTabs_error_invalid") || "Error: settings.setmaxTabs",
+      );
+    } else if (parsedValue > tabsUpperBound) {
+      throw Error(
+        chrome.i18n.getMessage("settings_setmaxTabs_error_too_big", [
+          tabsUpperBound.toString(),
+          storageQuota.toString(),
+        ]) || "Error: settings.setmaxTabs",
       );
     }
     return Settings.setValue("maxTabs", parsedValue);

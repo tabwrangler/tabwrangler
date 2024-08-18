@@ -22,7 +22,7 @@ describe("settings", () => {
     expect(() => Settings.setmaxTabs("0")).toThrowError();
   });
 
-  test("throws an exception when maxTabs is > 1000", () => {
-    expect(() => Settings.setmaxTabs("1100")).toThrowError();
+  test("throws an exception when maxTabs would exceed browser quota", () => {
+    expect(() => Settings.setmaxTabs("10000")).toThrowError();
   });
 });

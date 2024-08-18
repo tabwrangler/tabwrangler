@@ -297,10 +297,6 @@
       }
     }
   },
-  "settings_setmaxTabs_error": {
-    "description": "Error shown when invalid max tabs setting is supplied.",
-    "message": "Onglets maximum doit être un nombre entre 1 et 1000"
-  },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "Onglets minimum doit être un nombre supérieur ou égal à 0"

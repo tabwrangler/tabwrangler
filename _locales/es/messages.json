@@ -279,10 +279,6 @@
     "description": "Explanation of time remaining before tab is closed",
     "message": "Cerrando en..."
   },
-  "settings_setmaxTabs_error": {
-    "description": "Error shown when invalid max tabs setting is supplied.",
-    "message": "El número máximo de pestañas deber ser un número entre 1 y 1000"
-  },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "El número mínimo de pestañas deber ser mayor o igual a 0"

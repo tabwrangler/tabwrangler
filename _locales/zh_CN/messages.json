@@ -365,10 +365,6 @@
       }
     }
   },
-  "settings_setmaxTabs_error": {
-    "description": "Error shown when invalid max tabs setting is supplied.",
-    "message": "最大标签页数量需介于 1 至 1000 之间"
-  },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "最小标签页数量需大于或等于 0"

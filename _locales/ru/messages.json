@@ -351,10 +351,6 @@
     "description": "Short version of tabLock_sort_timeUntilClose_desc",
     "message": "Времени до закрытия (убыв.)"
   },
-  "settings_setmaxTabs_error": {
-    "description": "Error shown when invalid max tabs setting is supplied.",
-    "message": "Максимальное число вкладок должно быть между 1 и 1000."
-  },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "Минимальное число вкладок должно быть больше или равно 0"

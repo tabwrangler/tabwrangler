@@ -331,10 +331,6 @@
     "description": "Short version of tabLock_sort_timeUntilClose_desc",
     "message": "Zeit bis zum schließen (absteigend)"
   },
-  "settings_setmaxTabs_error": {
-    "description": "Error shown when invalid max tabs setting is supplied.",
-    "message": "Maximale Anzahl von Tabs muss zwischen 1 und 1000 liegen."
-  },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "Minimale Anzahl von Tabs muss größer oder gleich 0 sein"

@@ -283,10 +283,6 @@
     "description": "Explanation of time remaining before tab is closed",
     "message": "即將關閉 ..."
   },
-  "settings_setmaxTabs_error": {
-    "description": "Error shown when invalid max tabs setting is supplied.",
-    "message": "最大分頁數必須是一個介於 1 至 1000 之間的數字"
-  },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "最小分頁數必須是一個大於等於 0 的數字"

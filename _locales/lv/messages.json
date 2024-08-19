@@ -351,10 +351,6 @@
     "description": "Short version of tabLock_sort_timeUntilClose_desc",
     "message": "Laika līdz aizvēršanai (dilstošā)"
   },
-  "settings_setmaxTabs_error": {
-    "description": "Error shown when invalid max tabs setting is supplied.",
-    "message": "Maksimālajam saglabājamo ciļņu skaitam ir jābūt skaitlim no 1 līdz 1000"
-  },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "Minimālajam ciļņu skaitam ir jābūt lielākam par 0 vai vienādam ar to"

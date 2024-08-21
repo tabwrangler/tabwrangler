@@ -395,7 +395,7 @@
   },
   "settings_setmaxTabs_error_too_big": {
     "description": "Error shown when the supplied max tabs setting could exceed quota.",
-    "message": "Max tabs must not exceed the bound allowed by storage quota ( $upperBound$ tabs, estimated from $quota$ bytes of storage quota)",
+    "message": "Max tabs must not exceed the bound allowed by storage quota ($upperBound$ tabs, estimated from $quota$ bytes of storage quota)",
     "placeholders": {
       "upperBound": {
         "content": "$1",

@@ -109,7 +109,7 @@ usages are described in the following table:
 | `filterAudio`         | `false`                   |                                                                  | Whether to prevent auto-closing tabs that are playing audio                                            |
 | `lockedIds`           | `[]`                      |                                                                  | Array of tab IDs that have been explicitly locked by the user                                          |
 | `lockTabSortOrder`    | `null`                    | `null, 'chrono', 'reverseChrono', 'tabOrder', 'reverseTabOrder'` | Saved sort order for open tabs. When `null`, defaults to `'tabOrder'`                                  |
-| `maxTabs`             | `1000`                    | `0` <= `maxTabs` <= `1000`                                       | Maximum number of tabs to keep in the tab list                                                         |
+| `maxTabs`             | `1000`                    | `0` <= `maxTabs` <= `1,000+`                                     | Maximum number of wrangled tabs to store - exact number determined by browser storage quota            |
 | `minTabs`             | `20`                      | `0` <= `minTabs`                                                 | Auto-close tabs only if there are more than this number open                                           |
 | `minutesInactive`     | `60`                      | `0` <= `minutesInactive`                                         | How much time (+ `secondsInactive`) before a tab is considered "stale" and ready to close              |
 | `paused`              | `false`                   |                                                                  | Whether TabWrangler is paused (shouldn't count down)                                                   |
@@ -120,6 +120,12 @@ usages are described in the following table:
 | `whitelist`           | `['about:', 'chrome://']` |                                                                  | Array of patterns to check against.  If a tab's URL matches a pattern, the tab is never auto-closed    |
 | `wrangleOption`       | `'withDupes'`             | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'`      | How to handle duplicate entries in the closed tabs list                                                |
 <!-- prettier-ignore-end -->
+
+#### `maxTabs`
+
+The upper bound of `maxTabs` is determined by the [browser's storage quota][8] and can vary. Tab
+Wrangler will display an error message if the setting is adjusted above what is allowed by the
+browser.
 
 ## Privacy Policy
 
@@ -190,3 +196,4 @@ working and tested, submit a pull request to this primary project and we'll get 
 [6]: https://developer.chrome.com/extensions/tabs
 [manifest.json]: https://github.com/tabwrangler/tabwrangler/blob/main/app/manifest.json
 [7]: https://developer.chrome.com/docs/extensions/reference/alarms/
+[8]: https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria

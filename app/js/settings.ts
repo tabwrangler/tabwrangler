@@ -35,7 +35,7 @@ export const SETTINGS_DEFAULTS = {
   // Strategy for counting minTabs
   // * "allWindows" - sum tabs across all open browser windows
   // * "givenWindow" (default) - count tabs within any given window
-  minTabsStrategy: "givenWindow",
+  minTabsStrategy: "allWindows",
 
   // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
   minutesInactive: 2,
@@ -49,11 +49,11 @@ export const SETTINGS_DEFAULTS = {
   // When true, shows the number of closed tabs in the list as a badge on the browser icon.
   showBadgeCount: false,
 
-  // An array of patterns to check against. If a URL matches a pattern, it is never locked.
-  whitelist: ["about:", "chrome://"],
+  // An array of patterns to check against. If a URL matches a pattern, it it will close when inactive.
+  whitelist: ["YouTube"],
 
-  // An array of patterns to check against. If a URL matches a pattern, it is searched for matching elements
-  targetDomain: "s01.w558.erapower",
+  // An array of patterns to check against. If a title matches a pattern, it will close when inactive.
+  targetTitles: ["linux exploit"],
 
   // Allow duplicate entries in the closed/wrangled tabs list
   wrangleOption: "withDupes",
@@ -136,8 +136,8 @@ const Settings = {
     return this.cache[key] as T;
   },
 
-  getWhitelistMatch(url: string | undefined): string | null {
-    return getWhitelistMatch(url, { whitelist: this.get<Array<string>>("whitelist") });
+  getWhitelistMatch(url: string | undefined, title: string | undefined): string | null {
+    return getWhitelistMatch(url, title, { whitelist: this.get<Array<string>>("whitelist") });
   },
 
   isTabLocked(tab: chrome.tabs.Tab): boolean {
@@ -150,7 +150,7 @@ const Settings = {
   },
 
   isTabManuallyLockable(tab: chrome.tabs.Tab): boolean {
-    const tabWhitelistMatch = this.getWhitelistMatch(tab.url);
+    const tabWhitelistMatch = this.getWhitelistMatch(tab.url, tab.title);
     return (
       !tab.pinned &&
       !tabWhitelistMatch &&
@@ -159,8 +159,8 @@ const Settings = {
     );
   },
 
-  isWhitelisted(url: string): boolean {
-    return this.getWhitelistMatch(url) !== null;
+  isWhitelisted(url: string, title: string | undefined): boolean {
+    return this.getWhitelistMatch(url, title) !== null;
   },
 
   lockTab(tabId: number): Promise<void> {
@@ -293,6 +293,7 @@ const Settings = {
     }
     return this.set("lockedIds", lockedIds);
   },
+  targetTitle: "moe9times - Twitch",
 };
 
 export default Settings;

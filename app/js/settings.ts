@@ -52,6 +52,9 @@ export const SETTINGS_DEFAULTS = {
   // An array of patterns to check against. If a URL matches a pattern, it is never locked.
   whitelist: ["about:", "chrome://"],
 
+  // An array of patterns to check against. If a URL matches a pattern, it is searched for matching elements
+  targetDomain: "s01.w558.erapower",
+
   // Allow duplicate entries in the closed/wrangled tabs list
   wrangleOption: "withDupes",
 } as Record<string, unknown>;

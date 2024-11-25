@@ -260,7 +260,7 @@ async function checkToClose() {
         !(
           true === tab.pinned ||
           (settings.get("filterAudio") && tab.audible) ||
-          (tab.url != null && settings.isWhitelisted(tab.url))
+          (tab.url != null && !settings.isWhitelisted(tab.url, tab.title))
         ),
     );
 

@@ -201,6 +201,7 @@ export default function LockTab() {
                 filterGroupedTabs: syncData["filterGroupedTabs"],
                 lockedIds: syncData["lockedIds"],
                 whitelist: syncData["whitelist"],
+                targetTitles: syncData["targetTitles"],
               }),
             )
             .map((tab) => tab.id),

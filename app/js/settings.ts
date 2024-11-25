@@ -15,7 +15,7 @@ export const SETTINGS_DEFAULTS = {
   debounceOnActivated: true,
 
   // Don't close tabs that are playing audio.
-  filterAudio: true,
+  filterAudio: false,
 
   // Don't close tabs that are a member of a group.
   filterGroupedTabs: false,

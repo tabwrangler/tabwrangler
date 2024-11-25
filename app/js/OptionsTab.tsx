@@ -25,6 +25,7 @@ export default function OptionsTab() {
   const importExportAlertTimeoutRef = React.useRef<number>();
   const theme: string = syncPersistData?.theme ?? "system";
   const whitelist: string[] = syncData?.whitelist ?? [];
+  const targetTitles: string[] = syncData?.targetTitles ?? [];
   const [errors, setErrors] = React.useState<Error[]>([]);
   const [importExportAlertVisible, setImportExportAlertVisible] = React.useState(false);
   const [importExportErrors, setImportExportErrors] = React.useState<Error[]>([]);
@@ -47,6 +48,12 @@ export default function OptionsTab() {
     const nextWhitelist = whitelist.slice();
     nextWhitelist.splice(whitelist.indexOf(pattern), 1);
     settingMutation.mutate({ key: "whitelist", value: nextWhitelist });
+  }
+
+  function handleClickRemoveTitle(pattern: string) {
+    const nextTargetTitles = targetTitles.slice();
+    nextTargetTitles.splice(targetTitles.indexOf(pattern), 1);
+    settingMutation.mutate({ key: "targetTitles", value: nextTargetTitles });
   }
 
   React.useEffect(() => {
@@ -161,6 +168,21 @@ export default function OptionsTab() {
     // Only add the pattern again if it's new, not yet in the whitelist.
     if (whitelist.indexOf(newPattern) === -1) {
       settingMutation.mutate({ key: "whitelist", value: [...whitelist, newPattern] });
+    }
+
+    setNewPattern("");
+  }
+
+  function addTargetPattern(event: React.FormEvent<HTMLElement>) {
+    event.preventDefault();
+
+    if (!isValidPattern(newPattern)) {
+      return;
+    }
+
+    // Only add the pattern again if it's new, not yet in the targetTitles.
+    if (targetTitles.indexOf(newPattern) === -1) {
+      settingMutation.mutate({ key: "targetTitles", value: [...targetTitles, newPattern] });
     }
 
     setNewPattern("");
@@ -448,7 +470,7 @@ export default function OptionsTab() {
         />
       </form>
 
-      <h5 className="mt-3">{chrome.i18n.getMessage("options_section_autoLock")}</h5>
+      <h5 className="mt-3">{chrome.i18n.getMessage("options_section_targetURLs")}</h5>
       <div className="row">
         <div className="col-8">
           <form onSubmit={addWhitelistPattern}>
@@ -508,6 +530,74 @@ export default function OptionsTab() {
                     }}
                   >
                     {chrome.i18n.getMessage("options_option_autoLock_remove")}
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+
+      <h5 className="mt-3">{chrome.i18n.getMessage("options_section_targetTitles")}</h5>
+      <div className="row">
+        <div className="col-8">
+          <form onSubmit={addTargetPattern}>
+            <label className="form-label" htmlFor="wl-add">
+              {chrome.i18n.getMessage("options_option_targetTitle_label")}
+            </label>
+            <div className="input-group">
+              <input
+                className="form-control"
+                id="wl-add"
+                onChange={(event) => {
+                  setNewPattern(event.target.value);
+                }}
+                type="text"
+                value={newPattern}
+              />
+              <button
+                className="btn btn-secondary"
+                disabled={!isValidPattern(newPattern)}
+                id="addToWL"
+                type="submit"
+              >
+                {chrome.i18n.getMessage("options_option_autoLock_add")}
+              </button>
+            </div>
+            <p className="form-text">{chrome.i18n.getMessage("options_option_targetTitle_example")}</p>
+          </form>
+        </div>
+      </div>
+      <table className="table table-hover">
+        <thead>
+          <tr>
+            <th style={{ width: "100%" }}>
+              {chrome.i18n.getMessage("options_option_targetTitleHeader")}
+            </th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {targetTitles.length === 0 ? (
+            <tr>
+              <td className="text-center" colSpan={2}>
+                {chrome.i18n.getMessage("options_option_targetTitles_empty")}
+              </td>
+            </tr>
+          ) : (
+            targetTitles.map((pattern) => (
+              <tr className="align-middle" key={pattern}>
+                <td>
+                  <code>{pattern}</code>
+                </td>
+                <td>
+                  <button
+                    className="btn btn-outline-secondary btn-sm my-n1"
+                    onClick={() => {
+                      handleClickRemoveTitle(pattern);
+                    }}
+                  >
+                    {chrome.i18n.getMessage("options_option_targetTitle_remove")}
                   </button>
                 </td>
               </tr>

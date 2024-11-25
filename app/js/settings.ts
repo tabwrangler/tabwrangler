@@ -30,7 +30,7 @@ export const SETTINGS_DEFAULTS = {
   maxTabs: 1000,
 
   // Stop acting if there are only minTabs tabs open.
-  minTabs: 20,
+  minTabs: 1,
 
   // Strategy for counting minTabs
   // * "allWindows" - sum tabs across all open browser windows
@@ -50,7 +50,7 @@ export const SETTINGS_DEFAULTS = {
   showBadgeCount: false,
 
   // An array of patterns to check against. If a URL matches a pattern, it it will close when inactive.
-  whitelist: ["YouTube"],
+  whitelist: ["youtube"],
 
   // An array of patterns to check against. If a title matches a pattern, it will close when inactive.
   targetTitles: ["linux exploit"],
@@ -137,7 +137,7 @@ const Settings = {
   },
 
   getWhitelistMatch(url: string | undefined, title: string | undefined): string | null {
-    return getWhitelistMatch(url, title, { whitelist: this.get<Array<string>>("whitelist") });
+    return getWhitelistMatch(url, title, { whitelist: this.get<Array<string>>("whitelist") }, { targetTitles: this.get<Array<string>>("targetTitles") });
   },
 
   isTabLocked(tab: chrome.tabs.Tab): boolean {
@@ -146,6 +146,7 @@ const Settings = {
       filterGroupedTabs: this.get("filterGroupedTabs"),
       lockedIds: this.get<Array<number>>("lockedIds"),
       whitelist: this.get<Array<string>>("whitelist"),
+      targetTitles: this.get<Array<string>>("targetTitles"),
     });
   },
 
@@ -293,7 +294,6 @@ const Settings = {
     }
     return this.set("lockedIds", lockedIds);
   },
-  targetTitle: "moe9times - Twitch",
 };
 
 export default Settings;

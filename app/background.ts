@@ -259,7 +259,6 @@ async function checkToClose() {
       (tab) =>
         !(
           true === tab.pinned ||
-          (settings.get("filterAudio") && tab.audible) ||
           (tab.url != null && settings.isWhitelisted(tab.url))
         ),
     );

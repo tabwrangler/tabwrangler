@@ -38,7 +38,7 @@ export const SETTINGS_DEFAULTS = {
   minTabsStrategy: "givenWindow",
 
   // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
-  minutesInactive: 60,
+  minutesInactive: 2,
 
   // Save closed tabs in between browser sessions.
   purgeClosedTabs: false,

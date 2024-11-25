@@ -1,11 +1,9 @@
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/tab-wrangler/localized.svg)](https://crowdin.com/project/tab-wrangler)
-
 <h1 align="center">
- Tab Wrangler
+ Tab Wrangler Inverted
 </h1>
 
-A Chrome & Firefox extension that automatically closes tabs you haven't used in a while so you can
-focus on the tabs that matter
+A Chrome & Firefox extension that automatically closes tabs you haven't used in a while, filtering 
+for specific tab URL & title.
 
 - [Installation](#installation)
 - [Features](#features)
@@ -20,19 +18,17 @@ focus on the tabs that matter
 
 ## Installation
 
-- Tab Wrangler for Chrome:
-  https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
-- Tab Wrangler for Firefox: https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/
+- Tab Wrangler for Chromium Browsers:
+  https://github.com/F-Joubert/tabwrangler/releases
 
 ## Features
 
 - _The Corral_: Stores tabs which have been auto-closed so you can re-open as required.
-- _Exclude list_: Provide the urls or domain names of the sites you never want auto-closed.
-- _Tab Lock_: Pick open tabs to "lock". Locked tabs will not be auto-closed.
+- _Target list_: Provide the urls and titles of the sites you want auto-closed.
+- _Tab Lock_: Unmatched tabs will be locked. Locked tabs will not be auto-closed.
 - _Configurable_: Pick how long a tab should be considered ready to close and how many tabs should
   be open at a minimum.
-- _Smart_: Doesn't autoclose pinned tabs, doesn't close all your tabs, just enough to make your
-  browser usable.
+- _Smart_: Doesn't autoclose pinned tabs, doesn't close all your tabs, just the tabs you specify.
 
 ## Usage
 
@@ -45,9 +41,9 @@ focus on the tabs that matter
      - Selectively lock tabs which you want to stay open.
      - See the time remaining before each tab will be checked for auto-closing.
    - Options
-     - Whitelist certain URLs to never be closed.
+     - Target certain URLs and titles to be closed.
      - Set the amount of time to wait before closing inactive tabs.
-     - Set the ideal number of tabs to have in your browser.
+     - Set the ideal number of tabs to have in your browser. (!WARNING This can prevent targeted tabs from being closed).
      - Configure keyboard shortcuts.
 
 ### Back up & Restore

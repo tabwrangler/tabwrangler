@@ -22,7 +22,7 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const now = React.useContext(UseNowContext);
   const paused = syncPersistData?.paused;
-  const tabWhitelistMatch = settings.getWhitelistMatch(tab.url);
+  const tabWhitelistMatch = settings.getWhitelistMatch(tab.url, tab.title);
 
   let lockStatusElement;
   if (isLocked) {

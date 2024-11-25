@@ -145,27 +145,28 @@ export async function updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number): 
   }
 }
 
-// export function getWhitelistMatch(
-//   url: string | undefined,
-//   { whitelist }: { whitelist: string[] },
-// ): string | null {
-//   if (url == null) return null;
-//   for (let i = 0; i < whitelist.length; i++) {
-//     if (url.indexOf(whitelist[i]) !== -1) {
-//       return whitelist[i];
-//     }
-//   }
-//   return null;
-// }
 export function getWhitelistMatch(
   url: string | undefined,
   title: string | undefined,
   { whitelist }: { whitelist: string[] },
+  { targetTitles }: { targetTitles: string[] },
 ): string | null {
   if (url == null) return null;
+  if (title == null) return null;
+  let urlTabIndex: number = -1;
   for (let i = 0; i < whitelist.length; i++) {
-    if (url.indexOf(whitelist[i]) !== -1 && title == settings.targetTitle) {
-      return whitelist[i];
+    if (url.indexOf(whitelist[i]) !== -1) {
+      urlTabIndex = i;
+      // return whitelist[i];
+    }
+  }
+  let titleTabIndex: number = -1;
+  for (let i = 0; i < targetTitles.length; i++) {
+    if (title.indexOf(targetTitles[i]) !== -1) {
+      titleTabIndex = i;
+      if (titleTabIndex === urlTabIndex) {
+        return targetTitles[i];
+      }
     }
   }
   return null;
@@ -178,9 +179,10 @@ export function isTabLocked(
     filterGroupedTabs,
     lockedIds,
     whitelist,
-  }: { filterAudio: boolean; filterGroupedTabs: boolean; lockedIds: number[]; whitelist: string[] },
+    targetTitles,
+  }: { filterAudio: boolean; filterGroupedTabs: boolean; lockedIds: number[]; whitelist: string[]; targetTitles: string[] },
 ): boolean {
-  const tabWhitelistMatch = getWhitelistMatch(tab.url, tab.title, { whitelist });
+  const tabWhitelistMatch = getWhitelistMatch(tab.url, tab.title, { whitelist }, { targetTitles });
   return (
     tab.pinned ||
     !tabWhitelistMatch ||

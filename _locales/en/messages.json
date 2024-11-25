@@ -179,23 +179,47 @@
   },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
-    "message": "No auto-locking URLs yet. Use the form above to add some to the whitelist."
+    "message": "No auto-closing URLs yet. Use the form above to add some to the target list."
+  },
+  "options_option_targetTitles_empty": {
+    "description": "Message shown when there are no whitelisted URLs",
+    "message": "No auto-closing titles yet. Use the form above to add some to the target list."
   },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "Example: \"cnn\" would match every page on \"https://www.cnn.com\" and any URL with \"cnn\" anywhere in it."
   },
+  "options_option_targetTitle_example": {
+    "description": "Example describing how the whitelist works",
+    "message": "Example: \"YouTube\" would match every table titled \"YouTube\" and any tab title with \"YouTube\" anywhere in it."
+  },
   "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Auto-lock tabs with URLs containing:"
+    "description": "Label preceeding input for adding URL to target list",
+    "message": "Auto-close tabs with URLs containing:"
+  },
+  "options_option_titleURL_label": {
+    "description": "Label preceeding input for adding URL to target list",
+    "message": "Auto-close tabs with URLs containing:"
+  },
+  "options_option_titleTarget_label": {
+    "description": "Label preceeding input for adding title to target list",
+    "message": "Auto-close tabs with titles containing:"
   },
   "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
+    "description": "Button label for removing a URL from the target list",
+    "message": "Remove"
+  },
+  "options_option_targetTitle_remove": {
+    "description": "Button label for removing a title from the target list",
     "message": "Remove"
   },
   "options_option_autoLock_urlHeader": {
     "description": "Table column header for list of whitelisted URL strings",
     "message": "URL String"
+  },
+  "options_option_targetTitleHeader": {
+    "description": "Table column header for list of targeted title strings",
+    "message": "Title String"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -292,6 +316,14 @@
   "options_section_autoLock": {
     "description": "Header for the auto-lock section of the options tab",
     "message": "Auto-Lock"
+  },
+  "options_section_targetURLs": {
+    "description": "Header for the auto-close section of the options tab",
+    "message": "Auto-Close URLs"
+  },
+  "options_section_targetTitles": {
+    "description": "Header for the auto-close section of the options tab",
+    "message": "Auto-Close Titles"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",

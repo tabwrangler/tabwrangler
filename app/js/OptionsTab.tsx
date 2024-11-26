@@ -31,6 +31,7 @@ export default function OptionsTab() {
   const [importExportErrors, setImportExportErrors] = React.useState<Error[]>([]);
   const [importExportOperationName, setImportExportOperationName] = React.useState("");
   const [newPattern, setNewPattern] = React.useState("");
+  const [titlePattern, setTitlePattern] = React.useState("");
   const saveAlertTimeoutRef = React.useRef<number>();
   const [saveAlertVisible, setSaveAlertVisible] = React.useState(false);
   const [showFilterTabGroupsOption, setShowFilterTabGroupsOption] = React.useState(false);
@@ -158,7 +159,7 @@ export default function OptionsTab() {
     150,
   );
 
-  function addWhitelistPattern(event: React.FormEvent<HTMLElement>) {
+  function addUrlPattern(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
 
     if (!isValidPattern(newPattern)) {
@@ -173,19 +174,19 @@ export default function OptionsTab() {
     setNewPattern("");
   }
 
-  function addTargetPattern(event: React.FormEvent<HTMLElement>) {
+  function addTitlePattern(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
 
-    if (!isValidPattern(newPattern)) {
+    if (!isValidPattern(titlePattern)) {
       return;
     }
 
     // Only add the pattern again if it's new, not yet in the targetTitles.
-    if (targetTitles.indexOf(newPattern) === -1) {
-      settingMutation.mutate({ key: "targetTitles", value: [...targetTitles, newPattern] });
+    if (targetTitles.indexOf(titlePattern) === -1) {
+      settingMutation.mutate({ key: "targetTitles", value: [...targetTitles, titlePattern] });
     }
 
-    setNewPattern("");
+    setTitlePattern("");
   }
 
   function handleSettingsChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -473,7 +474,7 @@ export default function OptionsTab() {
       <h5 className="mt-3">{chrome.i18n.getMessage("options_section_targetURLs")}</h5>
       <div className="row">
         <div className="col-8">
-          <form onSubmit={addWhitelistPattern}>
+          <form onSubmit={addUrlPattern}>
             <label className="form-label" htmlFor="wl-add">
               {chrome.i18n.getMessage("options_option_autoLock_label")}
             </label>
@@ -541,7 +542,7 @@ export default function OptionsTab() {
       <h5 className="mt-3">{chrome.i18n.getMessage("options_section_targetTitles")}</h5>
       <div className="row">
         <div className="col-8">
-          <form onSubmit={addTargetPattern}>
+          <form onSubmit={addTitlePattern}>
             <label className="form-label" htmlFor="wl-add">
               {chrome.i18n.getMessage("options_option_targetTitle_label")}
             </label>
@@ -550,14 +551,14 @@ export default function OptionsTab() {
                 className="form-control"
                 id="wl-add"
                 onChange={(event) => {
-                  setNewPattern(event.target.value);
+                  setTitlePattern(event.target.value);
                 }}
                 type="text"
-                value={newPattern}
+                value={titlePattern}
               />
               <button
                 className="btn btn-secondary"
-                disabled={!isValidPattern(newPattern)}
+                disabled={!isValidPattern(titlePattern)}
                 id="addToWL"
                 type="submit"
               >

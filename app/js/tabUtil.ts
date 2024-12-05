@@ -31,10 +31,15 @@ export function getURLPositionFilterByWrangleOption(
   savedTabs: chrome.tabs.Tab[],
   option: WrangleOption,
 ): (tab: chrome.tabs.Tab) => number {
+  if (option === "hostnameAndTitleMatch") {
     return (tab: chrome.tabs.Tab): number =>
       findPositionByHostnameAndTitle(savedTabs, tab.url, tab.title);
+  } else if (option === "exactURLMatch") {
+    return (tab: chrome.tabs.Tab): number => findPositionByURL(savedTabs, tab.url);
+  }
+
   // `'withDupes'` && default
-  // return () => -1;
+  return () => -1;
 }
 
 // Note: Mutates `storageLocalPersist`!

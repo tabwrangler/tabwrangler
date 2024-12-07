@@ -69,21 +69,23 @@ async function exportData(): Promise<Blob> {
   });
 }
 
-function initialiseApp(event: React.FormEvent<HTMLInputElement>) {
-  try {
-    chrome.storage.local.set({
-      "persist:localStorage": {
-        savedTabs: [],
-        totalTabsRemoved: 0,
-        totalTabsUnwrangled: 0,
-        totalTabsWrangled: 0,
-      },
+function initialiseApp(): Promise<void> {
+  return new Promise((resolve, reject) => {
+        try {
+                chrome.storage.local.set({
+                  "persist:localStorage": {
+                    savedTabs: [],
+                    totalTabsRemoved: 0,
+                    totalTabsUnwrangled: 0,
+                    totalTabsWrangled: 0,
+                  },
+                })
+              .then(resolve);
+        } catch (e) {
+          reject(e);
+        }
     });
   }
-  catch (e) {
-    console.log(`Tab Wrangler initialise browser storage error: ${e}`);
-  }
-}
 
 const exportFileName = (date: Date): string => {
   // Use a format like YYYY-MM-DD, which is the first 10 characters of the ISO string format.

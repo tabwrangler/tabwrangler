@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-import { exportData, importData } from "./actions/importExportActions";
+import { exportData, importData, initialiseApp } from "./actions/importExportActions";
 import { useStorageSyncPersistQuery, useStorageSyncQuery } from "./storage";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
@@ -235,6 +235,14 @@ export default function OptionsTab() {
     importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_importing") || "",
       importData,
+      event,
+    );
+  }
+
+  function handleInitialiseApp(event: React.MouseEvent<HTMLButtonElement>) {
+    importExportDataWithFeedback(
+      chrome.i18n.getMessage("options_initialiseApp_initialising") || "",
+      initialiseApp,
       event,
     );
   }
@@ -641,6 +649,38 @@ export default function OptionsTab() {
         <div className="col-8">
           <div className="alert alert-warning">
             {chrome.i18n.getMessage("options_importExport_importWarning")}
+          </div>
+        </div>
+      </div>
+      {importExportErrors.length === 0 ? (
+        <TransitionGroup appear={false}>{importExportAlert}</TransitionGroup>
+      ) : (
+        importExportAlert
+      )}
+      {errors.length === 0 ? (
+        <TransitionGroup appear={false}>{saveAlert}</TransitionGroup>
+      ) : (
+        errorAlert
+      )}
+
+      <h5 className="mt-3">{chrome.i18n.getMessage("options_section_initialiseApp")}</h5>
+      <div className="row">
+        <div className="col-8">{chrome.i18n.getMessage("options_initialiseApp_description")}</div>
+      </div>
+      <div className="row my-2">
+        <div className="col-8 mb-1">
+          <button
+            className="btn btn-secondary"
+            onClick={handleInitialiseApp}>
+            <i className="fas fa-file-import me-1" />
+            {chrome.i18n.getMessage("options_initialiseApp_initialise")}
+          </button>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-8">
+          <div className="alert alert-warning">
+            {chrome.i18n.getMessage("options_initialiseApp_initialiseWarning")}
           </div>
         </div>
       </div>

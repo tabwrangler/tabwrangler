@@ -87,6 +87,70 @@ function initialiseApp(): Promise<void> {
     });
   }
 
+async function exportSettings(): Promise<Blob> {
+  const data = await chrome.storage.local.get("persist:localStorage");
+  const localStorage = data["persist:localStorage"];
+  const exportData = JSON.stringify({
+    tabTimes: localStorage.tabTimes,
+    lockedIds: localStorage.lockedIds,
+    minTabs: localStorage.minTabs,
+    maxTabs: localStorage.maxTabs,
+    minutesInactive: localStorage.minutesInactive,
+    secondsInactive: localStorage.secondsInactive,
+    whitelist: localStorage.whitelist,
+    targetTitles: localStorage.targetTitles,
+  });
+  return new Blob([exportData], {
+    type: "application/json;charset=utf-8",
+  });
+}
+
+function importSettings(event: React.FormEvent<HTMLInputElement>): Promise<void> {
+  const files = (event.target as HTMLInputElement).files;
+  if (files != null && files[0]) {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.onload = () => {
+        try {
+          const json = JSON.parse(String(fileReader.result));
+          if (Object.keys(json).length < 4) {
+            reject(new Error("Invalid backup"));
+          } else {
+            chrome.storage.local
+              .get("persist:localStorage")
+              .then((data) =>
+                chrome.storage.local.set({
+                  "persist:localStorage": {
+                    ...data["persist:localStorage"],
+                    tabTimes: json.tabTimes,
+                    lockedIds: json.lockedIds,
+                    minTabs: json.minTabs,
+                    maxTabs: json.maxTabs,
+                    minutesInactive: json.minutesInactive,
+                    secondsInactive: json.secondsInactive,
+                    whitelist: json.whitelist,
+                    targetTitles: json.targetTitles,
+                  },
+                }),
+              )
+              .then(resolve);
+          }
+        } catch (e) {
+          reject(e);
+        }
+      };
+
+      fileReader.onerror = (arg) => {
+        reject(arg);
+      };
+
+      fileReader.readAsText(files[0], "utf-8");
+    });
+  } else {
+    return Promise.reject("Nothing to import");
+  }
+}
+
 const exportFileName = (date: Date): string => {
   // Use a format like YYYY-MM-DD, which is the first 10 characters of the ISO string format.
   const localeDateString = date.toISOString().substr(0, 10);

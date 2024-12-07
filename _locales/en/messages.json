@@ -173,7 +173,7 @@
     "description": "Button label to begin initialising browser storage",
     "message": "Initialise"
   },
-  "options_importExport_initialising": {
+  "options_initialiseApp_initialising": {
     "description": "Label displayed when initialising browser storage",
     "message": "Initialising..."
   },

@@ -169,6 +169,14 @@
     "description": "Label displayed when importing closed tabs",
     "message": "Importing..."
   },
+  "options_initialiseApp_initialise": {
+    "description": "Button label to begin initialising browser storage",
+    "message": "Initialise"
+  },
+  "options_importExport_initialising": {
+    "description": "Label displayed when initialising browser storage",
+    "message": "Initialising..."
+  },
   "options_importExport_importWarning": {
     "description": "Description of the destructiveness of importing; current tabs are overwritten",
     "message": "Warning: Importing data will overwrite all existing data. There is no way back (unless you have a backup)."

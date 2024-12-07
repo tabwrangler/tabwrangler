@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-import { exportData, importData, initialiseApp } from "./actions/importExportActions";
+import { exportSettings, importSettings, initialiseApp } from "./actions/importExportActions";
 import { useStorageSyncPersistQuery, useStorageSyncQuery } from "./storage";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
@@ -220,10 +220,21 @@ export default function OptionsTab() {
       });
   }
 
-  function handleExportData(event: React.MouseEvent<HTMLButtonElement>) {
+  // function handleExportData(event: React.MouseEvent<HTMLButtonElement>) {
+  //   importExportDataWithFeedback(
+  //     chrome.i18n.getMessage("options_importExport_exporting") || "",
+  //     exportData,
+  //     event,
+  //     (blob) => {
+  //       FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
+  //     },
+  //   );
+  // }
+
+  function handleExportSettings(event: React.MouseEvent<HTMLButtonElement>) {
     importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_exporting") || "",
-      exportData,
+      exportSettings,
       event,
       (blob) => {
         FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
@@ -231,10 +242,18 @@ export default function OptionsTab() {
     );
   }
 
-  function handleImportData(event: React.FormEvent<HTMLInputElement>) {
+  // function handleImportData(event: React.FormEvent<HTMLInputElement>) {
+  //   importExportDataWithFeedback(
+  //     chrome.i18n.getMessage("options_importExport_importing") || "",
+  //     importData,
+  //     event,
+  //   );
+  // }
+
+  function handleImportSettings(event: React.FormEvent<HTMLInputElement>) {
     importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_importing") || "",
-      importData,
+      importSettings,
       event,
     );
   }
@@ -617,11 +636,11 @@ export default function OptionsTab() {
 
       <h5 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h5>
       <div className="row">
-        <div className="col-8">{chrome.i18n.getMessage("options_importExport_description")}</div>
+        <div className="col-8">{chrome.i18n.getMessage("options_importExportSettings_description")}</div>
       </div>
       <div className="row my-2">
         <div className="col-8 mb-1">
-          <button className="btn btn-secondary" onClick={handleExportData}>
+          <button className="btn btn-secondary" onClick={handleExportSettings}>
             <i className="fas fa-file-export me-1" />
             {chrome.i18n.getMessage("options_importExport_export")}
           </button>{" "}
@@ -636,7 +655,7 @@ export default function OptionsTab() {
           </button>
           <input
             accept=".json"
-            onChange={handleImportData}
+            onChange={handleImportSettings}
             ref={(input) => {
               fileSelectorRef.current = input;
             }}
@@ -648,7 +667,7 @@ export default function OptionsTab() {
       <div className="row">
         <div className="col-8">
           <div className="alert alert-warning">
-            {chrome.i18n.getMessage("options_importExport_importWarning")}
+            {chrome.i18n.getMessage("options_importExportSettings_importWarning")}
           </div>
         </div>
       </div>

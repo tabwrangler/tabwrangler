@@ -149,6 +149,10 @@
     "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension."
   },
+  "options_importExportSettings_description": {
+    "description": "Description of the import/export feature shown next to import/export buttons",
+    "message": "Import/Export all settings for tab times, lockedIds, min/max tabs, and target tabs. This is a convenient way to restore an old state after reinstalling the extension."
+  },
   "options_initialiseApp_description": {
     "description": "Description of the initialise app option shown next to initialise browser storage buttons",
     "message": "Create savedTabs property in browser storage. Only necessary if getting a missing property error when trying to import."
@@ -180,6 +184,10 @@
   "options_importExport_importWarning": {
     "description": "Description of the destructiveness of importing; current tabs are overwritten",
     "message": "Warning: Importing data will overwrite all existing data. There is no way back (unless you have a backup)."
+  },
+  "options_importExportSettings_importWarning": {
+    "description": "Description of the destructiveness of importing; current tabs are overwritten",
+    "message": "Warning: Importing settings will overwrite existing settings for the listed sections. There is no way back (unless you have a backup)."
   },
   "options_initialiseApp_initialiseWarning": {
     "description": "Description of the destructiveness of initialising; current tabs are overwritten",

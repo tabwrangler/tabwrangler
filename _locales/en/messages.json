@@ -151,7 +151,7 @@
   },
   "options_importExportSettings_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
-    "message": "Import/Export all settings for tab times, lockedIds, min/max tabs, and target tabs. This is a convenient way to restore an old state after reinstalling the extension."
+    "message": "Import/Export all settings for max tab times, min/max tabs, and target tabs. This is a convenient way to restore an old state after reinstalling the extension."
   },
   "options_initialiseApp_description": {
     "description": "Description of the initialise app option shown next to initialise browser storage buttons",

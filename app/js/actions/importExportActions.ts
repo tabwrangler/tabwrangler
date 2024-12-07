@@ -157,4 +157,4 @@ const exportFileName = (date: Date): string => {
   return `TabWranglerExport-${localeDateString}.json`;
 };
 
-export { importData, exportData, exportFileName, initialiseApp };
+export { importData, exportData, importSettings, exportSettings, exportFileName, initialiseApp };

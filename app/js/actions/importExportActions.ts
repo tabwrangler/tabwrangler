@@ -91,8 +91,6 @@ async function exportSettings(): Promise<Blob> {
   const data = await chrome.storage.local.get("persist:localStorage");
   const localStorage = data["persist:localStorage"];
   const exportData = JSON.stringify({
-    tabTimes: localStorage.tabTimes,
-    lockedIds: localStorage.lockedIds,
     minTabs: localStorage.minTabs,
     maxTabs: localStorage.maxTabs,
     minutesInactive: localStorage.minutesInactive,
@@ -122,8 +120,6 @@ function importSettings(event: React.FormEvent<HTMLInputElement>): Promise<void>
                 chrome.storage.local.set({
                   "persist:localStorage": {
                     ...data["persist:localStorage"],
-                    tabTimes: json.tabTimes,
-                    lockedIds: json.lockedIds,
                     minTabs: json.minTabs,
                     maxTabs: json.maxTabs,
                     minutesInactive: json.minutesInactive,

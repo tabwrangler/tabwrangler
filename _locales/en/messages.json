@@ -329,6 +329,10 @@
     "description": "Header for the import/export feature section of the options tab",
     "message": "Import / Export"
   },
+  "options_section_initialiseApp": {
+    "description": "Header for the initialise app section of the options tab",
+    "message": "Initialise Browser Storage"
+  },
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
     "message": "Tab Corral"

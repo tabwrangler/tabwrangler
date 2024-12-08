@@ -24,8 +24,8 @@ export default function OptionsTab() {
   const fileSelectorRef = React.useRef<HTMLInputElement | null>(null);
   const importExportAlertTimeoutRef = React.useRef<number>();
   const theme: string = syncPersistData?.theme ?? "system";
-  const whitelist: string[] = syncData?.whitelist ?? [];
-  const targetTitles: string[] = syncData?.targetTitles ?? [];
+  const whitelist: string[] = settings.get("whitelist") ?? [];
+  const targetTitles: string[] = settings.get("targetTitles") ?? [];
   const [errors, setErrors] = React.useState<Error[]>([]);
   const [importExportAlertVisible, setImportExportAlertVisible] = React.useState(false);
   const [importExportErrors, setImportExportErrors] = React.useState<Error[]>([]);
@@ -46,15 +46,11 @@ export default function OptionsTab() {
   });
 
   function handleClickRemovePattern(pattern: string) {
-    const nextWhitelist = whitelist.slice();
-    nextWhitelist.splice(whitelist.indexOf(pattern), 1);
-    settingMutation.mutate({ key: "whitelist", value: nextWhitelist });
+    settings.removeTargetUrl(pattern);
   }
 
   function handleClickRemoveTitle(pattern: string) {
-    const nextTargetTitles = targetTitles.slice();
-    nextTargetTitles.splice(targetTitles.indexOf(pattern), 1);
-    settingMutation.mutate({ key: "targetTitles", value: nextTargetTitles });
+    settings.removeTargetTitle(pattern);
   }
 
   React.useEffect(() => {
@@ -106,7 +102,7 @@ export default function OptionsTab() {
   if (importExportErrors.length === 0) {
     if (importExportAlertVisible) {
       importExportAlert = [
-        <CSSTransition classNames="alert" key="importExportAlert" timeout={400}>
+        <CSSTransition classNames="alert" key="importExportAlert" timeout={40}>
           <div className="alert-sticky">
             <div className="alert alert-success float-right">{importExportOperationName}</div>
           </div>
@@ -143,7 +139,7 @@ export default function OptionsTab() {
     setSaveAlertVisible(true);
     saveAlertTimeoutRef.current = window.setTimeout(() => {
       setSaveAlertVisible(false);
-    }, 400);
+    }, 40);
   }
 
   const debouncedHandleSettingsChange = useDebounceCallback(
@@ -166,10 +162,7 @@ export default function OptionsTab() {
       return;
     }
 
-    // Only add the pattern again if it's new, not yet in the whitelist.
-    if (whitelist.indexOf(newPattern) === -1) {
-      settingMutation.mutate({ key: "whitelist", value: [...whitelist, newPattern] });
-    }
+    settings.addTargetUrl(newPattern);
 
     setNewPattern("");
   }
@@ -181,10 +174,7 @@ export default function OptionsTab() {
       return;
     }
 
-    // Only add the pattern again if it's new, not yet in the targetTitles.
-    if (targetTitles.indexOf(titlePattern) === -1) {
-      settingMutation.mutate({ key: "targetTitles", value: [...targetTitles, titlePattern] });
-    }
+    settings.addTargetTitle(titlePattern);
 
     setTitlePattern("");
   }

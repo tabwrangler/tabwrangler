@@ -200,8 +200,8 @@ export default function LockTab() {
                 filterAudio: syncData["filterAudio"],
                 filterGroupedTabs: syncData["filterGroupedTabs"],
                 lockedIds: syncData["lockedIds"],
-                whitelist: syncData["whitelist"],
-                targetTitles: syncData["targetTitles"],
+                whitelist: settings.get("whitelist"),
+                targetTitles: settings.get("targetTitles"),
               }),
             )
             .map((tab) => tab.id),

@@ -35,6 +35,18 @@ export type StorageLocalPersistState = {
   totalTabsUnwrangled: number;
   // Number of tabs wrangled since install
   totalTabsWrangled: number;
+  // Minimum number of tabs before extension begins executing
+  minTabs: number;
+  // Maximum number of closed tabs to save
+  maxTabs: number;
+  // Minutes inactive before closing a tab
+  minutesInactive: number;
+  // Seconds inactive before closing a tab
+  secondsInactive: number;
+  // List of URLs to close
+  whitelist: Array<string>;
+  // List of tab titles to close
+  targetTitles: Array<string>;
 };
 
 const STORAGE_LOCAL_PERSIST_DEFAULTS: StorageLocalPersistState = {
@@ -44,6 +56,12 @@ const STORAGE_LOCAL_PERSIST_DEFAULTS: StorageLocalPersistState = {
   totalTabsRemoved: 0,
   totalTabsUnwrangled: 0,
   totalTabsWrangled: 0,
+  minTabs: 0,
+  maxTabs: 10,
+  minutesInactive: 2,
+  secondsInactive: 0,
+  whitelist: [],
+  targetTitles: [],
 };
 
 export async function getStorageLocalPersist(): Promise<StorageLocalPersistState> {

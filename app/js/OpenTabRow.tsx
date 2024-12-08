@@ -25,30 +25,7 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.
   const tabWhitelistMatch = settings.getWhitelistMatch(tab.url, tab.title);
 
   let lockStatusElement;
-  if (isLocked) {
-    let reason;
-    if (tab.pinned) {
-      reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
-    } else if (settings.get("filterAudio") && tab.audible) {
-      reason = <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>Locked</abbr>;
-    } else if (settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) {
-      reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
-    } else if (tabWhitelistMatch) {
-      reason = (
-        <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_matches", tabWhitelistMatch)}>
-          Auto-Locked
-        </abbr>
-      );
-    } else {
-      reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
-    }
-
-    lockStatusElement = (
-      <td className="text-center muted" style={{ verticalAlign: "middle" }}>
-        {reason}
-      </td>
-    );
-  } else {
+  if (tabWhitelistMatch) {
     let timeLeftContent;
     if (paused) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
@@ -67,13 +44,30 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.
         {timeLeftContent}
       </td>
     );
+  } else {
+    let reason;
+    if (tab.pinned) {
+      reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
+    } else if (settings.get("filterAudio") && tab.audible) {
+      reason = <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>Locked</abbr>;
+    } else if (settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) {
+      reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
+    } else {
+      reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
+    }
+
+    lockStatusElement = (
+      <td className="text-center" style={{ verticalAlign: "middle" }}>
+        {reason}
+      </td>
+    );
   }
 
   return (
-    <tr className={cx({ "table-warning": isLocked })}>
+    <tr className={cx({ "table-warning": !tabWhitelistMatch })}>
       <td className="text-center" style={{ verticalAlign: "middle", width: "1px" }}>
         <input
-          checked={isLocked}
+          checked={!tabWhitelistMatch}
           className="mx-1"
           disabled={!settings.isTabManuallyLockable(tab)}
           onClick={(event: React.MouseEvent) => {

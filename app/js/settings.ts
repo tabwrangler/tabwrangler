@@ -189,17 +189,17 @@ const Settings = {
   },
 
   removeTargetTitle(title: string) {
-    const targetTitles = this.get<Array<string>>("targetTitles");
-    if (title != null && targetTitles.indexOf(title) === -1) {
-      const urlIndex = targetTitles.indexOf(title);
-      targetTitles.splice(urlIndex, 1);
+    const newTitles = this.get<Array<string>>("targetTitles");
+    if (title != null && newTitles.indexOf(title) !== -1) {
+      const urlIndex = newTitles.indexOf(title);
+      newTitles.splice(urlIndex, 1);
     }
-    return Settings.setValue("targetTitles", targetTitles);
+    return Settings.setValue("targetTitles", newTitles);
   },
 
   removeTargetUrl(url: string) {
     const targetUrls = this.get<Array<string>>("whitelist");
-    if (url != null && targetUrls.indexOf(url) === -1) {
+    if (url != null && targetUrls.indexOf(url) !== -1) {
       const urlIndex = targetUrls.indexOf(url);
       targetUrls.splice(urlIndex, 1);
     }

@@ -195,7 +195,7 @@ export default function OptionsTab() {
     }
 
     setImportExportErrors([]);
-    setImportExportAlertVisible(true);
+    setImportExportAlertVisible(false);
     setImportExportOperationName(operationName);
 
     (func(funcArg) as Promise<Blob>)
@@ -203,23 +203,12 @@ export default function OptionsTab() {
         if (onSuccess != null) onSuccess(blob);
         importExportAlertTimeoutRef.current = window.setTimeout(() => {
           setImportExportAlertVisible(false);
-        }, 400);
+        }, 5);
       })
       .catch((err: Error) => {
         setImportExportErrors((currImportExportErrors) => [...currImportExportErrors, err]);
       });
   }
-
-  // function handleExportData(event: React.MouseEvent<HTMLButtonElement>) {
-  //   importExportDataWithFeedback(
-  //     chrome.i18n.getMessage("options_importExport_exporting") || "",
-  //     exportData,
-  //     event,
-  //     (blob) => {
-  //       FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
-  //     },
-  //   );
-  // }
 
   function handleExportSettings(event: React.MouseEvent<HTMLButtonElement>) {
     importExportDataWithFeedback(
@@ -231,14 +220,6 @@ export default function OptionsTab() {
       },
     );
   }
-
-  // function handleImportData(event: React.FormEvent<HTMLInputElement>) {
-  //   importExportDataWithFeedback(
-  //     chrome.i18n.getMessage("options_importExport_importing") || "",
-  //     importData,
-  //     event,
-  //   );
-  // }
 
   function handleImportSettings(event: React.FormEvent<HTMLInputElement>) {
     importExportDataWithFeedback(

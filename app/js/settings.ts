@@ -27,10 +27,10 @@ export const SETTINGS_DEFAULTS = {
   lockTabSortOrder: null,
 
   // Max number of tabs stored before the list starts getting truncated.
-  maxTabs: 1000,
+  maxTabs: 10,
 
   // Stop acting if there are only minTabs tabs open.
-  minTabs: 1,
+  minTabs: 0,
 
   // Strategy for counting minTabs
   // * "allWindows" - sum tabs across all open browser windows
@@ -50,10 +50,10 @@ export const SETTINGS_DEFAULTS = {
   showBadgeCount: false,
 
   // An array of patterns to check against. If a URL matches a pattern, it it will close when inactive.
-  whitelist: ["youtube"],
+  whitelist: ["default fallback url"],
 
   // An array of patterns to check against. If a title matches a pattern, it will close when inactive.
-  targetTitles: ["linux exploit"],
+  targetTitles: ["default fallback title"],
 
   // Allow duplicate entries in the closed/wrangled tabs list
   wrangleOption: "withDupes",
@@ -122,6 +122,22 @@ const Settings = {
     return void 0;
   },
 
+  addTargetTitle(title: string) {
+    const targetTitles = this.get<Array<string>>("targetTitles");
+    if (title != null && targetTitles.indexOf(title) === -1) {
+      targetTitles.push(title);
+    }
+    return Settings.setValue("targetTitles", targetTitles);
+  },
+
+  addTargetUrl(url: string) {
+    const targetUrls = this.get<Array<string>>("whitelist");
+    if (url != null && targetUrls.indexOf(url) === -1) {
+      targetUrls.push(url);
+    }
+    return Settings.setValue("whitelist", targetUrls);
+  },
+
   /**
    * Either calls a getter function or returns directly from storage.
    */
@@ -170,6 +186,24 @@ const Settings = {
       lockedIds.push(tabId);
     }
     return this.set("lockedIds", lockedIds);
+  },
+
+  removeTargetTitle(title: string) {
+    const targetTitles = this.get<Array<string>>("targetTitles");
+    if (title != null && targetTitles.indexOf(title) === -1) {
+      const urlIndex = targetTitles.indexOf(title);
+      targetTitles.splice(urlIndex, 1);
+    }
+    return Settings.setValue("targetTitles", targetTitles);
+  },
+
+  removeTargetUrl(url: string) {
+    const targetUrls = this.get<Array<string>>("whitelist");
+    if (url != null && targetUrls.indexOf(url) === -1) {
+      const urlIndex = targetUrls.indexOf(url);
+      targetUrls.splice(urlIndex, 1);
+    }
+    return Settings.setValue("whitelist", targetUrls);
   },
 
   /**
@@ -246,7 +280,7 @@ const Settings = {
     if (isNaN(minutes) || minutes < 0) {
       throw Error(
         chrome.i18n.getMessage("settings_setminutesInactive_error") ||
-          "Error: settings.setminutesInactive",
+        "Error: settings.setminutesInactive",
       );
     }
     return Settings.setValue("minutesInactive", minutesInactive);

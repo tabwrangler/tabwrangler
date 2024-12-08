@@ -1,3 +1,5 @@
+import settings from "../settings";
+import { useStorageSyncPersistQuery, useStorageSyncQuery } from "../storage";
 /**
  * Import the backup of saved tabs and the accounting information.
  * If any of the required keys in the backup object is missing, the backup will abort without
@@ -71,32 +73,32 @@ async function exportData(): Promise<Blob> {
 
 function initialiseApp(): Promise<void> {
   return new Promise((resolve, reject) => {
-        try {
-                chrome.storage.local.set({
-                  "persist:localStorage": {
-                    savedTabs: [],
-                    totalTabsRemoved: 0,
-                    totalTabsUnwrangled: 0,
-                    totalTabsWrangled: 0,
-                  },
-                })
-              .then(resolve);
-        } catch (e) {
-          reject(e);
-        }
-    });
-  }
+    try {
+      chrome.storage.sync.set({
+        "persist:settings": {
+          minTabs: settings.get("minTabs"),
+          maxTabs: settings.get("maxTabs"),
+          minutesInactive: settings.get("minutesInactive"),
+          secondsInactive: settings.get("secondsInactive"),
+          whitelist: settings.get("whitelist"),
+          targetTitles: settings.get("targetTitles"),
+        },
+      })
+        .then(resolve);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
 
 async function exportSettings(): Promise<Blob> {
-  const data = await chrome.storage.local.get("persist:localStorage");
-  const localStorage = data["persist:localStorage"];
   const exportData = JSON.stringify({
-    minTabs: localStorage.minTabs,
-    maxTabs: localStorage.maxTabs,
-    minutesInactive: localStorage.minutesInactive,
-    secondsInactive: localStorage.secondsInactive,
-    whitelist: localStorage.whitelist,
-    targetTitles: localStorage.targetTitles,
+    minTabs: settings.get("minTabs"),
+    maxTabs: settings.get("maxTabs"),
+    minutesInactive: settings.get("minutesInactive"),
+    secondsInactive: settings.get("secondsInactive"),
+    whitelist: settings.get("whitelist"),
+    targetTitles: settings.get("targetTitles"),
   });
   return new Blob([exportData], {
     type: "application/json;charset=utf-8",
@@ -114,22 +116,13 @@ function importSettings(event: React.FormEvent<HTMLInputElement>): Promise<void>
           if (Object.keys(json).length < 4) {
             reject(new Error("Invalid backup"));
           } else {
-            chrome.storage.local
-              .get("persist:localStorage")
-              .then((data) =>
-                chrome.storage.local.set({
-                  "persist:localStorage": {
-                    ...data["persist:localStorage"],
-                    minTabs: json.minTabs,
-                    maxTabs: json.maxTabs,
-                    minutesInactive: json.minutesInactive,
-                    secondsInactive: json.secondsInactive,
-                    whitelist: json.whitelist,
-                    targetTitles: json.targetTitles,
-                  },
-                }),
-              )
-              .then(resolve);
+            settings.setValue("minTabs", json.minTabs);
+            settings.setValue("maxTabs", json.maxTabs);
+            settings.setValue("minutesInactive", json.minutesInactive);
+            settings.setValue("secondsInactive", json.secondsInactive);
+            settings.setValue("whitelist", json.whitelist);
+            settings.setValue("targetTitles", json.targetTitles);
+            Promise.resolve("Settings imported");
           }
         } catch (e) {
           reject(e);

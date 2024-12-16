@@ -90,9 +90,7 @@ chrome.commands.onCommand.addListener((command) => {
 chrome.storage.onChanged.addListener((changes, areaName) => {
   switch (areaName) {
     case "local": {
-      if (changes.savedTabs) {
-        updateClosedCount();
-      }
+      updateClosedCount();
       break;
     }
 

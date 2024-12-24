@@ -20,17 +20,20 @@ export default class Menus {
       id: "corralTab",
       title: chrome.i18n.getMessage("contextMenu_corralTab"),
       type: "normal",
+      contexts: ["page"],
     });
     chrome.contextMenus.create({ id: "separator", type: "separator" });
     chrome.contextMenus.create({
       id: "lockTab",
       title: chrome.i18n.getMessage("contextMenu_lockTab"),
       type: "checkbox",
+      contexts: ["page"],
     });
     chrome.contextMenus.create({
       id: "lockDomain",
       title: chrome.i18n.getMessage("contextMenu_lockDomain"),
       type: "checkbox",
+      contexts: ["page"],
     });
   }
 

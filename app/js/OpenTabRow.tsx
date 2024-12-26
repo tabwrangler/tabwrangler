@@ -5,10 +5,16 @@ import cx from "classnames";
 import settings from "./settings";
 import { useStorageSyncPersistQuery } from "./storage";
 
-function secondsToMinutes(seconds: number) {
-  const minutes = seconds % 60;
-  const minutesString = minutes >= 10 ? String(minutes) : `0${String(minutes)}`;
-  return `${String(Math.floor(seconds / 60))}:${minutesString}`;
+function zeropad(num: number): string {
+  return num < 10 ? `0${num}` : String(num);
+}
+
+function secondsToHms(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor((seconds % 3600) % 60);
+  const hDisplay = hours > 0 ? `${zeropad(hours)}:` : "";
+  return `${hDisplay}${zeropad(minutes)}:${zeropad(s)}`;
 }
 
 type Props = {
@@ -59,7 +65,7 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.
       // interval to clean up this tab. It's also possible the number of tabs is not below
       // `minTabs`, which has stopped the countdown and locked this at a negative `timeLeft` until
       // another tab is opened to jump start the countdown again.
-      timeLeftContent = timeLeft < 0 ? "…" : secondsToMinutes(timeLeft);
+      timeLeftContent = timeLeft < 0 ? "…" : <time>{secondsToHms(timeLeft)}</time>;
     }
 
     lockStatusElement = (

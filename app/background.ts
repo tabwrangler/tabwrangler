@@ -103,8 +103,8 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
       if (changes["persist:settings"]) {
         if (
-          changes["persist:settings"].newValue.paused !==
-          changes["persist:settings"].oldValue?.paused
+          changes["persist:settings"]?.newValue.paused !==
+          changes["persist:settings"]?.oldValue?.paused
         ) {
           setPaused(changes["persist:settings"].newValue.paused);
         }

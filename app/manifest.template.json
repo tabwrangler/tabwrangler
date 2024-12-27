@@ -21,9 +21,6 @@
     },
     "wrangle-current-tab": {
       "description": "__MSG_commandWrangleCurrentTab__"
-    },
-    "_execute_action": {
-      "description": "__MSG_commandWrangleOpenPopup__"
     }
   },
   "minimum_chrome_version": "88",

@@ -141,7 +141,7 @@ module.exports = [
 
               // Supports extension popup activation shortcut
               manifest.commands["_execute_action"] = {
-                "description": "__MSG_commandWrangleOpenPopup__"
+                description: "__MSG_commandWrangleOpenPopup__",
               };
 
               return JSON.stringify(manifest, null, 2);

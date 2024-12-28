@@ -23,6 +23,10 @@
     "description": "Description of keyboard shortcut to close and save the active tab",
     "message": "Close and save the active tab"
   },
+  "commandWrangleOpenPopup": {
+    "description": "Description of keyboard shortcut to open TabWrangler popup",
+    "message": "Open popup"
+  },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
     "message": "Close tab and save URL immediately"

@@ -139,6 +139,11 @@ module.exports = [
               // Sync extension version to the version in package.json.
               manifest.version = package.version;
 
+              // Supports extension popup activation shortcut
+              manifest.commands["_execute_action"] = {
+                "description": "__MSG_commandWrangleOpenPopup__"
+              };
+
               return JSON.stringify(manifest, null, 2);
             },
           },

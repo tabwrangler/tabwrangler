@@ -205,10 +205,6 @@
     "description": "Label for checkbox to lock tabs that are in a tab group",
     "message": "不要关闭群组内的标签页"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "个标签页（不包括已固定或已锁定标签页）。"
-  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "必须是一个大于或等于 0 的数字"

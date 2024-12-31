@@ -1,9 +1,10 @@
 import * as React from "react";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { exportData, importData } from "./actions/importExportActions";
 import { useStorageSyncPersistQuery, useStorageSyncQuery } from "./storage";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
+import Toast from "react-bootstrap/Toast";
+import ToastContainer from "react-bootstrap/ToastContainer";
 import cx from "classnames";
 import { exportFileName } from "./actions/importExportActions";
 import { mutateStorageSyncPersist } from "./storage";
@@ -12,8 +13,6 @@ import { useDebounceCallback } from "@react-hook/debounce";
 import { useMutation } from "@tanstack/react-query";
 
 function isValidPattern(pattern: string) {
-  // some other choices such as '/' also do not make sense; not sure if they should be blocked as
-  // well
   return pattern != null && pattern.length > 0 && /\S/.test(pattern);
 }
 
@@ -33,6 +32,16 @@ export default function OptionsTab() {
   const saveAlertTimeoutRef = React.useRef<number>();
   const [saveAlertVisible, setSaveAlertVisible] = React.useState(false);
   const [showFilterTabGroupsOption, setShowFilterTabGroupsOption] = React.useState(false);
+
+  const [maxTabs, setMaxTabs] = React.useState<number | string>(settings.get<number>("maxTabs"));
+
+  function resetMaxTabs() {
+    setMaxTabs(settings.get<number>("maxTabs"));
+  }
+
+  function saveMaxTabs() {
+    saveSetting("maxTabs", maxTabs);
+  }
 
   const persistSettingMutation = useMutation({
     mutationFn: mutateStorageSyncPersist,
@@ -66,59 +75,6 @@ export default function OptionsTab() {
     checkForTabGroups();
   }, []);
 
-  let errorAlert;
-  let saveAlert;
-  if (errors.length === 0) {
-    if (saveAlertVisible) {
-      saveAlert = [
-        <CSSTransition classNames="alert" key="alert" timeout={400}>
-          <div className="alert-sticky" key="alert">
-            <div className="alert alert-success float-right">
-              {chrome.i18n.getMessage("options_saving")}
-            </div>
-          </div>
-        </CSSTransition>,
-      ];
-    }
-  } else {
-    errorAlert = (
-      <div className="alert-sticky">
-        <div className="alert alert-danger float-right">
-          <ul className="mb-0">
-            {errors.map((error, i) => (
-              <li key={i}>{error.message}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    );
-  }
-
-  let importExportAlert;
-  if (importExportErrors.length === 0) {
-    if (importExportAlertVisible) {
-      importExportAlert = [
-        <CSSTransition classNames="alert" key="importExportAlert" timeout={400}>
-          <div className="alert-sticky">
-            <div className="alert alert-success float-right">{importExportOperationName}</div>
-          </div>
-        </CSSTransition>,
-      ];
-    }
-  } else {
-    importExportAlert = (
-      <div className="alert-sticky">
-        <div className="alert alert-danger">
-          <ul>
-            {importExportErrors.map((error, i) => (
-              <li key={i}>{error.message}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    );
-  }
-
   async function saveSetting(key: string, value: unknown) {
     if (saveAlertTimeoutRef.current != null) {
       window.clearTimeout(saveAlertTimeoutRef.current);
@@ -135,7 +91,7 @@ export default function OptionsTab() {
     setSaveAlertVisible(true);
     saveAlertTimeoutRef.current = window.setTimeout(() => {
       setSaveAlertVisible(false);
-    }, 400);
+    }, 1000);
   }
 
   const debouncedHandleSettingsChange = useDebounceCallback(
@@ -188,9 +144,6 @@ export default function OptionsTab() {
     (func(funcArg) as Promise<Blob>)
       .then((blob: Blob) => {
         if (onSuccess != null) onSuccess(blob);
-        importExportAlertTimeoutRef.current = window.setTimeout(() => {
-          setImportExportAlertVisible(false);
-        }, 400);
       })
       .catch((err: Error) => {
         setImportExportErrors((currImportExportErrors) => [...currImportExportErrors, err]);
@@ -217,352 +170,428 @@ export default function OptionsTab() {
   }
 
   return (
-    <div className="tab-pane active">
-      <form>
-        <label className="form-label">
-          <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
-        </label>
-        <div>
-          <div className="btn-group">
-            <button
-              className={cx("btn", {
-                active: theme == null || theme === "system",
-                "btn-secondary": theme == null || theme === "system",
-                "btn-outline-secondary": !(theme == null || theme === "system"),
-              })}
-              onClick={() => {
-                persistSettingMutation.mutate({ key: "theme", value: "system" });
-              }}
-              type="button"
-            >
-              {chrome.i18n.getMessage("options_option_theme_system")}
-            </button>
-            <button
-              className={cx("btn", {
-                active: theme === "light",
-                "btn-secondary": theme === "light",
-                "btn-outline-secondary": theme !== "light",
-              })}
-              onClick={() => {
-                persistSettingMutation.mutate({ key: "theme", value: "light" });
-              }}
-              type="button"
-            >
-              <i className="fas fa-sun me-1" />
-              {chrome.i18n.getMessage("options_option_theme_light")}
-            </button>
-            <button
-              className={cx("btn", {
-                active: theme === "dark",
-                "btn-secondary": theme === "dark",
-                "btn-outline-secondary": theme !== "dark",
-              })}
-              onClick={() => {
-                persistSettingMutation.mutate({ key: "theme", value: "dark" });
-              }}
-              type="button"
-            >
-              <i className="fas fa-moon me-1" />
-              {chrome.i18n.getMessage("options_option_theme_dark")}
-            </button>
-          </div>
-        </div>
-        <label className="form-label mt-3">
-          <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
-        </label>
-        <div className="row align-items-center">
-          <div className="col-4">
-            <div className="input-group">
-              <input
-                className="form-control"
-                defaultValue={settings.get("minutesInactive")}
-                id="minutesInactive"
-                max="7200"
-                min="0"
-                name="minutesInactive"
-                onChange={handleSettingsChange}
-                title={chrome.i18n.getMessage("options_option_timeInactive_minutes")}
-                type="number"
-              />
-              <span className="input-group-text">
-                {chrome.i18n.getMessage("options_option_timeInactive_label_minutes")}
-              </span>
-            </div>
-          </div>
-          <div className="w-auto p-0 mx-n1">:</div>
-          <div className="col-4">
-            <div className="input-group">
-              <input
-                className="form-control"
-                defaultValue={settings.get("secondsInactive")}
-                id="secondsInactive"
-                max="59"
-                min="0"
-                name="secondsInactive"
-                onChange={handleSettingsChange}
-                title={chrome.i18n.getMessage("options_option_timeInactive_seconds")}
-                type="number"
-              />
-              <span className="input-group-text">
-                {chrome.i18n.getMessage("options_option_timeInactive_label_seconds")}
-              </span>
-            </div>
-          </div>
-        </div>
-        <label className="form-label mt-3" htmlFor="minTabs">
-          <strong>{chrome.i18n.getMessage("options_option_minTabs_label")}</strong>
-        </label>
-        <div className="row align-items-center">
-          <div className="col-8">
-            <div className="input-group">
-              <input
-                className="form-control"
-                defaultValue={settings.get("minTabs")}
-                id="minTabs"
-                min="0"
-                name="minTabs"
-                onChange={handleSettingsChange}
-                title={chrome.i18n.getMessage("options_option_minTabs_tabs")}
-                type="number"
-              />
-              <div className="input-group-text">open tabs</div>
-              <select
-                className="form-select"
-                id="minTabsStrategy"
-                name="minTabsStrategy"
-                onChange={(event) => {
-                  saveSetting("minTabsStrategy", event.target.value);
-                }}
-                style={{ flex: 3 }}
-                value={settings.get("minTabsStrategy")}
-              >
-                <option value="allWindows">total (across all windows)</option>
-                <option value="givenWindow">in a given window</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div className="form-text mb-1">(does not include pinned or locked tabs)</div>
-        <div className="form-check mb-1">
-          <input
-            className="form-check-input"
-            defaultChecked={settings.get("debounceOnActivated")}
-            id="debounceOnActivated"
-            name="debounceOnActivated"
-            onChange={handleSettingsChange}
-            type="checkbox"
-          />
-          <label className="form-check-label" htmlFor="debounceOnActivated">
-            {chrome.i18n.getMessage("options_option_debounceOnActivated_label")}
+    <>
+      <div className="tab-pane active">
+        <form>
+          <label className="form-label">
+            <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
           </label>
-        </div>
-        <div className="form-check mb-1">
-          <input
-            className="form-check-input"
-            defaultChecked={settings.get("filterAudio")}
-            id="filterAudio"
-            name="filterAudio"
-            onChange={handleSettingsChange}
-            type="checkbox"
-          />
-          <label className="form-check-label" htmlFor="filterAudio">
-            {chrome.i18n.getMessage("options_option_filterAudio_label")}
-          </label>
-        </div>
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            defaultChecked={settings.get("filterGroupedTabs")}
-            disabled={!showFilterTabGroupsOption}
-            id="filterGroupedTabs"
-            name="filterGroupedTabs"
-            onChange={handleSettingsChange}
-            type="checkbox"
-          />
-          <label className="form-check-label" htmlFor="filterGroupedTabs">
-            {chrome.i18n.getMessage("options_option_filterGroupedTabs_label")}
-          </label>
-        </div>
-        <label className="form-label mt-3" htmlFor="maxTabs">
-          <strong>{chrome.i18n.getMessage("options_option_rememberTabs_label")}</strong>
-        </label>
-        <div className="row align-items-center">
-          <div className="col-3">
-            <input
-              className="form-control me-1"
-              defaultValue={settings.get("maxTabs")}
-              id="maxTabs"
-              min="0"
-              name="maxTabs"
-              onChange={handleSettingsChange}
-              title={chrome.i18n.getMessage("options_option_rememberTabs_tabs")}
-              type="number"
-            />
-          </div>
-          <div className="w-auto p-0">
-            {chrome.i18n.getMessage("options_option_rememberTabs_postLabel")}
-          </div>
-        </div>
-        <div className="form-check mb-1 mt-2">
-          <input
-            className="form-check-input"
-            defaultChecked={settings.get("purgeClosedTabs")}
-            id="purgeClosedTabs"
-            name="purgeClosedTabs"
-            onChange={handleSettingsChange}
-            type="checkbox"
-          />
-          <label className="form-check-label" htmlFor="purgeClosedTabs">
-            {chrome.i18n.getMessage("options_option_clearOnQuit_label")}
-          </label>
-        </div>
-        <div className="form-check mb-1">
-          <input
-            className="form-check-input"
-            defaultChecked={settings.get("showBadgeCount")}
-            id="showBadgeCount"
-            name="showBadgeCount"
-            onChange={handleSettingsChange}
-            type="checkbox"
-          />
-          <label className="form-check-label" htmlFor="showBadgeCount">
-            {chrome.i18n.getMessage("options_option_showBadgeCount_label")}
-          </label>
-        </div>
-        <div className="form-check mb-3">
-          <input
-            className="form-check-input"
-            defaultChecked={settings.get("createContextMenu")}
-            id="createContextMenu"
-            name="createContextMenu"
-            onChange={handleSettingsChange}
-            type="checkbox"
-          />
-          <label className="form-check-label" htmlFor="createContextMenu">
-            {chrome.i18n.getMessage("options_option_createContextMenu_label")}
-          </label>
-        </div>
-        <TabWrangleOption
-          onChange={handleSettingsChange}
-          selectedOption={settings.get("wrangleOption")}
-        />
-      </form>
-
-      <h5 className="mt-3">{chrome.i18n.getMessage("options_section_autoLock")}</h5>
-      <div className="row">
-        <div className="col-8">
-          <form onSubmit={addWhitelistPattern}>
-            <label className="form-label" htmlFor="wl-add">
-              {chrome.i18n.getMessage("options_option_autoLock_label")}
-            </label>
-            <div className="input-group">
-              <input
-                className="form-control"
-                id="wl-add"
-                onChange={(event) => {
-                  setNewPattern(event.target.value);
-                }}
-                type="text"
-                value={newPattern}
-              />
+          <div>
+            <div className="btn-group">
               <button
-                className="btn btn-secondary"
-                disabled={!isValidPattern(newPattern)}
-                id="addToWL"
-                type="submit"
+                className={cx("btn", {
+                  active: theme == null || theme === "system",
+                  "btn-secondary": theme == null || theme === "system",
+                  "btn-outline-secondary": !(theme == null || theme === "system"),
+                })}
+                onClick={() => {
+                  persistSettingMutation.mutate({ key: "theme", value: "system" });
+                }}
+                type="button"
               >
-                {chrome.i18n.getMessage("options_option_autoLock_add")}
+                {chrome.i18n.getMessage("options_option_theme_system")}
+              </button>
+              <button
+                className={cx("btn", {
+                  active: theme === "light",
+                  "btn-secondary": theme === "light",
+                  "btn-outline-secondary": theme !== "light",
+                })}
+                onClick={() => {
+                  persistSettingMutation.mutate({ key: "theme", value: "light" });
+                }}
+                type="button"
+              >
+                <i className="fas fa-sun me-1" />
+                {chrome.i18n.getMessage("options_option_theme_light")}
+              </button>
+              <button
+                className={cx("btn", {
+                  active: theme === "dark",
+                  "btn-secondary": theme === "dark",
+                  "btn-outline-secondary": theme !== "dark",
+                })}
+                onClick={() => {
+                  persistSettingMutation.mutate({ key: "theme", value: "dark" });
+                }}
+                type="button"
+              >
+                <i className="fas fa-moon me-1" />
+                {chrome.i18n.getMessage("options_option_theme_dark")}
               </button>
             </div>
-            <p className="form-text">{chrome.i18n.getMessage("options_option_autoLock_example")}</p>
-          </form>
+          </div>
+          <label className="form-label mt-3">
+            <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
+          </label>
+          <div className="row align-items-center">
+            <div className="col-4">
+              <div className="input-group">
+                <input
+                  className="form-control"
+                  defaultValue={settings.get("minutesInactive")}
+                  id="minutesInactive"
+                  max="7200"
+                  min="0"
+                  name="minutesInactive"
+                  onChange={handleSettingsChange}
+                  title={chrome.i18n.getMessage("options_option_timeInactive_minutes")}
+                  type="number"
+                />
+                <span className="input-group-text">
+                  {chrome.i18n.getMessage("options_option_timeInactive_label_minutes")}
+                </span>
+              </div>
+            </div>
+            <div className="w-auto p-0 mx-n1">:</div>
+            <div className="col-4">
+              <div className="input-group">
+                <input
+                  className="form-control"
+                  defaultValue={settings.get("secondsInactive")}
+                  id="secondsInactive"
+                  max="59"
+                  min="0"
+                  name="secondsInactive"
+                  onChange={handleSettingsChange}
+                  title={chrome.i18n.getMessage("options_option_timeInactive_seconds")}
+                  type="number"
+                />
+                <span className="input-group-text">
+                  {chrome.i18n.getMessage("options_option_timeInactive_label_seconds")}
+                </span>
+              </div>
+            </div>
+          </div>
+          <label className="form-label mt-3" htmlFor="minTabs">
+            <strong>{chrome.i18n.getMessage("options_option_minTabs_label")}</strong>
+          </label>
+          <div className="row align-items-center">
+            <div className="col-8">
+              <div className="input-group">
+                <input
+                  className="form-control"
+                  defaultValue={settings.get("minTabs")}
+                  id="minTabs"
+                  min="0"
+                  name="minTabs"
+                  onChange={handleSettingsChange}
+                  title={chrome.i18n.getMessage("options_option_minTabs_tabs")}
+                  type="number"
+                />
+                <div className="input-group-text">open tabs</div>
+                <select
+                  className="form-select"
+                  id="minTabsStrategy"
+                  name="minTabsStrategy"
+                  onChange={(event) => {
+                    saveSetting("minTabsStrategy", event.target.value);
+                  }}
+                  style={{ flex: 3 }}
+                  value={settings.get("minTabsStrategy")}
+                >
+                  <option value="allWindows">
+                    {chrome.i18n.getMessage("options_option_minTabs_option_total")}
+                  </option>
+                  <option value="givenWindow">
+                    {chrome.i18n.getMessage("options_option_minTabs_option_givenWindow")}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className="form-text mb-1">
+            {chrome.i18n.getMessage("options_option_minTabs_postLabel")}
+          </div>
+          <div className="form-check mb-1">
+            <input
+              className="form-check-input"
+              defaultChecked={settings.get("debounceOnActivated")}
+              id="debounceOnActivated"
+              name="debounceOnActivated"
+              onChange={handleSettingsChange}
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="debounceOnActivated">
+              {chrome.i18n.getMessage("options_option_debounceOnActivated_label")}
+            </label>
+          </div>
+          <div className="form-check mb-1">
+            <input
+              className="form-check-input"
+              defaultChecked={settings.get("filterAudio")}
+              id="filterAudio"
+              name="filterAudio"
+              onChange={handleSettingsChange}
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="filterAudio">
+              {chrome.i18n.getMessage("options_option_filterAudio_label")}
+            </label>
+          </div>
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              defaultChecked={settings.get("filterGroupedTabs")}
+              disabled={!showFilterTabGroupsOption}
+              id="filterGroupedTabs"
+              name="filterGroupedTabs"
+              onChange={handleSettingsChange}
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="filterGroupedTabs">
+              {chrome.i18n.getMessage("options_option_filterGroupedTabs_label")}
+            </label>
+          </div>
+          <label className="form-label mt-3" htmlFor="maxTabs">
+            <strong>{chrome.i18n.getMessage("options_option_rememberTabs_label")}</strong>
+          </label>
+          <div className="row align-items-center">
+            <div className="col-3">
+              <input
+                className={cx("form-control me-1", {
+                  "border-primary": maxTabs !== settings.get("maxTabs"),
+                })}
+                id="maxTabs"
+                min="0"
+                name="maxTabs"
+                onChange={(event) => {
+                  const parsedValue = parseInt(event.target.value);
+                  setMaxTabs(isNaN(parsedValue) ? "" : parsedValue);
+                }}
+                title={chrome.i18n.getMessage("options_option_rememberTabs_tabs")}
+                type="number"
+                value={maxTabs}
+              />
+            </div>
+            <div className="w-auto p-0">
+              {chrome.i18n.getMessage("options_option_rememberTabs_postLabel")}
+            </div>
+          </div>
+          {typeof maxTabs === "string" && (
+            <div className="row">
+              <div className="col-8 form-text text-primary">
+                {chrome.i18n.getMessage("options_option_rememberTabs_validNumber")}
+              </div>
+            </div>
+          )}
+          {typeof maxTabs === "number" && maxTabs < settings.get<number>("maxTabs") && (
+            <div className="row">
+              <div className="col-8 form-text text-primary">
+                {chrome.i18n.getMessage("options_option_rememberTabs_truncateMsg")}
+              </div>
+            </div>
+          )}
+          {typeof maxTabs === "number" && maxTabs > settings.get<number>("maxTabs") && (
+            <div className="row">
+              <div className="col-8 form-text text-primary">
+                {chrome.i18n.getMessage("options_option_rememberTabs_saveToConfirm")}
+              </div>
+            </div>
+          )}
+          <div className="form-check mb-1 mt-2">
+            <input
+              className="form-check-input"
+              defaultChecked={settings.get("purgeClosedTabs")}
+              id="purgeClosedTabs"
+              name="purgeClosedTabs"
+              onChange={handleSettingsChange}
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="purgeClosedTabs">
+              {chrome.i18n.getMessage("options_option_clearOnQuit_label")}
+            </label>
+          </div>
+          <div className="form-check mb-1">
+            <input
+              className="form-check-input"
+              defaultChecked={settings.get("showBadgeCount")}
+              id="showBadgeCount"
+              name="showBadgeCount"
+              onChange={handleSettingsChange}
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="showBadgeCount">
+              {chrome.i18n.getMessage("options_option_showBadgeCount_label")}
+            </label>
+          </div>
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              defaultChecked={settings.get("createContextMenu")}
+              id="createContextMenu"
+              name="createContextMenu"
+              onChange={handleSettingsChange}
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="createContextMenu">
+              {chrome.i18n.getMessage("options_option_createContextMenu_label")}
+            </label>
+          </div>
+          <TabWrangleOption
+            onChange={handleSettingsChange}
+            selectedOption={settings.get("wrangleOption")}
+          />
+        </form>
+
+        <h5 className="mt-3">{chrome.i18n.getMessage("options_section_autoLock")}</h5>
+        <div className="row">
+          <div className="col-8">
+            <form onSubmit={addWhitelistPattern}>
+              <label className="form-label" htmlFor="wl-add">
+                {chrome.i18n.getMessage("options_option_autoLock_label")}
+              </label>
+              <div className="input-group">
+                <input
+                  className="form-control"
+                  id="wl-add"
+                  onChange={(event) => {
+                    setNewPattern(event.target.value);
+                  }}
+                  type="text"
+                  value={newPattern}
+                />
+                <button
+                  className="btn btn-secondary"
+                  disabled={!isValidPattern(newPattern)}
+                  id="addToWL"
+                  type="submit"
+                >
+                  {chrome.i18n.getMessage("options_option_autoLock_add")}
+                </button>
+              </div>
+              <p className="form-text">
+                {chrome.i18n.getMessage("options_option_autoLock_example")}
+              </p>
+            </form>
+          </div>
         </div>
-      </div>
-      <table className="table table-hover">
-        <thead>
-          <tr>
-            <th style={{ width: "100%" }}>
-              {chrome.i18n.getMessage("options_option_autoLock_urlHeader")}
-            </th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {whitelist.length === 0 ? (
+        <table className="table table-hover">
+          <thead>
             <tr>
-              <td className="text-center" colSpan={2}>
-                {chrome.i18n.getMessage("options_option_autoLock_empty")}
-              </td>
+              <th style={{ width: "100%" }}>
+                {chrome.i18n.getMessage("options_option_autoLock_urlHeader")}
+              </th>
+              <th />
             </tr>
-          ) : (
-            whitelist.map((pattern) => (
-              <tr className="align-middle" key={pattern}>
-                <td>
-                  <code>{pattern}</code>
-                </td>
-                <td>
-                  <button
-                    className="btn btn-outline-secondary btn-sm my-n1"
-                    onClick={() => {
-                      handleClickRemovePattern(pattern);
-                    }}
-                  >
-                    {chrome.i18n.getMessage("options_option_autoLock_remove")}
-                  </button>
+          </thead>
+          <tbody>
+            {whitelist.length === 0 ? (
+              <tr>
+                <td className="text-center" colSpan={2}>
+                  {chrome.i18n.getMessage("options_option_autoLock_empty")}
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              whitelist.map((pattern) => (
+                <tr className="align-middle" key={pattern}>
+                  <td>
+                    <code>{pattern}</code>
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-outline-secondary btn-sm my-n1"
+                      onClick={() => {
+                        handleClickRemovePattern(pattern);
+                      }}
+                    >
+                      {chrome.i18n.getMessage("options_option_autoLock_remove")}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
 
-      <h5 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h5>
-      <div className="row">
-        <div className="col-8">{chrome.i18n.getMessage("options_importExport_description")}</div>
-      </div>
-      <div className="row my-2">
-        <div className="col-8 mb-1">
-          <button className="btn btn-secondary" onClick={handleExportData}>
-            <i className="fas fa-file-export me-1" />
-            {chrome.i18n.getMessage("options_importExport_export")}
-          </button>{" "}
-          <button
-            className="btn btn-secondary"
-            onClick={() => {
-              if (fileSelectorRef.current != null) fileSelectorRef.current.click();
-            }}
-          >
-            <i className="fas fa-file-import me-1" />
-            {chrome.i18n.getMessage("options_importExport_import")}
-          </button>
-          <input
-            accept=".json"
-            onChange={handleImportData}
-            ref={(input) => {
-              fileSelectorRef.current = input;
-            }}
-            style={{ display: "none" }}
-            type="file"
-          />
+        <h5 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h5>
+        <div className="row">
+          <div className="col-8">{chrome.i18n.getMessage("options_importExport_description")}</div>
         </div>
-      </div>
-      <div className="row">
-        <div className="col-8">
-          <div className="alert alert-warning">
-            {chrome.i18n.getMessage("options_importExport_importWarning")}
+        <div className="row my-2">
+          <div className="col-8 mb-1">
+            <button className="btn btn-secondary" onClick={handleExportData}>
+              <i className="fas fa-file-export me-1" />
+              {chrome.i18n.getMessage("options_importExport_export")}
+            </button>{" "}
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                if (fileSelectorRef.current != null) fileSelectorRef.current.click();
+              }}
+            >
+              <i className="fas fa-file-import me-1" />
+              {chrome.i18n.getMessage("options_importExport_import")}
+            </button>
+            <input
+              accept=".json"
+              onChange={handleImportData}
+              ref={(input) => {
+                fileSelectorRef.current = input;
+              }}
+              style={{ display: "none" }}
+              type="file"
+            />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-8">
+            <div className="alert alert-warning">
+              {chrome.i18n.getMessage("options_importExport_importWarning")}
+            </div>
           </div>
         </div>
       </div>
-      {importExportErrors.length === 0 ? (
-        <TransitionGroup appear={false}>{importExportAlert}</TransitionGroup>
-      ) : (
-        importExportAlert
-      )}
-      {errors.length === 0 ? (
-        <TransitionGroup appear={false}>{saveAlert}</TransitionGroup>
-      ) : (
-        errorAlert
-      )}
-    </div>
+
+      <ToastContainer className="p-3" containerPosition="fixed" position="bottom-start">
+        <Toast bg="danger" show={errors.length > 0}>
+          <Toast.Body>
+            <strong>{chrome.i18n.getMessage("options_errorSavingSettings")}</strong>
+            <ul className="mb-0">
+              {errors.map((error, i) => (
+                <li key={i}>{error.message}</li>
+              ))}
+            </ul>
+          </Toast.Body>
+        </Toast>
+        <Toast bg="danger" show={importExportErrors.length > 0}>
+          <Toast.Body>
+            <strong>{chrome.i18n.getMessage("options_errorImportExport")}</strong>
+            <ul className="mb-0">
+              {importExportErrors.map((error, i) => (
+                <li key={i}>{error.message}</li>
+              ))}
+            </ul>
+          </Toast.Body>
+        </Toast>
+        <Toast
+          autohide
+          bg="success"
+          delay={2000}
+          onClose={() => {
+            setImportExportAlertVisible(false);
+          }}
+          show={importExportAlertVisible}
+        >
+          <Toast.Body>{importExportOperationName}</Toast.Body>
+        </Toast>
+        <Toast bg="success" show={saveAlertVisible}>
+          <Toast.Body>{chrome.i18n.getMessage("options_saving")}</Toast.Body>
+        </Toast>
+        <Toast bg="primary" show={maxTabs !== settings.get("maxTabs")}>
+          <Toast.Body className="d-flex align-items-center justify-content-between">
+            <div className="text-light">{chrome.i18n.getMessage("options_unsavedChanges")}</div>
+            <div className="d-flex gap-2">
+              <button className="btn btn-outline-light" onClick={resetMaxTabs}>
+                {chrome.i18n.getMessage("options_discard")}
+              </button>
+              <button className="btn btn-light" disabled={maxTabs === ""} onClick={saveMaxTabs}>
+                {chrome.i18n.getMessage("options_save")}
+              </button>
+            </div>
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
+    </>
   );
 }

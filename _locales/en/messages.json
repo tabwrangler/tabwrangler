@@ -149,6 +149,23 @@
     "description": "Label for never de-duplicating option",
     "message": "Never"
   },
+  "options_discard": {
+    "description": "Button title to discard unsaved settings changes",
+    "message": "Discard"
+  },
+  "options_save": {
+    "description": "Button title to save settings changes",
+    "message": "Save"
+  },
+  "options_errorImportExport": {
+    "message": "Import/Export Error"
+  },
+  "options_errorSavingSettings": {
+    "message": "Error Saving Setttings"
+  },
+  "options_unsavedChanges": {
+    "message": "Unsaved changes"
+  },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension."
@@ -225,9 +242,17 @@
     "description": "Label preceeding input for setting minimum number of tabs",
     "message": "Auto-close inactive tabs if there are more than:"
   },
+  "options_option_minTabs_option_givenWindow": {
+    "description": "Label for option to count tabs per window",
+    "message": "in a given window"
+  },
+  "options_option_minTabs_option_total": {
+    "description": "Label for option to count tabs across all windows",
+    "message": "total (across all windows)"
+  },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
-    "message": "tabs open (does not include pinned or locked tabs)."
+    "message": "(does not include pinned or locked tabs)."
   },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
@@ -244,6 +269,18 @@
   "options_option_rememberTabs_tabs": {
     "description": "Input title for number of tabs to remember",
     "message": "Must be a number greater than or equal to 0"
+  },
+  "options_option_rememberTabs_saveToConfirm": {
+    "description": "Reminder to press save",
+    "message": "Press \"Save\" to confirm change."
+  },
+  "options_option_rememberTabs_truncateMsg": {
+    "description": "Message shown when decreasing number of saved tabs",
+    "message": "Reducing this number will truncate the closed tabs list, and the truncated tab data will be deleted. Press \"Save\" to confirm."
+  },
+  "options_option_rememberTabs_validNumber": {
+    "description": "Validation error when input is empty",
+    "message": "Enter a valid number."
   },
   "options_option_saveSortOrder": {
     "description": "Label for toggling saving sort order in Corral and Lock Tabs",

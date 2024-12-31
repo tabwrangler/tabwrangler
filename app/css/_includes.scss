@@ -7,6 +7,7 @@
 $enable-negative-margins: true;
 $font-size-base: 0.875rem;
 $nav-link-transition: none; // Prevent flash of wrong bg-color while loading color theme
+$toast-spacing: 0.5rem;
 
 // Configuration
 @import "../../node_modules/bootstrap/scss/functions";

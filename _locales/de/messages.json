@@ -193,10 +193,6 @@
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "Tabs die Ton abspielen nicht schliessen"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "geöffneten Tabs (ohne gepinnte oder automatisch geschützte Tabs)."
-  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "Muss eine Nummer größer oder gleich 0 sein"

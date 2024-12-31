@@ -193,10 +193,6 @@
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "No cerrar pestañas que estén reproduciendo audio"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "pestañas abiertas (no incluye las pestañas bloqueadas o ancladas)."
-  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "Debe ser un número mayor o igual que cero"

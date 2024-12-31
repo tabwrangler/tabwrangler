@@ -193,10 +193,6 @@
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "Ne fermez pas les onglets qui sont en lecture audio"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "onglets ouverts (n’inclut pas les onglets épinglés ou verrouillés)."
-  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "Doit être un nombre supérieur ou égal à 0"

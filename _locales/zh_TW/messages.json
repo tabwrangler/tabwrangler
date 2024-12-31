@@ -193,10 +193,6 @@
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "不要關閉正在播放媒體的分頁"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "分頁數量 (不包含釘選及鎖定的分頁)"
-  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "必須是一個大於等於 0 的數字"

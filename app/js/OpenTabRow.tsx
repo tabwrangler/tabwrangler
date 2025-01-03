@@ -83,7 +83,6 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.
           className="mx-1"
           disabled={!settings.isTabManuallyLockable(tab)}
           onClick={(event: React.MouseEvent) => {
-            // Dynamically check target is an input element.
             if (!(event.target instanceof HTMLInputElement)) return;
             onToggleTab(tab, event.target.checked, event.shiftKey);
           }}

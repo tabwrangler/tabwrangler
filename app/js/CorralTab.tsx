@@ -5,7 +5,7 @@ import { extractHostname, extractRootDomain, serializeTab } from "./util";
 import { removeSavedTabs, unwrangleTabs } from "./actions/localStorageActions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ClosedTabRow from "./ClosedTabRow";
-import cx from "classnames";
+import Dropdown from "react-bootstrap/Dropdown";
 import settings from "./settings";
 import { useStorageLocalPersistQuery } from "./storage";
 
@@ -217,8 +217,6 @@ export default function CorralTab() {
     return localStorageData.savedTabs.filter(keywordFilter(filter)).sort(currSorter.sort);
   }, [currSorter.sort, filter, localStorageData]);
 
-  const dropdownRef = React.useRef<HTMLElement | null>(null);
-  const [isSortDropdownOpen, setIsSortDropdownOpen] = React.useState(false);
   const areAllClosedTabsSelected =
     closedTabs.length > 0 && closedTabs.every((tab) => selectedTabs.has(serializeTab(tab)));
   const hasVisibleSelectedTabs = closedTabs.some((tab) => selectedTabs.has(serializeTab(tab)));
@@ -229,23 +227,6 @@ export default function CorralTab() {
     localStorageData.totalTabsRemoved === 0
       ? 0
       : Math.trunc((localStorageData.totalTabsWrangled / localStorageData.totalTabsRemoved) * 100);
-
-  React.useEffect(() => {
-    function handleWindowClick(event: MouseEvent) {
-      if (
-        isSortDropdownOpen &&
-        dropdownRef.current != null &&
-        event.target instanceof Node &&
-        !dropdownRef.current.contains(event.target)
-      ) {
-        setIsSortDropdownOpen(false);
-      }
-    }
-    window.addEventListener("click", handleWindowClick);
-    return () => {
-      window.removeEventListener("click", handleWindowClick);
-    };
-  }, [isSortDropdownOpen]);
 
   React.useEffect(() => {
     function handleKeypress(event: KeyboardEvent) {
@@ -264,10 +245,6 @@ export default function CorralTab() {
       window.removeEventListener("keypress", handleKeypress);
     };
   }, []);
-
-  function toggleSortDropdown() {
-    setIsSortDropdownOpen((val) => !val);
-  }
 
   function handleChangeSaveSortOrder(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.checked) {
@@ -469,61 +446,36 @@ export default function CorralTab() {
               </button>
             </span>
           ) : null}
-          <div
-            className="dropdown"
-            ref={(dropdown) => {
-              dropdownRef.current = dropdown;
-            }}
-          >
-            <button
-              aria-haspopup="true"
-              className="btn btn-secondary btn-sm"
-              id="sort-dropdown"
-              onClick={toggleSortDropdown}
+          <Dropdown>
+            <Dropdown.Toggle
+              size="sm"
               title={chrome.i18n.getMessage("corral_currentSort", currSorter.label())}
+              variant="secondary"
             >
-              <span>{chrome.i18n.getMessage("corral_sortBy")}</span>{" "}
-              <span>{currSorter.shortLabel()}</span> <i className="fas fa-caret-down" />
-            </button>
-            <div
-              aria-labelledby="sort-dropdown"
-              className={cx("dropdown-menu shadow-sm", {
-                show: isSortDropdownOpen,
-              })}
-              style={{ right: "0" }}
-            >
+              {chrome.i18n.getMessage("corral_sortBy")} {currSorter.shortLabel()}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
               {Sorters.map((sorter) => (
-                <a
-                  className={cx("dropdown-item", { active: currSorter === sorter })}
-                  href="#"
+                <Dropdown.Item
+                  active={currSorter === sorter}
+                  as="button"
                   key={sorter.label()}
-                  onClick={(event: React.MouseEvent<HTMLElement>) => {
-                    // The dropdown wraps items in bogus `<a href="#">` elements in order to match
-                    // Bootstrap's style. Prevent default on the event in order to prevent scrolling
-                    // to the top of the window (the default action for an empty anchor "#").
-                    event.preventDefault();
-
-                    if (sorter === currSorter) {
-                      // If this is already the active sorter, close the dropdown and do no work
-                      // since the state is already correct.
-                      setIsSortDropdownOpen(false);
-                    } else {
+                  onClick={() => {
+                    if (sorter !== currSorter) {
                       // When the saved sort order is not null then the user wants to preserve it.
-                      // Update to the ``new sort order and persist it.
+                      // Update to the new sort order and persist it.
                       if (settings.get("corralTabSortOrder") != null) {
                         settings.set("corralTabSortOrder", sorter.key);
                       }
-
-                      setIsSortDropdownOpen(false);
                       setCurrSorter(sorter);
                     }
                   }}
                 >
                   {sorter.label()}
-                </a>
+                </Dropdown.Item>
               ))}
-              <div className="dropdown-divider" />
-              <form className="px-4 pb-1">
+              <Dropdown.Divider />
+              <Dropdown.ItemText>
                 <div className="form-group mb-0">
                   <div className="form-check">
                     <input
@@ -538,9 +490,9 @@ export default function CorralTab() {
                     </label>
                   </div>
                 </div>
-              </form>
-            </div>
-          </div>
+              </Dropdown.ItemText>
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
       </div>
 

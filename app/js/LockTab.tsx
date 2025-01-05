@@ -172,6 +172,15 @@ export default function LockTab() {
     settings.get<string>("lockTabSortOrder"),
   );
 
+  const [currWindow, setCurrWindow] = React.useState<chrome.windows.Window>();
+  React.useEffect(() => {
+    async function getCurrentWindow() {
+      const win = await chrome.windows.getCurrent({});
+      setCurrWindow(win);
+    }
+    getCurrentWindow();
+  }, []);
+
   const [currSorter, setCurrSorter] = React.useState(() => {
     let sorter = sortOrder == null ? DEFAULT_SORTER : Sorters.find((s) => s.key === sortOrder);
     // If settings somehow stores a bad value, always fall back to default order.
@@ -181,19 +190,34 @@ export default function LockTab() {
 
   const tabsQuery = useTabsQuery();
   const tabTimesQuery = useTabTimesQuery();
-  const sortedTabs =
-    tabsQuery.data == null || tabTimesQuery.data == null
-      ? []
-      : tabsQuery.data
-          .slice()
-          .sort((tabA, tabB) => currSorter.sort(tabA, tabB, tabTimesQuery.data));
+  const tabsByWindowId: Array<[number, chrome.tabs.Tab[]]> = React.useMemo(() => {
+    const tabs =
+      tabsQuery.data == null || tabTimesQuery.data == null
+        ? []
+        : tabsQuery.data
+            .slice()
+            .sort((tabA, tabB) => currSorter.sort(tabA, tabB, tabTimesQuery.data));
+    const map = new Map<number, chrome.tabs.Tab[]>();
+    tabs.forEach((tab) => {
+      if (!map.has(tab.windowId)) map.set(tab.windowId, []);
+      map.get(tab.windowId)?.push(tab);
+    });
+
+    const entries = Array.from(map.entries());
+    return entries.sort(([a], [b]) => {
+      if (a === currWindow?.id) return -1;
+      if (b === currWindow?.id) return 1;
+      return 0;
+    });
+  }, [currSorter, currWindow?.id, tabTimesQuery.data, tabsQuery.data]);
+
   const { data: syncData } = useStorageSyncQuery();
   const lockedTabIds =
     syncData == null
       ? new Set()
       : new Set(
-          sortedTabs
-            .filter((tab) =>
+          tabsQuery.data
+            ?.filter((tab) =>
               isTabLocked(tab, {
                 filterAudio: syncData["filterAudio"],
                 filterGroupedTabs: syncData["filterGroupedTabs"],
@@ -204,16 +228,22 @@ export default function LockTab() {
             .map((tab) => tab.id),
         );
 
-  async function toggleTab(tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) {
+  async function toggleTab(
+    windowId: number,
+    tab: chrome.tabs.Tab,
+    selected: boolean,
+    multiselect: boolean,
+  ) {
     let tabsToToggle = [tab];
     if (multiselect && lastSelectedTabRef.current != null) {
-      const lastSelectedTabIndex = sortedTabs.indexOf(lastSelectedTabRef.current);
-      if (lastSelectedTabIndex >= 0) {
-        const tabIndex = sortedTabs.indexOf(tab);
-        tabsToToggle = sortedTabs.slice(
-          Math.min(tabIndex, lastSelectedTabIndex),
-          Math.max(tabIndex, lastSelectedTabIndex) + 1,
-        );
+      const lastSelectedWindowIndex = tabsByWindowId.findIndex(([winId]) => winId === windowId);
+      const tabs = tabsByWindowId[lastSelectedWindowIndex]?.[1];
+      if (tabs != null) {
+        const fromIndex = tabs.indexOf(lastSelectedTabRef.current);
+        const toIndex = tabs.indexOf(tab);
+        if (fromIndex !== -1 && toIndex !== -1) {
+          tabsToToggle = tabs.slice(Math.min(fromIndex, toIndex), Math.max(fromIndex, toIndex) + 1);
+        }
       }
     }
 
@@ -233,7 +263,7 @@ export default function LockTab() {
 
   return (
     <div className="tab-pane active">
-      <div className="d-flex align-items-center justify-content-between border-bottom pb-2">
+      <div className="d-flex align-items-center justify-content-between pb-2">
         <div className="px-2">
           <abbr title={chrome.i18n.getMessage("tabLock_lockLabel")}>
             <i className="fas fa-lock" />
@@ -295,25 +325,47 @@ export default function LockTab() {
           </Dropdown.Menu>
         </Dropdown>
       </div>
-      <table className="table table-hover table-sm table-th-unbordered">
-        <tbody>
-          <UseNowContext.Provider value={now}>
-            {sortedTabs.map((tab) => (
-              <OpenTabRow
-                isLocked={lockedTabIds.has(tab.id)}
-                key={tab.id}
-                onToggleTab={toggleTab}
-                tab={tab}
-                tabTime={
-                  tabTimesQuery.data == null || tab.id == null
-                    ? undefined
-                    : tabTimesQuery.data[tab.id]
-                }
-              />
-            ))}
-          </UseNowContext.Provider>
-        </tbody>
-      </table>
+      <div className="d-flex flex-column gap-4">
+        <UseNowContext.Provider value={now}>
+          {tabsByWindowId.map(([windowId, tabs]) => (
+            <div className="border overflow-hidden rounded" key={windowId}>
+              <table className="table table-hover table-sm mb-0">
+                <thead>
+                  <tr>
+                    <th className="p-2" colSpan={5}>
+                      <div className="d-flex justify-content-between">
+                        <div>Window</div>
+                        <div className="text-end">
+                          {currWindow?.id === windowId && (
+                            <span className="badge rounded-pill text-bg-primary">CURRENT</span>
+                          )}
+                        </div>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tabs.map((tab, index) => (
+                    <OpenTabRow
+                      isLast={index === tabs.length - 1}
+                      isLocked={lockedTabIds.has(tab.id)}
+                      key={tab.id}
+                      onToggleTab={toggleTab}
+                      tab={tab}
+                      tabTime={
+                        tabTimesQuery.data == null || tab.id == null
+                          ? undefined
+                          : tabTimesQuery.data[tab.id]
+                      }
+                      windowId={windowId}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </UseNowContext.Provider>
+      </div>
     </div>
   );
 }

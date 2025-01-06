@@ -3,6 +3,7 @@ import { lockTabId, unlockTabId } from "./storage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Dropdown from "react-bootstrap/Dropdown";
 import OpenTabRow from "./OpenTabRow";
+import cx from "classnames";
 import { isTabLocked } from "./tabUtil";
 import settings from "./settings";
 import { useStorageSyncQuery } from "./storage";
@@ -328,17 +329,28 @@ export default function LockTab() {
       <div className="d-flex flex-column gap-4">
         <UseNowContext.Provider value={now}>
           {tabsByWindowId.map(([windowId, tabs]) => (
-            <div className="border overflow-hidden rounded" key={windowId}>
+            <div
+              className={cx("border overflow-hidden rounded", {
+                "border-success": currWindow?.id === windowId,
+              })}
+              key={windowId}
+            >
               <table className="table table-hover table-sm mb-0">
                 <thead>
                   <tr>
-                    <th className="p-2" colSpan={5}>
+                    <th className={cx("p-2 bg-body-tertiary")} colSpan={5}>
                       <div className="d-flex justify-content-between">
-                        <div>Window</div>
-                        <div className="text-end">
+                        <div></div>
+                        <div>
                           {currWindow?.id === windowId && (
-                            <span className="badge rounded-pill text-bg-primary">CURRENT</span>
+                            <span
+                              className="badge text-bg-success me-2 position-relative"
+                              style={{ top: "-1px" }}
+                            >
+                              CURRENT
+                            </span>
                           )}
+                          <i className="fas fa-window-maximize" />
                         </div>
                       </div>
                     </th>

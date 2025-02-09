@@ -18,13 +18,27 @@ function secondsToHms(seconds: number) {
 }
 
 type Props = {
+  isLast: boolean;
   isLocked: boolean;
-  onToggleTab: (tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) => void;
+  onToggleTab: (
+    windowId: number,
+    tab: chrome.tabs.Tab,
+    selected: boolean,
+    multiselect: boolean,
+  ) => void;
   tab: chrome.tabs.Tab;
   tabTime: number | undefined;
+  windowId: number;
 };
 
-export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.now() }: Props) {
+export default function OpenTabRow({
+  isLast,
+  isLocked,
+  onToggleTab,
+  tab,
+  tabTime = Date.now(),
+  windowId,
+}: Props) {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const now = React.useContext(UseNowContext);
   const paused = syncPersistData?.paused;
@@ -50,7 +64,10 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.
     }
 
     lockStatusElement = (
-      <td className="text-center muted" style={{ verticalAlign: "middle" }}>
+      <td
+        className={cx("text-center muted", { "border-0": isLast })}
+        style={{ verticalAlign: "middle" }}
+      >
         {reason}
       </td>
     );
@@ -69,7 +86,7 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.
     }
 
     lockStatusElement = (
-      <td className="text-center" style={{ verticalAlign: "middle" }}>
+      <td className={cx("text-center", { "border-0": isLast })} style={{ verticalAlign: "middle" }}>
         {timeLeftContent}
       </td>
     );
@@ -77,20 +94,26 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.
 
   return (
     <tr className={cx({ "table-warning": isLocked })}>
-      <td className="text-center" style={{ verticalAlign: "middle", width: "1px" }}>
+      <td
+        className={cx("text-center", { "border-0": isLast })}
+        style={{ verticalAlign: "middle", width: "1px" }}
+      >
         <input
           checked={isLocked}
           className="mx-1"
           disabled={!settings.isTabManuallyLockable(tab)}
           onClick={(event: React.MouseEvent) => {
             if (!(event.target instanceof HTMLInputElement)) return;
-            onToggleTab(tab, event.target.checked, event.shiftKey);
+            onToggleTab(windowId, tab, event.target.checked, event.shiftKey);
           }}
           type="checkbox"
           readOnly
         />
       </td>
-      <td className="text-center" style={{ verticalAlign: "middle", width: "32px" }}>
+      <td
+        className={cx("text-center", { "border-0": isLast })}
+        style={{ verticalAlign: "middle", width: "32px" }}
+      >
         <LazyImage
           alt=""
           height={16}
@@ -99,7 +122,10 @@ export default function OpenTabRow({ isLocked, onToggleTab, tab, tabTime = Date.
           width={16}
         />
       </td>
-      <td style={{ paddingBottom: "4px", paddingTop: "4px", width: "75%" }}>
+      <td
+        className={cx({ "border-0": isLast })}
+        style={{ paddingBottom: "4px", paddingTop: "4px", width: "75%" }}
+      >
         <div className="d-flex" style={{ lineHeight: "1.3" }}>
           <div className="flex-fill text-truncate" style={{ width: "1px" }}>
             {tab.title}

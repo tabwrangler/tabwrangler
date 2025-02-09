@@ -14,7 +14,7 @@ import {
   wrangleTabsAndPersist,
 } from "./js/tabUtil";
 import Menus from "./js/menus";
-import debounce from "lodash.debounce";
+import { debounce } from "lodash-es";
 import { removeAllSavedTabs } from "./js/actions/localStorageActions";
 import settings from "./js/settings";
 

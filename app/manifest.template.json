@@ -5,9 +5,7 @@
   "default_locale": "en",
   "description": "__MSG_extDescription__",
   "icons": {
-    "128": "img/icon128.png",
-    "48": "img/icon48.png",
-    "16": "img/icon16.png"
+    "128": "img/icon128.png"
   },
   "action": {
     "default_icon": "img/icon.png",
@@ -28,11 +26,11 @@
     "open_in_tab": true,
     "page": "popup.html"
   },
-  "permissions": ["alarms", "contextMenus", "sessions", "storage", "tabs"],
-  "web_accessible_resources": [
-    {
-      "matches": ["*://*/*"],
-      "resources": ["img/icon48.png"]
-    }
+  "permissions": [
+    "alarms",
+    "contextMenus",
+    "sessions",
+    "storage",
+    "tabs"
   ]
 }

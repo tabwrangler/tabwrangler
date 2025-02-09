@@ -14,6 +14,7 @@ function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
     active: false,
     autoDiscardable: false,
     discarded: false,
+    frozen: false,
     groupId: 1,
     highlighted: false,
     id: 1,

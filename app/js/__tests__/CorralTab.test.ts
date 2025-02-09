@@ -7,6 +7,7 @@ describe("sessionFuzzyMatchesTab", () => {
     closedAt: 1524301399048, // non-standard expando property added by Tab Wrangler
     discarded: false,
     favIconUrl: "https://news.ycombinator.com/favicon.ico",
+    frozen: false,
     groupId: 1,
     highlighted: false,
     incognito: false,

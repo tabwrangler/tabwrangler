@@ -329,12 +329,7 @@ export default function LockTab() {
       <div className="d-flex flex-column gap-4">
         <UseNowContext.Provider value={now}>
           {tabsByWindowId.map(([windowId, tabs]) => (
-            <div
-              className={cx("border overflow-hidden rounded", {
-                "border-success": currWindow?.id === windowId,
-              })}
-              key={windowId}
-            >
+            <div className="border overflow-hidden rounded" key={windowId}>
               <table className="table table-hover table-sm mb-0">
                 <thead>
                   <tr>
@@ -350,7 +345,7 @@ export default function LockTab() {
                               CURRENT
                             </span>
                           )}
-                          <i className="fas fa-window-maximize" />
+                          <i className="fas fa-window-maximize" title={`Window ${windowId}`} />
                         </div>
                       </div>
                     </th>

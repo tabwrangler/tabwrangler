@@ -1,6 +1,6 @@
 {
   "name": "tabwrangler",
-  "version": "7.7.0",
+  "version": "7.8.0",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "scripts": {
     "clean": "rm -rf dist",

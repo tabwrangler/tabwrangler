@@ -430,20 +430,17 @@ export default function CorralTab() {
             </>
           ) : null}
         </div>
-        <div className="d-flex">
+        <div className="d-flex gap-2">
           {filter.length > 0 ? (
-            <span className={"badge badge-pill badge-primary d-flex align-items-center px-2 me-1"}>
+            <span className="badge rounded-pill text-bg-primary d-flex align-items-center gap-1 px-2">
               {chrome.i18n.getMessage("corral_searchResults_label", `${closedTabs.length}`)}
               <button
-                className="close close-xs ms-1"
+                className="btn-close btn-xs"
                 onClick={() => {
                   setFilter("");
                 }}
-                style={{ marginTop: "-2px" }}
                 title={chrome.i18n.getMessage("corral_searchResults_clear")}
-              >
-                &times;
-              </button>
+              />
             </span>
           ) : null}
           <Dropdown>

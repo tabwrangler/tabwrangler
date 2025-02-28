@@ -23,6 +23,10 @@
     "description": "Description of keyboard shortcut to close and save the active tab",
     "message": "Закрыть и сохранить активную вкладку"
   },
+  "commandWrangleOpenPopup": {
+    "description": "Description of keyboard shortcut to open TabWrangler popup",
+    "message": "Открыть окно"
+  },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
     "message": "Немедленно закрыть вкладку и сохранить URL"
@@ -133,6 +137,10 @@
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Если адрес страницы и её название совпадают"
   },
+  "options_dedupe_option_withDupes": {
+    "description": "Label for option to never de-duplicate the tab corral",
+    "message": "Никогда (По умолчанию)"
+  },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
     "message": "Когда вкладка будет закрыта, она будет добавлена в список вкладок. Никаких других изменений в списке вкладок не будет."
@@ -140,6 +148,23 @@
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
     "message": "Никогда"
+  },
+  "options_discard": {
+    "description": "Button title to discard unsaved settings changes",
+    "message": "Сбросить"
+  },
+  "options_save": {
+    "description": "Button title to save settings changes",
+    "message": "Сохранить"
+  },
+  "options_errorImportExport": {
+    "message": "Ошибка импорта/экспорта"
+  },
+  "options_errorSavingSettings": {
+    "message": "Ошибка сохранения настроек"
+  },
+  "options_unsavedChanges": {
+    "message": "Несохраненные изменения"
   },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
@@ -193,6 +218,10 @@
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
     "message": "Очищать список закрытых вкладок при выходе"
   },
+  "options_option_createContextMenu_label": {
+    "description": "Label for checkbox to create a 'Tab Wrangler' context menu item",
+    "message": "Создание пункта \"Tab Wrangler\" в контекстном меню"
+  },
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Перезапускать таймер вкладки только если она была активна на 1 секунду"
@@ -204,6 +233,22 @@
   "options_option_filterGroupedTabs_label": {
     "description": "Label for checkbox to lock tabs that are in a tab group",
     "message": "Не закрывать вкладки, находящиеся в группе"
+  },
+  "options_option_minTabs_label": {
+    "description": "Label preceeding input for setting minimum number of tabs",
+    "message": "Авто-закрытие неактивных вкладок, если их больше, чем:"
+  },
+  "options_option_minTabs_option_givenWindow": {
+    "description": "Label for option to count tabs per window",
+    "message": "в данном окне"
+  },
+  "options_option_minTabs_option_total": {
+    "description": "Label for option to count tabs across all windows",
+    "message": "всего (по всем окнам)"
+  },
+  "options_option_minTabs_postLabel": {
+    "description": "Label following input for setting minimum number of tabs",
+    "message": "вкладок открыто (не включая закрепленные и заблокированные вкладки)."
   },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
@@ -220,6 +265,14 @@
   "options_option_rememberTabs_tabs": {
     "description": "Input title for number of tabs to remember",
     "message": "Здесь должно быть число, которое больше или равно 0"
+  },
+  "options_option_rememberTabs_saveToConfirm": {
+    "description": "Reminder to press save",
+    "message": "Нажмите «Сохранить», чтобы подтвердить изменения."
+  },
+  "options_option_rememberTabs_validNumber": {
+    "description": "Validation error when input is empty",
+    "message": "Введите корректный номер."
   },
   "options_option_saveSortOrder": {
     "description": "Label for toggling saving sort order in Corral and Lock Tabs",
@@ -252,6 +305,14 @@
   "options_option_timeInactive_minutes": {
     "description": "Input title for number of minutes before closing tabs",
     "message": "Здесь должно быть число которое больше 0 и меньше чем 7200"
+  },
+  "options_option_timeInactive_label_minutes": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "минут"
+  },
+  "options_option_timeInactive_label_seconds": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "секунд"
   },
   "options_option_timeInactive_seconds": {
     "description": "Input title for number of seconds before closing tabs",
@@ -346,6 +407,24 @@
   "tabLock_sort_timeUntilClose_desc_short": {
     "description": "Short version of tabLock_sort_timeUntilClose_desc",
     "message": "Времени до закрытия (убыв.)"
+  },
+  "corral_tabsWrangledFull": {
+    "description": "Description of number of tabs wrangled by this extension",
+    "message": "закладками: $count$ ($percent$%)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "18"
+      }
+    }
+  },
+  "settings_setmaxTabs_error_invalid": {
+    "description": "Error shown when invalid max tabs setting is supplied.",
+    "message": "Максимальное количество вкладок должно быть числом больше 1"
   },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",

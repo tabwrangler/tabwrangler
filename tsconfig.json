@@ -8,5 +8,7 @@
     "strict": true,
     "target": "es2017"
   },
-  "include": ["app"]
+  "include": [
+    "app"
+  ]
 }

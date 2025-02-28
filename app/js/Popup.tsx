@@ -1,8 +1,8 @@
 import NavBar, { NavBarTabID } from "./NavBar";
-import AboutTab from "./AboutTab";
-import CorralTab from "./CorralTab";
-import LockTab from "./LockTab";
-import OptionsTab from "./OptionsTab";
+import AboutTab from "./AboutTab/AboutTab";
+import CorralTab from "./CorralTab/CorralTab";
+import LockTab from "./LockTab/LockTab";
+import OptionsTab from "./OptionsTab/OptionsTab";
 import React from "react";
 import { register } from "timeago.js";
 import timeagoLocale from "./timeagoLocale";

@@ -1,14 +1,14 @@
 import * as React from "react";
-import { exportData, importData } from "./actions/importExportActions";
-import { useStorageSyncPersistQuery, useStorageSyncQuery } from "./storage";
+import { exportData, importData } from "../actions/importExportActions";
+import { useStorageSyncPersistQuery, useStorageSyncQuery } from "../storage";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import cx from "classnames";
-import { exportFileName } from "./actions/importExportActions";
-import { mutateStorageSyncPersist } from "./storage";
-import settings from "./settings";
+import { exportFileName } from "../actions/importExportActions";
+import { mutateStorageSyncPersist } from "../storage";
+import settings from "../settings";
 import { useDebounceCallback } from "@react-hook/debounce";
 import { useMutation } from "@tanstack/react-query";
 

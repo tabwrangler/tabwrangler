@@ -1,12 +1,12 @@
 import * as React from "react";
-import { lockTabId, unlockTabId } from "./storage";
+import { lockTabId, unlockTabId } from "../storage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Dropdown from "react-bootstrap/Dropdown";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
-import { isTabLocked } from "./tabUtil";
-import settings from "./settings";
-import { useStorageSyncQuery } from "./storage";
+import { isTabLocked } from "../tabUtil";
+import settings from "../settings";
+import { useStorageSyncQuery } from "../storage";
 
 type Sorter = {
   key: string;

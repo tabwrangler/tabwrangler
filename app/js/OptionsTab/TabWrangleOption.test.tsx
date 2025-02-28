@@ -1,6 +1,6 @@
 import React from "react";
 import ReactTestUtils from "react-dom/test-utils";
-import TabWrangleOption from "../TabWrangleOption";
+import TabWrangleOption from "../OptionsTab/TabWrangleOption";
 import renderer from "react-test-renderer";
 
 describe("TabWrangleOption", () => {

@@ -1,9 +1,9 @@
 import * as React from "react";
-import LazyImage from "./LazyImage";
+import LazyImage from "../LazyImage";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
-import settings from "./settings";
-import { useStorageSyncPersistQuery } from "./storage";
+import settings from "../settings";
+import { useStorageSyncPersistQuery } from "../storage";
 
 function zeropad(num: number): string {
   return num < 10 ? `0${num}` : String(num);

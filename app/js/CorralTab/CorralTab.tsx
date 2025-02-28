@@ -1,13 +1,13 @@
 import "./CorralTab.scss";
 import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
-import { extractHostname, extractRootDomain, serializeTab } from "./util";
-import { removeSavedTabs, unwrangleTabs } from "./actions/localStorageActions";
+import { extractHostname, extractRootDomain, serializeTab } from "../util";
+import { removeSavedTabs, unwrangleTabs } from "../actions/localStorageActions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ClosedTabRow from "./ClosedTabRow";
 import Dropdown from "react-bootstrap/Dropdown";
-import settings from "./settings";
-import { useStorageLocalPersistQuery } from "./storage";
+import settings from "../settings";
+import { useStorageLocalPersistQuery } from "../storage";
 
 function keywordFilter(keyword: string) {
   return function (tab: chrome.tabs.Tab) {

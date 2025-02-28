@@ -1,9 +1,9 @@
 import "./CorralTabRow.css";
 import * as React from "react";
-import LazyImage from "./LazyImage";
+import LazyImage from "../LazyImage";
 import TimeAgo from "timeago-react";
 import cx from "classnames";
-import { extractHostname } from "./util";
+import { extractHostname } from "../util";
 
 type Props = {
   isSelected: boolean;

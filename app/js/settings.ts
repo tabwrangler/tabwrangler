@@ -3,6 +3,7 @@ import Menus from "./menus";
 
 const defaultCache: Record<string, unknown> = {};
 const defaultLockedIds: Array<number> = [];
+const defaultLockedWindowIds: Array<number> = [];
 
 export const SETTINGS_DEFAULTS = {
   // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
@@ -22,6 +23,9 @@ export const SETTINGS_DEFAULTS = {
 
   // An array of tabids which have been explicitly locked by the user.
   lockedIds: defaultLockedIds,
+
+  // An array of windowids that have been explicitly locked by the user.
+  lockedWindowIds: defaultLockedWindowIds,
 
   // Saved sort order for list of open tabs. When null, default sort is used (tab order)
   lockTabSortOrder: null,

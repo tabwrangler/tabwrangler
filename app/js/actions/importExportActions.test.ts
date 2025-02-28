@@ -1,4 +1,4 @@
-import { exportData, exportFileName, importData } from "../actions/importExportActions";
+import { exportData, exportFileName, importData } from "./importExportActions";
 
 describe("importExportActions", () => {
   test("exports the bookmark data", async () => {

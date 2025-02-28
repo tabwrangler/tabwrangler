@@ -23,16 +23,19 @@ export async function getStorageSyncPersist(): Promise<StorageSyncPersistState> 
 export type StorageLocalPersistState = {
   // Date of installation of Tab Wrangler
   installDate: number;
+
   // Tabs closed by Tab Wrangler
   savedTabs: Array<chrome.tabs.Tab>;
+
   // Map of tabId -> time remaining before tab is closed
-  tabTimes: {
-    [tabid: string]: number;
-  };
+  tabTimes: Record<string, number>;
+
   // Number of tabs closed by any means since install
   totalTabsRemoved: number;
+
   // Number of tabs unwrangled (re-opened from the corral) since install
   totalTabsUnwrangled: number;
+
   // Number of tabs wrangled since install
   totalTabsWrangled: number;
 };

@@ -4,10 +4,10 @@ import {
   findPositionByURL,
   getURLPositionFilterByWrangleOption,
   wrangleTabsAndPersist,
-} from "../tabUtil";
+} from "./tabUtil";
 import { TextEncoder } from "util";
-import { setSavedTabs } from "../actions/localStorageActions";
-import settings from "../settings";
+import { setSavedTabs } from "./actions/localStorageActions";
+import settings from "./settings";
 
 function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
   return {

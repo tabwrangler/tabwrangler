@@ -1,4 +1,4 @@
-import { sessionFuzzyMatchesTab } from "../CorralTab";
+import { sessionFuzzyMatchesTab } from "./CorralTab";
 
 describe("sessionFuzzyMatchesTab", () => {
   const tab = {

@@ -178,7 +178,8 @@ include the following:
 🇵🇱 Polish by [imjusttony](https://crowdin.com/profile/imjusttony),
 🇷🇺 Russian by [sdir01](https://crowdin.com/profile/sdir01) and [coool](https://crowdin.com/profile/coool),
 🇪🇸 Spanish by [julianjaramillo](https://crowdin.com/profile/julianjaramillo),
-Tamil by [dineshr](https://crowdin.com/profile/dineshr)
+Tamil by [dineshr](https://crowdin.com/profile/dineshr),
+🇺🇦 Ukrainian by [DepsCian](https://crowdin.com/profile/depscian)
 
 ### Development
 

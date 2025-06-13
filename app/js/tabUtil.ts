@@ -157,10 +157,10 @@ export function getWhitelistMatch(
   if (url == null) return null;
   for (let i = 0; i < whitelist.length; i++) {
     if (url.indexOf(whitelist[i]) !== -1) {
-      return whitelist[i];
+      return settings.get<boolean>("invertWhitelist") ? null : whitelist[i];
     }
   }
-  return null;
+  return settings.get<boolean>("invertWhitelist") ? url : null;
 }
 
 export function isTabLocked(

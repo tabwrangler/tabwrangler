@@ -238,6 +238,10 @@
     "description": "Label for checkbox to lock tabs that are in a tab group",
     "message": "Don't close tabs that are in a group"
   },
+  "options_option_invertWhitelist_label": {
+    "description": "Label for checkbox to only automatically close tabs that are in the whitelist will",
+    "message": "Invert (only automatically close tabs that are in this list)"
+  },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
     "message": "Auto-close inactive tabs if there are more than:"
@@ -355,6 +359,10 @@
         "example": "chrome://"
       }
     }
+  },
+  "tabLock_lockedReason_noMatches": {
+    "description": "Label for a tab that is locked because it doesn't match the whitelist, and the invert setting is enabled",
+    "message": "No matches, whitelist inverted"
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",

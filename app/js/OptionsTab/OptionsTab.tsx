@@ -438,6 +438,19 @@ export default function OptionsTab() {
         <div className="row">
           <div className="col-8">
             <form onSubmit={addWhitelistPattern}>
+              <div className="form-check mb-1">
+                <input
+                  className="form-check-input"
+                  defaultChecked={settings.get("invertWhitelist")}
+                  id="invertWhitelist"
+                  name="invertWhitelist"
+                  onChange={handleSettingsChange}
+                  type="checkbox"
+                />
+                <label className="form-check-label" htmlFor="invertWhitelist">
+                  {chrome.i18n.getMessage("options_option_invertWhitelist_label")}
+                </label>
+              </div>
               <label className="form-label" htmlFor="wl-add">
                 {chrome.i18n.getMessage("options_option_autoLock_label")}
               </label>

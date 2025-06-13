@@ -150,6 +150,9 @@ export async function updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number): 
   }
 }
 
+/**
+ * @return null if no match, string of the matching rule if match
+ */
 export function getWhitelistMatch(
   url: string | undefined,
   { whitelist }: { whitelist: string[] },

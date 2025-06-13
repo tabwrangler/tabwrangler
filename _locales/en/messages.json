@@ -239,7 +239,7 @@
     "message": "Don't close tabs that are in a group"
   },
   "options_option_invertWhitelist_label": {
-    "description": "Label for checkbox to only automatically close tabs that are in the whitelist will",
+    "description": "Label for checkbox to only automatically close tabs that are in the whitelist",
     "message": "Invert (only automatically close tabs that are in this list)"
   },
   "options_option_minTabs_label": {

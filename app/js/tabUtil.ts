@@ -181,3 +181,12 @@ export function isTabLocked(
     !!(tab.audible && filterAudio)
   );
 }
+
+export function shouldTabBeClosed(tab: chrome.tabs.Tab): boolean {
+  return !isTabLocked(tab, {
+    filterAudio: settings.get("filterAudio"),
+    filterGroupedTabs: settings.get("filterGroupedTabs"),
+    lockedIds: settings.get("lockedIds"),
+    whitelist: settings.get("whitelist"),
+  });
+}

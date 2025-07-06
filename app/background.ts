@@ -8,6 +8,7 @@ import {
   initTabs,
   onNewTab,
   removeTab,
+  shouldTabBeClosed,
   updateClosedCount,
   updateLastAccessed,
   wrangleTabs,
@@ -176,14 +177,8 @@ async function checkToClose() {
         tabs: chrome.tabs.Tab[],
         { resetIfNoCandidates }: { resetIfNoCandidates: boolean },
       ): chrome.tabs.Tab[] {
-        // Filter out pinned tabs
-        tabs = tabs.filter((tab) => tab.pinned === false);
-        // Filter out audible tabs if the option to do so is checked
-        tabs = settings.get<boolean>("filterAudio") ? tabs.filter((tab) => !tab.audible) : tabs;
-        // Filter out tabs that are in a group if the option to do so is checked
-        tabs = settings.get<boolean>("filterGroupedTabs")
-          ? tabs.filter((tab) => !("groupId" in tab) || tab.groupId <= 0)
-          : tabs;
+        // Filter out tabs that should not be closed (pinned, audible, grouped, whitelisted)
+        tabs = tabs.filter(shouldTabBeClosed);
 
         let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.indexOf(tab.id) !== -1);
         if (tabs.length - minTabs <= 0) {
@@ -255,14 +250,7 @@ async function checkToClose() {
       return candidateTabs;
     });
 
-    const tabsToClose = tabsToCloseCandidates.filter(
-      (tab) =>
-        !(
-          true === tab.pinned ||
-          (settings.get("filterAudio") && tab.audible) ||
-          (tab.url != null && settings.isWhitelisted(tab.url))
-        ),
-    );
+    const tabsToClose = tabsToCloseCandidates.filter(shouldTabBeClosed);
 
     if (tabsToClose.length > 0) {
       await ASYNC_LOCK.acquire("persist:localStorage", async () => {

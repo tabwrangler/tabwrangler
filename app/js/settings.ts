@@ -53,6 +53,9 @@ export const SETTINGS_DEFAULTS = {
   // When true, shows the number of closed tabs in the list as a badge on the browser icon.
   showBadgeCount: false,
 
+  // When true, only tabs that are in the whitelist will be automatically closed.
+  invertWhitelist: false,
+
   // An array of patterns to check against. If a URL matches a pattern, it is never locked.
   whitelist: ["about:", "chrome://"],
 

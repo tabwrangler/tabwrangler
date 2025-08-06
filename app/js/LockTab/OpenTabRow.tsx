@@ -55,7 +55,13 @@ export default function OpenTabRow({
       reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
     } else if (tabWhitelistMatch) {
       reason = (
-        <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_matches", tabWhitelistMatch)}>
+        <abbr
+          title={
+            settings.get<boolean>("invertWhitelist")
+              ? chrome.i18n.getMessage("tabLock_lockedReason_noMatches")
+              : chrome.i18n.getMessage("tabLock_lockedReason_matches", tabWhitelistMatch)
+          }
+        >
           Auto-Locked
         </abbr>
       );

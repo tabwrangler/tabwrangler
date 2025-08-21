@@ -24,7 +24,7 @@ focus on the tabs that matter
 ## Installation
 
 - Tab Wrangler for Chrome:
-  https://chrome.google.com/extensions/detail/egnjhciaieeiiohknchakcodbpgjnchh
+  https://chromewebstore.google.com/detail/tab-wrangler/egnjhciaieeiiohknchakcodbpgjnchh
 - Tab Wrangler for Firefox: https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/
 
 ## Features

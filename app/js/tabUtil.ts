@@ -104,16 +104,36 @@ export async function wrangleTabsAndPersist(tabs: Array<chrome.tabs.Tab>) {
 
 export async function initTabs() {
   const tabs = await chrome.tabs.query({ windowType: "normal" });
+  const startTimerOnFirstActive = settings.get<boolean>("startTimerOnFirstActive");
+  if (!startTimerOnFirstActive) {
+    await setTabTimes(
+      tabs.map((tab) => String(tab.id)),
+      Date.now(),
+    );
+  }
+  // When the feature is enabled, only update tabs that don't have existing times
+  // or tabs that have real times (not inactive markers)
+  const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
+  const tabsToUpdate = tabs.filter((tab) => {
+    const existingTime = tabTimes[String(tab.id)];
+    // Update if no existing time, or if existing time is not the inactive marker
+    return existingTime == null || existingTime !== -1;
+  });
+  if (tabsToUpdate.length === 0) return;
   await setTabTimes(
-    tabs.map((tab) => String(tab.id)),
+    tabsToUpdate.map((tab) => String(tab.id)),
     Date.now(),
   );
 }
 
-export function onNewTab(tab: chrome.tabs.Tab) {
+export async function onNewTab(tab: chrome.tabs.Tab) {
   console.debug("[onNewTab] updating new tab", tab);
   // Track new tab's time to close.
   if (tab.id != null) updateLastAccessed(tab.id);
+  if (tab.id == null) return;
+  const startTimerOnFirstActive = settings.get<boolean>("startTimerOnFirstActive");
+  const updatedAt = startTimerOnFirstActive ? -1 : Date.now();
+  await updateLastAccessed(tab.id, updatedAt);
 }
 
 export async function removeTab(tabId: number) {
@@ -136,17 +156,20 @@ export async function updateClosedCount(
   chrome.action.setBadgeText({ text });
 }
 
-export async function updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number): Promise<void> {
+export async function updateLastAccessed(
+  tabOrTabId: chrome.tabs.Tab | number,
+  time?: number,
+): Promise<void> {
   let tabId;
   if (typeof tabOrTabId !== "number" && typeof tabOrTabId.id !== "number") {
     console.log("Error: `tabOrTabId.id` is not an number", tabOrTabId.id);
     return;
   } else if (typeof tabOrTabId === "number") {
     tabId = tabOrTabId;
-    await setTabTime(String(tabId), Date.now());
+    await setTabTime(String(tabId), time ?? Date.now());
   } else {
     tabId = tabOrTabId.id;
-    await setTabTime(String(tabId), tabOrTabId?.lastAccessed ?? new Date().getTime());
+    await setTabTime(String(tabId), time ?? tabOrTabId?.lastAccessed ?? new Date().getTime());
   }
 }
 
@@ -170,7 +193,12 @@ export function isTabLocked(
     filterGroupedTabs,
     lockedIds,
     whitelist,
-  }: { filterAudio: boolean; filterGroupedTabs: boolean; lockedIds: number[]; whitelist: string[] },
+  }: {
+    filterAudio: boolean;
+    filterGroupedTabs: boolean;
+    lockedIds: number[];
+    whitelist: string[];
+  },
 ): boolean {
   const tabWhitelistMatch = getWhitelistMatch(tab.url, { whitelist });
   return (

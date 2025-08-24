@@ -230,6 +230,10 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Reset a tab's timer only after it is active for 1 second"
   },
+  "options_option_startTimerOnFirstActive_label": {
+    "description": "Label for checkbox to only start timer on first activation",
+    "message": "Only start timer on first activation"
+  },
   "options_option_filterAudio_label": {
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "Don't close tabs that are playing audio"
@@ -371,6 +375,10 @@
   "tabLock_lockedReason_group": {
     "description": "Label for a tab that is locked because it's in a group",
     "message": "Grouped"
+  },
+  "tabLock_lockedReason_inactive": {
+    "description": "Label for a tab that is locked because it's inactive",
+    "message": "Inactive"
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",

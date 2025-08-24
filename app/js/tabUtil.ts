@@ -150,6 +150,9 @@ export async function updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number): 
   }
 }
 
+/**
+ * @return null if no match, string of the matching rule if match
+ */
 export function getWhitelistMatch(
   url: string | undefined,
   { whitelist }: { whitelist: string[] },
@@ -157,10 +160,10 @@ export function getWhitelistMatch(
   if (url == null) return null;
   for (let i = 0; i < whitelist.length; i++) {
     if (url.indexOf(whitelist[i]) !== -1) {
-      return whitelist[i];
+      return settings.get<boolean>("invertWhitelist") ? null : whitelist[i];
     }
   }
-  return null;
+  return settings.get<boolean>("invertWhitelist") ? url : null;
 }
 
 export function isTabLocked(

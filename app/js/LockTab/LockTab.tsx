@@ -196,8 +196,8 @@ export default function LockTab() {
       tabsQuery.data == null || tabTimesQuery.data == null
         ? []
         : tabsQuery.data
-            .slice()
-            .sort((tabA, tabB) => currSorter.sort(tabA, tabB, tabTimesQuery.data));
+          .slice()
+          .sort((tabA, tabB) => currSorter.sort(tabA, tabB, tabTimesQuery.data));
     const map = new Map<number, chrome.tabs.Tab[]>();
     tabs.forEach((tab) => {
       if (!map.has(tab.windowId)) map.set(tab.windowId, []);

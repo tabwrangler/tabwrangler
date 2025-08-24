@@ -189,6 +189,10 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Zurücksetzen des Timer sobald der Tab mehr als eine Sekunde aktiv ist"
   },
+  "options_option_startTimerOnFirstActive_label": {
+    "description": "Label for checkbox to only start timer on first activation",
+    "message": "Nur beim ersten Aktivieren den Timer starten"
+  },
   "options_option_filterAudio_label": {
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "Tabs die Ton abspielen nicht schliessen"
@@ -270,6 +274,10 @@
         "example": "chrome://"
       }
     }
+  },
+  "tabLock_lockedReason_inactive": {
+    "description": "Label for a tab that is locked because it's inactive",
+    "message": "Inaktiv"
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",

@@ -189,6 +189,10 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "在操作分頁 1 秒後重設分頁計時器"
   },
+  "options_option_startTimerOnFirstActive_label": {
+    "description": "Label for checkbox to only start timer on first activation",
+    "message": "僅在第一次激活時啟動計時器"
+  },
   "options_option_filterAudio_label": {
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "不要關閉正在播放媒體的分頁"
@@ -266,6 +270,10 @@
   "tabLock_lockedReason_audible": {
     "description": "Label for a tab that is locked because it's audible",
     "message": "正在播放媒體的分頁不會被關閉"
+  },
+  "tabLock_lockedReason_grouped": {
+    "description": "Label for a tab that is locked because it's in a group",
+    "message": "群組內"
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",

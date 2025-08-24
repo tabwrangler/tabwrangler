@@ -43,9 +43,10 @@ export default function OpenTabRow({
   const now = React.useContext(UseNowContext);
   const paused = syncPersistData?.paused;
   const tabWhitelistMatch = settings.getWhitelistMatch(tab.url);
+  const isInactive = tabTime === -1;
 
   let lockStatusElement;
-  if (isLocked) {
+  if (isLocked || isInactive) {
     let reason;
     if (tab.pinned) {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
@@ -62,10 +63,13 @@ export default function OpenTabRow({
     } else {
       reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
     }
+    if (!isLocked && isInactive) {
+      reason = <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_inactive")}>Inactive</abbr>;
+    }
 
     lockStatusElement = (
       <td
-        className={cx("text-center muted", { "border-0": isLast })}
+        className={cx("text-center muted", { "border-0": isLast }, { "text-muted": isInactive })}
         style={{ verticalAlign: "middle" }}
       >
         {reason}
@@ -128,9 +132,9 @@ export default function OpenTabRow({
       >
         <div className="d-flex" style={{ lineHeight: "1.3" }}>
           <div className="flex-fill text-truncate" style={{ width: "1px" }}>
-            {tab.title}
+            <span className={cx({ "text-muted": isInactive })}>{tab.title}</span>
             <br />
-            <small className={cx({ "text-muted": !isLocked })}>({tab.url})</small>
+            <small className={cx({ "text-muted": !isLocked || isInactive })}>({tab.url})</small>
           </div>
         </div>
       </td>

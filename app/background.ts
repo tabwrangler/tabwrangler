@@ -61,8 +61,8 @@ chrome.tabs.onReplaced.addListener(function replaceTab(addedTabId: number, remov
 
     // Replace tab ID in object of tab times keeping the same time remaining for the added tab ID
     const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
-    tabTimes[addedTabId] = tabTimes[removedTabId];
-    delete tabTimes[removedTabId];
+    tabTimes[String(addedTabId)] = tabTimes[String(removedTabId)];
+    delete tabTimes[String(removedTabId)];
     await chrome.storage.local.set({
       tabTimes,
     });
@@ -156,18 +156,30 @@ async function checkToClose() {
       const lockedIds = settings.get<Array<number>>("lockedIds");
       const toCut = getTabsOlderThan(tabTimes, cutOff);
       const updatedAt = Date.now();
+      const updateTabTime = (tabId?: number) => {
+        if (!!tabId) return;
+        const tabTime = tabTimes[String(tabId)];
+        // Only update if tab is active
+        if (tabTime == null || tabTime !== -1) {
+          tabTimes[String(tabId)] = updatedAt;
+        }
+      };
 
       // Update selected tabs to make sure they don't get closed.
-      const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+      const activeTabs = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      });
+
       activeTabs.forEach((tab) => {
-        tabTimes[String(tab.id)] = updatedAt;
+        updateTabTime(tab.id);
       });
 
       // Update audible tabs if the setting is enabled to prevent them from being closed.
       if (settings.get("filterAudio") === true) {
         const audibleTabs = await chrome.tabs.query({ audible: true });
         audibleTabs.forEach((tab) => {
-          tabTimes[String(tab.id)] = updatedAt;
+          updateTabTime(tab.id);
         });
       }
 
@@ -183,6 +195,8 @@ async function checkToClose() {
         tabs = settings.get<boolean>("filterGroupedTabs")
           ? tabs.filter((tab) => !("groupId" in tab) || tab.groupId <= 0)
           : tabs;
+        // Filter out inactive tabs
+        tabs = tabs.filter((tab) => tabTimes[String(tab.id)] !== -1);
 
         let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.indexOf(tab.id) !== -1);
         if (tabs.length - minTabs <= 0) {
@@ -191,7 +205,9 @@ async function checkToClose() {
           //   when we add a new one
           for (let i = 0; i < tabs.length; i++) {
             const tabId = tabs[i].id;
-            if (tabId != null && resetIfNoCandidates) tabTimes[tabId] = updatedAt;
+            if (tabId != null && resetIfNoCandidates) {
+              updateTabTime(tabId);
+            }
           }
           return [];
         }
@@ -210,7 +226,7 @@ async function checkToClose() {
             // Update its time so it gets checked less frequently.
             // Would also be smart to just never add it.
             // @todo: fix that.
-            tabTimes[String(tabId)] = updatedAt;
+            updateTabTime(tabId);
             continue;
           }
           candidates.push(tabsToCut[i]);
@@ -244,7 +260,7 @@ async function checkToClose() {
       const allTabs = await chrome.tabs.query({});
       const nextTabTimes = allTabs.reduce(
         (acc, tab) => {
-          if (tab.id != null) acc[tab.id] = tabTimes[tab.id] || updatedAt;
+          if (tab.id != null) acc[tab.id] = tabTimes[String(tab.id)] || updatedAt;
           return acc;
         },
         {} as { [key: string]: number },

@@ -319,6 +319,19 @@ export default function OptionsTab() {
           <div className="form-check mb-1">
             <input
               className="form-check-input"
+              defaultChecked={settings.get("startTimerOnFirstActive")}
+              id="startTimerOnFirstActive"
+              name="startTimerOnFirstActive"
+              onChange={handleSettingsChange}
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="startTimerOnFirstActive">
+              Start timer only when tab is first activated
+            </label>
+          </div>
+          <div className="form-check mb-1">
+            <input
+              className="form-check-input"
               defaultChecked={settings.get("filterAudio")}
               id="filterAudio"
               name="filterAudio"

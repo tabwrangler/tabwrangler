@@ -1,6 +1,527 @@
 {
+  "about_name": {
+    "description": "Name of the 'About' section, where users can see information about the extension",
+    "message": "Sobre"
+  },
+  "about_changeLog": {
+    "description": "Link to the extension's list of changes per release",
+    "message": "Registo de alterações"
+  },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "Código-fonte (MIT)"
+  },
+  "about_support": {
+    "description": "Link to the extension's support site",
+    "message": "Suporte"
+  },
+  "commandLockUnlockActiveTab": {
+    "description": "Description of keyboard shortcut to lock or unlock the active tab",
+    "message": "Bloquear/Desbloquear A aba ativa"
+  },
+  "commandWrangleCurrentTab": {
+    "description": "Description of keyboard shortcut to close and save the active tab",
+    "message": "Feche e salve a aba ativa"
+  },
+  "commandWrangleOpenPopup": {
+    "description": "Description of keyboard shortcut to open TabWrangler popup",
+    "message": "Abrir pop-up"
+  },
+  "contextMenu_corralTab": {
+    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
+    "message": "Feche a aba e salve a URL imediatamente"
+  },
+  "contextMenu_lockDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "Nunca feche nada neste domínio"
+  },
+  "contextMenu_lockSpecificDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "Nunca feche nada em $domain$",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "www.wikipedia.org"
+      }
+    }
+  },
+  "contextMenu_lockTab": {
+    "description": "Label for context menu item that locks the clicked tab",
+    "message": "Nunca feche esta aba"
+  },
+  "corral_currentSort": {
+    "description": "Button title for showing current sort order",
+    "message": "Ordenado atualmente por $sort_order$",
+    "placeholders": {
+      "sort_order": {
+        "content": "$1",
+        "example": "Reverse Chrono"
+      }
+    }
+  },
+  "corral_emptyList": {
+    "description": "Message displayed in the tab corral when the extension has not yet closed any tabs",
+    "message": "Ainda não há abas fechadas. Quando o Tab Wrangler fechar abas, elas aparecerão aqui. Vá em frente e deixe suas abas abertas!"
+  },
+  "corral_removeSelectedTabs": {
+    "description": "Button title for removing all selected tabs from the corral",
+    "message": "Remover abas selecionadas"
+  },
+  "corral_restoreSelectedTabs": {
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
+    "message": "Restaurar abas selecionadas"
+  },
+  "corral_searchResults_clear": {
+    "description": "Button title for clearing the search value and resetting results",
+    "message": "Limpar pesquisa"
+  },
+  "corral_searchResults_label": {
+    "description": "Label showing number of tab search results",
+    "message": "$count$ resultado(s) de pesquisa",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "33"
+      }
+    }
+  },
+  "corral_searchTabs": {
+    "description": "Text input placeholder for searching list of closed tabs",
+    "message": "Pesquisar abas..."
+  },
+  "corral_toggleAllTabs_deselectAll": {
+    "description": "Button title for deselecting all tabs in the tab corral",
+    "message": "Desmarcar todas as abas"
+  },
+  "corral_toggleAllTabs_selectAll": {
+    "description": "Button title for selecting all tabs in the tab corral",
+    "message": "Selecionar todas as abas"
+  },
   "extName": {
     "description": "The name of this extension",
     "message": "Tab Wrangler"
+  },
+  "extension_pause": {
+    "description": "Label for button that pauses the extension",
+    "message": "Pausar"
+  },
+  "extension_resume": {
+    "description": "Label for button that resumes (unpauses) the extension",
+    "message": "Retomar"
+  },
+  "options_dedupe_label": {
+    "description": "Label for the de-duplicating option",
+    "message": "Evitar abas duplicadas no Curral de Abas:"
+  },
+  "options_dedupe_option_exactURLMatch": {
+    "description": "Label for option to de-duplicate when URL matches exactly",
+    "message": "Se a URL corresponder exatamente"
+  },
+  "options_dedupe_option_exactURLMatch_description": {
+    "description": "Description for option to de-duplicate when URL matches exactly",
+    "message": "Quando uma aba é organizada, ela será adicionada ao Curral e quaisquer abas mais antigas com exatamente a mesma URL serão removidas do Curral."
+  },
+  "options_dedupe_option_exactURLMatch_label": {
+    "description": "Extended label of the de-duplicate when tab URL matches exactly option",
+    "message": "Se a URL corresponder exatamente"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch": {
+    "description": "Label for option to de-duplicate when hostname and page title match",
+    "message": "Se o nome do host e o título da página corresponderem"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_description": {
+    "description": "Extended description for option to de-duplicate when hostname and page title match",
+    "message": "Quando uma aba for organizada, ela será adicionada ao Corral e quaisquer abas mais antigas com o mesmo nome de host (como \"wikipedia.org\") e título da página serão removidas do Corral."
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_label": {
+    "description": "Extended label for option to de-duplicate when hostname and page title match",
+    "message": "Se o nome do host e o título da página corresponderem"
+  },
+  "options_dedupe_option_withDupes": {
+    "description": "Label for option to never de-duplicate the tab corral",
+    "message": "Nunca (padrão)"
+  },
+  "options_dedupe_option_withDupes_description": {
+    "description": "Description of the never de-duplicating tabs option",
+    "message": "Quando uma aba for organizada, ela será adicionada ao Corral. Nenhuma outra alteração será feita no Corral."
+  },
+  "options_dedupe_option_withDupes_label": {
+    "description": "Label for never de-duplicating option",
+    "message": "Nunca"
+  },
+  "options_discard": {
+    "description": "Button title to discard unsaved settings changes",
+    "message": "Descartar"
+  },
+  "options_save": {
+    "description": "Button title to save settings changes",
+    "message": "Salvar"
+  },
+  "options_errorImportExport": {
+    "message": "Erro de Importação/Exportação"
+  },
+  "options_errorSavingSettings": {
+    "message": "Erro ao salvar configurações"
+  },
+  "options_unsavedChanges": {
+    "message": "Alterações não salvas"
+  },
+  "options_importExport_description": {
+    "description": "Description of the import/export feature shown next to import/export buttons",
+    "message": "Exportar todas as informações sobre abas organizadas. Esta é uma maneira conveniente de restaurar um estado antigo após reinstalar a extensão."
+  },
+  "options_importExport_export": {
+    "description": "Button label to begin exporting closed tabs",
+    "message": "Exportar"
+  },
+  "options_importExport_exporting": {
+    "description": "Label displayed when exporting closed tabs",
+    "message": "Exportando..."
+  },
+  "options_importExport_import": {
+    "description": "Button label to begin importing closed tabs",
+    "message": "Importar"
+  },
+  "options_importExport_importing": {
+    "description": "Label displayed when importing closed tabs",
+    "message": "Importando..."
+  },
+  "options_importExport_importWarning": {
+    "description": "Description of the destructiveness of importing; current tabs are overwritten",
+    "message": "Aviso: Importar dados substituirá todos os dados existentes. Não há como voltar atrás (a menos que você tenha um backup)."
+  },
+  "options_name": {
+    "description": "Name of the 'Options' section, where users can configure the extension",
+    "message": "Opções"
+  },
+  "options_option_autoLock_add": {
+    "description": "Button label for adding to whitelist",
+    "message": "Adicionar padrão"
+  },
+  "options_option_autoLock_empty": {
+    "description": "Message shown when there are no whitelisted URLs",
+    "message": "Ainda não há URLs com bloqueio automático. Use o formulário acima para adicionar algumas à lista de permissões."
+  },
+  "options_option_autoLock_example": {
+    "description": "Example describing how the whitelist works",
+    "message": "Exemplo: \"cnn\" corresponderia a todas as páginas em \"https://www.cnn.com\" e qualquer URL que contenha \"cnn\" em qualquer parte."
+  },
+  "options_option_autoLock_label": {
+    "description": "Label preceeding input for adding URL to whitelist",
+    "message": "Bloquear automaticamente abas com URLs que contenham:"
+  },
+  "options_option_autoLock_remove": {
+    "description": "Button label for removing a URL from the whitelist",
+    "message": "Remover"
+  },
+  "options_option_autoLock_urlHeader": {
+    "description": "Table column header for list of whitelisted URL strings",
+    "message": "Trecho da URL"
+  },
+  "options_option_clearOnQuit_label": {
+    "description": "Label for checkbox to clear the tab list after quitting the Browser",
+    "message": "Limpar a lista de abas fechadas ao sair"
+  },
+  "options_option_createContextMenu_label": {
+    "description": "Label for checkbox to create a 'Tab Wrangler' context menu item",
+    "message": "Criar um item de menu de contexto do \"Tab Wrangler\""
+  },
+  "options_option_debounceOnActivated_label": {
+    "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
+    "message": "Reiniciar o cronômetro da aba somente após ela estar ativa por 1 segundo"
+  },
+  "options_option_filterAudio_label": {
+    "description": "Label for checkbox to filter tabs that are playing audio",
+    "message": "Não fechar abas que estejam reproduzindo áudio"
+  },
+  "options_option_filterGroupedTabs_label": {
+    "description": "Label for checkbox to lock tabs that are in a tab group",
+    "message": "Não fechar abas que estejam em um grupo"
+  },
+  "options_option_minTabs_label": {
+    "description": "Label preceeding input for setting minimum number of tabs",
+    "message": "Fechar automaticamente abas inativas se houver mais de:"
+  },
+  "options_option_minTabs_option_givenWindow": {
+    "description": "Label for option to count tabs per window",
+    "message": "em uma janela específica"
+  },
+  "options_option_minTabs_option_total": {
+    "description": "Label for option to count tabs across all windows",
+    "message": "total (em todas as janelas)"
+  },
+  "options_option_minTabs_postLabel": {
+    "description": "Label following input for setting minimum number of tabs",
+    "message": "(não inclui abas fixadas ou bloqueadas)."
+  },
+  "options_option_minTabs_tabs": {
+    "description": "Input title for minimum number of tabs",
+    "message": "Deve ser um número maior ou igual a 0"
+  },
+  "options_option_rememberTabs_label": {
+    "description": "Label preceeding input for number of tabs to remember",
+    "message": "Lembrar até:"
+  },
+  "options_option_rememberTabs_postLabel": {
+    "description": "Label following input for number of tabs to remember",
+    "message": "abas fechadas."
+  },
+  "options_option_rememberTabs_tabs": {
+    "description": "Input title for number of tabs to remember",
+    "message": "Deve ser um número maior ou igual a 0"
+  },
+  "options_option_rememberTabs_saveToConfirm": {
+    "description": "Reminder to press save",
+    "message": "Pressione \"Salvar\" para confirmar a alteração."
+  },
+  "options_option_rememberTabs_truncateMsg": {
+    "description": "Message shown when decreasing number of saved tabs",
+    "message": "Reduzir esse número irá truncar a lista de abas fechadas, e os dados das abas removidas serão excluídos. Pressione \"Salvar\" para confirmar."
+  },
+  "options_option_rememberTabs_validNumber": {
+    "description": "Validation error when input is empty",
+    "message": "Insira um número válido."
+  },
+  "options_option_saveSortOrder": {
+    "description": "Label for toggling saving sort order in Corral and Lock Tabs",
+    "message": "Salvar ordem de classificação"
+  },
+  "options_option_showBadgeCount_label": {
+    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
+    "message": "Mostrar número de abas fechadas no botão da barra de ferramentas"
+  },
+  "options_option_theme_label": {
+    "description": "Label preceding button group for choosing the color theme",
+    "message": "Tema"
+  },
+  "options_option_theme_dark": {
+    "description": "'Dark' choice for color theme. Dark background, light font",
+    "message": "Escuro"
+  },
+  "options_option_theme_light": {
+    "description": "'Light' choice for color theme. Light background, dark font",
+    "message": "Claro"
+  },
+  "options_option_theme_system": {
+    "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
+    "message": "Sistema"
+  },
+  "options_option_timeInactive_label": {
+    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
+    "message": "remover abas inativas após:"
+  },
+  "options_option_timeInactive_minutes": {
+    "description": "Input title for number of minutes before closing tabs",
+    "message": "Deve ser um número maior que 0 e menor que 7200"
+  },
+  "options_option_timeInactive_label_minutes": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "minutos"
+  },
+  "options_option_timeInactive_label_seconds": {
+    "description": "Label following inputs for setting inactive time before tabs are closed",
+    "message": "segundos"
+  },
+  "options_option_timeInactive_seconds": {
+    "description": "Input title for number of seconds before closing tabs",
+    "message": "Deve ser um número maior que 0 e menor que 60"
+  },
+  "options_saving": {
+    "description": "Message displayed when options are being saved",
+    "message": "Salvando..."
+  },
+  "options_section_autoLock": {
+    "description": "Header for the auto-lock section of the options tab",
+    "message": "Bloqueio automático"
+  },
+  "options_section_importExport": {
+    "description": "Header for the import/export feature section of the options tab",
+    "message": "Importar/Exportar"
+  },
+  "tabCorral_name": {
+    "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
+    "message": "Curral de Abas"
+  },
+  "tabLock_lockedReason_locked": {
+    "description": "Label for tab that is locked because the user locked it",
+    "message": "Trancado"
+  },
+  "tabLock_lockedReason_matches": {
+    "description": "Label for a tab that is locked because it matches the whitelist",
+    "message": "Corresponde a $pattern$",
+    "placeholders": {
+      "pattern": {
+        "content": "$1",
+        "example": "chrome://"
+      }
+    }
+  },
+  "tabLock_lockedReason_paused": {
+    "description": "Label for a tab when the extension is paused",
+    "message": "Pausado"
+  },
+  "tabLock_lockedReason_pinned": {
+    "description": "Label for a tab that is locked because it's pinned",
+    "message": "Fixado"
+  },
+  "tabLock_lockedReason_audible": {
+    "description": "Label for a tab that is locked because it's audible",
+    "message": "Abas reproduzindo áudio não serão fechadas"
+  },
+  "tabLock_lockedReason_group": {
+    "description": "Label for a tab that is locked because it's in a group",
+    "message": "Agrupado"
+  },
+  "tabLock_lockLabel": {
+    "description": "Explanation of the lock checkbox's functionality",
+    "message": "Marque a caixa da aba para bloqueá-la (impedindo o fechamento automático)."
+  },
+  "tabLock_name": {
+    "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
+    "message": "Bloqueio de Aba"
+  },
+  "tabLock_remainingTimeLabel": {
+    "description": "Explanation of time remaining before tab is closed",
+    "message": "Fechando em..."
+  },
+  "tabLock_sort_tabOrder": {
+    "description": "Description for sorting tabs by how they appear in browser",
+    "message": "Ordem das Abas"
+  },
+  "tabLock_sort_tabOrder_short": {
+    "description": "Short version of tabLock_sort_tabOrder",
+    "message": "Ordem das Abas"
+  },
+  "tabLock_sort_tabOrder_desc": {
+    "description": "Description for sorting tabs by how they appear in browser, in reverse",
+    "message": "Ordem das Abas (reversa)"
+  },
+  "tabLock_sort_tabOrder_desc_short": {
+    "description": "Short version of tabLock_sort_tabOrder_desc",
+    "message": "Ordem das Abas (reversa)"
+  },
+  "tabLock_sort_timeUntilClose": {
+    "description": "Description for sorting tabs by how much time until TW closes them",
+    "message": "Tempo até o fechamento"
+  },
+  "tabLock_sort_timeUntilClose_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose",
+    "message": "Tempo até o fechamento"
+  },
+  "tabLock_sort_timeUntilClose_desc": {
+    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
+    "message": "Tempo até o fechamento (decrescente)"
+  },
+  "tabLock_sort_timeUntilClose_desc_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose_desc",
+    "message": "Tempo até o fechamento (decrescente)"
+  },
+  "corral_tabsWrangledFull": {
+    "description": "Description of number of tabs wrangled by this extension",
+    "message": "Abas organizadas: $count$ ($percent$%)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "18"
+      }
+    }
+  },
+  "settings_setmaxTabs_error_invalid": {
+    "description": "Error shown when invalid max tabs setting is supplied.",
+    "message": "O número máximo de abas deve ser maior que 1"
+  },
+  "settings_setmaxTabs_error_too_big": {
+    "description": "Error shown when the supplied max tabs setting could exceed quota.",
+    "message": "O número máximo de abas não pode exceder o limite permitido pela cota de armazenamento ($upperBound$ abas, estimado a partir de $quota$ ‘bytes’ de cota de armazenamento)",
+    "placeholders": {
+      "upperBound": {
+        "content": "$1",
+        "example": "18"
+      },
+      "quota": {
+        "content": "$2",
+        "example": "5242880"
+      }
+    }
+  },
+  "settings_setminTabs_error": {
+    "description": "Error shown when invalid min tabs setting is supplied.",
+    "message": "O número mínimo de abas deve ser maior ou igual a 0"
+  },
+  "settings_setminutesInactive_error": {
+    "description": "Error shown when invalid minutes inactive setting is supplied.",
+    "message": "Minutos inativa deve ser maior ou igual a 0"
+  },
+  "settings_setsecondsInactive_error": {
+    "description": "Error shown when invalid seconds inactive setting is supplied.",
+    "message": "Segundos inativa deve ser maior ou igual a 0 e menor que 60"
+  },
+  "corral_sortBy": {
+    "description": "Label prefixing sort order of the tab corral",
+    "message": "Ordenar por:"
+  },
+  "corral_sortPageTitle": {
+    "description": "Label for sorting the tab corral list by page title",
+    "message": "Título da página"
+  },
+  "corral_sortPageTitle_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title",
+    "message": "Título da página"
+  },
+  "corral_sortPageTitle_descending": {
+    "description": "Label for sorting the tab corral list by page title in descending order",
+    "message": "Título da Página (decrescente)"
+  },
+  "corral_sortPageTitle_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title in descending order",
+    "message": "Título da Página (decrescente)"
+  },
+  "corral_sortTimeClosed": {
+    "description": "Label for sorting the tab corral list by tab closed time",
+    "message": "Horário de fechamento"
+  },
+  "corral_sortTimeClosed_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time",
+    "message": "Horário de fechamento"
+  },
+  "corral_sortTimeClosed_descending": {
+    "description": "Label for sorting the tab corral list by tab closed time in descending order",
+    "message": "Horário de fechamento (decrescente)"
+  },
+  "corral_sortTimeClosed_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time in descending order",
+    "message": "Horário de fechamento (decrescente)"
+  },
+  "corral_sortDomain": {
+    "description": "Label for sorting the tab corral list by domain",
+    "message": "Domínio"
+  },
+  "corral_sortDomain_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain",
+    "message": "Domínio"
+  },
+  "corral_sortDomain_descending": {
+    "description": "Label for sorting the tab corral list by domain in descending order",
+    "message": "Domínio (decrescente)"
+  },
+  "corral_sortDomain_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
+    "message": "Domínio (decrescente)"
+  },
+  "extDescription": {
+    "description": "Brief description of the extension",
+    "message": "Fecha automaticamente, abas inativas e facilita recuperá-las"
+  },
+  "corral_tabSessionFresh": {
+    "description": "Tooltip describing why certain tabs will have their full session restored",
+    "message": "Restaurar esta aba irá restaurar toda a sua sessão: histórico, posição de rolagem, etc. Isso é limitado pelo navegador às últimas 25 abas fechadas."
+  },
+  "corral_noTabsMatch": {
+    "description": "Message shown when no tabs match the user's search query",
+    "message": "Nenhuma aba corresponde à sua pesquisa. Tente uma nova pesquisa ou uma menos específica."
   }
 }

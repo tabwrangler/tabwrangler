@@ -176,6 +176,7 @@ include the following:
 🇰🇷 Korean by [x_nuk](https://crowdin.com/profile/x_nuk),
 🇱🇻 Latvian by [coool](https://crowdin.com/profile/coool),
 🇵🇱 Polish by [imjusttony](https://crowdin.com/profile/imjusttony),
+🇧🇷 Portuguese, Brazilian by [RavenaStar](https://crowdin.com/profile/RavenaStar),
 🇷🇺 Russian by [sdir01](https://crowdin.com/profile/sdir01) and [coool](https://crowdin.com/profile/coool),
 🇪🇸 Spanish by [julianjaramillo](https://crowdin.com/profile/julianjaramillo),
 Tamil by [dineshr](https://crowdin.com/profile/dineshr),

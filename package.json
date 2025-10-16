@@ -1,7 +1,16 @@
 {
   "name": "tabwrangler",
-  "version": "7.8.0",
+  "version": "7.9.0",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
+  "homepage": "https://github.com/tabwrangler/tabwrangler",
+  "bugs": {
+    "url": "https://github.com/tabwrangler/tabwrangler/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tabwrangler/tabwrangler.git"
+  },
   "scripts": {
     "clean": "rm -rf dist",
     "check-types": "tsc --noEmit",
@@ -13,15 +22,6 @@
     "start": "webpack-cli --config=webpack.config.js --watch",
     "test": "jest"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tabwrangler/tabwrangler.git"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/tabwrangler/tabwrangler/issues"
-  },
-  "homepage": "https://github.com/tabwrangler/tabwrangler#readme",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.3.1",
     "@react-hook/debounce": "^4.0.0",

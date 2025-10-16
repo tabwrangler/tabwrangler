@@ -147,9 +147,8 @@ async function checkToClose() {
 
     const cutOff = new Date().getTime() - settings.get<number>("stayOpen");
     const minTabs = settings.get<number>("minTabs");
-    let tabsToCloseCandidates: chrome.tabs.Tab[] = [];
-
-    await ASYNC_LOCK.acquire("local.tabTimes", async () => {
+    const tabsToCloseCandidates = await ASYNC_LOCK.acquire("local.tabTimes", async () => {
+      const allTabs = await chrome.tabs.query({});
       const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
 
       // Tabs which have been locked via the checkbox.
@@ -165,9 +164,11 @@ async function checkToClose() {
 
       // Update audible tabs if the setting is enabled to prevent them from being closed.
       if (settings.get("filterAudio") === true) {
-        const audibleTabs = await chrome.tabs.query({ audible: true });
-        audibleTabs.forEach((tab) => {
-          tabTimes[String(tab.id)] = updatedAt;
+        // Note: This does not use the `audible:true` filter in `.query` because it is broken in
+        // some Chromium browsers.
+        // @see https://github.com/tabwrangler/tabwrangler/issues/519
+        allTabs.forEach((tab) => {
+          if (tab.audible) tabTimes[String(tab.id)] = updatedAt;
         });
       }
 
@@ -218,16 +219,16 @@ async function checkToClose() {
         return candidates;
       }
 
+      let candidateTabs: chrome.tabs.Tab[] = [];
       if (settings.get("minTabsStrategy") === "allWindows") {
         // * "allWindows" - sum tabs across all open browser windows
-        const tabs = await chrome.tabs.query({});
-        tabsToCloseCandidates = findTabsToCloseCandidates(tabs, {
+        candidateTabs = findTabsToCloseCandidates(allTabs, {
           resetIfNoCandidates: false,
         });
       } else {
         // * "givenWindow" (default) - count tabs within any given window
         const windows = await chrome.windows.getAll({ populate: true });
-        tabsToCloseCandidates = windows
+        candidateTabs = windows
           .map((win) =>
             win.tabs == null
               ? []
@@ -241,7 +242,6 @@ async function checkToClose() {
       //   populated
       // * Tab no longer exists? reducing `tabs.query` will not yield that dead tab ID and it will
       //   not exist in resulting `nextTabTimes`
-      const allTabs = await chrome.tabs.query({});
       const nextTabTimes = allTabs.reduce(
         (acc, tab) => {
           if (tab.id != null) acc[tab.id] = tabTimes[tab.id] || updatedAt;
@@ -251,6 +251,8 @@ async function checkToClose() {
       );
 
       await chrome.storage.local.set({ tabTimes: nextTabTimes });
+
+      return candidateTabs;
     });
 
     const tabsToClose = tabsToCloseCandidates.filter(

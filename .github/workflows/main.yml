@@ -23,7 +23,7 @@ jobs:
           cache: "npm"
           node-version: ${{ env.NODE_VERSION }}
       - run: npm ci
-      - run: npm check-types
+      - run: npm run check-types
 
   lint:
     runs-on: ubuntu-latest

@@ -53,8 +53,8 @@ Note: For further details on Chrome extension i18n, check out the Chrome extensi
 on [i18n messages][0].
 
 Making Tab Wrangler available in languages other than English is possible due to generous
-contributors. If you'd like to contribute, please follow the instructions above and create a pull
-request with your updates.
+contributors. If you'd like to contribute, please create a Crowdin account and add translations
+to the [Crowdin Project][3].
 
 [0]: https://developer.chrome.com/apps/i18n-messages
 [1]: https://developer.chrome.com/webstore/i18n?csw=1#localeTable

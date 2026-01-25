@@ -31,7 +31,7 @@
     "classnames": "^2.2.5",
     "color-hash": "^2.0.1",
     "file-saver": "^2.0.0",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "^4.17.23",
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.7",
     "react-dom": "^18.2.0",

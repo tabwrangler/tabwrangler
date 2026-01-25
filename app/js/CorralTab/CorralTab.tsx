@@ -6,12 +6,13 @@ import { removeSavedTabs, unwrangleTabs } from "../actions/localStorageActions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ClosedTabRow from "./ClosedTabRow";
 import Dropdown from "react-bootstrap/Dropdown";
+import escape from "regexp.escape";
 import settings from "../settings";
 import { useStorageLocalPersistQuery } from "../storage";
 
 function keywordFilter(keyword: string) {
   return function (tab: chrome.tabs.Tab) {
-    const test = new RegExp(keyword, "i");
+    const test = new RegExp(escape(keyword), "i");
     return (tab.title != null && test.exec(tab.title)) || (tab.url != null && test.exec(tab.url));
   };
 }

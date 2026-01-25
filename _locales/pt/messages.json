@@ -33,7 +33,7 @@
   },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
-    "message": "Nunca feche nada em $domain$"
+    "message": "Nunca feche nada neste domínio"
   },
   "contextMenu_lockSpecificDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",

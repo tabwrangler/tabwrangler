@@ -3,9 +3,7 @@ import { SessionTab, TabWithIndex } from "./types";
 import {
   addSavedTabs,
   insertSavedTabsAt,
-  openTabs,
   removeSavedTabs,
-  removeSavedTabsByIndices,
   unwrangleTabs,
 } from "./actions/localStorageActions";
 import { assertUnreachable } from "./util";
@@ -83,7 +81,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
   const removeTabs = React.useCallback(
     async (tabsWithIndices: TabWithIndex[]) => {
       if (tabsWithIndices.length === 0) return;
-      await removeSavedTabsByIndices(tabsWithIndices.map((t) => t.index));
+      await removeSavedTabs(tabsWithIndices.map((t) => t.tab));
       recordDelete(tabsWithIndices);
     },
     [recordDelete],
@@ -131,7 +129,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     switch (nextAction.type) {
       case "remove":
         // Redo delete: Remove the tabs again by their indices
-        await removeSavedTabsByIndices(nextAction.tabsWithIndices.map((t) => t.index));
+        await removeSavedTabs(nextAction.tabsWithIndices.map((t) => t.tab));
         tabs = nextAction.tabsWithIndices.map((t) => t.tab);
         break;
       case "restore":

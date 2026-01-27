@@ -33,21 +33,6 @@ export function removeSavedTabs(tabs: Array<chrome.tabs.Tab>) {
   });
 }
 
-export function removeSavedTabsByIndices(indices: number[]): Promise<void> {
-  return ASYNC_LOCK.acquire("persist:localStorage", async () => {
-    const localStorage = await getStorageLocalPersist();
-    const indicesToRemove = new Set(indices);
-    const nextSavedTabs = localStorage.savedTabs.filter((_, index) => !indicesToRemove.has(index));
-
-    await chrome.storage.local.set({
-      "persist:localStorage": {
-        ...localStorage,
-        savedTabs: nextSavedTabs,
-      },
-    });
-  });
-}
-
 export function insertSavedTabsAt(tabsWithIndices: TabWithIndex[]): Promise<void> {
   return ASYNC_LOCK.acquire("persist:localStorage", async () => {
     const localStorage = await getStorageLocalPersist();

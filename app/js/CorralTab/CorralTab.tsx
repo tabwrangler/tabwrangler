@@ -2,13 +2,14 @@ import "./CorralTab.scss";
 import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
 import { extractHostname, extractRootDomain, serializeTab } from "../util";
-import { removeSavedTabs, unwrangleTabs } from "../actions/localStorageActions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ClosedTabRow from "./ClosedTabRow";
 import Dropdown from "react-bootstrap/Dropdown";
+import { TabWithIndex } from "../types";
 import escape from "regexp.escape";
 import settings from "../settings";
 import { useStorageLocalPersistQuery } from "../storage";
+import { useUndo } from "../UndoContext";
 
 function keywordFilter(keyword: string) {
   return function (tab: chrome.tabs.Tab) {
@@ -137,37 +138,49 @@ export function sessionFuzzyMatchesTab(
   );
 }
 
+interface RowData {
+  index: number;
+  isSelected: boolean;
+  session: chrome.sessions.Session | null;
+  tab: chrome.tabs.Tab;
+  onOpenTab: (tab: chrome.tabs.Tab, index: number, session: chrome.sessions.Session | null) => void;
+  onRemoveTab: (tab: chrome.tabs.Tab, index: number) => void;
+  onToggleTab: (
+    tab: chrome.tabs.Tab,
+    index: number,
+    selected: boolean,
+    multiselect: boolean,
+  ) => void;
+}
+
 function rowRenderer({
   key,
   rowData,
   style,
 }: {
   key: React.Key;
-  rowData: {
-    isSelected: boolean;
-    onOpenTab: () => void;
-    onRemoveTab: () => void;
-    onToggleTab: () => void;
-    session: chrome.sessions.Session;
-    tab: chrome.tabs.Tab;
-  };
+  rowData: RowData;
   style: Record<string, unknown>;
 }) {
   return (
     <ClosedTabRow
+      index={rowData.index}
       isSelected={rowData.isSelected}
       key={key}
-      onOpenTab={rowData.onOpenTab}
-      onRemoveTab={rowData.onRemoveTab}
-      onToggleTab={rowData.onToggleTab}
       session={rowData.session}
       style={style}
       tab={rowData.tab}
+      onOpenTab={rowData.onOpenTab}
+      onRemoveTab={rowData.onRemoveTab}
+      onToggleTab={rowData.onToggleTab}
     />
   );
 }
 
 export default function CorralTab() {
+  const { canUndo, canRedo, lastAction, nextRedoAction, undo, redo, removeTabs, restoreTabs } =
+    useUndo();
+
   // Focus the search input so it's simple to type immediately. This must be done after the popup
   // is available, which is roughly 150ms after the popup is opened (determined empirically). Use
   // 350ms to ensure this always works.
@@ -211,16 +224,19 @@ export default function CorralTab() {
   }, [queryClient]);
 
   const { data: localStorageData } = useStorageLocalPersistQuery();
-  const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
+  const lastSelectedTabRef = React.useRef<TabWithIndex | null>(null);
   const [selectedTabs, setSelectedTabs] = React.useState<Set<string>>(new Set());
-  const closedTabs: chrome.tabs.Tab[] = React.useMemo(() => {
+  const closedTabs: TabWithIndex[] = React.useMemo(() => {
     if (localStorageData == null || !("savedTabs" in localStorageData)) return [];
-    return localStorageData.savedTabs.filter(keywordFilter(filter)).sort(currSorter.sort);
-  }, [currSorter.sort, filter, localStorageData]);
+    return localStorageData.savedTabs
+      .map((tab: chrome.tabs.Tab, index: number): TabWithIndex => ({ tab, index }))
+      .filter(({ tab }: TabWithIndex) => keywordFilter(filter)(tab))
+      .sort((a: TabWithIndex, b: TabWithIndex) => currSorter.sort(a.tab, b.tab));
+  }, [currSorter, filter, localStorageData]);
 
   const areAllClosedTabsSelected =
-    closedTabs.length > 0 && closedTabs.every((tab) => selectedTabs.has(serializeTab(tab)));
-  const hasVisibleSelectedTabs = closedTabs.some((tab) => selectedTabs.has(serializeTab(tab)));
+    closedTabs.length > 0 && closedTabs.every(({ tab }) => selectedTabs.has(serializeTab(tab)));
+  const hasVisibleSelectedTabs = closedTabs.some(({ tab }) => selectedTabs.has(serializeTab(tab)));
   const percentClosed =
     localStorageData == null ||
     !("totalTabsRemoved" in localStorageData) ||
@@ -257,55 +273,78 @@ export default function CorralTab() {
     }
   }
 
+  async function handleRedo() {
+    const result = await redo();
+    if (result?.type === "remove") {
+      setSelectedTabs((curr) => {
+        const nextSelectedTabs = new Set(curr);
+        result.tabs.forEach((tab) => {
+          nextSelectedTabs.delete(serializeTab(tab));
+        });
+        return nextSelectedTabs;
+      });
+    }
+  }
+
   async function handleRemoveSelectedTabs() {
-    await removeSavedTabs(closedTabs.filter((tab) => selectedTabs.has(serializeTab(tab))));
+    const tabsToRemove = closedTabs.filter(({ tab }) => selectedTabs.has(serializeTab(tab)));
+    await removeTabs(tabsToRemove);
     setSelectedTabs(new Set());
   }
 
-  async function handleOpenTab(tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) {
-    await unwrangleTabs([{ session, tab }]);
+  async function handleOpenTab(
+    tab: chrome.tabs.Tab,
+    _index: number,
+    session: chrome.sessions.Session | undefined,
+  ) {
+    await restoreTabs([{ session, tab }]);
     const nextSelectedTabs = new Set(selectedTabs);
     nextSelectedTabs.delete(serializeTab(tab));
     setSelectedTabs(nextSelectedTabs);
   }
 
   async function handleOpenSelectedTabs() {
-    await unwrangleTabs(
-      closedTabs
-        .filter((tab) => selectedTabs.has(serializeTab(tab)))
-        .map((tab) => ({
-          session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
-          tab,
-        })),
+    const tabsToRestore = closedTabs.filter(({ tab }) => selectedTabs.has(serializeTab(tab)));
+    await restoreTabs(
+      tabsToRestore.map(({ tab }) => ({
+        session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
+        tab,
+      })),
     );
     setSelectedTabs(new Set());
   }
 
-  async function handleRemoveTab(tab: chrome.tabs.Tab) {
-    await removeSavedTabs([tab]);
+  async function handleRemoveTab(tab: chrome.tabs.Tab, index: number) {
+    await removeTabs([{ tab, index }]);
     const nextSelectedTabs = new Set(selectedTabs);
     nextSelectedTabs.delete(serializeTab(tab));
     setSelectedTabs(nextSelectedTabs);
   }
 
-  function handleToggleTab(tab: chrome.tabs.Tab, isSelected: boolean, multiselect: boolean) {
+  function handleToggleTab(
+    tab: chrome.tabs.Tab,
+    index: number,
+    isSelected: boolean,
+    multiselect: boolean,
+  ) {
     // If this is a multiselect (done by holding the Shift key and clicking), see if the last
     // selected tab is still visible and, if it is, toggle all tabs between it and this new clicked
     // tab.
     const nextSelectedTabs = new Set(selectedTabs);
-    if (multiselect && lastSelectedTabRef.current != null) {
-      const lastSelectedTabIndex = closedTabs.indexOf(lastSelectedTabRef.current);
+    const lastSelectedTab = lastSelectedTabRef.current;
+    if (multiselect && lastSelectedTab != null) {
+      const lastSelectedTabIndex = closedTabs.findIndex((t) => t.index === lastSelectedTab.index);
       if (lastSelectedTabIndex >= 0) {
-        const tabIndex = closedTabs.indexOf(tab);
+        const tabIndex = closedTabs.findIndex((t) => t.index === index);
         for (
           let i = Math.min(lastSelectedTabIndex, tabIndex);
           i <= Math.max(lastSelectedTabIndex, tabIndex);
           i++
         ) {
           if (isSelected) {
-            nextSelectedTabs.add(serializeTab(closedTabs[i]));
+            nextSelectedTabs.add(serializeTab(closedTabs[i].tab));
           } else {
-            nextSelectedTabs.delete(serializeTab(closedTabs[i]));
+            nextSelectedTabs.delete(serializeTab(closedTabs[i].tab));
           }
         }
       }
@@ -317,7 +356,7 @@ export default function CorralTab() {
       }
     }
 
-    lastSelectedTabRef.current = tab;
+    lastSelectedTabRef.current = { tab, index };
     setSelectedTabs(nextSelectedTabs);
   }
 
@@ -325,11 +364,11 @@ export default function CorralTab() {
     let nextSelectedTabs: Set<string>;
     if (areAllClosedTabsSelected) {
       nextSelectedTabs = new Set(selectedTabs);
-      closedTabs.forEach((tab) => {
+      closedTabs.forEach(({ tab }) => {
         nextSelectedTabs.delete(serializeTab(tab));
       });
     } else {
-      nextSelectedTabs = new Set(closedTabs.map(serializeTab));
+      nextSelectedTabs = new Set(closedTabs.map(({ tab }) => serializeTab(tab)));
     }
 
     lastSelectedTabRef.current = null;
@@ -386,7 +425,7 @@ export default function CorralTab() {
       </div>
 
       <div className="corral-tab--control-bar py-2 border-bottom">
-        <div>
+        <div className="d-flex gap-1">
           <button
             className="btn btn-secondary btn-sm"
             disabled={closedTabs.length === 0}
@@ -407,26 +446,23 @@ export default function CorralTab() {
           {hasVisibleSelectedTabs ? (
             <>
               <button
-                className="btn btn-secondary btn-sm ms-1 px-3"
+                className="btn btn-secondary btn-sm px-3"
                 onClick={handleOpenSelectedTabs}
                 title={chrome.i18n.getMessage("corral_restoreSelectedTabs")}
                 type="button"
               >
                 <span className="sr-only">
-                  {chrome.i18n.getMessage("corral_removeSelectedTabs")}
+                  {chrome.i18n.getMessage("corral_restoreSelectedTabs")}
                 </span>
                 <i className="fas fa-external-link-alt" />
               </button>
               <button
-                className="btn btn-secondary btn-sm ms-1 px-3"
+                className="btn btn-secondary btn-sm"
                 onClick={handleRemoveSelectedTabs}
                 title={chrome.i18n.getMessage("corral_removeSelectedTabs")}
                 type="button"
               >
-                <span className="sr-only">
-                  {chrome.i18n.getMessage("corral_removeSelectedTabs")}
-                </span>
-                <i className="fas fa-trash-alt" />
+                <i className="fas fa-trash-alt" /> {chrome.i18n.getMessage("corral_remove")}
               </button>
             </>
           ) : null}
@@ -444,6 +480,42 @@ export default function CorralTab() {
               />
             </span>
           ) : null}
+          <div className="btn-group">
+            <button
+              className="btn btn-secondary btn-sm"
+              disabled={!canUndo}
+              onClick={undo}
+              title={
+                lastAction
+                  ? chrome.i18n.getMessage(
+                      lastAction.type === "remove" ? "corral_undo_remove" : "corral_undo_restore",
+                      String(lastAction.tabCount),
+                    )
+                  : chrome.i18n.getMessage("corral_undo")
+              }
+              type="button"
+            >
+              <i className="fas fa-undo" /> {chrome.i18n.getMessage("corral_undo")}
+            </button>
+            <button
+              className="btn btn-secondary btn-sm"
+              disabled={!canRedo}
+              onClick={handleRedo}
+              title={
+                nextRedoAction
+                  ? chrome.i18n.getMessage(
+                      nextRedoAction.type === "remove"
+                        ? "corral_redo_remove"
+                        : "corral_redo_restore",
+                      String(nextRedoAction.tabCount),
+                    )
+                  : chrome.i18n.getMessage("corral_redo")
+              }
+              type="button"
+            >
+              <i className="fas fa-redo" /> {chrome.i18n.getMessage("corral_redo")}
+            </button>
+          </div>
           <Dropdown>
             <Dropdown.Toggle
               size="sm"
@@ -505,9 +577,10 @@ export default function CorralTab() {
             noRowsRenderer={renderNoRows}
             onScroll={onChildScroll}
             rowCount={closedTabs.length}
-            rowGetter={({ index }: { index: number }) => {
-              const tab = closedTabs[index];
+            rowGetter={({ index: rowIndex }: { index: number }) => {
+              const { tab, index } = closedTabs[rowIndex];
               return {
+                index,
                 isSelected: selectedTabs.has(serializeTab(tab)),
                 onOpenTab: handleOpenTab,
                 onRemoveTab: handleRemoveTab,

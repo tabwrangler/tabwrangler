@@ -1,3 +1,4 @@
+import { SessionTab, TabWithIndex } from "../types";
 import { ASYNC_LOCK } from "../storage";
 import { getStorageLocalPersist } from "../queries";
 import { serializeTab } from "../util";
@@ -32,6 +33,45 @@ export function removeSavedTabs(tabs: Array<chrome.tabs.Tab>) {
   });
 }
 
+export function removeSavedTabsByIndices(indices: number[]): Promise<void> {
+  return ASYNC_LOCK.acquire("persist:localStorage", async () => {
+    const localStorage = await getStorageLocalPersist();
+    const indicesToRemove = new Set(indices);
+    const nextSavedTabs = localStorage.savedTabs.filter((_, index) => !indicesToRemove.has(index));
+
+    await chrome.storage.local.set({
+      "persist:localStorage": {
+        ...localStorage,
+        savedTabs: nextSavedTabs,
+      },
+    });
+  });
+}
+
+export function insertSavedTabsAt(tabsWithIndices: TabWithIndex[]): Promise<void> {
+  return ASYNC_LOCK.acquire("persist:localStorage", async () => {
+    const localStorage = await getStorageLocalPersist();
+    const savedTabs = [...localStorage.savedTabs];
+
+    // Sort by index ascending so insertions don't affect subsequent indices
+    const sorted = [...tabsWithIndices].sort((a, b) => a.index - b.index);
+
+    // Insert each tab at its original index
+    sorted.forEach(({ tab, index }) => {
+      // Clamp index to valid range in case array has changed
+      const insertAt = Math.min(index, savedTabs.length);
+      savedTabs.splice(insertAt, 0, tab);
+    });
+
+    await chrome.storage.local.set({
+      "persist:localStorage": {
+        ...localStorage,
+        savedTabs,
+      },
+    });
+  });
+}
+
 export function setSavedTabs(savedTabs: Array<chrome.tabs.Tab>): Promise<void> {
   return ASYNC_LOCK.acquire("persist:localStorage", async () => {
     const localStorage = await getStorageLocalPersist();
@@ -42,6 +82,27 @@ export function setSavedTabs(savedTabs: Array<chrome.tabs.Tab>): Promise<void> {
       },
     });
   });
+}
+
+export function addSavedTabs(tabs: Array<chrome.tabs.Tab>): Promise<void> {
+  return ASYNC_LOCK.acquire("persist:localStorage", async () => {
+    const localStorage = await getStorageLocalPersist();
+    const existingTabsSet = new Set(localStorage.savedTabs.map(serializeTab));
+
+    // Only add tabs that don't already exist
+    const tabsToAdd = tabs.filter((tab) => !existingTabsSet.has(serializeTab(tab)));
+
+    await chrome.storage.local.set({
+      "persist:localStorage": {
+        ...localStorage,
+        savedTabs: [...localStorage.savedTabs, ...tabsToAdd],
+      },
+    });
+  });
+}
+
+export function openTabs(tabs: Array<chrome.tabs.Tab>): Promise<chrome.tabs.Tab[]> {
+  return Promise.all(tabs.map((tab) => chrome.tabs.create({ active: false, url: tab.url })));
 }
 
 export function setTabTime(tabId: string, tabTime: number) {
@@ -90,12 +151,7 @@ export function removeTabTime(tabId: string) {
   });
 }
 
-export async function unwrangleTabs(
-  sessionTabs: Array<{
-    session: chrome.sessions.Session | undefined;
-    tab: chrome.tabs.Tab;
-  }>,
-): Promise<void> {
+export async function unwrangleTabs(sessionTabs: Array<SessionTab>): Promise<void> {
   await ASYNC_LOCK.acquire("persist:localStorage", async () => {
     const localStorage = await getStorageLocalPersist();
     const installDate = localStorage.installDate;

@@ -4,6 +4,7 @@ import CorralTab from "./CorralTab/CorralTab";
 import LockTab from "./LockTab/LockTab";
 import OptionsTab from "./OptionsTab/OptionsTab";
 import React from "react";
+import { UndoProvider } from "./UndoContext";
 import { register } from "timeago.js";
 import timeagoLocale from "./timeagoLocale";
 import { useStorageSyncPersistQuery } from "./storage";
@@ -68,9 +69,9 @@ export default function Popup() {
   }
 
   return (
-    <>
+    <UndoProvider>
       <NavBar activeTabId={activeTabId} onClickTab={setActiveTabId} />
       <div className="tab-content container-fluid">{activeTab}</div>
-    </>
+    </UndoProvider>
   );
 }

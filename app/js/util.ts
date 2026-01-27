@@ -1,3 +1,7 @@
+export function assertUnreachable(_never: never, message: string): never {
+  throw new Error(message);
+}
+
 export function extractHostname(url: string): string {
   let hostname;
 
@@ -34,9 +38,11 @@ export function extractRootDomain(url: string): string {
   return domain;
 }
 
-// Serializes closed tabs for comparison. Because the "REMOVED_SAVED_TABS" action comes from the
-// popup, the tabs to remove are serialized as strings to pass from popup -> serviceWorker and so
-// object comparison is not possible.
+/**
+ * Serializes closed tabs for comparison. Because the "REMOVED_SAVED_TABS" action comes from the
+ * popup, the tabs to remove are serialized as strings to pass from popup -> serviceWorker and so
+ * object comparison is not possible.
+ */
 export function serializeTab(tab: chrome.tabs.Tab): string {
   // @ts-expect-error `closedAt` is a TW expando property
   return `${tab.id}:${tab.windowId}:${tab.closedAt}`;

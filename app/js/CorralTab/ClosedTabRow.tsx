@@ -5,25 +5,32 @@ import TimeAgo from "timeago-react";
 import cx from "classnames";
 import { extractHostname } from "../util";
 
-type Props = {
+interface ClosedTabRowProps {
+  index: number;
   isSelected: boolean;
-  onOpenTab: (tab: chrome.tabs.Tab, session: chrome.sessions.Session | null) => void;
-  onRemoveTab: (tab: chrome.tabs.Tab) => void;
-  onToggleTab: (tab: chrome.tabs.Tab, selected: boolean, multiselect: boolean) => void;
   session: chrome.sessions.Session | null;
   style: Record<string, unknown>;
   tab: chrome.tabs.Tab;
-};
+  onOpenTab: (tab: chrome.tabs.Tab, index: number, session: chrome.sessions.Session | null) => void;
+  onRemoveTab: (tab: chrome.tabs.Tab, index: number) => void;
+  onToggleTab: (
+    tab: chrome.tabs.Tab,
+    index: number,
+    selected: boolean,
+    multiselect: boolean,
+  ) => void;
+}
 
 export default function ClosedTabRow({
+  index,
   isSelected,
-  onOpenTab,
-  onRemoveTab,
-  onToggleTab,
   session,
   style,
   tab,
-}: Props) {
+  onOpenTab,
+  onRemoveTab,
+  onToggleTab,
+}: ClosedTabRowProps) {
   return (
     <div
       aria-label="row"
@@ -38,7 +45,7 @@ export default function ClosedTabRow({
           onClick={(event: React.MouseEvent) => {
             // Dynamic type check to ensure target is an input element.
             if (!(event.target instanceof HTMLInputElement)) return;
-            onToggleTab(tab, event.target.checked, event.shiftKey);
+            onToggleTab(tab, index, event.target.checked, event.shiftKey);
           }}
           type="checkbox"
           readOnly
@@ -58,7 +65,7 @@ export default function ClosedTabRow({
         <span
           className="faviconCol--hover-shown"
           onClick={() => {
-            onRemoveTab(tab);
+            onRemoveTab(tab, index);
           }}
           role="button"
           style={{ cursor: "pointer", height: 16, width: 16 }}
@@ -75,7 +82,7 @@ export default function ClosedTabRow({
               href={tab.url}
               onClick={(event: React.MouseEvent) => {
                 event.preventDefault();
-                onOpenTab(tab, session);
+                onOpenTab(tab, index, session);
               }}
               rel="noopener noreferrer"
               style={{ flex: 1 }}

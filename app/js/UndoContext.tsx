@@ -107,9 +107,9 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
         await insertSavedTabsAt(lastAction.tabsWithIndices);
         break;
       case "restore":
-        // Undo restore: Remove the restored tabs from savedTabs
+        // Undo restore: Add restored tabs back to savedTabs
         // Note: Does NOT close the browser tabs - this is intentional
-        await removeSavedTabs(lastAction.tabs);
+        await addSavedTabs(lastAction.tabs);
         break;
       default:
         assertUnreachable(lastAction, "lastAction.type");
@@ -133,9 +133,9 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
         tabs = nextAction.tabsWithIndices.map((t) => t.tab);
         break;
       case "restore":
-        // Redo restore: Re-add tabs to savedTabs
+        // Redo restore: re-remove tabs from savedTabs
         // Note: Does NOT re-open them because that seems strange
-        await addSavedTabs(nextAction.tabs);
+        await removeSavedTabs(nextAction.tabs);
         tabs = nextAction.tabs;
         break;
       default:

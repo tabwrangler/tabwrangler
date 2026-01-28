@@ -516,6 +516,10 @@
     "description": "Brief description of the extension",
     "message": "Automatically closes inactive tabs and makes it easy to get them back"
   },
+  "corral_remove": {
+    "description": "Label for button that removes selected tabs",
+    "message": "Remove"
+  },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",
     "message": "Restoring this tab will restore its entire session: history, scroll position, etc. This is limited by the browser to the last 25 closed tabs."
@@ -523,5 +527,53 @@
   "corral_noTabsMatch": {
     "description": "Message shown when no tabs match the user's search query",
     "message": "No tabs match your query. Try a new query or a less specific one."
+  },
+  "corral_undo": {
+    "description": "Button title for undoing the last action",
+    "message": "Undo"
+  },
+  "corral_redo": {
+    "description": "Button title for redoing the last undone action",
+    "message": "Redo"
+  },
+  "corral_undo_remove": {
+    "description": "Button title for undoing a remove action",
+    "message": "Undo remove (tabs: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_undo_restore": {
+    "description": "Button title for undoing a restore action",
+    "message": "Undo restore (tabs: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_remove": {
+    "description": "Button title for redoing a remove action",
+    "message": "Redo remove (tabs: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_restore": {
+    "description": "Button title for redoing a restore action",
+    "message": "Redo restore (tabs: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   }
 }

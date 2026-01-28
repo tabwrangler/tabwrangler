@@ -102,11 +102,11 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
 
   const undo = React.useCallback(async () => {
     if (isProcessingRef.current) return;
-    isProcessingRef.current = true;
 
     const lastAction = state.past[state.past.length - 1];
     if (!lastAction) return;
 
+    isProcessingRef.current = true;
     try {
       switch (lastAction.type) {
         case "remove":
@@ -135,11 +135,11 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
 
   const redo = React.useCallback(async (): Promise<RedoResult | null> => {
     if (isProcessingRef.current) return null;
-    isProcessingRef.current = true;
 
     const nextAction = state.future[0];
     if (!nextAction) return null;
 
+    isProcessingRef.current = true;
     let tabs: chrome.tabs.Tab[];
     try {
       switch (nextAction.type) {

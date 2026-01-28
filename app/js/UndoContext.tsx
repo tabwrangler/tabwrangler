@@ -104,10 +104,10 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     if (isProcessingRef.current) return;
     isProcessingRef.current = true;
 
-    try {
-      const lastAction = state.past[state.past.length - 1];
-      if (!lastAction) return;
+    const lastAction = state.past[state.past.length - 1];
+    if (!lastAction) return;
 
+    try {
       switch (lastAction.type) {
         case "remove":
           // Undo delete: Re-add the deleted tabs at their original positions
@@ -121,25 +121,27 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
         default:
           assertUnreachable(lastAction, "lastAction.type");
       }
-
-      setState((prev) => ({
-        past: prev.past.slice(0, -1),
-        future: [lastAction, ...prev.future].slice(0, MAX_HISTORY),
-      }));
+    } catch {
+      return;
     } finally {
       isProcessingRef.current = false;
     }
+
+    setState((prev) => ({
+      past: prev.past.slice(0, -1),
+      future: [lastAction, ...prev.future].slice(0, MAX_HISTORY),
+    }));
   }, [state.past]);
 
   const redo = React.useCallback(async (): Promise<RedoResult | null> => {
     if (isProcessingRef.current) return null;
     isProcessingRef.current = true;
 
-    try {
-      const nextAction = state.future[0];
-      if (!nextAction) return null;
+    const nextAction = state.future[0];
+    if (!nextAction) return null;
 
-      let tabs: chrome.tabs.Tab[];
+    let tabs: chrome.tabs.Tab[];
+    try {
       switch (nextAction.type) {
         case "remove":
           // Redo delete: Remove the tabs again by their indices
@@ -155,16 +157,18 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
         default:
           assertUnreachable(nextAction, "nextAction.type");
       }
-
-      setState((prev) => ({
-        future: prev.future.slice(1),
-        past: [...prev.past, nextAction].slice(-MAX_HISTORY),
-      }));
-
-      return { tabs, type: nextAction.type };
+    } catch {
+      return null;
     } finally {
       isProcessingRef.current = false;
     }
+
+    setState((prev) => ({
+      future: prev.future.slice(1),
+      past: [...prev.past, nextAction].slice(-MAX_HISTORY),
+    }));
+
+    return { tabs, type: nextAction.type };
   }, [state.future]);
 
   function toSummary(action: UndoableAction | undefined): ActionSummary | null {

@@ -108,14 +108,16 @@ const Sorters = [
 export const UseNowContext = React.createContext(new Date().getTime());
 function useNow() {
   const [now, setNow] = React.useState(new Date().getTime());
-  const intervalRef = React.useRef<number>();
+  const intervalRef = React.useRef<number>(null);
   React.useEffect(() => {
     intervalRef.current = window.setInterval(() => {
       setNow(new Date().getTime());
     }, 1000);
     return () => {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = undefined;
+      if (intervalRef.current != null) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, []);
   return now;

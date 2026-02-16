@@ -21,7 +21,7 @@ export default function OptionsTab() {
   const { data: syncData } = useStorageSyncQuery();
 
   const fileSelectorRef = React.useRef<HTMLInputElement | null>(null);
-  const importExportAlertTimeoutRef = React.useRef<number>();
+  const importExportAlertTimeoutRef = React.useRef<number>(null);
   const theme: string = syncPersistData?.theme ?? "system";
   const whitelist: string[] = syncData?.whitelist ?? [];
   const [errors, setErrors] = React.useState<Error[]>([]);
@@ -29,7 +29,7 @@ export default function OptionsTab() {
   const [importExportErrors, setImportExportErrors] = React.useState<Error[]>([]);
   const [importExportOperationName, setImportExportOperationName] = React.useState("");
   const [newPattern, setNewPattern] = React.useState("");
-  const saveAlertTimeoutRef = React.useRef<number>();
+  const saveAlertTimeoutRef = React.useRef<number>(null);
   const [saveAlertVisible, setSaveAlertVisible] = React.useState(false);
   const [showFilterTabGroupsOption, setShowFilterTabGroupsOption] = React.useState(false);
 

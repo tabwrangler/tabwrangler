@@ -1,6 +1,6 @@
 import React from "react";
-import ReactTestUtils from "react-dom/test-utils";
 import TabWrangleOption from "../OptionsTab/TabWrangleOption";
+import { createRoot } from "react-dom/client";
 import renderer from "react-test-renderer";
 
 describe("TabWrangleOption", () => {
@@ -45,7 +45,8 @@ describe("TabWrangleOption", () => {
       }
     }
 
-    const two = ReactTestUtils.renderIntoDocument(<Wrapper />);
+    const domContainer = document.createElement("div");
+    const two = createRoot(domContainer).render(<Wrapper />);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore:next-line

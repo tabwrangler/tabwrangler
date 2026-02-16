@@ -42,6 +42,8 @@
     "timeago.js": "^4.0.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/async-lock": "^1.4.1",
     "@types/chrome": "^0.0.304",
     "@types/color-hash": "^1.0.2",
@@ -50,7 +52,6 @@
     "@types/lodash-es": "^4.17.12",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@types/react-test-renderer": "^19.1.0",
     "@types/react-transition-group": "^4.4.12",
     "@types/react-virtualized": "^9.21.26",
     "@types/regexp.escape": "2.0.0",
@@ -78,7 +79,6 @@
     "postcss": "^8.4.38",
     "postcss-loader": "^8.1.1",
     "prettier": "^3.1.1",
-    "react-test-renderer": "^19.2.4",
     "sass": "^1.50.0",
     "sass-loader": "^14.2.1",
     "style-loader": "^4.0.0",

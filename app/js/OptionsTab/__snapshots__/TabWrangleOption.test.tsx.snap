@@ -1,88 +1,75 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
-[
+<div>
   <label
-    className="form-label"
+    class="form-label"
   >
     <strong>
       Translated&lt;options_dedupe_label&gt;
     </strong>
-  </label>,
+  </label>
   <div
-    className="form-check"
+    class="form-check"
   >
     <input
-      checked={false}
-      className="form-check-input"
+      class="form-check-input"
       id="withDupes"
       name="wrangleOption"
-      onChange={[MockFunction]}
       type="radio"
       value="withDupes"
     />
     <label
-      className="form-check-label"
-      htmlFor="withDupes"
+      class="form-check-label"
+      for="withDupes"
     >
       Translated&lt;options_dedupe_option_withDupes&gt;
     </label>
-  </div>,
+  </div>
   <div
-    className="form-check"
+    class="form-check"
   >
     <input
-      checked={true}
-      className="form-check-input"
+      checked=""
+      class="form-check-input"
       id="exactURLMatch"
       name="wrangleOption"
-      onChange={[MockFunction]}
       type="radio"
       value="exactURLMatch"
     />
     <label
-      className="form-check-label"
-      htmlFor="exactURLMatch"
+      class="form-check-label"
+      for="exactURLMatch"
     >
       Translated&lt;options_dedupe_option_exactURLMatch&gt;
     </label>
-  </div>,
+  </div>
   <div
-    className="form-check"
+    class="form-check"
   >
     <input
-      checked={false}
-      className="form-check-input"
+      class="form-check-input"
       id="hostnameAndTitleMatch"
       name="wrangleOption"
-      onChange={[MockFunction]}
       type="radio"
       value="hostnameAndTitleMatch"
     />
     <label
-      className="form-check-label"
-      htmlFor="hostnameAndTitleMatch"
+      class="form-check-label"
+      for="hostnameAndTitleMatch"
     >
       Translated&lt;options_dedupe_option_hostnameAndTitleMatch&gt;
     </label>
-  </div>,
+  </div>
   <div
-    className="row"
+    class="row"
   >
     <div
-      className="col-8 form-text text-muted"
-      style={
-        {
-          "marginBottom": 0,
-        }
-      }
+      class="col-8 form-text text-muted"
+      style="margin-bottom: 0px;"
     >
       <dl
-        style={
-          {
-            "marginBottom": 0,
-          }
-        }
+        style="margin-bottom: 0px;"
       >
         <dt>
           Translated&lt;options_dedupe_option_withDupes_label&gt;
@@ -91,11 +78,7 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
           Translated&lt;options_dedupe_option_withDupes_description&gt;
         </dd>
         <dt
-          style={
-            {
-              "marginTop": "10px",
-            }
-          }
+          style="margin-top: 10px;"
         >
           Translated&lt;options_dedupe_option_exactURLMatch_label&gt;
         </dt>
@@ -103,11 +86,7 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
           Translated&lt;options_dedupe_option_exactURLMatch_description&gt;
         </dd>
         <dt
-          style={
-            {
-              "marginTop": "10px",
-            }
-          }
+          style="margin-top: 10px;"
         >
           Translated&lt;options_dedupe_option_hostnameAndTitleMatch_label&gt;
         </dt>
@@ -116,93 +95,80 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
         </dd>
       </dl>
     </div>
-  </div>,
-]
+  </div>
+</div>
 `;
 
 exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`] = `
-[
+<div>
   <label
-    className="form-label"
+    class="form-label"
   >
     <strong>
       Translated&lt;options_dedupe_label&gt;
     </strong>
-  </label>,
+  </label>
   <div
-    className="form-check"
+    class="form-check"
   >
     <input
-      checked={false}
-      className="form-check-input"
+      class="form-check-input"
       id="withDupes"
       name="wrangleOption"
-      onChange={[MockFunction]}
       type="radio"
       value="withDupes"
     />
     <label
-      className="form-check-label"
-      htmlFor="withDupes"
+      class="form-check-label"
+      for="withDupes"
     >
       Translated&lt;options_dedupe_option_withDupes&gt;
     </label>
-  </div>,
+  </div>
   <div
-    className="form-check"
+    class="form-check"
   >
     <input
-      checked={false}
-      className="form-check-input"
+      class="form-check-input"
       id="exactURLMatch"
       name="wrangleOption"
-      onChange={[MockFunction]}
       type="radio"
       value="exactURLMatch"
     />
     <label
-      className="form-check-label"
-      htmlFor="exactURLMatch"
+      class="form-check-label"
+      for="exactURLMatch"
     >
       Translated&lt;options_dedupe_option_exactURLMatch&gt;
     </label>
-  </div>,
+  </div>
   <div
-    className="form-check"
+    class="form-check"
   >
     <input
-      checked={true}
-      className="form-check-input"
+      checked=""
+      class="form-check-input"
       id="hostnameAndTitleMatch"
       name="wrangleOption"
-      onChange={[MockFunction]}
       type="radio"
       value="hostnameAndTitleMatch"
     />
     <label
-      className="form-check-label"
-      htmlFor="hostnameAndTitleMatch"
+      class="form-check-label"
+      for="hostnameAndTitleMatch"
     >
       Translated&lt;options_dedupe_option_hostnameAndTitleMatch&gt;
     </label>
-  </div>,
+  </div>
   <div
-    className="row"
+    class="row"
   >
     <div
-      className="col-8 form-text text-muted"
-      style={
-        {
-          "marginBottom": 0,
-        }
-      }
+      class="col-8 form-text text-muted"
+      style="margin-bottom: 0px;"
     >
       <dl
-        style={
-          {
-            "marginBottom": 0,
-          }
-        }
+        style="margin-bottom: 0px;"
       >
         <dt>
           Translated&lt;options_dedupe_option_withDupes_label&gt;
@@ -211,11 +177,7 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
           Translated&lt;options_dedupe_option_withDupes_description&gt;
         </dd>
         <dt
-          style={
-            {
-              "marginTop": "10px",
-            }
-          }
+          style="margin-top: 10px;"
         >
           Translated&lt;options_dedupe_option_exactURLMatch_label&gt;
         </dt>
@@ -223,11 +185,7 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
           Translated&lt;options_dedupe_option_exactURLMatch_description&gt;
         </dd>
         <dt
-          style={
-            {
-              "marginTop": "10px",
-            }
-          }
+          style="margin-top: 10px;"
         >
           Translated&lt;options_dedupe_option_hostnameAndTitleMatch_label&gt;
         </dt>
@@ -236,93 +194,80 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
         </dd>
       </dl>
     </div>
-  </div>,
-]
+  </div>
+</div>
 `;
 
 exports[`TabWrangleOption renders options with withDupes selected 1`] = `
-[
+<div>
   <label
-    className="form-label"
+    class="form-label"
   >
     <strong>
       Translated&lt;options_dedupe_label&gt;
     </strong>
-  </label>,
+  </label>
   <div
-    className="form-check"
+    class="form-check"
   >
     <input
-      checked={true}
-      className="form-check-input"
+      checked=""
+      class="form-check-input"
       id="withDupes"
       name="wrangleOption"
-      onChange={[MockFunction]}
       type="radio"
       value="withDupes"
     />
     <label
-      className="form-check-label"
-      htmlFor="withDupes"
+      class="form-check-label"
+      for="withDupes"
     >
       Translated&lt;options_dedupe_option_withDupes&gt;
     </label>
-  </div>,
+  </div>
   <div
-    className="form-check"
+    class="form-check"
   >
     <input
-      checked={false}
-      className="form-check-input"
+      class="form-check-input"
       id="exactURLMatch"
       name="wrangleOption"
-      onChange={[MockFunction]}
       type="radio"
       value="exactURLMatch"
     />
     <label
-      className="form-check-label"
-      htmlFor="exactURLMatch"
+      class="form-check-label"
+      for="exactURLMatch"
     >
       Translated&lt;options_dedupe_option_exactURLMatch&gt;
     </label>
-  </div>,
+  </div>
   <div
-    className="form-check"
+    class="form-check"
   >
     <input
-      checked={false}
-      className="form-check-input"
+      class="form-check-input"
       id="hostnameAndTitleMatch"
       name="wrangleOption"
-      onChange={[MockFunction]}
       type="radio"
       value="hostnameAndTitleMatch"
     />
     <label
-      className="form-check-label"
-      htmlFor="hostnameAndTitleMatch"
+      class="form-check-label"
+      for="hostnameAndTitleMatch"
     >
       Translated&lt;options_dedupe_option_hostnameAndTitleMatch&gt;
     </label>
-  </div>,
+  </div>
   <div
-    className="row"
+    class="row"
   >
     <div
-      className="col-8 form-text text-muted"
-      style={
-        {
-          "marginBottom": 0,
-        }
-      }
+      class="col-8 form-text text-muted"
+      style="margin-bottom: 0px;"
     >
       <dl
-        style={
-          {
-            "marginBottom": 0,
-          }
-        }
+        style="margin-bottom: 0px;"
       >
         <dt>
           Translated&lt;options_dedupe_option_withDupes_label&gt;
@@ -331,11 +276,7 @@ exports[`TabWrangleOption renders options with withDupes selected 1`] = `
           Translated&lt;options_dedupe_option_withDupes_description&gt;
         </dd>
         <dt
-          style={
-            {
-              "marginTop": "10px",
-            }
-          }
+          style="margin-top: 10px;"
         >
           Translated&lt;options_dedupe_option_exactURLMatch_label&gt;
         </dt>
@@ -343,11 +284,7 @@ exports[`TabWrangleOption renders options with withDupes selected 1`] = `
           Translated&lt;options_dedupe_option_exactURLMatch_description&gt;
         </dd>
         <dt
-          style={
-            {
-              "marginTop": "10px",
-            }
-          }
+          style="margin-top: 10px;"
         >
           Translated&lt;options_dedupe_option_hostnameAndTitleMatch_label&gt;
         </dt>
@@ -356,6 +293,6 @@ exports[`TabWrangleOption renders options with withDupes selected 1`] = `
         </dd>
       </dl>
     </div>
-  </div>,
-]
+  </div>
+</div>
 `;

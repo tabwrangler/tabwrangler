@@ -106,8 +106,13 @@ chrome.tabs.onRemoved.addListener(removeTab);
 
 chrome.tabs.onReplaced.addListener(function replaceTab(addedTabId: number, removedTabId: number) {
   ASYNC_LOCK.acquire(["local.tabTimes", "persist:settings"], async () => {
+    // Read from both storage areas in parallel (they are independent).
+    const [{ lockedIds }, { tabTimes }] = await Promise.all([
+      chrome.storage.sync.get({ lockedIds: [] }),
+      chrome.storage.local.get({ tabTimes: {} }),
+    ]);
+
     // Replace tab ID in array of locked IDs if the removed tab was locked
-    const { lockedIds } = await chrome.storage.sync.get({ lockedIds: [] });
     if (lockedIds.indexOf(removedTabId) !== -1) {
       lockedIds.splice(lockedIds.indexOf(removedTabId), 1, addedTabId);
       await chrome.storage.sync.set({ lockedIds });
@@ -115,7 +120,6 @@ chrome.tabs.onReplaced.addListener(function replaceTab(addedTabId: number, remov
     }
 
     // Replace tab ID in object of tab times keeping the same time remaining for the added tab ID
-    const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
     tabTimes[addedTabId] = tabTimes[removedTabId];
     delete tabTimes[removedTabId];
     await chrome.storage.local.set({
@@ -211,8 +215,8 @@ async function checkToClose() {
       const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
 
       // Tabs which have been locked via the checkbox.
-      const lockedIds = settings.get("lockedIds");
-      const toCut = getTabsOlderThan(tabTimes, cutOff);
+      const lockedIds = new Set(settings.get("lockedIds"));
+      const toCut = new Set(getTabsOlderThan(tabTimes, cutOff));
       const updatedAt = Date.now();
 
       // Update selected tabs to make sure they don't get closed.
@@ -234,7 +238,7 @@ async function checkToClose() {
       function findTabsToCloseCandidates(tabs: chrome.tabs.Tab[]): chrome.tabs.Tab[] {
         tabs = tabs.filter(shouldTabBeClosed);
 
-        let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.indexOf(tab.id) !== -1);
+        let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.has(tab.id));
         if (tabs.length - minTabs <= 0) {
           return [];
         }
@@ -257,7 +261,7 @@ async function checkToClose() {
         for (let i = 0; i < tabsToCut.length; i++) {
           const tabId = tabsToCut[i].id;
           if (tabId == null) continue;
-          if (lockedIds.indexOf(tabId) !== -1) {
+          if (lockedIds.has(tabId)) {
             // Update its time so it gets checked less frequently.
             // Would also be smart to just never add it.
             // @todo: fix that.

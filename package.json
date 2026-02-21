@@ -89,5 +89,9 @@
     "webpack-cli": "^5.1.4",
     "zip-webpack-plugin": "^4.0.1"
   },
-  "private": true
+  "private": true,
+  "sideEffects": [
+    "*.css",
+    "*.scss"
+  ]
 }

@@ -22,6 +22,11 @@ import settings from "./js/settings";
 
 const menus = new Menus();
 
+// Flag to prevent onNewTab from resetting tab times during startup.
+// Chrome fires tabs.onCreated for restored tabs on restart, which would
+// reset their countdowns before the startup migration can preserve them.
+let startupComplete = false;
+
 let updateIconGeneration = 0;
 async function updateIcon(tabId?: number): Promise<void> {
   const generation = ++updateIconGeneration;
@@ -87,7 +92,15 @@ chrome.tabs.onActivated.addListener(async function onActivated(tabInfo) {
   updateIcon(tabInfo.tabId);
 });
 
-chrome.tabs.onCreated.addListener(onNewTab);
+chrome.tabs.onCreated.addListener((tab: chrome.tabs.Tab) => {
+  // During startup, Chrome fires onCreated for all restored tabs. Skip
+  // updateLastAccessed for these to avoid resetting their preserved countdowns.
+  if (!startupComplete) {
+    console.debug("[onCreated] Skipping during startup for tab", tab.id);
+    return;
+  }
+  onNewTab(tab);
+});
 chrome.tabs.onRemoved.addListener(removeTab);
 
 chrome.tabs.onReplaced.addListener(function replaceTab(addedTabId: number, removedTabId: number) {
@@ -272,15 +285,25 @@ async function checkToClose() {
       //   populated
       // * Tab no longer exists? reducing `tabs.query` will not yield that dead tab ID and it will
       //   not exist in resulting `nextTabTimes`
-      const nextTabTimes = allTabs.reduce(
-        (acc, tab) => {
-          if (tab.id != null) acc[tab.id] = tabTimes[tab.id] || updatedAt;
-          return acc;
-        },
-        {} as { [key: string]: number },
-      );
+      const nextTabTimes: { [key: string]: number } = {};
+      const nextTabTimesByUrl: { [url: string]: number } = {};
+      for (const tab of allTabs) {
+        if (tab.id != null) {
+          const time = tabTimes[tab.id] || updatedAt;
+          nextTabTimes[tab.id] = time;
+          // Also store by URL so countdowns survive browser restart (tab IDs change).
+          // For duplicate URLs, keep the oldest timestamp (closest to being closed).
+          if (tab.url) {
+            const existing = nextTabTimesByUrl[tab.url];
+            if (existing == null || time < existing) {
+              nextTabTimesByUrl[tab.url] = time;
+            }
+          }
+        }
+      }
 
-      await chrome.storage.local.set({ tabTimes: nextTabTimes });
+      // Piggyback tabTimesByUrl onto the existing storage write — zero extra I/O.
+      await chrome.storage.local.set({ tabTimes: nextTabTimes, tabTimesByUrl: nextTabTimesByUrl });
 
       return candidateTabs;
     });
@@ -319,6 +342,44 @@ async function startup() {
   if (settings.get("purgeClosedTabs") !== false) {
     await removeAllSavedTabs();
   }
+
+  // Migrate tab times from previous session: after a browser restart, Chrome assigns new
+  // tab IDs so the old ID-based tabTimes won't match. Use the URL-based map to carry over
+  // countdowns from the previous session.
+  await ASYNC_LOCK.acquire("local.tabTimes", async () => {
+    const { tabTimes, tabTimesByUrl } = await chrome.storage.local.get({
+      tabTimes: {},
+      tabTimesByUrl: {},
+    });
+    const allTabs = await chrome.tabs.query({});
+    const now = Date.now();
+    let migrated = 0;
+
+    const nextTabTimes: { [key: string]: number } = {};
+    for (const tab of allTabs) {
+      if (tab.id == null) continue;
+
+      if (tabTimes[tab.id] != null) {
+        // Tab ID still exists in storage (no restart, or same ID reused) — keep as-is.
+        nextTabTimes[tab.id] = tabTimes[tab.id];
+      } else if (tab.url && tabTimesByUrl[tab.url] != null) {
+        // Tab ID changed (browser restart) but URL matches — carry over the old timestamp.
+        nextTabTimes[tab.id] = tabTimesByUrl[tab.url];
+        migrated++;
+      } else {
+        // Completely new tab — start a fresh countdown.
+        nextTabTimes[tab.id] = now;
+      }
+    }
+
+    await chrome.storage.local.set({ tabTimes: nextTabTimes });
+    if (migrated > 0) {
+      console.debug(`[startup] Migrated ${migrated} tab timer(s) from previous session via URL`);
+    }
+  });
+
+  // Mark startup complete so onNewTab starts tracking new tabs normally.
+  startupComplete = true;
 
   // Kick off checking for tabs to close
   scheduleCheckToClose();

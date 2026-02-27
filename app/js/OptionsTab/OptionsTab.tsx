@@ -1,5 +1,6 @@
 import * as React from "react";
 import { exportData, importData } from "../actions/importExportActions";
+import settings, { type SettingsSchema } from "../settings";
 import { useStorageSyncPersistQuery, useStorageSyncQuery } from "../storage";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
@@ -8,7 +9,6 @@ import ToastContainer from "react-bootstrap/ToastContainer";
 import cx from "classnames";
 import { exportFileName } from "../actions/importExportActions";
 import { mutateStorageSyncPersist } from "../storage";
-import settings, { type SettingsSchema } from "../settings";
 import { useDebounceCallback } from "@react-hook/debounce";
 import { useMutation } from "@tanstack/react-query";
 
@@ -96,12 +96,12 @@ export default function OptionsTab() {
 
   const debouncedHandleSettingsChange = useDebounceCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const key = (event.target.type === "radio"
-        ? event.target.name
-        : event.target.id) as keyof SettingsSchema;
-      const value = (event.target.type === "checkbox"
-        ? !!event.target.checked
-        : event.target.value) as SettingsSchema[typeof key];
+      const key = (
+        event.target.type === "radio" ? event.target.name : event.target.id
+      ) as keyof SettingsSchema;
+      const value = (
+        event.target.type === "checkbox" ? !!event.target.checked : event.target.value
+      ) as SettingsSchema[typeof key];
       saveSetting(key, value);
     },
     150,

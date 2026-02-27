@@ -171,9 +171,7 @@ function useTabTimesQuery() {
 export default function LockTab() {
   const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
   const now = useNow();
-  const [sortOrder, setSortOrder] = React.useState<string | null>(
-    settings.get("lockTabSortOrder"),
-  );
+  const [sortOrder, setSortOrder] = React.useState<string | null>(settings.get("lockTabSortOrder"));
 
   const [currWindow, setCurrWindow] = React.useState<chrome.windows.Window>();
   React.useEffect(() => {

@@ -139,9 +139,6 @@ const Settings = {
     return void 0;
   },
 
-  /**
-   * Either calls a getter function or returns directly from storage.
-   */
   get<K extends keyof SettingsSchema>(key: K): SettingsSchema[K] {
     return this.cache[key];
   },

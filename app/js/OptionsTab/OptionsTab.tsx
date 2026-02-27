@@ -8,7 +8,7 @@ import ToastContainer from "react-bootstrap/ToastContainer";
 import cx from "classnames";
 import { exportFileName } from "../actions/importExportActions";
 import { mutateStorageSyncPersist } from "../storage";
-import settings from "../settings";
+import settings, { type SettingsSchema } from "../settings";
 import { useDebounceCallback } from "@react-hook/debounce";
 import { useMutation } from "@tanstack/react-query";
 
@@ -33,14 +33,14 @@ export default function OptionsTab() {
   const [saveAlertVisible, setSaveAlertVisible] = React.useState(false);
   const [showFilterTabGroupsOption, setShowFilterTabGroupsOption] = React.useState(false);
 
-  const [maxTabs, setMaxTabs] = React.useState<number | string>(settings.get<number>("maxTabs"));
+  const [maxTabs, setMaxTabs] = React.useState<number | string>(settings.get("maxTabs"));
 
   function resetMaxTabs() {
-    setMaxTabs(settings.get<number>("maxTabs"));
+    setMaxTabs(settings.get("maxTabs"));
   }
 
   function saveMaxTabs() {
-    saveSetting("maxTabs", maxTabs);
+    saveSetting("maxTabs", maxTabs as number);
   }
 
   const persistSettingMutation = useMutation({
@@ -75,7 +75,7 @@ export default function OptionsTab() {
     checkForTabGroups();
   }, []);
 
-  async function saveSetting(key: string, value: unknown) {
+  async function saveSetting<K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) {
     if (saveAlertTimeoutRef.current != null) {
       window.clearTimeout(saveAlertTimeoutRef.current);
     }
@@ -96,13 +96,13 @@ export default function OptionsTab() {
 
   const debouncedHandleSettingsChange = useDebounceCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (event.target.type === "checkbox") {
-        saveSetting(event.target.id, !!event.target.checked);
-      } else if (event.target.type === "radio") {
-        saveSetting(event.target.name, event.target.value);
-      } else {
-        saveSetting(event.target.id, event.target.value);
-      }
+      const key = (event.target.type === "radio"
+        ? event.target.name
+        : event.target.id) as keyof SettingsSchema;
+      const value = (event.target.type === "checkbox"
+        ? !!event.target.checked
+        : event.target.value) as SettingsSchema[typeof key];
+      saveSetting(key, value);
     },
     150,
   );
@@ -375,14 +375,14 @@ export default function OptionsTab() {
               </div>
             </div>
           )}
-          {typeof maxTabs === "number" && maxTabs < settings.get<number>("maxTabs") && (
+          {typeof maxTabs === "number" && maxTabs < settings.get("maxTabs") && (
             <div className="row">
               <div className="col-8 form-text text-primary">
                 {chrome.i18n.getMessage("options_option_rememberTabs_truncateMsg")}
               </div>
             </div>
           )}
-          {typeof maxTabs === "number" && maxTabs > settings.get<number>("maxTabs") && (
+          {typeof maxTabs === "number" && maxTabs > settings.get("maxTabs") && (
             <div className="row">
               <div className="col-8 form-text text-primary">
                 {chrome.i18n.getMessage("options_option_rememberTabs_saveToConfirm")}

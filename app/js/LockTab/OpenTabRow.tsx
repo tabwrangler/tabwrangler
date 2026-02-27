@@ -76,7 +76,7 @@ export default function OpenTabRow({
     if (paused) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
     } else {
-      const cutOff = now - settings.get<number>("stayOpen");
+      const cutOff = now - settings.stayOpen();
       const timeLeft = -1 * Math.round((cutOff - tabTime) / 1000);
       // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the
       // interval to clean up this tab. It's also possible the number of tabs is not below

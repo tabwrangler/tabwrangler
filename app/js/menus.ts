@@ -67,7 +67,7 @@ export default class Menus {
     const domain = getDomain(tab.url);
     if (domain == null) return;
 
-    const whitelist = settings.get<Array<string>>("whitelist");
+    const whitelist = settings.get("whitelist");
     if (wasChecked) {
       settings.set(
         "whitelist",
@@ -104,7 +104,7 @@ export default class Menus {
       if (currentDomain == null) return;
 
       console.debug("[menus] Updating context menu for tab ID ", tabId);
-      const whitelist = settings.get<Array<string>>("whitelist");
+      const whitelist = settings.get("whitelist");
       chrome.contextMenus.update("lockDomain", {
         checked: whitelist.includes(currentDomain),
         title: chrome.i18n.getMessage("contextMenu_lockSpecificDomain", currentDomain) || "",

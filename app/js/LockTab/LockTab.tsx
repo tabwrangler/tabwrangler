@@ -172,7 +172,7 @@ export default function LockTab() {
   const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
   const now = useNow();
   const [sortOrder, setSortOrder] = React.useState<string | null>(
-    settings.get<string>("lockTabSortOrder"),
+    settings.get("lockTabSortOrder"),
   );
 
   const [currWindow, setCurrWindow] = React.useState<chrome.windows.Window>();

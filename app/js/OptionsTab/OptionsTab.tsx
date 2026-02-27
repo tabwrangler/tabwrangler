@@ -99,9 +99,7 @@ export default function OptionsTab() {
       const key = (
         event.target.type === "radio" ? event.target.name : event.target.id
       ) as keyof SettingsSchema;
-      const value = (
-        event.target.type === "checkbox" ? !!event.target.checked : event.target.value
-      ) as SettingsSchema[typeof key];
+      const value = event.target.type === "checkbox" ? !!event.target.checked : event.target.value;
       saveSetting(key, value);
     },
     150,

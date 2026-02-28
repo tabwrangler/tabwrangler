@@ -108,14 +108,16 @@ const Sorters = [
 export const UseNowContext = React.createContext(new Date().getTime());
 function useNow() {
   const [now, setNow] = React.useState(new Date().getTime());
-  const intervalRef = React.useRef<number>();
+  const intervalRef = React.useRef<number>(null);
   React.useEffect(() => {
     intervalRef.current = window.setInterval(() => {
       setNow(new Date().getTime());
     }, 1000);
     return () => {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = undefined;
+      if (intervalRef.current != null) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, []);
   return now;
@@ -169,9 +171,7 @@ function useTabTimesQuery() {
 export default function LockTab() {
   const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
   const now = useNow();
-  const [sortOrder, setSortOrder] = React.useState<string | null>(
-    settings.get<string>("lockTabSortOrder"),
-  );
+  const [sortOrder, setSortOrder] = React.useState<string | null>(settings.get("lockTabSortOrder"));
 
   const [currWindow, setCurrWindow] = React.useState<chrome.windows.Window>();
   React.useEffect(() => {

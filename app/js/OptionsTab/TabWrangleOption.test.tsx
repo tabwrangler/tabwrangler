@@ -1,60 +1,42 @@
+import { fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import ReactTestUtils from "react-dom/test-utils";
 import TabWrangleOption from "../OptionsTab/TabWrangleOption";
-import renderer from "react-test-renderer";
 
 describe("TabWrangleOption", () => {
   test("renders options with withDupes selected", () => {
     const mockCallback = jest.fn();
-    const two = renderer.create(
+    const { container } = render(
       <TabWrangleOption onChange={mockCallback} selectedOption="withDupes" />,
     );
 
-    expect(two).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   test("renders options with exactURLMatch selected", () => {
     const mockCallback = jest.fn();
-    const two = renderer.create(
+    const { container } = render(
       <TabWrangleOption onChange={mockCallback} selectedOption="exactURLMatch" />,
     );
 
-    expect(two).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   test("renders options with hostnameAndTitleMatch selected", () => {
     const mockCallback = jest.fn();
-    const two = renderer.create(
+    const { container } = render(
       <TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />,
     );
 
-    expect(two).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   test("calls onChange handler callback when clicked", () => {
     const mockCallback = jest.fn();
+    render(<TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />);
 
-    // Must wrap `TabWrangleOption` in a Composite Component in order to find it using ReactTestUtils.
-    class Wrapper extends React.Component {
-      render() {
-        return (
-          <div>
-            <TabWrangleOption onChange={mockCallback} selectedOption="hostnameAndTitleMatch" />
-          </div>
-        );
-      }
-    }
+    const radioInputs = screen.getAllByRole("radio");
+    fireEvent.click(radioInputs[1]);
 
-    const two = ReactTestUtils.renderIntoDocument(<Wrapper />);
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    const buttonNode = ReactTestUtils.scryRenderedDOMComponentsWithTag(two, "input");
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore:next-line
-    ReactTestUtils.Simulate.change(buttonNode[1], { target: { checked: true } });
-
-    expect(mockCallback.mock.calls.length).toBe(1);
+    expect(mockCallback).toHaveBeenCalledTimes(1);
   });
 });

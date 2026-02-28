@@ -39,10 +39,14 @@ const colorHash = new ColorHash();
 
 export default class LazyImage extends React.PureComponent<Props, State> {
   _img: HTMLImageElement | null | undefined = undefined;
+  _imgNodeRef: React.RefObject<HTMLElement | null>;
   _placeholder: HTMLDivElement | null | undefined = undefined;
+  _placeholderNodeRef: React.RefObject<HTMLElement | null>;
 
   constructor(props: Props) {
     super(props);
+    this._imgNodeRef = React.createRef();
+    this._placeholderNodeRef = React.createRef();
     this.state = {
       loaded: this.props.src == null || loadedSrcs.has(this.props.src),
     };
@@ -80,7 +84,7 @@ export default class LazyImage extends React.PureComponent<Props, State> {
     pendingLazyImages.delete(this);
   }
 
-  setLoaded: () => void = () => {
+  setLoaded = () => {
     this._img = null;
     loadedSrcs.add(this.props.src);
     this.setState({ loaded: true });
@@ -90,7 +94,7 @@ export default class LazyImage extends React.PureComponent<Props, State> {
     return (
       <TransitionGroup className="lazy-image-container">
         {this.props.src != null && this.state.loaded ? (
-          <CSSTransition classNames="lazy-image" key="img" timeout={250}>
+          <CSSTransition classNames="lazy-image" key="img" nodeRef={this._imgNodeRef} timeout={250}>
             <img
               alt={this.props.alt}
               className={cx("lazy-image-img", this.props.className)}
@@ -101,7 +105,12 @@ export default class LazyImage extends React.PureComponent<Props, State> {
             />
           </CSSTransition>
         ) : (
-          <CSSTransition classNames="lazy-image" key="placeholder" timeout={250}>
+          <CSSTransition
+            classNames="lazy-image"
+            key="placeholder"
+            nodeRef={this._placeholderNodeRef}
+            timeout={250}
+          >
             <div
               className={this.props.className}
               ref={(placeholder: HTMLDivElement | null) => {

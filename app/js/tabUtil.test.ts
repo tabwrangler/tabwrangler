@@ -205,7 +205,7 @@ describe("filter", () => {
 
 describe("getURLPositionFilterByWrangleOption", () => {
   test("should return function that always returns -1", () => {
-    const filterFunction = getURLPositionFilterByWrangleOption([], "withDuplicates");
+    const filterFunction = getURLPositionFilterByWrangleOption([], "withDupes");
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com" }))).toBe(-1);
   });

@@ -5,9 +5,7 @@ import {
   setTabTime,
   setTabTimes,
 } from "./actions/localStorageActions";
-import settings from "./settings";
-
-type WrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDuplicates";
+import settings, { SettingsSchemaWrangleOption } from "./settings";
 
 export const AVERAGE_TAB_BYTES_SIZE = 600;
 
@@ -29,7 +27,7 @@ export function findPositionByHostnameAndTitle(
 
 export function getURLPositionFilterByWrangleOption(
   savedTabs: chrome.tabs.Tab[],
-  option: WrangleOption,
+  option: SettingsSchemaWrangleOption,
 ): (tab: chrome.tabs.Tab) => number {
   if (option === "hostnameAndTitleMatch") {
     return (tab: chrome.tabs.Tab): number =>
@@ -50,8 +48,8 @@ export function wrangleTabs(
   // No tabs, nothing to do
   if (tabs.length === 0) return;
 
-  const maxTabs = settings.get<number>("maxTabs");
-  const wrangleOption = settings.get<WrangleOption>("wrangleOption");
+  const maxTabs = settings.get("maxTabs");
+  const wrangleOption = settings.get("wrangleOption");
   const findURLPositionByWrangleOption = getURLPositionFilterByWrangleOption(
     storageLocalPersist.savedTabs,
     wrangleOption,

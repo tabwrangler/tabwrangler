@@ -86,7 +86,7 @@ export function useStorageLocalPersistQuery() {
       areaName: chrome.storage.AreaName,
     ) {
       if (areaName === "local" && "persist:localStorage" in changes) {
-        queryClient.invalidateQueries(STORAGE_LOCAL_PERSIST_QUERY_KEY);
+        queryClient.invalidateQueries({ queryKey: STORAGE_LOCAL_PERSIST_QUERY_KEY });
       }
     }
     chrome.storage.onChanged.addListener(handleChanged);

@@ -146,14 +146,14 @@ async function checkToClose() {
     const storageSyncPersist = await getStorageSyncPersist();
     if (storageSyncPersist.paused) return; // Extension is paused, no work needs to be done.
 
-    const cutOff = new Date().getTime() - settings.get<number>("stayOpen");
-    const minTabs = settings.get<number>("minTabs");
+    const cutOff = new Date().getTime() - settings.stayOpen();
+    const minTabs = settings.get("minTabs");
     const tabsToCloseCandidates = await ASYNC_LOCK.acquire("local.tabTimes", async () => {
       const allTabs = await chrome.tabs.query({});
       const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
 
       // Tabs which have been locked via the checkbox.
-      const lockedIds = settings.get<Array<number>>("lockedIds");
+      const lockedIds = settings.get("lockedIds");
       const toCut = getTabsOlderThan(tabTimes, cutOff);
       const updatedAt = Date.now();
 

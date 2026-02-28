@@ -5,6 +5,7 @@
     "jsx": "react",
     "module": "esnext",
     "moduleResolution": "node",
+    "skipLibCheck": true,
     "strict": true,
     "target": "es2017"
   },

@@ -195,11 +195,9 @@ export default function CorralTab() {
   }, []);
 
   const [filter, setFilter] = React.useState("");
-  const [savedSortOrder, setSavedSortOrder] = React.useState(
-    settings.get<string | null>("corralTabSortOrder"),
-  );
+  const [savedSortOrder, setSavedSortOrder] = React.useState(settings.get("corralTabSortOrder"));
   const [currSorter, setCurrSorter] = React.useState(() => {
-    const savedSortOrder = settings.get<string>("corralTabSortOrder");
+    const savedSortOrder = settings.get("corralTabSortOrder");
     let nextSorter =
       savedSortOrder == null ? DEFAULT_SORTER : Sorters.find((s) => s.key === savedSortOrder);
 

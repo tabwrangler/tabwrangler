@@ -4,128 +4,93 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import ColorHash from "color-hash";
 import cx from "classnames";
 
-const loadedSrcs = new Set();
-const pendingLazyImages: Set<LazyImage> = new Set();
+const colorHash = new ColorHash();
+const loadedSrcs = new Set<string>();
+const LazyImageContext = React.createContext(false);
 
-function checkShouldLoadLazyImages() {
-  for (const lazyImage of pendingLazyImages) {
-    lazyImage.checkShouldLoad();
-  }
+export function LazyImageProvider({ children }: { children: React.ReactNode }) {
+  const [shouldCheck, setShouldCheck] = React.useState(false);
+  React.useEffect(() => {
+    // Begin the loading process a full second after initial execution to allow the popup to open
+    // before loading images. If images begin to load too soon after the popup opens, Chrome waits
+    // for them to fully load before showing the popup.
+    const timer = setTimeout(() => setShouldCheck(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+  return <LazyImageContext.Provider value={shouldCheck}>{children}</LazyImageContext.Provider>;
 }
 
-// Begin the loading process a full second after initial execution to allow the popup to open
-// before loading images. If images begin to load too soon after the popup opens, Chrome waits
-// for them to fully load before showing the popup.
-let shouldCheck = false;
-setTimeout(() => {
-  shouldCheck = true;
-  checkShouldLoadLazyImages();
-}, 1000);
-
-type Props = {
+interface Props {
   alt?: string;
   className?: string;
   height: number;
   src: string;
   style?: Record<string, unknown>;
   width: number;
-};
-
-type State = {
-  loaded: boolean;
-};
-
-const colorHash = new ColorHash();
-
-export default class LazyImage extends React.PureComponent<Props, State> {
-  _img: HTMLImageElement | null | undefined = undefined;
-  _imgNodeRef: React.RefObject<HTMLElement | null>;
-  _placeholder: HTMLDivElement | null | undefined = undefined;
-  _placeholderNodeRef: React.RefObject<HTMLElement | null>;
-
-  constructor(props: Props) {
-    super(props);
-    this._imgNodeRef = React.createRef();
-    this._placeholderNodeRef = React.createRef();
-    this.state = {
-      loaded: this.props.src == null || loadedSrcs.has(this.props.src),
-    };
-  }
-
-  componentDidMount() {
-    if (!this.state.loaded) {
-      pendingLazyImages.add(this);
-      if (shouldCheck) this.checkShouldLoad();
-    }
-  }
-
-  componentWillUnmount() {
-    if (pendingLazyImages.has(this)) {
-      pendingLazyImages.delete(this);
-    }
-
-    // Ensure the loading image does not try to call this soon-to-be-unmounted component.
-    if (this._img != null) {
-      this._img.onload = null;
-      this._img = null;
-    }
-  }
-
-  checkShouldLoad() {
-    if (!shouldCheck) return;
-
-    const { src } = this.props;
-
-    if (src == null || !this._placeholder) return;
-
-    this._img = new Image();
-    this._img.onload = this.setLoaded;
-    this._img.src = src;
-    pendingLazyImages.delete(this);
-  }
-
-  setLoaded = () => {
-    this._img = null;
-    loadedSrcs.add(this.props.src);
-    this.setState({ loaded: true });
-  };
-
-  render() {
-    return (
-      <TransitionGroup className="lazy-image-container">
-        {this.props.src != null && this.state.loaded ? (
-          <CSSTransition classNames="lazy-image" key="img" nodeRef={this._imgNodeRef} timeout={250}>
-            <img
-              alt={this.props.alt}
-              className={cx("lazy-image-img", this.props.className)}
-              height={this.props.height}
-              src={this.props.src}
-              style={this.props.style}
-              width={this.props.width}
-            />
-          </CSSTransition>
-        ) : (
-          <CSSTransition
-            classNames="lazy-image"
-            key="placeholder"
-            nodeRef={this._placeholderNodeRef}
-            timeout={250}
-          >
-            <div
-              className={this.props.className}
-              ref={(placeholder: HTMLDivElement | null) => {
-                this._placeholder = placeholder;
-              }}
-              style={Object.assign({}, this.props.style, {
-                background: colorHash.hex(this.props.src),
-                borderRadius: `${this.props.height / 2}px`,
-                height: `${this.props.height}px`,
-                width: `${this.props.width}px`,
-              })}
-            />
-          </CSSTransition>
-        )}
-      </TransitionGroup>
-    );
-  }
 }
+
+const LazyImage = React.memo(function LazyImage(props: Props) {
+  const shouldCheck = React.useContext(LazyImageContext);
+  const [loaded, setLoaded] = React.useState(props.src == null || loadedSrcs.has(props.src));
+  const imgNodeRef = React.useRef<HTMLElement | null>(null);
+  const imgRef = React.useRef<HTMLImageElement | null>(null);
+  const placeholderNodeRef = React.useRef<HTMLElement | null>(null);
+  const placeholderRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    if (loaded || !shouldCheck || props.src == null || !placeholderRef.current) return () => {};
+
+    const img = new Image();
+    imgRef.current = img;
+    img.onload = () => {
+      imgRef.current = null;
+      loadedSrcs.add(props.src);
+      setLoaded(true);
+    };
+    img.src = props.src;
+
+    return () => {
+      if (imgRef.current != null) {
+        imgRef.current.onload = null;
+        imgRef.current = null;
+      }
+    };
+  }, [shouldCheck, loaded, props.src]);
+
+  return (
+    <TransitionGroup className="lazy-image-container">
+      {props.src != null && loaded ? (
+        <CSSTransition classNames="lazy-image" key="img" nodeRef={imgNodeRef} timeout={250}>
+          <img
+            alt={props.alt}
+            className={cx("lazy-image-img", props.className)}
+            height={props.height}
+            src={props.src}
+            style={props.style}
+            width={props.width}
+          />
+        </CSSTransition>
+      ) : (
+        <CSSTransition
+          classNames="lazy-image"
+          key="placeholder"
+          nodeRef={placeholderNodeRef}
+          timeout={250}
+        >
+          <div
+            className={props.className}
+            ref={placeholderRef}
+            style={Object.assign({}, props.style, {
+              background: colorHash.hex(props.src),
+              borderRadius: `${props.height / 2}px`,
+              height: `${props.height}px`,
+              width: `${props.width}px`,
+            })}
+          />
+        </CSSTransition>
+      )}
+    </TransitionGroup>
+  );
+});
+
+export default LazyImage;

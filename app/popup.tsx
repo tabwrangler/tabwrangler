@@ -3,6 +3,7 @@ import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
 import "./css/fontawesome-free-solid-woff-only.css";
 import "react-virtualized/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { LazyImageProvider } from "./js/LazyImage";
 import Popup from "./js/Popup";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -58,7 +59,9 @@ function PopupWrapper() {
     // When everything is initialized as expected, render normally.
     return (
       <QueryClientProvider client={queryClient}>
-        <Popup />
+        <LazyImageProvider>
+          <Popup />
+        </LazyImageProvider>
       </QueryClientProvider>
     );
   }

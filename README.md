@@ -144,18 +144,21 @@ your tabs but not the content inside those tabs.
 Tab Wrangler's requested permissions are listed in its [manifest.json][manifest.json] under the
 `"permissions"` key.
 
-- [`"alarms"`][7]: Allows creation of alarms to periodically check Tab Wrangler's background script
+- [`"alarms"`][7]: Allows creating alarms to periodically check Tab Wrangler's background script
   that checks for stale tabs is running and healthy.
 - [`"contextMenus"`][3]: Allows a "Tab Wrangler" menu item when you right click on a webpage that
   lets you send the tab to the Tab Corral, lock that tab, or lock all tabs on that domain.
-- [`"sessions"`][4]: Allows Tab Wrangler to read and restore the full history of a tab including
-  enabling the back/forward buttons and your scroll position on the page.
-- [`"storage"`][5]: Allows Tab Wrangler to sync your Tab Wrangler settings with your browser
-  account and enables saving your closed tabs to your local computer. _Note: closed tabs are not
-  synced because the "sync" storage area has only a small amount of storage._
-- [`"tabs"`][6]: Allows Tab Wrangler to read the title and location of any current tabs as well
-  as close those tabs and open new tabs. This permission **does not** enable Tab Wrangler to
-  read information on web pages that you visit.
+- [`"favicons"`][9]: (_Chrome only_) Allows access to local favicon images of current and past tabs.
+  This prevents having to make a network request to fetch a tab's favicon, improving privacy and
+  offline capability.
+- [`"sessions"`][4]: Allows reading and restoring the full history of tabs including enabling the
+  back/forward buttons and your scroll position on those pages.
+- [`"storage"`][5]: Allows syncing your Tab Wrangler settings with your browser account and enables
+  saving your closed tabs to your local computer. _Note: closed tabs are not synced because the
+  "sync" storage area has only a small amount of storage._
+- [`"tabs"`][6]: Allows reading the title and location of any current tabs as well as closing those
+  tabs and opening new tabs. This permission **does not** enable Tab Wrangler to read information on
+  web pages that you visit.
 
 ## Contributing
 
@@ -202,3 +205,4 @@ working and tested, submit a pull request to this primary project and we'll get 
 [manifest.json]: https://github.com/tabwrangler/tabwrangler/blob/main/app/manifest.json
 [7]: https://developer.chrome.com/docs/extensions/reference/alarms/
 [8]: https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria
+[9]: https://developer.chrome.com/docs/extensions/how-to/ui/favicons

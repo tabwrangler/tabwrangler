@@ -141,8 +141,8 @@ your tabs but not the content inside those tabs.
 
 ### Explanation of Requested Permissions
 
-Tab Wrangler's requested permissions are listed in its [manifest.json][app/manifest.template.json]
-under the `"permissions"` key.
+Tab Wrangler's requested permissions are listed in its
+[manifest.json](app/manifest.template.json#L29-L35) under the `"permissions"` key.
 
 - [`"alarms"`][7]: Allows creating alarms to periodically check Tab Wrangler's background script
   that checks for stale tabs is running and healthy.

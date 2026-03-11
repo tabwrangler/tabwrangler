@@ -10,6 +10,11 @@ module.exports = {
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: "v8",
 
+  // A set of global variables that need to be available in all test environments
+  globals: {
+    HAS_FAVICON_API: false,
+  },
+
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
     "\\.(s?css)$": "identity-obj-proxy",

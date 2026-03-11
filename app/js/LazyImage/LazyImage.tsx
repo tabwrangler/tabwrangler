@@ -20,7 +20,7 @@ export function LazyImageProvider({ children }: { children: React.ReactNode }) {
   return <LazyImageContext.Provider value={shouldCheck}>{children}</LazyImageContext.Provider>;
 }
 
-interface Props {
+export interface LazyImageProps {
   alt?: string;
   className?: string;
   height: number;
@@ -29,7 +29,7 @@ interface Props {
   width: number;
 }
 
-const LazyImage = React.memo(function LazyImage(props: Props) {
+const LazyImage = React.memo(function LazyImage(props: LazyImageProps) {
   const shouldCheck = React.useContext(LazyImageContext);
   const [loaded, setLoaded] = React.useState(props.src == null || loadedSrcs.has(props.src));
   const imgNodeRef = React.useRef<HTMLElement | null>(null);

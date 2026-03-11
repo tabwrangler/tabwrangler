@@ -1,5 +1,5 @@
 import * as React from "react";
-import LazyImage from "../LazyImage";
+import TabFavicon from "../TabFavicon";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
 import settings from "../settings";
@@ -114,11 +114,12 @@ export default function OpenTabRow({
         className={cx("text-center", { "border-0": isLast })}
         style={{ verticalAlign: "middle", width: "32px" }}
       >
-        <LazyImage
+        <TabFavicon
           alt=""
           height={16}
-          src={tab.favIconUrl ?? ""}
+          favIconUrl={tab.favIconUrl}
           style={{ height: "16px", maxWidth: "none" }}
+          url={tab.url}
           width={16}
         />
       </td>

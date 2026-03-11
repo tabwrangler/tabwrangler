@@ -92,6 +92,8 @@ module.exports = [
               // Sync extension version to the version in package.json.
               manifest.version = package.version;
 
+              manifest.permissions = [...manifest.permissions, "favicon"];
+
               return JSON.stringify(manifest, null, 2);
             },
           },
@@ -101,7 +103,7 @@ module.exports = [
         EXTENSION_URL: JSON.stringify(
           "https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/",
         ),
-        BROWSER: JSON.stringify("chrome"),
+        HAS_FAVICON_API: JSON.stringify(true),
       }),
     ]),
   }),
@@ -153,7 +155,7 @@ module.exports = [
         EXTENSION_URL: JSON.stringify(
           "https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/",
         ),
-        BROWSER: JSON.stringify("firefox"),
+        HAS_FAVICON_API: JSON.stringify(false),
       }),
     ]),
   }),

@@ -1,6 +1,6 @@
 import "./CorralTabRow.css";
 import * as React from "react";
-import LazyImage from "../LazyImage";
+import TabFavicon from "../TabFavicon";
 import TimeAgo from "timeago-react";
 import cx from "classnames";
 import { extractHostname } from "../util";
@@ -55,11 +55,12 @@ export default function ClosedTabRow({
         className="faviconCol ReactVirtualized__Table__rowColumn"
         style={{ verticalAlign: "middle" }}
       >
-        <LazyImage
+        <TabFavicon
           alt=""
           className="faviconCol--hover-hidden favicon"
+          favIconUrl={tab.favIconUrl}
           height={16}
-          src={tab.favIconUrl ?? ""}
+          url={tab.url}
           width={16}
         />
         <span

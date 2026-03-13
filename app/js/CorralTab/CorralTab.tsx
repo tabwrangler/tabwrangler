@@ -598,7 +598,7 @@ export default function CorralTab() {
             rowRenderer={rowRenderer}
             scrollTop={scrollTop}
             tabIndex={null}
-            width={670}
+            width={676}
           />
         )}
       </WindowScroller>

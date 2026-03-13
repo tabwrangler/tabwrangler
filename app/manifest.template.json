@@ -24,7 +24,7 @@
   "minimum_chrome_version": "88",
   "options_ui": {
     "open_in_tab": true,
-    "page": "popup.html"
+    "page": "options.html"
   },
   "permissions": [
     "alarms",

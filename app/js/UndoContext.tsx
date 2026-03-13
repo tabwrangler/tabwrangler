@@ -46,6 +46,7 @@ interface UndoContextValue {
   nextRedoAction: ActionSummary | null;
   redo: () => Promise<RedoResult | null>;
   removeTabs: (tabsWithIndices: TabWithIndex[]) => Promise<void>;
+  reset: () => void;
   restoreTabs: (sessionTabs: SessionTab[]) => Promise<void>;
   undo: () => Promise<void>;
 }
@@ -79,6 +80,10 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
       past: [...prev.past, action].slice(-MAX_HISTORY),
       future: [],
     }));
+  }, []);
+
+  const reset = React.useCallback(() => {
+    setState({ past: [], future: [] });
   }, []);
 
   const removeTabs = React.useCallback(
@@ -194,6 +199,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
       nextRedoAction,
       redo,
       removeTabs,
+      reset,
       restoreTabs,
       undo,
     }),
@@ -204,6 +210,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
       nextRedoAction,
       redo,
       removeTabs,
+      reset,
       restoreTabs,
       undo,
     ],

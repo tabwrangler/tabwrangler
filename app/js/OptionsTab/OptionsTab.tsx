@@ -11,6 +11,7 @@ import { exportFileName } from "../actions/importExportActions";
 import { mutateStorageSyncPersist } from "../storage";
 import { useDebounceCallback } from "@react-hook/debounce";
 import { useMutation } from "@tanstack/react-query";
+import { useUndo } from "../UndoContext";
 
 function isValidPattern(pattern: string) {
   return pattern != null && pattern.length > 0 && /\S/.test(pattern);
@@ -19,6 +20,7 @@ function isValidPattern(pattern: string) {
 export default function OptionsTab() {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const { data: syncData } = useStorageSyncQuery();
+  const { reset: resetUndo } = useUndo();
 
   const fileSelectorRef = React.useRef<HTMLInputElement | null>(null);
   const importExportAlertTimeoutRef = React.useRef<number>(null);
@@ -164,6 +166,11 @@ export default function OptionsTab() {
       chrome.i18n.getMessage("options_importExport_importing") || "",
       importData,
       event,
+
+      // Reset the undo/redo context after importing because the set of IDs in the context may clash
+      // with the imported ones. For example: user could import IDs already in the context, and then
+      // "undo" / "redo" might add or remove multiple tabs at once.
+      resetUndo,
     );
   }
 

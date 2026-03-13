@@ -9,7 +9,7 @@ import { register } from "timeago.js";
 import timeagoLocale from "./timeagoLocale";
 import { useStorageSyncPersistQuery } from "./storage";
 
-export default function Popup() {
+export default function Popup({ isOptionsPage }: { isOptionsPage: boolean }) {
   const { data: storageSyncPersistData } = useStorageSyncPersistQuery();
 
   React.useEffect(() => {
@@ -51,7 +51,9 @@ export default function Popup() {
     };
   }, [storageSyncPersistData?.theme]);
 
-  const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>("corral");
+  const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>(
+    isOptionsPage ? "options" : "corral",
+  );
   let activeTab;
   switch (activeTabId) {
     case "about":
@@ -70,7 +72,7 @@ export default function Popup() {
 
   return (
     <UndoProvider>
-      <NavBar activeTabId={activeTabId} onClickTab={setActiveTabId} />
+      <NavBar activeTabId={activeTabId} isOptionsPage={isOptionsPage} onClickTab={setActiveTabId} />
       <div className="tab-content container-fluid">{activeTab}</div>
     </UndoProvider>
   );

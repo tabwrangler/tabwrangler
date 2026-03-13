@@ -13,6 +13,7 @@ const COMMON_CONFIG = {
   devtool: "source-map",
   entry: {
     background: "./app/background.ts",
+    options: "./app/options.tsx",
     popup: "./app/popup.tsx",
   },
   mode: "development",
@@ -53,6 +54,12 @@ const COMMON_CONFIG = {
       ],
     }),
     new MiniCssExtractPlugin(),
+    new HtmlWebpackPlugin({
+      cache: false, // Disable cache to always create file in multi-compiler build
+      chunks: ["options"],
+      filename: "options.html",
+      template: "./app/options.template.html",
+    }),
     new HtmlWebpackPlugin({
       cache: false, // Disable cache to always create file in multi-compiler build
       chunks: ["popup"],

@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Dropdown from "react-bootstrap/Dropdown";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
-import { isTabLocked } from "../tabUtil";
 import settings from "../settings";
 import { useStorageSyncQuery } from "../storage";
 
@@ -213,21 +212,6 @@ export default function LockTab() {
   }, [currSorter, currWindow?.id, tabTimesQuery.data, tabsQuery.data]);
 
   const { data: syncData } = useStorageSyncQuery();
-  const lockedTabIds =
-    syncData == null
-      ? new Set()
-      : new Set(
-          tabsQuery.data
-            ?.filter((tab) =>
-              isTabLocked(tab, {
-                filterAudio: syncData["filterAudio"],
-                filterGroupedTabs: syncData["filterGroupedTabs"],
-                lockedIds: syncData["lockedIds"],
-                whitelist: syncData["whitelist"],
-              }),
-            )
-            .map((tab) => tab.id),
-        );
 
   async function toggleTab(
     windowId: number,
@@ -355,7 +339,6 @@ export default function LockTab() {
                   {tabs.map((tab, index) => (
                     <OpenTabRow
                       isLast={index === tabs.length - 1}
-                      isLocked={lockedTabIds.has(tab.id)}
                       key={tab.id}
                       onToggleTab={toggleTab}
                       tab={tab}

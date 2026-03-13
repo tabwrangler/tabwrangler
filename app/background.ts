@@ -177,7 +177,6 @@ async function checkToClose() {
         tabs: chrome.tabs.Tab[],
         { resetIfNoCandidates }: { resetIfNoCandidates: boolean },
       ): chrome.tabs.Tab[] {
-        // Filter out tabs that should not be closed (pinned, audible, grouped, whitelisted)
         tabs = tabs.filter(shouldTabBeClosed);
 
         let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.indexOf(tab.id) !== -1);

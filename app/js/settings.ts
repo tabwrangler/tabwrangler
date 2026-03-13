@@ -1,4 +1,9 @@
-import { AVERAGE_TAB_BYTES_SIZE, getWhitelistMatch, isTabLocked } from "./tabUtil";
+import {
+  AVERAGE_TAB_BYTES_SIZE,
+  TabLockStatus,
+  getTabLockStatus,
+  getWhitelistMatch,
+} from "./tabUtil";
 import Menus from "./menus";
 
 export type SettingsSchemaWrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDupes";
@@ -147,8 +152,8 @@ const Settings = {
     return getWhitelistMatch(url, { whitelist: this.get("whitelist") });
   },
 
-  isTabLocked(tab: chrome.tabs.Tab): boolean {
-    return isTabLocked(tab, {
+  getTabLockStatus(tab: chrome.tabs.Tab): TabLockStatus {
+    return getTabLockStatus(tab, {
       filterAudio: this.get("filterAudio"),
       filterGroupedTabs: this.get("filterGroupedTabs"),
       lockedIds: this.get("lockedIds"),
@@ -156,14 +161,13 @@ const Settings = {
     });
   },
 
+  isTabLocked(tab: chrome.tabs.Tab): boolean {
+    return this.getTabLockStatus(tab).locked;
+  },
+
   isTabManuallyLockable(tab: chrome.tabs.Tab): boolean {
-    const tabWhitelistMatch = this.getWhitelistMatch(tab.url);
-    return (
-      !tab.pinned &&
-      !tabWhitelistMatch &&
-      !(tab.audible && this.get("filterAudio")) &&
-      !(this.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0)
-    );
+    const status = this.getTabLockStatus(tab);
+    return !status.locked || status.reason === "manual";
   },
 
   isWhitelisted(url: string): boolean {

@@ -19,7 +19,6 @@ function secondsToHms(seconds: number) {
 
 type Props = {
   isLast: boolean;
-  isLocked: boolean;
   onToggleTab: (
     windowId: number,
     tab: chrome.tabs.Tab,
@@ -33,7 +32,6 @@ type Props = {
 
 export default function OpenTabRow({
   isLast,
-  isLocked,
   onToggleTab,
   tab,
   tabTime = Date.now(),
@@ -42,25 +40,39 @@ export default function OpenTabRow({
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const now = React.useContext(UseNowContext);
   const paused = syncPersistData?.paused;
-  const tabWhitelistMatch = settings.getWhitelistMatch(tab.url);
+  const status = settings.getTabLockStatus(tab);
 
-  let lockStatusElement;
-  if (isLocked) {
-    let reason;
-    if (tab.pinned) {
-      reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
-    } else if (settings.get("filterAudio") && tab.audible) {
-      reason = <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>Locked</abbr>;
-    } else if (settings.get("filterGroupedTabs") && "groupId" in tab && tab.groupId > 0) {
-      reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
-    } else if (tabWhitelistMatch) {
-      reason = (
-        <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_matches", tabWhitelistMatch)}>
-          Auto-Locked
-        </abbr>
-      );
-    } else {
-      reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
+  let lockStatusElement: React.ReactNode;
+  if (status.locked) {
+    let reason: React.ReactNode;
+    switch (status.reason) {
+      case "audible":
+        reason = (
+          <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>
+            {chrome.i18n.getMessage("tabLock_lockedStatus_locked")}
+          </abbr>
+        );
+        break;
+      case "grouped":
+        reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
+        break;
+      case "manual":
+        reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
+        break;
+      case "pinned":
+        reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
+        break;
+      case "whitelist":
+        reason = (
+          <abbr
+            title={chrome.i18n.getMessage("tabLock_lockedReason_matches", status.whitelistMatch)}
+          >
+            {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
+          </abbr>
+        );
+        break;
+      default:
+        status satisfies never;
     }
 
     lockStatusElement = (
@@ -93,13 +105,13 @@ export default function OpenTabRow({
   }
 
   return (
-    <tr className={cx({ "table-warning": isLocked })}>
+    <tr className={cx({ "table-warning": status.locked })}>
       <td
         className={cx("text-center", { "border-0": isLast })}
         style={{ verticalAlign: "middle", width: "1px" }}
       >
         <input
-          checked={isLocked}
+          checked={status.locked}
           className="mx-1"
           disabled={!settings.isTabManuallyLockable(tab)}
           onClick={(event: React.MouseEvent) => {
@@ -131,7 +143,7 @@ export default function OpenTabRow({
           <div className="flex-fill text-truncate" style={{ width: "1px" }}>
             {tab.title}
             <br />
-            <small className={cx({ "text-muted": !isLocked })}>({tab.url})</small>
+            <small className={cx({ "text-muted": !status.locked })}>({tab.url})</small>
           </div>
         </div>
       </td>

@@ -161,7 +161,15 @@ export function getWhitelistMatch(
   return null;
 }
 
-export function isTabLocked(
+export type TabLockStatus =
+  | { locked: false }
+  | { locked: true; reason: "audible" }
+  | { locked: true; reason: "grouped" }
+  | { locked: true; reason: "manual" }
+  | { locked: true; reason: "pinned" }
+  | { locked: true; reason: "whitelist"; whitelistMatch: string };
+
+export function getTabLockStatus(
   tab: chrome.tabs.Tab,
   {
     filterAudio,
@@ -169,15 +177,29 @@ export function isTabLocked(
     lockedIds,
     whitelist,
   }: { filterAudio: boolean; filterGroupedTabs: boolean; lockedIds: number[]; whitelist: string[] },
+): TabLockStatus {
+  if (tab.pinned) return { locked: true, reason: "pinned" };
+  if (filterAudio && tab.audible) return { locked: true, reason: "audible" };
+  if (filterGroupedTabs && "groupId" in tab && tab.groupId > 0)
+    return { locked: true, reason: "grouped" };
+
+  const whitelistMatch = getWhitelistMatch(tab.url, { whitelist });
+  if (whitelistMatch != null) return { locked: true, reason: "whitelist", whitelistMatch };
+  if (tab.id != null && lockedIds.indexOf(tab.id) !== -1) return { locked: true, reason: "manual" };
+
+  return { locked: false };
+}
+
+export function isTabLocked(
+  tab: chrome.tabs.Tab,
+  options: {
+    filterAudio: boolean;
+    filterGroupedTabs: boolean;
+    lockedIds: number[];
+    whitelist: string[];
+  },
 ): boolean {
-  const tabWhitelistMatch = getWhitelistMatch(tab.url, { whitelist });
-  return (
-    tab.pinned ||
-    !!tabWhitelistMatch ||
-    (tab.id != null && lockedIds.indexOf(tab.id) !== -1) ||
-    !!(filterGroupedTabs && "groupId" in tab && tab.groupId > 0) ||
-    !!(tab.audible && filterAudio)
-  );
+  return getTabLockStatus(tab, options).locked;
 }
 
 export function shouldTabBeClosed(tab: chrome.tabs.Tab): boolean {

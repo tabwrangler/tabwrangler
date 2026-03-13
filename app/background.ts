@@ -6,6 +6,7 @@ import {
 } from "./js/queries";
 import {
   initTabs,
+  isTabLocked,
   onNewTab,
   removeTab,
   shouldTabBeClosed,
@@ -21,12 +22,44 @@ import settings from "./js/settings";
 
 const menus = new Menus();
 
-function setPaused(paused: boolean): Promise<void> {
-  if (paused) {
-    return chrome.action.setIcon({ path: "img/icon-paused.png" });
+let updateIconGeneration = 0;
+async function updateIcon(tabId?: number): Promise<void> {
+  const generation = ++updateIconGeneration;
+
+  let nextIconPath;
+  const storageSyncPersist = await getStorageSyncPersist();
+  if (storageSyncPersist.paused) {
+    nextIconPath = "img/icon-paused.png";
   } else {
-    return chrome.action.setIcon({ path: "img/icon.png" });
+    let activeTabId = tabId;
+    if (activeTabId == null) {
+      const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+      activeTabId = activeTabs[0]?.id;
+    }
+
+    if (activeTabId != null) {
+      const tab = await chrome.tabs.get(activeTabId);
+      if (
+        tab != null &&
+        isTabLocked(tab, {
+          filterAudio: settings.get("filterAudio"),
+          filterGroupedTabs: settings.get("filterGroupedTabs"),
+          lockedIds: settings.get("lockedIds"),
+          whitelist: settings.get("whitelist"),
+        })
+      ) {
+        nextIconPath = "img/icon-locked.png";
+      }
+    }
   }
+
+  if (nextIconPath == null) nextIconPath = "img/icon.png";
+
+  // Ignore any but the most recent callback. Because of the above awaits it is possible for the
+  // callbacks to happen out-of-order.
+  if (generation !== updateIconGeneration) return Promise.resolve();
+
+  return chrome.action.setIcon({ path: nextIconPath });
 }
 
 const debouncedUpdateLastAccessed = debounce(updateLastAccessed, 1000);
@@ -36,17 +69,23 @@ chrome.runtime.onInstalled.addListener(async () => {
   migrateLocal();
 });
 
+let onActivatedGeneration = 0;
 chrome.tabs.onActivated.addListener(async function onActivated(tabInfo) {
+  const generation = ++onActivatedGeneration;
   await settings.init();
 
-  if (settings.get("createContextMenu")) menus.updateContextMenus(tabInfo.tabId);
+  // *Always* update last accessed because onActivated always matters for each tab
+  if (settings.get("debounceOnActivated")) debouncedUpdateLastAccessed(tabInfo.tabId);
+  else updateLastAccessed(tabInfo.tabId);
 
-  if (settings.get("debounceOnActivated")) {
-    debouncedUpdateLastAccessed(tabInfo.tabId);
-  } else {
-    updateLastAccessed(tabInfo.tabId);
-  }
+  // Ignore any but the most recent callback. Because of the above `await` it is possible for the
+  // callbacks to happen out-of-order.
+  if (generation !== onActivatedGeneration) return;
+
+  if (settings.get("createContextMenu")) menus.updateContextMenus(tabInfo.tabId);
+  updateIcon(tabInfo.tabId);
 });
+
 chrome.tabs.onCreated.addListener(onNewTab);
 chrome.tabs.onRemoved.addListener(removeTab);
 
@@ -107,8 +146,12 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
           changes["persist:settings"]?.newValue.paused !==
           changes["persist:settings"]?.oldValue?.paused
         ) {
-          setPaused(changes["persist:settings"].newValue.paused);
+          updateIcon();
         }
+      }
+
+      if (changes.lockedIds) {
+        updateIcon();
       }
 
       if (changes.showBadgeCount) {
@@ -266,8 +309,7 @@ async function startup() {
   // Load settings before proceeding; Settings reads from async browser storage.
   await settings.init();
 
-  const storageSyncPersist = await getStorageSyncPersist();
-  setPaused(storageSyncPersist.paused);
+  updateIcon();
 
   // Because the badge count is external state, this side effect must be run once the value
   // is read from storage.

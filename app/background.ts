@@ -173,23 +173,21 @@ async function checkToClose() {
         });
       }
 
-      function findTabsToCloseCandidates(
-        tabs: chrome.tabs.Tab[],
-        { resetIfNoCandidates }: { resetIfNoCandidates: boolean },
-      ): chrome.tabs.Tab[] {
+      function findTabsToCloseCandidates(tabs: chrome.tabs.Tab[]): chrome.tabs.Tab[] {
         tabs = tabs.filter(shouldTabBeClosed);
 
         let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.indexOf(tab.id) !== -1);
         if (tabs.length - minTabs <= 0) {
-          // * We have less than minTab tabs, abort.
-          // * Also, reset the last accessed time of our current tabs so they don't get closed
-          //   when we add a new one
-          for (let i = 0; i < tabs.length; i++) {
-            const tabId = tabs[i].id;
-            if (tabId != null && resetIfNoCandidates) tabTimes[tabId] = updatedAt;
-          }
           return [];
         }
+
+        // Sort by lastAccessed ascending (oldest first) so the least recently used tabs are closed
+        // first. `lastAccessed` is not available on all browsers/versions, so fall back to the
+        // original tab order when it is absent.
+        tabsToCut.sort((a, b) => {
+          if (a.lastAccessed == null || b.lastAccessed == null) return 0;
+          return a.lastAccessed - b.lastAccessed;
+        });
 
         // If cutting will reduce us below `minTabs`, only remove the first N to get to `minTabs`.
         tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
@@ -216,18 +214,12 @@ async function checkToClose() {
       let candidateTabs: chrome.tabs.Tab[] = [];
       if (settings.get("minTabsStrategy") === "allWindows") {
         // * "allWindows" - sum tabs across all open browser windows
-        candidateTabs = findTabsToCloseCandidates(allTabs, {
-          resetIfNoCandidates: false,
-        });
+        candidateTabs = findTabsToCloseCandidates(allTabs);
       } else {
         // * "givenWindow" (default) - count tabs within any given window
         const windows = await chrome.windows.getAll({ populate: true });
         candidateTabs = windows
-          .map((win) =>
-            win.tabs == null
-              ? []
-              : findTabsToCloseCandidates(win.tabs, { resetIfNoCandidates: win.focused }),
-          )
+          .map((win) => (win.tabs == null ? [] : findTabsToCloseCandidates(win.tabs)))
           .reduce((acc, candidates) => acc.concat(candidates), []);
       }
 

@@ -516,6 +516,10 @@
     "description": "Brief description of the extension",
     "message": "Автоматично закриває неактивні вкладки та спрощує їх повернення"
   },
+  "corral_remove": {
+    "description": "Label for button that removes selected tabs",
+    "message": "Прибрати"
+  },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",
     "message": "Відновлення цієї вкладки також відновить всю її сесію: історію, позицію прокрутки тощо. Ця функція обмежена браузером до 25 останніх закритих вкладок."
@@ -523,5 +527,53 @@
   "corral_noTabsMatch": {
     "description": "Message shown when no tabs match the user's search query",
     "message": "Вкладок за вашим запитом не знайдено. Спробуйте інший запит або зробіть його менш конкретним."
+  },
+  "corral_undo": {
+    "description": "Button title for undoing the last action",
+    "message": "Повернути"
+  },
+  "corral_redo": {
+    "description": "Button title for redoing the last undone action",
+    "message": "Повернути"
+  },
+  "corral_undo_remove": {
+    "description": "Button title for undoing a remove action",
+    "message": "Повернути прибране (сторінок: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_undo_restore": {
+    "description": "Button title for undoing a restore action",
+    "message": "Прибрати відновлене (сторінок: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_remove": {
+    "description": "Button title for redoing a remove action",
+    "message": "Прибрати відновлене (сторінок: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_restore": {
+    "description": "Button title for redoing a restore action",
+    "message": "Відновити прибирання (сторінок: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   }
 }

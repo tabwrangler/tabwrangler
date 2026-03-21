@@ -153,10 +153,13 @@ const Settings = {
   },
 
   getTabLockStatus(tab: chrome.tabs.Tab): TabLockStatus {
+    // Intentionally excludes `lockedWindowIds` so the UI checkbox reflects individual tab lock
+    // state only. Window lock state is passed separately as a prop in the UI.
     return getTabLockStatus(tab, {
       filterAudio: this.get("filterAudio"),
       filterGroupedTabs: this.get("filterGroupedTabs"),
       lockedIds: this.get("lockedIds"),
+      lockedWindowIds: [],
       whitelist: this.get("whitelist"),
     });
   },
@@ -180,6 +183,23 @@ const Settings = {
       lockedIds.push(tabId);
     }
     return this.set("lockedIds", lockedIds);
+  },
+
+  lockWindow(windowId: number): Promise<void> {
+    const lockedWindowIds = this.get("lockedWindowIds");
+    if (windowId > 0 && lockedWindowIds.indexOf(windowId) === -1) {
+      lockedWindowIds.push(windowId);
+    }
+    return this.set("lockedWindowIds", lockedWindowIds);
+  },
+
+  unlockWindow(windowId: number): Promise<void> {
+    const lockedWindowIds = this.get("lockedWindowIds");
+    const index = lockedWindowIds.indexOf(windowId);
+    if (index > -1) {
+      lockedWindowIds.splice(index, 1);
+    }
+    return this.set("lockedWindowIds", lockedWindowIds);
   },
 
   // Magic setter functions keyed by setting name. When `set` is called for one of these keys,

@@ -9,6 +9,9 @@ $font-size-base: 0.875rem;
 $nav-link-transition: none; // Prevent flash of wrong bg-color while loading color theme
 $toast-spacing: 0.5rem;
 
+// Buttons
+$btn-disabled-opacity: .5 !default;
+
 // Configuration
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../../node_modules/bootstrap/scss/variables";

@@ -28,6 +28,7 @@ type Props = {
   tab: chrome.tabs.Tab;
   tabTime: number | undefined;
   windowId: number;
+  windowLocked: boolean;
 };
 
 export default function OpenTabRow({
@@ -36,6 +37,7 @@ export default function OpenTabRow({
   tab,
   tabTime = Date.now(),
   windowId,
+  windowLocked,
 }: Props) {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const now = React.useContext(UseNowContext);
@@ -71,6 +73,9 @@ export default function OpenTabRow({
           </abbr>
         );
         break;
+      case "window":
+        reason = "window";
+        break;
       default:
         status satisfies never;
     }
@@ -85,7 +90,9 @@ export default function OpenTabRow({
     );
   } else {
     let timeLeftContent;
-    if (paused) {
+    if (windowLocked) {
+      timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_window");
+    } else if (paused) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
     } else {
       const cutOff = now - settings.stayOpen();
@@ -105,22 +112,22 @@ export default function OpenTabRow({
   }
 
   return (
-    <tr className={cx({ "table-warning": status.locked })}>
+    <tr>
       <td
         className={cx("text-center", { "border-0": isLast })}
         style={{ verticalAlign: "middle", width: "1px" }}
       >
-        <input
-          checked={status.locked}
-          className="mx-1"
+        <button
+          className={cx("btn btn-xs btn-outline-secondary rounded-circle", {
+            active: status.locked,
+          })}
           disabled={!settings.isTabManuallyLockable(tab)}
-          onClick={(event: React.MouseEvent) => {
-            if (!(event.target instanceof HTMLInputElement)) return;
-            onToggleTab(windowId, tab, event.target.checked, event.shiftKey);
+          onClick={(event) => {
+            onToggleTab(windowId, tab, !status.locked, event.shiftKey);
           }}
-          type="checkbox"
-          readOnly
-        />
+        >
+          {status.locked ? <i className="fas fa-lock" /> : <i className="fas fa-unlock" />}
+        </button>
       </td>
       <td
         className={cx("text-center", { "border-0": isLast })}

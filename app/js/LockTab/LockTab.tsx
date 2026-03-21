@@ -1,6 +1,7 @@
 import * as React from "react";
-import { lockTabId, unlockTabId } from "../storage";
+import { lockTabId, lockWindowId, unlockTabId, unlockWindowId } from "../storage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
@@ -134,9 +135,11 @@ function useTabsQuery() {
     }
     chrome.tabs.onCreated.addListener(invalidateTabsQuery);
     chrome.tabs.onRemoved.addListener(invalidateTabsQuery);
+    chrome.tabs.onUpdated.addListener(invalidateTabsQuery);
     return () => {
       chrome.tabs.onCreated.removeListener(invalidateTabsQuery);
       chrome.tabs.onRemoved.removeListener(invalidateTabsQuery);
+      chrome.tabs.onUpdated.removeListener(invalidateTabsQuery);
     };
   }, [queryClient]);
   return query;
@@ -168,8 +171,8 @@ function useTabTimesQuery() {
 }
 
 export default function LockTab() {
-  const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
   const now = useNow();
+  const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
   const [sortOrder, setSortOrder] = React.useState<string | null>(settings.get("lockTabSortOrder"));
 
   const [currWindow, setCurrWindow] = React.useState<chrome.windows.Window>();
@@ -212,6 +215,15 @@ export default function LockTab() {
   }, [currSorter, currWindow?.id, tabTimesQuery.data, tabsQuery.data]);
 
   const { data: syncData } = useStorageSyncQuery();
+  const lockedWindowIds: number[] = syncData?.lockedWindowIds ?? [];
+
+  async function toggleWindow(windowId: number) {
+    if (lockedWindowIds.indexOf(windowId) !== -1) {
+      await unlockWindowId(windowId);
+    } else {
+      await lockWindowId(windowId);
+    }
+  }
 
   async function toggleTab(
     windowId: number,
@@ -248,12 +260,7 @@ export default function LockTab() {
 
   return (
     <div className="tab-pane active">
-      <div className="d-flex align-items-center justify-content-between pb-2">
-        <div className="px-2">
-          <abbr title={chrome.i18n.getMessage("tabLock_lockLabel")}>
-            <i className="fas fa-lock" />
-          </abbr>
-        </div>
+      <div className="d-flex align-items-center justify-content-end pb-2">
         <Dropdown>
           <Dropdown.Toggle
             size="sm"
@@ -312,48 +319,76 @@ export default function LockTab() {
       </div>
       <div className="d-flex flex-column gap-4">
         <UseNowContext.Provider value={now}>
-          {tabsByWindowId.map(([windowId, tabs]) => (
-            <div className="border overflow-hidden rounded" key={windowId}>
-              <table className="table table-hover table-sm mb-0">
-                <thead>
-                  <tr>
-                    <th className={cx("p-2 bg-body-tertiary")} colSpan={5}>
-                      <div className="d-flex justify-content-between">
-                        <div></div>
-                        <div>
-                          {currWindow?.id === windowId && (
-                            <span
-                              className="badge text-bg-success me-2 position-relative"
-                              style={{ top: "-1px" }}
-                            >
-                              CURRENT
-                            </span>
-                          )}
-                          <i className="fas fa-window-maximize" title={`Window ${windowId}`} />
+          {tabsByWindowId.map(([windowId, tabs]) => {
+            const isLocked = lockedWindowIds.indexOf(windowId) !== -1;
+            return (
+              <div className="border overflow-hidden rounded" key={windowId}>
+                <table className="table table-hover table-sm mb-0">
+                  <thead>
+                    <tr>
+                      <th
+                        className={cx("p-2 align-middle", {
+                          "table-warning": isLocked,
+                          "bg-body-tertiary": !isLocked,
+                        })}
+                        colSpan={5}
+                      >
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div className="d-flex align-items-center gap-2">
+                            <abbr title={`ID: ${windowId}`}>Window</abbr>
+                            {currWindow?.id === windowId && (
+                              <span
+                                className="badge text-bg-success position-relative"
+                                style={{ top: "-1px" }}
+                              >
+                                CURRENT
+                              </span>
+                            )}
+                          </div>
+                          <Button
+                            active={isLocked}
+                            className="d-flex align-items-center gap-1"
+                            // @ts-expect-error Need to expand size type to include "xs"
+                            size="xs"
+                            type="button"
+                            variant="outline-secondary"
+                            onClick={() => toggleWindow(windowId)}
+                          >
+                            {isLocked ? (
+                              <>
+                                Locked <i className="fas fa-lock" />
+                              </>
+                            ) : (
+                              <>
+                                Unlocked <i className="fas fa-unlock" />
+                              </>
+                            )}
+                          </Button>
                         </div>
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tabs.map((tab, index) => (
-                    <OpenTabRow
-                      isLast={index === tabs.length - 1}
-                      key={tab.id}
-                      onToggleTab={toggleTab}
-                      tab={tab}
-                      tabTime={
-                        tabTimesQuery.data == null || tab.id == null
-                          ? undefined
-                          : tabTimesQuery.data[tab.id]
-                      }
-                      windowId={windowId}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tabs.map((tab, index) => (
+                      <OpenTabRow
+                        isLast={index === tabs.length - 1}
+                        key={tab.id}
+                        onToggleTab={toggleTab}
+                        tab={tab}
+                        tabTime={
+                          tabTimesQuery.data == null || tab.id == null
+                            ? undefined
+                            : tabTimesQuery.data[tab.id]
+                        }
+                        windowId={windowId}
+                        windowLocked={lockedWindowIds.indexOf(windowId) !== -1}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
         </UseNowContext.Provider>
       </div>
     </div>

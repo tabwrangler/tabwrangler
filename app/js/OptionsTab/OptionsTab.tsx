@@ -2,6 +2,8 @@ import * as React from "react";
 import { exportData, importData } from "../actions/importExportActions";
 import settings, { type SettingsSchema } from "../settings";
 import { useStorageSyncPersistQuery, useStorageSyncQuery } from "../storage";
+import Button from "react-bootstrap/Button";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
 import Toast from "react-bootstrap/Toast";
@@ -182,49 +184,40 @@ export default function OptionsTab() {
             <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
           </label>
           <div>
-            <div className="btn-group">
-              <button
-                className={cx("btn", {
-                  active: theme == null || theme === "system",
-                  "btn-secondary": theme == null || theme === "system",
-                  "btn-outline-secondary": !(theme == null || theme === "system"),
-                })}
+            <ButtonGroup>
+              <Button
+                active={theme == null || theme === "system"}
+                type="button"
+                variant={theme == null || theme === "system" ? "secondary" : "outline-secondary"}
                 onClick={() => {
                   persistSettingMutation.mutate({ key: "theme", value: "system" });
                 }}
-                type="button"
               >
                 {chrome.i18n.getMessage("options_option_theme_system")}
-              </button>
-              <button
-                className={cx("btn", {
-                  active: theme === "light",
-                  "btn-secondary": theme === "light",
-                  "btn-outline-secondary": theme !== "light",
-                })}
+              </Button>
+              <Button
+                active={theme === "light"}
+                type="button"
+                variant={theme === "light" ? "secondary" : "outline-secondary"}
                 onClick={() => {
                   persistSettingMutation.mutate({ key: "theme", value: "light" });
                 }}
-                type="button"
               >
                 <i className="fas fa-sun me-1" />
                 {chrome.i18n.getMessage("options_option_theme_light")}
-              </button>
-              <button
-                className={cx("btn", {
-                  active: theme === "dark",
-                  "btn-secondary": theme === "dark",
-                  "btn-outline-secondary": theme !== "dark",
-                })}
+              </Button>
+              <Button
+                active={theme === "dark"}
+                type="button"
+                variant={theme === "dark" ? "secondary" : "outline-secondary"}
                 onClick={() => {
                   persistSettingMutation.mutate({ key: "theme", value: "dark" });
                 }}
-                type="button"
               >
                 <i className="fas fa-moon me-1" />
                 {chrome.i18n.getMessage("options_option_theme_dark")}
-              </button>
-            </div>
+              </Button>
+            </ButtonGroup>
           </div>
           <label className="form-label mt-3">
             <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
@@ -456,14 +449,14 @@ export default function OptionsTab() {
                   type="text"
                   value={newPattern}
                 />
-                <button
-                  className="btn btn-secondary"
+                <Button
                   disabled={!isValidPattern(newPattern)}
                   id="addToWL"
                   type="submit"
+                  variant="secondary"
                 >
                   {chrome.i18n.getMessage("options_option_autoLock_add")}
-                </button>
+                </Button>
               </div>
               <p className="form-text">
                 {chrome.i18n.getMessage("options_option_autoLock_example")}
@@ -494,14 +487,16 @@ export default function OptionsTab() {
                     <code>{pattern}</code>
                   </td>
                   <td>
-                    <button
-                      className="btn btn-outline-secondary btn-sm my-n1"
+                    <Button
+                      className="my-n1"
+                      size="sm"
+                      variant="outline-secondary"
                       onClick={() => {
                         handleClickRemovePattern(pattern);
                       }}
                     >
                       {chrome.i18n.getMessage("options_option_autoLock_remove")}
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))
@@ -515,19 +510,19 @@ export default function OptionsTab() {
         </div>
         <div className="row my-2">
           <div className="col-8 mb-1">
-            <button className="btn btn-secondary" onClick={handleExportData}>
+            <Button variant="secondary" onClick={handleExportData}>
               <i className="fas fa-file-export me-1" />
               {chrome.i18n.getMessage("options_importExport_export")}
-            </button>{" "}
-            <button
-              className="btn btn-secondary"
+            </Button>{" "}
+            <Button
+              variant="secondary"
               onClick={() => {
                 if (fileSelectorRef.current != null) fileSelectorRef.current.click();
               }}
             >
               <i className="fas fa-file-import me-1" />
               {chrome.i18n.getMessage("options_importExport_import")}
-            </button>
+            </Button>
             <input
               accept=".json"
               onChange={handleImportData}
@@ -587,12 +582,12 @@ export default function OptionsTab() {
           <Toast.Body className="d-flex align-items-center justify-content-between">
             <div className="text-light">{chrome.i18n.getMessage("options_unsavedChanges")}</div>
             <div className="d-flex gap-2">
-              <button className="btn btn-outline-light" onClick={resetMaxTabs}>
+              <Button variant="outline-light" onClick={resetMaxTabs}>
                 {chrome.i18n.getMessage("options_discard")}
-              </button>
-              <button className="btn btn-light" disabled={maxTabs === ""} onClick={saveMaxTabs}>
+              </Button>
+              <Button variant="light" disabled={maxTabs === ""} onClick={saveMaxTabs}>
                 {chrome.i18n.getMessage("options_save")}
-              </button>
+              </Button>
             </div>
           </Toast.Body>
         </Toast>

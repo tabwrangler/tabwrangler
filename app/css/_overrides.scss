@@ -1,0 +1,8 @@
+// Keep background + color for active+disabled buttons so they are distinct from plain disabled
+// buttons. The [`button-variant` mixin][0] does not expose sufficient variables to enable this so
+// an overly-specific selector is used here to beat base styles.
+// [0]: https://github.com/twbs/bootstrap/blob/v5.3.2/scss/mixins/_buttons.scss#L7
+.btn-outline-secondary.btn.active:disabled {
+  background-color: var(--bs-btn-active-bg);
+  color: var(--bs-btn-active-color);
+}

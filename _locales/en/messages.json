@@ -343,7 +343,7 @@
     "message": "Tab Corral"
   },
   "tabLock_lockedStatus_autolocked": {
-    "message": "Auto-Locked"
+    "message": "Auto-locked"
   },
   "tabLock_lockedStatus_locked": {
     "message": "Locked"
@@ -377,6 +377,10 @@
   "tabLock_lockedReason_group": {
     "description": "Label for a tab that is locked because it's in a group",
     "message": "Grouped"
+  },
+  "tabLock_lockedReason_window": {
+    "description": "Label for a tab that is protected because its window is locked",
+    "message": "Window locked"
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",

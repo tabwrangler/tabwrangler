@@ -39,6 +39,11 @@ body {
 
 @import "./_includes";
 @import "./_bootstrap";
+@import "./_overrides";
+
+.btn-xs {
+  @include button-size(0.1rem, 0.3rem, 0.75rem, var(--#{$prefix}border-radius-sm));
+}
 
 .alert-sticky {
   position: fixed;

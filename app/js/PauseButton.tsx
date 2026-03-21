@@ -1,4 +1,5 @@
 import * as React from "react";
+import Button from "react-bootstrap/Button";
 import { mutateStorageSyncPersist } from "./storage";
 import { useMutation } from "@tanstack/react-query";
 import { useStorageSyncPersistQuery } from "./storage";
@@ -19,11 +20,12 @@ export default function PauseButton() {
   }
 
   return (
-    <button
-      className="btn btn-secondary btn-sm"
+    <Button
       disabled={storageSyncPersistData == null}
       onClick={storageSyncPersistData == null || !storageSyncPersistData.paused ? pause : play}
+      size="sm"
       type="button"
+      variant="secondary"
     >
       {storageSyncPersistData == null || !storageSyncPersistData.paused ? (
         <>
@@ -34,6 +36,6 @@ export default function PauseButton() {
           <i className="fas fa-play" /> {chrome.i18n.getMessage("extension_resume")}
         </>
       )}
-    </button>
+    </Button>
   );
 }

@@ -3,6 +3,8 @@ import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
 import { extractHostname, extractRootDomain, serializeTab } from "../util";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import Button from "react-bootstrap/Button";
+import CloseButton from "react-bootstrap/CloseButton";
 import ClosedTabRow from "./ClosedTabRow";
 import Dropdown from "react-bootstrap/Dropdown";
 import { TabWithIndex } from "../types";
@@ -424,15 +426,17 @@ export default function CorralTab() {
 
       <div className="corral-tab--control-bar py-2 border-bottom">
         <div className="d-flex gap-1">
-          <button
-            className="btn btn-secondary btn-sm"
+          <Button
             disabled={closedTabs.length === 0}
             onClick={toggleAllTabs}
+            size="sm"
             title={
               areAllClosedTabsSelected
                 ? chrome.i18n.getMessage("corral_toggleAllTabs_deselectAll")
                 : chrome.i18n.getMessage("corral_toggleAllTabs_selectAll")
             }
+            type="button"
+            variant="secondary"
           >
             <input
               checked={areAllClosedTabsSelected}
@@ -440,28 +444,31 @@ export default function CorralTab() {
               style={{ margin: 0 }}
               type="checkbox"
             />
-          </button>
+          </Button>
           {hasVisibleSelectedTabs ? (
             <>
-              <button
-                className="btn btn-secondary btn-sm px-3"
+              <Button
+                className="px-3"
                 onClick={handleOpenSelectedTabs}
                 title={chrome.i18n.getMessage("corral_restoreSelectedTabs")}
+                size="sm"
                 type="button"
+                variant="secondary"
               >
                 <span className="sr-only">
                   {chrome.i18n.getMessage("corral_restoreSelectedTabs")}
                 </span>
                 <i className="fas fa-external-link-alt" />
-              </button>
-              <button
-                className="btn btn-secondary btn-sm"
+              </Button>
+              <Button
                 onClick={handleRemoveSelectedTabs}
+                size="sm"
                 title={chrome.i18n.getMessage("corral_removeSelectedTabs")}
                 type="button"
+                variant="secondary"
               >
                 <i className="fas fa-trash-alt" /> {chrome.i18n.getMessage("corral_remove")}
-              </button>
+              </Button>
             </>
           ) : null}
         </div>
@@ -469,8 +476,8 @@ export default function CorralTab() {
           {filter.length > 0 ? (
             <span className="badge rounded-pill text-bg-primary d-flex align-items-center gap-1 px-2">
               {chrome.i18n.getMessage("corral_searchResults_label", `${closedTabs.length}`)}
-              <button
-                className="btn-close btn-xs"
+              <CloseButton
+                className="btn-xs"
                 onClick={() => {
                   setFilter("");
                 }}
@@ -479,10 +486,10 @@ export default function CorralTab() {
             </span>
           ) : null}
           <div className="btn-group">
-            <button
-              className="btn btn-secondary btn-sm"
+            <Button
               disabled={!canUndo}
               onClick={undo}
+              size="sm"
               title={
                 lastAction
                   ? chrome.i18n.getMessage(
@@ -492,13 +499,14 @@ export default function CorralTab() {
                   : chrome.i18n.getMessage("corral_undo")
               }
               type="button"
+              variant="secondary"
             >
               <i className="fas fa-undo" /> {chrome.i18n.getMessage("corral_undo")}
-            </button>
-            <button
-              className="btn btn-secondary btn-sm"
+            </Button>
+            <Button
               disabled={!canRedo}
               onClick={handleRedo}
+              size="sm"
               title={
                 nextRedoAction
                   ? chrome.i18n.getMessage(
@@ -510,9 +518,10 @@ export default function CorralTab() {
                   : chrome.i18n.getMessage("corral_redo")
               }
               type="button"
+              variant="secondary"
             >
               <i className="fas fa-redo" /> {chrome.i18n.getMessage("corral_redo")}
-            </button>
+            </Button>
           </div>
           <Dropdown>
             <Dropdown.Toggle

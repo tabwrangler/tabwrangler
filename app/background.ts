@@ -45,6 +45,7 @@ async function updateIcon(tabId?: number): Promise<void> {
           filterAudio: settings.get("filterAudio"),
           filterGroupedTabs: settings.get("filterGroupedTabs"),
           lockedIds: settings.get("lockedIds"),
+          lockedWindowIds: settings.get("lockedWindowIds"),
           whitelist: settings.get("whitelist"),
         })
       ) {
@@ -150,7 +151,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
         }
       }
 
-      if (changes.lockedIds) {
+      if (changes.lockedIds || changes.lockedWindowIds) {
         updateIcon();
       }
 

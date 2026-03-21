@@ -77,6 +77,27 @@ export async function unlockTabId(tabId: number) {
   await setTabTime(String(tabId), Date.now());
 }
 
+export function lockWindowId(windowId: number): Promise<void> {
+  return ASYNC_LOCK.acquire("persist:settings", async () => {
+    const { lockedWindowIds } = await chrome.storage.sync.get({ lockedWindowIds: [] });
+    if (windowId > 0 && lockedWindowIds.indexOf(windowId) === -1) {
+      lockedWindowIds.push(windowId);
+      await chrome.storage.sync.set({ lockedWindowIds });
+    }
+  });
+}
+
+export function unlockWindowId(windowId: number): Promise<void> {
+  return ASYNC_LOCK.acquire("persist:settings", async () => {
+    const { lockedWindowIds } = await chrome.storage.sync.get({ lockedWindowIds: [] });
+    const index = lockedWindowIds.indexOf(windowId);
+    if (index !== -1) {
+      lockedWindowIds.splice(index, 1);
+      await chrome.storage.sync.set({ lockedWindowIds });
+    }
+  });
+}
+
 const STORAGE_LOCAL_PERSIST_QUERY_KEY = ["storageLocalQuery", { type: "persist" }];
 export function useStorageLocalPersistQuery() {
   const queryClient = useQueryClient();

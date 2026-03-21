@@ -7,6 +7,7 @@ import {
 import {
   initTabs,
   isTabLocked,
+  makeTabPersistKey,
   onNewTab,
   removeTab,
   shouldTabBeClosed,
@@ -286,25 +287,21 @@ async function checkToClose() {
       // * Tab no longer exists? reducing `tabs.query` will not yield that dead tab ID and it will
       //   not exist in resulting `nextTabTimes`
       const nextTabTimes: { [key: string]: number } = {};
-      const nextTabTimesByUrl: { [url: string]: number } = {};
+      const nextTabTimesByPersistKey: { [key: string]: number } = {};
       for (const tab of allTabs) {
         if (tab.id != null) {
           const time = tabTimes[tab.id] || updatedAt;
           nextTabTimes[tab.id] = time;
-          // Also store by URL so countdowns survive browser restart (tab IDs change).
-          // For duplicate URLs, keep the oldest timestamp (closest to being closed).
-          if (tab.url) {
-            const existing = nextTabTimesByUrl[tab.url];
-            if (existing == null || time < existing) {
-              nextTabTimesByUrl[tab.url] = time;
-            }
-          }
+          // Store by persist key so countdowns survive browser restart (tab IDs change).
+          const tabPersistKey = makeTabPersistKey(tab);
+          if (tabPersistKey != null) nextTabTimesByPersistKey[tabPersistKey] = time;
         }
       }
 
-      // Piggyback tabTimesByUrl onto the existing storage write — zero extra I/O.
-      await chrome.storage.local.set({ tabTimes: nextTabTimes, tabTimesByUrl: nextTabTimesByUrl });
-
+      await chrome.storage.local.set({
+        tabTimes: nextTabTimes,
+        tabTimesByPersistKey: nextTabTimesByPersistKey,
+      });
       return candidateTabs;
     });
 
@@ -343,39 +340,35 @@ async function startup() {
     await removeAllSavedTabs();
   }
 
-  // Migrate tab times from previous session: after a browser restart, Chrome assigns new
-  // tab IDs so the old ID-based tabTimes won't match. Use the URL-based map to carry over
-  // countdowns from the previous session.
+  // Migrate tab times from previous session: after a browser restart.
   await ASYNC_LOCK.acquire("local.tabTimes", async () => {
-    const { tabTimes, tabTimesByUrl } = await chrome.storage.local.get({
+    const { tabTimes, tabTimesByPersistKey } = await chrome.storage.local.get({
       tabTimes: {},
-      tabTimesByUrl: {},
+      tabTimesByPersistKey: {},
     });
     const allTabs = await chrome.tabs.query({});
     const now = Date.now();
     let migrated = 0;
-
     const nextTabTimes: { [key: string]: number } = {};
     for (const tab of allTabs) {
       if (tab.id == null) continue;
 
+      const tabPersistKey = makeTabPersistKey(tab);
       if (tabTimes[tab.id] != null) {
-        // Tab ID still exists in storage (no restart, or same ID reused) — keep as-is.
+        // Tab ID still exists in storage (no restart, or same ID reused) - keep as-is.
         nextTabTimes[tab.id] = tabTimes[tab.id];
-      } else if (tab.url && tabTimesByUrl[tab.url] != null) {
-        // Tab ID changed (browser restart) but URL matches — carry over the old timestamp.
-        nextTabTimes[tab.id] = tabTimesByUrl[tab.url];
+      } else if (tabPersistKey != null && tabTimesByPersistKey[tabPersistKey] != null) {
+        // Tab ID changed (browser restart) - look up by persist key.
+        nextTabTimes[tab.id] = tabTimesByPersistKey[tabPersistKey];
         migrated++;
       } else {
-        // Completely new tab — start a fresh countdown.
+        // No matching stored time - start a fresh countdown.
         nextTabTimes[tab.id] = now;
       }
     }
 
     await chrome.storage.local.set({ tabTimes: nextTabTimes });
-    if (migrated > 0) {
-      console.debug(`[startup] Migrated ${migrated} tab timer(s) from previous session via URL`);
-    }
+    console.debug(`[startup] Migrated ${migrated} tab timer(s) from previous session via URL`);
   });
 
   // Mark startup complete so onNewTab starts tracking new tabs normally.

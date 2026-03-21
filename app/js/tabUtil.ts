@@ -212,6 +212,10 @@ export function isTabLocked(
   return getTabLockStatus(tab, options).locked;
 }
 
+export function makeTabPersistKey(tab: chrome.tabs.Tab): string | undefined {
+  return tab.lastAccessed != null ? `${tab.lastAccessed}::${tab.url}` : tab.url;
+}
+
 export function shouldTabBeClosed(tab: chrome.tabs.Tab): boolean {
   return !isTabLocked(tab, {
     filterAudio: settings.get("filterAudio"),

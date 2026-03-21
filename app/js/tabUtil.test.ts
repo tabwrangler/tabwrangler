@@ -2,7 +2,10 @@ import {
   AVERAGE_TAB_BYTES_SIZE,
   findPositionByHostnameAndTitle,
   findPositionByURL,
+  getTabLockStatus,
   getURLPositionFilterByWrangleOption,
+  getWhitelistMatch,
+  makeTabPersistKey,
   wrangleTabsAndPersist,
 } from "./tabUtil";
 import { TextEncoder } from "util";
@@ -200,6 +203,145 @@ describe("filter", () => {
 
   test("should return -1 of tab if no title provided", () => {
     expect(findPositionByHostnameAndTitle(savedTabs, "https://www.nytimes.com")).toBe(-1);
+  });
+});
+
+describe("getWhitelistMatch", () => {
+  test("returns the matching pattern when the URL contains it", () => {
+    expect(getWhitelistMatch("https://www.github.com/foo", { whitelist: ["github.com"] })).toBe(
+      "github.com",
+    );
+  });
+
+  test("returns the first matching pattern when multiple match", () => {
+    expect(
+      getWhitelistMatch("https://www.github.com/foo", { whitelist: ["github.com", "github"] }),
+    ).toBe("github.com");
+  });
+
+  test("returns null when no pattern matches", () => {
+    expect(getWhitelistMatch("https://www.github.com", { whitelist: ["google.com"] })).toBeNull();
+  });
+
+  test("returns null when the whitelist is empty", () => {
+    expect(getWhitelistMatch("https://www.github.com", { whitelist: [] })).toBeNull();
+  });
+
+  test("returns null when url is undefined", () => {
+    expect(getWhitelistMatch(undefined, { whitelist: ["github.com"] })).toBeNull();
+  });
+});
+
+describe("getTabLockStatus", () => {
+  const defaultOptions = {
+    filterAudio: false,
+    filterGroupedTabs: false,
+    lockedIds: [],
+    lockedWindowIds: [],
+    whitelist: [],
+  };
+
+  test("returns not locked for a normal tab", () => {
+    expect(getTabLockStatus(createTab({ groupId: -1 }), defaultOptions)).toEqual({
+      locked: false,
+    });
+  });
+
+  test("locks a pinned tab", () => {
+    expect(getTabLockStatus(createTab({ pinned: true }), defaultOptions)).toEqual({
+      locked: true,
+      reason: "pinned",
+    });
+  });
+
+  test("locks an audible tab when filterAudio is enabled", () => {
+    expect(
+      getTabLockStatus(createTab({ audible: true }), { ...defaultOptions, filterAudio: true }),
+    ).toEqual({ locked: true, reason: "audible" });
+  });
+
+  test("does not lock an audible tab when filterAudio is disabled", () => {
+    expect(
+      getTabLockStatus(createTab({ audible: true, groupId: -1 }), {
+        ...defaultOptions,
+        filterAudio: false,
+      }),
+    ).toEqual({ locked: false });
+  });
+
+  test("locks a grouped tab when filterGroupedTabs is enabled", () => {
+    // groupId > 0 means the tab is in a group
+    expect(
+      getTabLockStatus(createTab({ groupId: 2 }), {
+        ...defaultOptions,
+        filterGroupedTabs: true,
+      }),
+    ).toEqual({ locked: true, reason: "grouped" });
+  });
+
+  test("does not lock a grouped tab when filterGroupedTabs is disabled", () => {
+    expect(
+      getTabLockStatus(createTab({ groupId: 2 }), {
+        ...defaultOptions,
+        filterGroupedTabs: false,
+      }),
+    ).toEqual({ locked: false });
+  });
+
+  test("locks a tab whose URL matches the whitelist", () => {
+    expect(
+      getTabLockStatus(createTab({ groupId: -1, url: "https://www.github.com" }), {
+        ...defaultOptions,
+        whitelist: ["github.com"],
+      }),
+    ).toEqual({ locked: true, reason: "whitelist", whitelistMatch: "github.com" });
+  });
+
+  test("locks a tab whose ID is in lockedIds", () => {
+    expect(
+      getTabLockStatus(createTab({ groupId: -1, id: 42 }), {
+        ...defaultOptions,
+        lockedIds: [42],
+      }),
+    ).toEqual({ locked: true, reason: "manual" });
+  });
+
+  test("locks a tab whose windowId is in lockedWindowIds", () => {
+    expect(
+      getTabLockStatus(createTab({ groupId: -1, windowId: 7 }), {
+        ...defaultOptions,
+        lockedWindowIds: [7],
+      }),
+    ).toEqual({ locked: true, reason: "window" });
+  });
+
+  test("pinned takes priority over audible", () => {
+    expect(
+      getTabLockStatus(createTab({ pinned: true, audible: true }), {
+        ...defaultOptions,
+        filterAudio: true,
+      }),
+    ).toEqual({ locked: true, reason: "pinned" });
+  });
+});
+
+describe("makeTabPersistKey", () => {
+  test("returns lastAccessed::url when both are present", () => {
+    expect(
+      makeTabPersistKey(createTab({ url: "https://www.github.com", lastAccessed: 1000 })),
+    ).toBe("1000::https://www.github.com");
+  });
+
+  test("falls back to url alone when lastAccessed is absent", () => {
+    expect(
+      makeTabPersistKey(createTab({ url: "https://www.github.com", lastAccessed: undefined })),
+    ).toBe("https://www.github.com");
+  });
+
+  test("returns undefined when url is absent and lastAccessed is absent", () => {
+    expect(
+      makeTabPersistKey(createTab({ url: undefined, lastAccessed: undefined })),
+    ).toBeUndefined();
   });
 });
 

@@ -28,6 +28,25 @@ const menus = new Menus();
 // preserve them.
 let startupComplete = false;
 
+// Resolves once Chrome has finished restoring tabs from the previous session. During restoration,
+// Chrome rapidly fires tabs.onUpdated events. We consider restoration complete when no such event
+// has occurred for 1s.
+const RESOLVE_TABS_RESTORED_TIMEOUT_MS = 2_000;
+let resolveTabsRestored!: () => void;
+const tabsRestoredPromise = new Promise<void>((resolve) => {
+  resolveTabsRestored = resolve;
+});
+
+let tabsRestoredTimeout: ReturnType<typeof setTimeout> = setTimeout(
+  resolveTabsRestored,
+  RESOLVE_TABS_RESTORED_TIMEOUT_MS,
+);
+
+chrome.tabs.onUpdated.addListener(() => {
+  clearTimeout(tabsRestoredTimeout);
+  tabsRestoredTimeout = setTimeout(resolveTabsRestored, RESOLVE_TABS_RESTORED_TIMEOUT_MS);
+});
+
 let updateIconGeneration = 0;
 async function updateIcon(tabId?: number): Promise<void> {
   const generation = ++updateIconGeneration;
@@ -405,6 +424,9 @@ async function migratePersistedData(): Promise<number[]> {
 }
 
 async function startup() {
+  // Wait for Chrome to finish restoring tabs from the previous session before migrating data.
+  await tabsRestoredPromise;
+
   // Load settings before proceeding; Settings reads from async browser storage.
   await settings.init();
 

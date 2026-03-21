@@ -179,10 +179,17 @@ const Settings = {
 
   lockTab(tabId: number): Promise<void> {
     const lockedIds = this.get("lockedIds");
-    if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {
-      lockedIds.push(tabId);
-    }
-    return this.set("lockedIds", lockedIds);
+    const nextLockedIds = [...lockedIds];
+    if (tabId > 0 && nextLockedIds.indexOf(tabId) === -1) nextLockedIds.push(tabId);
+    return this.set("lockedIds", nextLockedIds);
+  },
+
+  lockTabs(tabIds: number[]): Promise<void> {
+    const lockedIds = this.get("lockedIds");
+    const nextLockedIds = [...lockedIds];
+    for (const tabId of tabIds)
+      if (tabId > 0 && nextLockedIds.indexOf(tabId) === -1) nextLockedIds.push(tabId);
+    return this.set("lockedIds", nextLockedIds);
   },
 
   lockWindow(windowId: number): Promise<void> {

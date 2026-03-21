@@ -213,7 +213,7 @@ export function isTabLocked(
 }
 
 export function makeTabPersistKey(tab: chrome.tabs.Tab): string | undefined {
-  return tab.lastAccessed != null ? `${tab.lastAccessed}::${tab.url}` : tab.url;
+  return tab.index == null ? tab.url : `${tab.index}::${tab.url}`;
 }
 
 export function shouldTabBeClosed(tab: chrome.tabs.Tab): boolean {

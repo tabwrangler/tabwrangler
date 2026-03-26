@@ -48,44 +48,38 @@ chrome.tabs.onUpdated.addListener(() => {
 });
 
 let updateIconGeneration = 0;
-async function updateIcon(tabId?: number): Promise<void> {
+async function updateIcon(tab?: chrome.tabs.Tab): Promise<void> {
   const generation = ++updateIconGeneration;
-
-  let nextIconPath;
   const storageSyncPersist = await getStorageSyncPersist();
-  if (storageSyncPersist.paused) {
-    nextIconPath = "img/icon-paused.png";
-  } else {
-    let activeTabId = tabId;
-    if (activeTabId == null) {
-      const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-      activeTabId = activeTabs[0]?.id;
-    }
 
-    if (activeTabId != null) {
-      const tab = await chrome.tabs.get(activeTabId);
-      if (
-        tab != null &&
-        isTabLocked(tab, {
-          filterAudio: settings.get("filterAudio"),
-          filterGroupedTabs: settings.get("filterGroupedTabs"),
-          lockedIds: settings.get("lockedIds"),
-          lockedWindowIds: settings.get("lockedWindowIds"),
-          whitelist: settings.get("whitelist"),
-        })
-      ) {
-        nextIconPath = "img/icon-locked.png";
-      }
-    }
+  // Ignore any but the most recent callback.
+  if (generation !== updateIconGeneration) return;
+
+  if (storageSyncPersist.paused) {
+    await chrome.action.setIcon({ path: "img/icon-paused.png" });
+    return;
   }
 
-  if (nextIconPath == null) nextIconPath = "img/icon.png";
+  // Use the provided tab, or fall back to the active tab in the last focused window.
+  let activeTab = tab;
+  if (activeTab == null) {
+    [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    if (generation !== updateIconGeneration) return;
+  }
 
-  // Ignore any but the most recent callback. Because of the above awaits it is possible for the
-  // callbacks to happen out-of-order.
-  if (generation !== updateIconGeneration) return Promise.resolve();
+  const lockOptions = {
+    filterAudio: settings.get("filterAudio"),
+    filterGroupedTabs: settings.get("filterGroupedTabs"),
+    lockedIds: settings.get("lockedIds"),
+    lockedWindowIds: settings.get("lockedWindowIds"),
+    whitelist: settings.get("whitelist"),
+  };
 
-  return chrome.action.setIcon({ path: nextIconPath });
+  const iconPath =
+    activeTab != null && isTabLocked(activeTab, lockOptions)
+      ? "img/icon-locked.png"
+      : "img/icon.png";
+  await chrome.action.setIcon({ path: iconPath });
 }
 
 const debouncedUpdateLastAccessed = debounce(updateLastAccessed, 1000);
@@ -104,12 +98,17 @@ chrome.tabs.onActivated.addListener(async function onActivated(tabInfo) {
   if (settings.get("debounceOnActivated")) debouncedUpdateLastAccessed(tabInfo.tabId);
   else updateLastAccessed(tabInfo.tabId);
 
-  // Ignore any but the most recent callback. Because of the above `await` it is possible for the
-  // callbacks to happen out-of-order.
+  // Ignore any but the most recent callback.
   if (generation !== onActivatedGeneration) return;
 
   if (settings.get("createContextMenu")) menus.updateContextMenus(tabInfo.tabId);
-  updateIcon(tabInfo.tabId);
+
+  const tab = await chrome.tabs.get(tabInfo.tabId);
+
+  // Ignore any but the most recent callback.
+  if (generation !== onActivatedGeneration) return;
+
+  updateIcon(tab);
 });
 
 chrome.tabs.onCreated.addListener((tab: chrome.tabs.Tab) => {
@@ -431,7 +430,6 @@ async function startup() {
   await settings.init();
 
   await Promise.all([
-    // Match icon to lock status of active tab
     updateIcon(),
     // Because the badge count is external state, this side effect must be run once the value
     // is read from storage.

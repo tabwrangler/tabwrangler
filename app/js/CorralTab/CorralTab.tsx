@@ -179,6 +179,27 @@ function rowRenderer({
   );
 }
 
+const SESSIONS_QUERY_KEY = ["sessionsQuery"];
+function useSessionsRecentlyClosed() {
+  const { data: sessions } = useQuery({
+    queryFn: () => chrome.sessions.getRecentlyClosed(),
+    queryKey: SESSIONS_QUERY_KEY,
+  });
+
+  const queryClient = useQueryClient();
+  React.useEffect(() => {
+    function handleChanged() {
+      queryClient.invalidateQueries({ queryKey: SESSIONS_QUERY_KEY });
+    }
+    chrome.sessions.onChanged.addListener(handleChanged);
+    return () => {
+      chrome.sessions.onChanged.removeListener(handleChanged);
+    };
+  }, [queryClient]);
+
+  return sessions;
+}
+
 export default function CorralTab() {
   const { canUndo, canRedo, lastAction, nextRedoAction, undo, redo, removeTabs, restoreTabs } =
     useUndo();
@@ -208,21 +229,7 @@ export default function CorralTab() {
     return nextSorter;
   });
 
-  const queryClient = useQueryClient();
-  const { data: sessions } = useQuery({
-    queryFn: () => chrome.sessions.getRecentlyClosed(),
-    queryKey: ["sessionsQuery"],
-  });
-  React.useEffect(() => {
-    function handleChanged() {
-      queryClient.invalidateQueries({ queryKey: ["sessionsQuery"] });
-    }
-    chrome.sessions.onChanged.addListener(handleChanged);
-    return () => {
-      chrome.sessions.onChanged.removeListener(handleChanged);
-    };
-  }, [queryClient]);
-
+  const sessions = useSessionsRecentlyClosed();
   const { data: localStorageData } = useStorageLocalPersistQuery();
   const lastSelectedTabRef = React.useRef<TabWithIndex | null>(null);
   const [selectedTabs, setSelectedTabs] = React.useState<Set<string>>(new Set());

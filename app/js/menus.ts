@@ -55,7 +55,7 @@ export default class Menus {
 
   lockTab(_onClickData: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab | undefined) {
     if (tab?.id == null) return;
-    settings.lockTab(tab.id);
+    settings.lockTab(tab);
   }
 
   lockDomain({ wasChecked }: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab | undefined) {

@@ -28,24 +28,26 @@ const menus = new Menus();
 // preserve them.
 let startupComplete = false;
 
-// Resolves once Chrome has finished restoring tabs from the previous session. During restoration,
-// Chrome rapidly fires tabs.onUpdated events. We consider restoration complete when no such event
+// Resolves with the list of tabs restored from the previous session. During restoration, Chrome
+// fires tabs.onCreated for each restored tab. We consider restoration complete when no such event
 // has occurred for 1s.
-const RESOLVE_TABS_RESTORED_TIMEOUT_MS = 2_000;
-let resolveTabsRestored!: () => void;
-const tabsRestoredPromise = new Promise<void>((resolve) => {
+const TABS_RESTORED_DEBOUNCE_MS = 1_000;
+let resolveTabsRestored!: (tabs: chrome.tabs.Tab[]) => void;
+const tabsRestoredPromise = new Promise<chrome.tabs.Tab[]>((resolve) => {
   resolveTabsRestored = resolve;
 });
 
-let tabsRestoredTimeout: ReturnType<typeof setTimeout> = setTimeout(
-  resolveTabsRestored,
-  RESOLVE_TABS_RESTORED_TIMEOUT_MS,
-);
+const restoredTabs: chrome.tabs.Tab[] = [];
+let tabsRestoredTimeout: ReturnType<typeof setTimeout> | null = null;
+function setTabsRestoredTimeout() {
+  if (tabsRestoredTimeout != null) clearTimeout(tabsRestoredTimeout);
+  return setTimeout(() => resolveTabsRestored(restoredTabs), TABS_RESTORED_DEBOUNCE_MS);
+}
+tabsRestoredTimeout = setTabsRestoredTimeout();
 
-chrome.tabs.onUpdated.addListener(() => {
-  clearTimeout(tabsRestoredTimeout);
-  tabsRestoredTimeout = setTimeout(resolveTabsRestored, RESOLVE_TABS_RESTORED_TIMEOUT_MS);
-});
+const ICON_LOCKED_PATH = "img/icon-locked.png";
+const ICON_PATH = "img/icon.png";
+const ICON_PAUSED_PATH = "img/icon-paused.png";
 
 let updateIconGeneration = 0;
 async function updateIcon(tab?: chrome.tabs.Tab): Promise<void> {
@@ -56,7 +58,7 @@ async function updateIcon(tab?: chrome.tabs.Tab): Promise<void> {
   if (generation !== updateIconGeneration) return;
 
   if (storageSyncPersist.paused) {
-    await chrome.action.setIcon({ path: "img/icon-paused.png" });
+    await chrome.action.setIcon({ path: ICON_PAUSED_PATH });
     return;
   }
 
@@ -75,11 +77,9 @@ async function updateIcon(tab?: chrome.tabs.Tab): Promise<void> {
     whitelist: settings.get("whitelist"),
   };
 
-  const iconPath =
-    activeTab != null && isTabLocked(activeTab, lockOptions)
-      ? "img/icon-locked.png"
-      : "img/icon.png";
-  await chrome.action.setIcon({ path: iconPath });
+  await chrome.action.setIcon({
+    path: activeTab != null && isTabLocked(activeTab, lockOptions) ? ICON_LOCKED_PATH : ICON_PATH,
+  });
 }
 
 const debouncedUpdateLastAccessed = debounce(updateLastAccessed, 1000);
@@ -112,14 +112,16 @@ chrome.tabs.onActivated.addListener(async function onActivated(tabInfo) {
 });
 
 chrome.tabs.onCreated.addListener((tab: chrome.tabs.Tab) => {
-  // During startup, Chrome fires onCreated for all restored tabs. Skip
-  // updateLastAccessed for these to avoid resetting their preserved countdowns.
+  // During startup, accumulate restored tabs and reset the debounce timer. Once 1s passes without
+  // a new onCreated event, tabsRestoredPromise resolves with the full list.
   if (!startupComplete) {
-    console.debug("[onCreated] Skipping during startup for tab", tab.id);
+    restoredTabs.push(tab);
+    tabsRestoredTimeout = setTabsRestoredTimeout();
     return;
   }
   onNewTab(tab);
 });
+
 chrome.tabs.onRemoved.addListener(removeTab);
 
 chrome.tabs.onReplaced.addListener(function replaceTab(addedTabId: number, removedTabId: number) {
@@ -361,30 +363,28 @@ async function checkToClose() {
  * can be lost across browser restarts.
  * @returns List of tab IDs that should be re-locked
  */
-async function migratePersistedData(): Promise<number[]> {
+async function migratePersistedData(tabs: chrome.tabs.Tab[]): Promise<chrome.tabs.Tab[]> {
   return await ASYNC_LOCK.acquire("local.tabTimes", async () => {
     const now = Date.now();
-    const [allTabs, { lastSeenAt, lockedTabPersistKeys, tabTimes, tabTimesByPersistKey }] =
-      await Promise.all([
-        chrome.tabs.query({}),
-        chrome.storage.local.get({
-          lastSeenAt: null,
-          lockedTabPersistKeys: [],
-          tabTimes: {},
-          tabTimesByPersistKey: {},
-        }),
-      ]);
+    const { lastSeenAt, lockedTabPersistKeys, tabTimes, tabTimesByPersistKey } =
+      await chrome.storage.local.get({
+        lastSeenAt: null,
+        lockedTabPersistKeys: [],
+        tabTimes: {},
+        tabTimesByPersistKey: {},
+      });
 
     // Time the browser was closed. Applied to migrated timestamps so that offline time
     // is not counted against a tab's countdown.
-    let migratedTabsCount = 0;
+    let migratedLockedIds = 0;
+    let migratedTabTimes = 0;
     const offlineGap = lastSeenAt == null ? 0 : Math.max(0, now - lastSeenAt);
     const lockedTabPersistKeySet = new Set(lockedTabPersistKeys);
-    const tabIdsToRelock: number[] = [];
+    const tabsToRelock: chrome.tabs.Tab[] = [];
     const nextTabTimes: { [key: string]: number } = {};
     const nextTabTimesByPersistKey: { [key: string]: number } = {};
     const nextLockedTabPersistKeys: string[] = [];
-    for (const tab of allTabs) {
+    for (const tab of tabs) {
       if (tab.id == null) continue;
 
       let tabTime: number;
@@ -396,14 +396,15 @@ async function migratePersistedData(): Promise<number[]> {
         // Tab ID changed (browser restart) - look up by persist key and shift the timestamp
         // forward by the offline gap so time spent with the browser closed is not counted.
         tabTime = tabTimesByPersistKey[tabPersistKey] + offlineGap;
-        if (lockedTabPersistKeySet.has(tabPersistKey)) {
-          tabIdsToRelock.push(tab.id);
-          nextLockedTabPersistKeys.push(tabPersistKey);
-        }
-        migratedTabsCount++;
+        migratedTabTimes++;
       } else {
-        // No matching stored time - start a fresh countdown.
         tabTime = now;
+      }
+
+      if (tabPersistKey != null && lockedTabPersistKeySet.has(tabPersistKey)) {
+        tabsToRelock.push(tab);
+        nextLockedTabPersistKeys.push(tabPersistKey);
+        migratedLockedIds++;
       }
 
       nextTabTimes[tab.id] = tabTime;
@@ -417,14 +418,16 @@ async function migratePersistedData(): Promise<number[]> {
       tabTimesByPersistKey: nextTabTimesByPersistKey,
     });
 
-    console.debug(`[startup] Migrated ${migratedTabsCount} tab timer(s) from previous session`);
-    return tabIdsToRelock;
+    console.debug(
+      `[startup] Migrated tabTimes:${migratedTabTimes} / lockedIds:${migratedLockedIds}`,
+    );
+    return tabsToRelock;
   });
 }
 
 async function startup() {
   // Wait for Chrome to finish restoring tabs from the previous session before migrating data.
-  await tabsRestoredPromise;
+  const restoredTabs = await tabsRestoredPromise;
 
   // Load settings before proceeding; Settings reads from async browser storage.
   await settings.init();
@@ -436,16 +439,14 @@ async function startup() {
     updateClosedCount(),
   ]);
 
-  if (settings.get("purgeClosedTabs") !== false) {
-    await removeAllSavedTabs();
-  }
+  if (settings.get("purgeClosedTabs") !== false) await removeAllSavedTabs();
 
   // Migrate tab times from previous session: after a browser restart.
-  const tabIdsToRelock = await migratePersistedData();
+  const tabsToRelock = await migratePersistedData(restoredTabs);
 
   // Persisted locked IDs must be relocked because they may have been culled by `settings.init`
   // when the IDs changeed.
-  await settings.lockTabs(tabIdsToRelock);
+  await settings.lockTabs(tabsToRelock);
 
   // Mark startup complete so onNewTab starts tracking new tabs normally.
   startupComplete = true;

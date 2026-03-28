@@ -177,18 +177,19 @@ const Settings = {
     return this.getWhitelistMatch(url) !== null;
   },
 
-  lockTab(tabId: number): Promise<void> {
+  lockTab(tab: chrome.tabs.Tab): Promise<void> {
+    if (tab.id == null || tab.id <= 0) return Promise.resolve();
     const lockedIds = this.get("lockedIds");
-    const nextLockedIds = [...lockedIds];
-    if (tabId > 0 && nextLockedIds.indexOf(tabId) === -1) nextLockedIds.push(tabId);
-    return this.set("lockedIds", nextLockedIds);
+    if (lockedIds.indexOf(tab.id) !== -1) return Promise.resolve();
+    return this.set("lockedIds", [...lockedIds, tab.id]);
   },
 
-  lockTabs(tabIds: number[]): Promise<void> {
+  lockTabs(tabs: chrome.tabs.Tab[]): Promise<void> {
     const lockedIds = this.get("lockedIds");
     const nextLockedIds = [...lockedIds];
-    for (const tabId of tabIds)
-      if (tabId > 0 && nextLockedIds.indexOf(tabId) === -1) nextLockedIds.push(tabId);
+    for (const tab of tabs)
+      if (tab.id != null && tab.id > 0 && nextLockedIds.indexOf(tab.id) === -1)
+        nextLockedIds.push(tab.id);
     return this.set("lockedIds", nextLockedIds);
   },
 
@@ -312,7 +313,7 @@ const Settings = {
       tabs.map((tab) => {
         if (tab.id == null) return Promise.resolve();
         else if (this.isTabLocked(tab)) return this.unlockTab(tab.id);
-        else return this.lockTab(tab.id);
+        else return this.lockTab(tab);
       }),
     );
   },

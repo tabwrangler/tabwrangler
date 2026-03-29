@@ -150,6 +150,11 @@ chrome.tabs.onReplaced.addListener(function replaceTab(addedTabId: number, remov
   });
 });
 
+// Clean up locked window IDs when windows are closed.
+chrome.windows.onRemoved.addListener((windowId: number) => {
+  settings.unlockWindow(windowId);
+});
+
 chrome.commands.onCommand.addListener((command) => {
   switch (command) {
     case "lock-unlock-active-tab":

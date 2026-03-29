@@ -216,6 +216,7 @@ const Settings = {
     if (index === -1) return Promise.resolve();
     const nextLockedWindowIds = [...lockedWindowIds];
     nextLockedWindowIds.splice(index, 1);
+    console.info(`[unlockWindow] Removed window ID ${windowId}`);
     return this.set("lockedWindowIds", nextLockedWindowIds);
   },
 

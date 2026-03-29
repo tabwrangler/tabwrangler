@@ -8,6 +8,7 @@ import {
   initTabs,
   isTabLocked,
   makeTabPersistKey,
+  makeWindowPersistKey,
   onNewTab,
   removeTab,
   shouldTabBeClosed,
@@ -236,6 +237,7 @@ async function checkToClose() {
 
       // Tabs which have been locked via the checkbox.
       const lockedIds = new Set(settings.get("lockedIds"));
+      const lockedWindowIds = new Set(settings.get("lockedWindowIds"));
       const toCut = new Set(getTabsOlderThan(tabTimes, cutOff));
       const updatedAt = Date.now();
 
@@ -293,14 +295,14 @@ async function checkToClose() {
         return candidates;
       }
 
+      const allWindows = await chrome.windows.getAll({ populate: true });
       let candidateTabs: chrome.tabs.Tab[] = [];
       if (settings.get("minTabsStrategy") === "allWindows") {
         // * "allWindows" - sum tabs across all open browser windows
         candidateTabs = findTabsToCloseCandidates(allTabs);
       } else {
         // * "givenWindow" (default) - count tabs within any given window
-        const windows = await chrome.windows.getAll({ populate: true });
-        candidateTabs = windows
+        candidateTabs = allWindows
           .map((win) => (win.tabs == null ? [] : findTabsToCloseCandidates(win.tabs)))
           .reduce((acc, candidates) => acc.concat(candidates), []);
       }
@@ -325,8 +327,17 @@ async function checkToClose() {
         }
       }
 
+      const lockedWindowPersistKeys: string[] = [];
+      for (const win of allWindows) {
+        if (win.id != null && lockedWindowIds.has(win.id) && win.tabs != null) {
+          const key = makeWindowPersistKey(win.tabs);
+          if (key != null) lockedWindowPersistKeys.push(key);
+        }
+      }
+
       await chrome.storage.local.set({
         lockedTabPersistKeys,
+        lockedWindowPersistKeys,
         tabTimes: nextTabTimes,
         tabTimesByPersistKey: nextTabTimesByPersistKey,
       });
@@ -361,18 +372,26 @@ async function checkToClose() {
 /**
  * Migrates tab and window data using fingerprinting (not 100% accurate) because tab and window IDs
  * can be lost across browser restarts.
- * @returns List of tab IDs that should be re-locked
+ * @returns Tabs and window IDs that should be re-locked
  */
-async function migratePersistedData(tabs: chrome.tabs.Tab[]): Promise<chrome.tabs.Tab[]> {
+async function migratePersistedData(
+  tabs: chrome.tabs.Tab[],
+): Promise<{ tabsToRelock: chrome.tabs.Tab[]; windowIdsToRelock: number[] }> {
   return await ASYNC_LOCK.acquire("local.tabTimes", async () => {
     const now = Date.now();
-    const { lastSeenAt, lockedTabPersistKeys, tabTimes, tabTimesByPersistKey } =
-      await chrome.storage.local.get({
+    const [
+      windows,
+      { lastSeenAt, lockedTabPersistKeys, lockedWindowPersistKeys, tabTimes, tabTimesByPersistKey },
+    ] = await Promise.all([
+      chrome.windows.getAll({ populate: true }),
+      chrome.storage.local.get({
         lastSeenAt: null,
         lockedTabPersistKeys: [],
+        lockedWindowPersistKeys: [],
         tabTimes: {},
         tabTimesByPersistKey: {},
-      });
+      }),
+    ]);
 
     // Time the browser was closed. Applied to migrated timestamps so that offline time
     // is not counted against a tab's countdown.
@@ -411,17 +430,33 @@ async function migratePersistedData(tabs: chrome.tabs.Tab[]): Promise<chrome.tab
       if (tabPersistKey != null) nextTabTimesByPersistKey[tabPersistKey] = tabTime;
     }
 
+    const windowIdsToRelock: number[] = [];
+    const nextLockedWindowPersistKeys: string[] = [];
+    const lockedWindowPersistKeySet = new Set(lockedWindowPersistKeys);
+    let migratedLockedWindowIds = 0;
+    for (const window of windows) {
+      if (window.id == null || window.tabs == null) continue;
+      const key = makeWindowPersistKey(window.tabs);
+      if (key != null && lockedWindowPersistKeySet.has(key)) {
+        windowIdsToRelock.push(window.id);
+        nextLockedWindowPersistKeys.push(key);
+        migratedLockedWindowIds++;
+      }
+    }
+
     await chrome.storage.local.set({
       lastSeenAt: now,
       lockedTabPersistKeys: nextLockedTabPersistKeys,
+      lockedWindowPersistKeys: nextLockedWindowPersistKeys,
       tabTimes: nextTabTimes,
       tabTimesByPersistKey: nextTabTimesByPersistKey,
     });
 
     console.debug(
-      `[startup] Migrated tabTimes:${migratedTabTimes} / lockedIds:${migratedLockedIds}`,
+      `[startup] Migrated tabTimes:${migratedTabTimes} / lockedIds:${migratedLockedIds} / lockedWindowIds:${migratedLockedWindowIds}`,
     );
-    return tabsToRelock;
+
+    return { tabsToRelock, windowIdsToRelock };
   });
 }
 
@@ -441,12 +476,12 @@ async function startup() {
 
   if (settings.get("purgeClosedTabs") !== false) await removeAllSavedTabs();
 
-  // Migrate tab times from previous session: after a browser restart.
-  const tabsToRelock = await migratePersistedData(restoredTabs);
+  // Migrate tab and window data from previous session: after a browser restart.
+  const { tabsToRelock, windowIdsToRelock } = await migratePersistedData(restoredTabs);
 
   // Persisted locked IDs must be relocked because they may have been culled by `settings.init`
-  // when the IDs changeed.
-  await settings.lockTabs(tabsToRelock);
+  // when the IDs changed.
+  await Promise.all([settings.lockTabs(tabsToRelock), settings.lockWindows(windowIdsToRelock)]);
 
   // Mark startup complete so onNewTab starts tracking new tabs normally.
   startupComplete = true;
@@ -454,8 +489,6 @@ async function startup() {
   // Kick off checking for tabs to close
   scheduleCheckToClose();
 }
-
-startup();
 
 // Keep the [service worker (Chrome) / background script (Firefox)] alive so background can check
 // for tabs to close frequently.
@@ -486,6 +519,7 @@ let lastAlarm = 0;
 })();
 
 chrome.alarms.onAlarm.addListener(() => (lastAlarm = Date.now()));
+
 chrome.runtime.onMessage.addListener((message) => {
   if (message === "reload") {
     console.warn("[runtime.onMessage]: Manual reload");
@@ -493,3 +527,5 @@ chrome.runtime.onMessage.addListener((message) => {
     return true;
   } else return false;
 });
+
+startup();

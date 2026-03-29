@@ -193,21 +193,30 @@ const Settings = {
     return this.set("lockedIds", nextLockedIds);
   },
 
+  lockWindows(windowIds: number[]): Promise<void> {
+    const lockedWindowIds = this.get("lockedWindowIds");
+    const nextLockedWindowIds = [...lockedWindowIds];
+    for (const id of windowIds)
+      if (id > 0 && nextLockedWindowIds.indexOf(id) === -1) nextLockedWindowIds.push(id);
+    return this.set("lockedWindowIds", nextLockedWindowIds);
+  },
+
   lockWindow(windowId: number): Promise<void> {
     const lockedWindowIds = this.get("lockedWindowIds");
-    if (windowId > 0 && lockedWindowIds.indexOf(windowId) === -1) {
-      lockedWindowIds.push(windowId);
+    const nextLockedWindowIds = [...lockedWindowIds];
+    if (windowId > 0 && nextLockedWindowIds.indexOf(windowId) === -1) {
+      nextLockedWindowIds.push(windowId);
     }
-    return this.set("lockedWindowIds", lockedWindowIds);
+    return this.set("lockedWindowIds", nextLockedWindowIds);
   },
 
   unlockWindow(windowId: number): Promise<void> {
     const lockedWindowIds = this.get("lockedWindowIds");
     const index = lockedWindowIds.indexOf(windowId);
-    if (index > -1) {
-      lockedWindowIds.splice(index, 1);
-    }
-    return this.set("lockedWindowIds", lockedWindowIds);
+    if (index === -1) return Promise.resolve();
+    const nextLockedWindowIds = [...lockedWindowIds];
+    nextLockedWindowIds.splice(index, 1);
+    return this.set("lockedWindowIds", nextLockedWindowIds);
   },
 
   // Magic setter functions keyed by setting name. When `set` is called for one of these keys,

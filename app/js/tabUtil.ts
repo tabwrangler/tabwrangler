@@ -216,6 +216,14 @@ export function makeTabPersistKey(tab: chrome.tabs.Tab): string | undefined {
   return tab.index == null ? tab.url : `${tab.index}::${tab.url}`;
 }
 
+export function makeWindowPersistKey(tabs: chrome.tabs.Tab[]): string | undefined {
+  const keys = tabs
+    .map(makeTabPersistKey)
+    .filter((k): k is string => k != null)
+    .sort();
+  return keys.length > 0 ? keys.join("|") : undefined;
+}
+
 export function shouldTabBeClosed(tab: chrome.tabs.Tab): boolean {
   return !isTabLocked(tab, {
     filterAudio: settings.get("filterAudio"),

@@ -8,7 +8,7 @@ export type NavBarTabID = "about" | "corral" | "lock" | "options";
 type Props = {
   activeTabId: NavBarTabID;
   isOptionsPage: boolean;
-  onClickTab: (tabId: NavBarTabID) => void;
+  onClickTab: <T extends NavBarTabID>(tabId: T) => void;
 };
 
 export default function NavBar({ activeTabId, isOptionsPage, onClickTab }: Props) {

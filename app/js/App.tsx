@@ -1,12 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LazyImageProvider } from "./LazyImage/LazyImage";
-import Popup from "./Popup";
 import React from "react";
 import settings from "./settings";
 
 const queryClient = new QueryClient();
 
-export default function App({ isOptionsPage }: { isOptionsPage: boolean }) {
+export default function App({ children }: { children: React.ReactNode }) {
   const [isDelayed, setIsDelayed] = React.useState(false);
   const [isSettingsInit, setIsSettingsInit] = React.useState(false);
 
@@ -54,9 +53,7 @@ export default function App({ isOptionsPage }: { isOptionsPage: boolean }) {
   } else {
     return (
       <QueryClientProvider client={queryClient}>
-        <LazyImageProvider>
-          <Popup isOptionsPage={isOptionsPage} />
-        </LazyImageProvider>
+        <LazyImageProvider>{children}</LazyImageProvider>
       </QueryClientProvider>
     );
   }

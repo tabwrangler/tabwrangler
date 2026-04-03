@@ -20,18 +20,6 @@ export default function NavBar({ activeTabId, isOptionsPage, onClickTab }: Props
       <ul className="nav nav-tabs">
         <li className="nav-item">
           <a
-            className={cx("nav-link", { active: activeTabId === "corral" })}
-            href="#corral"
-            onClick={(event) => {
-              event.preventDefault();
-              onClickTab("corral");
-            }}
-          >
-            {chrome.i18n.getMessage("tabCorral_name")}
-          </a>
-        </li>
-        <li className="nav-item">
-          <a
             className={cx("nav-link", { active: activeTabId === "lock" })}
             href="#lock"
             onClick={(event) => {
@@ -40,6 +28,18 @@ export default function NavBar({ activeTabId, isOptionsPage, onClickTab }: Props
             }}
           >
             {chrome.i18n.getMessage("tabLock_name")}
+          </a>
+        </li>
+        <li className="nav-item">
+          <a
+            className={cx("nav-link", { active: activeTabId === "corral" })}
+            href="#corral"
+            onClick={(event) => {
+              event.preventDefault();
+              onClickTab("corral");
+            }}
+          >
+            {chrome.i18n.getMessage("tabCorral_name")}
           </a>
         </li>
         {isOptionsPage ? (

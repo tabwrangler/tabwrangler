@@ -23,6 +23,8 @@ export default function OptionsPage() {
     case "options":
       activeTab = <OptionsTab />;
       break;
+    default:
+      activeTabId satisfies never;
   }
 
   return (

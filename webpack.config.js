@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-env node */
 
+const { defineReactCompilerLoaderOption, reactCompilerLoader } = require("react-compiler-webpack");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -19,6 +20,16 @@ const COMMON_CONFIG = {
   mode: "development",
   module: {
     rules: [
+      {
+        exclude: /node_modules/,
+        test: /\.[mc]?[jt]sx?$/i,
+        use: [
+          {
+            loader: reactCompilerLoader,
+            options: defineReactCompilerLoaderOption({}),
+          },
+        ],
+      },
       {
         exclude: /node_modules/,
         test: /\.[t|j]sx?$/,

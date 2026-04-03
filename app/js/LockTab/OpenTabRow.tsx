@@ -112,7 +112,7 @@ export default function OpenTabRow({
   }
 
   return (
-    <tr>
+    <tr className={tab.active ? "table-primary" : undefined}>
       <td
         className={cx("text-center", { "border-0": isLast })}
         style={{ verticalAlign: "middle", width: "1px" }}
@@ -150,7 +150,7 @@ export default function OpenTabRow({
           <div className="flex-fill text-truncate" style={{ width: "1px" }}>
             {tab.title}
             <br />
-            <small className={cx({ "text-muted": !status.locked })}>({tab.url})</small>
+            <small className={cx({ "text-muted": !tab.active })}>({tab.url})</small>
           </div>
         </div>
       </td>

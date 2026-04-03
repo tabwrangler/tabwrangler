@@ -5,40 +5,28 @@ import cx from "classnames";
 import settings from "../settings";
 import { useStorageSyncPersistQuery } from "../storage";
 
-function zeropad(num: number): string {
-  return num < 10 ? `0${num}` : String(num);
-}
-
-function secondsToHms(seconds: number) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor((seconds % 3600) % 60);
-  const hDisplay = hours > 0 ? `${zeropad(hours)}:` : "";
-  return `${hDisplay}${zeropad(minutes)}:${zeropad(s)}`;
-}
-
-type Props = {
+interface OpenTabRowProps {
   isLast: boolean;
+  tab: chrome.tabs.Tab;
+  tabTime: number | undefined;
+  windowId: number;
+  windowLocked: boolean;
   onToggleTab: (
     windowId: number,
     tab: chrome.tabs.Tab,
     selected: boolean,
     multiselect: boolean,
   ) => void;
-  tab: chrome.tabs.Tab;
-  tabTime: number | undefined;
-  windowId: number;
-  windowLocked: boolean;
-};
+}
 
 export default function OpenTabRow({
   isLast,
-  onToggleTab,
   tab,
   tabTime = Date.now(),
   windowId,
   windowLocked,
-}: Props) {
+  onToggleTab,
+}: OpenTabRowProps) {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const now = React.useContext(UseNowContext);
   const paused = syncPersistData?.paused;
@@ -111,8 +99,13 @@ export default function OpenTabRow({
     );
   }
 
+  function setTabActive() {
+    if (tab.id == null) return;
+    chrome.tabs.update(tab.id, { active: true });
+  }
+
   return (
-    <tr className={tab.active ? "table-primary" : undefined}>
+    <tr className={tab.active ? "table-success" : undefined}>
       <td
         className={cx("text-center", { "border-0": isLast })}
         style={{ verticalAlign: "middle", width: "1px" }}
@@ -146,7 +139,13 @@ export default function OpenTabRow({
         className={cx({ "border-0": isLast })}
         style={{ paddingBottom: "4px", paddingTop: "4px", width: "75%" }}
       >
-        <div className="d-flex" style={{ lineHeight: "1.3" }}>
+        <div
+          className="d-flex"
+          role="button"
+          style={{ lineHeight: "1.3" }}
+          tabIndex={0}
+          onClick={setTabActive}
+        >
           <div className="flex-fill text-truncate" style={{ width: "1px" }}>
             {tab.title}
             <br />
@@ -157,4 +156,16 @@ export default function OpenTabRow({
       {lockStatusElement}
     </tr>
   );
+}
+
+function secondsToHms(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor((seconds % 3600) % 60);
+  const hDisplay = hours > 0 ? `${zeropad(hours)}:` : "";
+  return `${hDisplay}${zeropad(minutes)}:${zeropad(s)}`;
+}
+
+function zeropad(num: number): string {
+  return num < 10 ? `0${num}` : String(num);
 }

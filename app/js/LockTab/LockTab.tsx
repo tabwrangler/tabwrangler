@@ -133,10 +133,12 @@ function useTabsQuery() {
     function invalidateTabsQuery() {
       queryClient.invalidateQueries({ queryKey: ["tabsQuery"] });
     }
+    chrome.tabs.onActivated.addListener(invalidateTabsQuery);
     chrome.tabs.onCreated.addListener(invalidateTabsQuery);
     chrome.tabs.onRemoved.addListener(invalidateTabsQuery);
     chrome.tabs.onUpdated.addListener(invalidateTabsQuery);
     return () => {
+      chrome.tabs.onActivated.removeListener(invalidateTabsQuery);
       chrome.tabs.onCreated.removeListener(invalidateTabsQuery);
       chrome.tabs.onRemoved.removeListener(invalidateTabsQuery);
       chrome.tabs.onUpdated.removeListener(invalidateTabsQuery);

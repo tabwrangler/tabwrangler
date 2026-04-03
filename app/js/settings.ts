@@ -330,10 +330,12 @@ const Settings = {
 
   unlockTab(tabId: number): Promise<void> {
     const lockedIds = this.get("lockedIds");
-    if (lockedIds.indexOf(tabId) > -1) {
-      lockedIds.splice(lockedIds.indexOf(tabId), 1);
-    }
-    return this.set("lockedIds", lockedIds);
+    const index = lockedIds.indexOf(tabId);
+    if (index === -1) return Promise.resolve();
+
+    const nextLockedIds = [...lockedIds];
+    nextLockedIds.splice(index, 1);
+    return this.set("lockedIds", nextLockedIds);
   },
 };
 

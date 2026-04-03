@@ -326,21 +326,19 @@ describe("getTabLockStatus", () => {
 });
 
 describe("makeTabPersistKey", () => {
-  test("returns lastAccessed::url when both are present", () => {
-    expect(
-      makeTabPersistKey(
-        createTab({ index: 45, lastAccessed: 1000, url: "https://www.github.com" }),
-      ),
-    ).toBe("45::https://www.github.com");
+  test("returns index::url when both are present", () => {
+    expect(makeTabPersistKey(createTab({ index: 45, url: "https://www.github.com" }))).toBe(
+      "45::https://www.github.com",
+    );
   });
 
-  test("falls back to url alone when lastAccessed is absent", () => {
+  test("falls back to url alone when index is absent", () => {
     expect(makeTabPersistKey(createTab({ index: undefined, url: "https://www.github.com" }))).toBe(
       "https://www.github.com",
     );
   });
 
-  test("returns undefined when url is absent and lastAccessed is absent", () => {
+  test("returns undefined when url is absent and index is absent", () => {
     expect(makeTabPersistKey(createTab({ index: undefined, url: undefined }))).toBeUndefined();
   });
 });

@@ -74,7 +74,7 @@ export default function OpenTabRow({
         );
         break;
       case "window":
-        reason = "window";
+        reason = chrome.i18n.getMessage("tabLock_lockedReason_window");
         break;
       default:
         status satisfies never;

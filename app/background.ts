@@ -466,11 +466,12 @@ async function migratePersistedData(
 }
 
 async function startup() {
-  // Wait for Chrome to finish restoring tabs from the previous session before migrating data.
-  const restoredTabs = await tabsRestoredPromise;
-
-  // Load settings before proceeding; Settings reads from async browser storage.
-  await settings.init();
+  const [restoredTabs] = await Promise.all([
+    // Wait for Chrome to finish restoring tabs from the previous session before migrating data.
+    tabsRestoredPromise,
+    // Load settings before proceeding; Settings reads from async browser storage.
+    settings.init(),
+  ]);
 
   await Promise.all([
     updateIcon(),

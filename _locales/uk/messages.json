@@ -530,11 +530,11 @@
   },
   "corral_undo": {
     "description": "Button title for undoing the last action",
-    "message": "Повернути"
+    "message": "Скасувати"
   },
   "corral_redo": {
     "description": "Button title for redoing the last undone action",
-    "message": "Повернути"
+    "message": "Повторити"
   },
   "corral_undo_remove": {
     "description": "Button title for undoing a remove action",

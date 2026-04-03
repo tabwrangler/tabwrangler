@@ -30,8 +30,10 @@ const menus = new Menus();
 let startupComplete = false;
 
 // Resolves with the list of tabs restored from the previous session. During restoration, Chrome
-// fires tabs.onCreated for each restored tab. We consider restoration complete when no such event
-// has occurred for 1s.
+// fires tabs.onCreated for each restored tab. We wait up to 5s for the first event to arrive; if
+// none arrives, there is nothing to restore. Once restoration starts, we debounce: the promise
+// resolves 1s after the last onCreated event, indicating the burst of restored tabs has settled.
+const TABS_RESTORED_FIRST_EVENT_MS = 5_000;
 const TABS_RESTORED_DEBOUNCE_MS = 1_000;
 let resolveTabsRestored!: (tabs: chrome.tabs.Tab[]) => void;
 const tabsRestoredPromise = new Promise<chrome.tabs.Tab[]>((resolve) => {
@@ -39,12 +41,10 @@ const tabsRestoredPromise = new Promise<chrome.tabs.Tab[]>((resolve) => {
 });
 
 const restoredTabs: chrome.tabs.Tab[] = [];
-let tabsRestoredTimeout: ReturnType<typeof setTimeout> | null = null;
-function setTabsRestoredTimeout() {
-  if (tabsRestoredTimeout != null) clearTimeout(tabsRestoredTimeout);
-  return setTimeout(() => resolveTabsRestored(restoredTabs), TABS_RESTORED_DEBOUNCE_MS);
-}
-tabsRestoredTimeout = setTabsRestoredTimeout();
+let tabsRestoredTimeout: ReturnType<typeof setTimeout> | null = setTimeout(
+  () => resolveTabsRestored(restoredTabs),
+  TABS_RESTORED_FIRST_EVENT_MS,
+);
 
 const ICON_LOCKED_PATH = "img/icon-locked.png";
 const ICON_PATH = "img/icon.png";
@@ -113,11 +113,16 @@ chrome.tabs.onActivated.addListener(async function onActivated(tabInfo) {
 });
 
 chrome.tabs.onCreated.addListener((tab: chrome.tabs.Tab) => {
-  // During startup, accumulate restored tabs and reset the debounce timer. Once 1s passes without
-  // a new onCreated event, tabsRestoredPromise resolves with the full list.
+  // During startup, accumulate restored tabs. The first event switches from the 5s first-event
+  // timeout to a 1s debounce; each subsequent event resets that debounce. Once 1s passes without a
+  // new onCreated event, tabsRestoredPromise resolves with the full list.
   if (!startupComplete) {
     restoredTabs.push(tab);
-    tabsRestoredTimeout = setTabsRestoredTimeout();
+    if (tabsRestoredTimeout != null) clearTimeout(tabsRestoredTimeout);
+    tabsRestoredTimeout = setTimeout(
+      () => resolveTabsRestored(restoredTabs),
+      TABS_RESTORED_DEBOUNCE_MS,
+    );
     return;
   }
   onNewTab(tab);

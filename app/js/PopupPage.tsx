@@ -5,16 +5,17 @@ import PageShell from "./PageShell";
 import React from "react";
 
 export default function PopupPage() {
-  const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>("lock");
+  const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>("corral");
 
   let activeTab;
   switch (activeTabId) {
+    case "corral":
+      activeTab = <CorralTab />;
+      break;
     case "lock":
+    default:
       activeTab = <LockTab />;
       break;
-    case "corral":
-    default:
-      activeTab = <CorralTab />;
   }
 
   return (

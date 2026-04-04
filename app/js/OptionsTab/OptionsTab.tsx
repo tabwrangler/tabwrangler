@@ -1,6 +1,6 @@
-import * as React from "react";
 import { exportData, importData } from "../actions/importExportActions";
 import settings, { type SettingsSchema } from "../settings";
+import { useEffect, useRef, useState } from "react";
 import { useStorageSyncPersistQuery, useStorageSyncQuery } from "../storage";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
@@ -24,20 +24,20 @@ export default function OptionsTab() {
   const { data: syncData } = useStorageSyncQuery();
   const { reset: resetUndo } = useUndo();
 
-  const fileSelectorRef = React.useRef<HTMLInputElement | null>(null);
-  const importExportAlertTimeoutRef = React.useRef<number>(null);
+  const fileSelectorRef = useRef<HTMLInputElement | null>(null);
+  const importExportAlertTimeoutRef = useRef<number>(null);
   const theme: string = syncPersistData?.theme ?? "system";
   const whitelist: string[] = syncData?.whitelist ?? [];
-  const [errors, setErrors] = React.useState<Error[]>([]);
-  const [importExportAlertVisible, setImportExportAlertVisible] = React.useState(false);
-  const [importExportErrors, setImportExportErrors] = React.useState<Error[]>([]);
-  const [importExportOperationName, setImportExportOperationName] = React.useState("");
-  const [newPattern, setNewPattern] = React.useState("");
-  const saveAlertTimeoutRef = React.useRef<number>(null);
-  const [saveAlertVisible, setSaveAlertVisible] = React.useState(false);
-  const [showFilterTabGroupsOption, setShowFilterTabGroupsOption] = React.useState(false);
+  const [errors, setErrors] = useState<Error[]>([]);
+  const [importExportAlertVisible, setImportExportAlertVisible] = useState(false);
+  const [importExportErrors, setImportExportErrors] = useState<Error[]>([]);
+  const [importExportOperationName, setImportExportOperationName] = useState("");
+  const [newPattern, setNewPattern] = useState("");
+  const saveAlertTimeoutRef = useRef<number>(null);
+  const [saveAlertVisible, setSaveAlertVisible] = useState(false);
+  const [showFilterTabGroupsOption, setShowFilterTabGroupsOption] = useState(false);
 
-  const [maxTabs, setMaxTabs] = React.useState<number | string>(settings.get("maxTabs"));
+  const [maxTabs, setMaxTabs] = useState<number | string>(settings.get("maxTabs"));
 
   function resetMaxTabs() {
     setMaxTabs(settings.get("maxTabs"));
@@ -62,7 +62,7 @@ export default function OptionsTab() {
     settingMutation.mutate({ key: "whitelist", value: nextWhitelist });
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     // determine if we should show the filter tab groups setting
     async function checkForTabGroups() {
       const tabs = await chrome.tabs.query({});

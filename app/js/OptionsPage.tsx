@@ -4,10 +4,10 @@ import LockTab from "./LockTab/LockTab";
 import { NavBarTabID } from "./NavBar";
 import OptionsTab from "./OptionsTab/OptionsTab";
 import PageShell from "./PageShell";
-import React from "react";
+import { useState } from "react";
 
 export default function OptionsPage() {
-  const [activeTabId, setActiveTabId] = React.useState<NavBarTabID>("options");
+  const [activeTabId, setActiveTabId] = useState<NavBarTabID>("options");
 
   let activeTab;
   switch (activeTabId) {

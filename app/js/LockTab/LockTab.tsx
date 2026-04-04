@@ -1,4 +1,4 @@
-import * as React from "react";
+import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { lockTabId, lockWindowId, unlockTabId, unlockWindowId } from "../storage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Button from "react-bootstrap/Button";
@@ -105,11 +105,11 @@ const Sorters = [
   ReverseChronoSorter,
 ];
 
-export const UseNowContext = React.createContext(new Date().getTime());
+export const UseNowContext = createContext(new Date().getTime());
 function useNow() {
-  const [now, setNow] = React.useState(new Date().getTime());
-  const intervalRef = React.useRef<number>(null);
-  React.useEffect(() => {
+  const [now, setNow] = useState(new Date().getTime());
+  const intervalRef = useRef<number>(null);
+  useEffect(() => {
     intervalRef.current = window.setInterval(() => {
       setNow(new Date().getTime());
     }, 1000);
@@ -129,7 +129,7 @@ function useTabsQuery() {
     queryFn: () => chrome.tabs.query({}),
     queryKey: ["tabsQuery"],
   });
-  React.useEffect(() => {
+  useEffect(() => {
     function invalidateTabsQuery() {
       queryClient.invalidateQueries({ queryKey: ["tabsQuery"] });
     }
@@ -153,7 +153,7 @@ function useTabTimesQuery() {
     queryFn: () => chrome.storage.local.get({ tabTimes: {} }),
     queryKey: ["tabTimesQuery"],
   });
-  React.useEffect(() => {
+  useEffect(() => {
     function invalidateTabTimesQuery(
       changes: { [key: string]: chrome.storage.StorageChange },
       areaName: chrome.storage.AreaName,
@@ -174,11 +174,11 @@ function useTabTimesQuery() {
 
 export default function LockTab() {
   const now = useNow();
-  const lastSelectedTabRef = React.useRef<chrome.tabs.Tab | null>(null);
-  const [sortOrder, setSortOrder] = React.useState<string | null>(settings.get("lockTabSortOrder"));
+  const lastSelectedTabRef = useRef<chrome.tabs.Tab | null>(null);
+  const [sortOrder, setSortOrder] = useState<string | null>(settings.get("lockTabSortOrder"));
 
-  const [currWindow, setCurrWindow] = React.useState<chrome.windows.Window>();
-  React.useEffect(() => {
+  const [currWindow, setCurrWindow] = useState<chrome.windows.Window>();
+  useEffect(() => {
     async function getCurrentWindow() {
       const win = await chrome.windows.getCurrent({});
       setCurrWindow(win);
@@ -186,7 +186,7 @@ export default function LockTab() {
     getCurrentWindow();
   }, []);
 
-  const [currSorter, setCurrSorter] = React.useState(() => {
+  const [currSorter, setCurrSorter] = useState(() => {
     let sorter = sortOrder == null ? DEFAULT_SORTER : Sorters.find((s) => s.key === sortOrder);
     // If settings somehow stores a bad value, always fall back to default order.
     if (sorter == null) sorter = DEFAULT_SORTER;
@@ -195,7 +195,7 @@ export default function LockTab() {
 
   const tabsQuery = useTabsQuery();
   const tabTimesQuery = useTabTimesQuery();
-  const tabsByWindowId: Array<[number, chrome.tabs.Tab[]]> = React.useMemo(() => {
+  const tabsByWindowId: Array<[number, chrome.tabs.Tab[]]> = useMemo(() => {
     const tabs =
       tabsQuery.data == null || tabTimesQuery.data == null
         ? []

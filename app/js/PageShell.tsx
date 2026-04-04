@@ -1,8 +1,8 @@
 import NavBar, { NavBarTabID } from "./NavBar";
-import React from "react";
 import { UndoProvider } from "./UndoContext";
 import { register } from "timeago.js";
 import timeagoLocale from "./timeagoLocale";
+import { useEffect } from "react";
 import { useStorageSyncPersistQuery } from "./storage";
 
 interface PageShellProps {
@@ -19,7 +19,7 @@ export default function PageShell({
   onClickTab,
 }: PageShellProps) {
   useTheme();
-  React.useEffect(() => {
+  useEffect(() => {
     const uiLanguage = chrome.i18n.getUILanguage();
     register(uiLanguage, timeagoLocale[uiLanguage]);
   }, []);
@@ -34,7 +34,7 @@ export default function PageShell({
 
 function useTheme() {
   const { data: storageSyncPersistData } = useStorageSyncPersistQuery();
-  React.useEffect(() => {
+  useEffect(() => {
     function setTheme(prefersDark: boolean) {
       const storedTheme = storageSyncPersistData?.theme;
 

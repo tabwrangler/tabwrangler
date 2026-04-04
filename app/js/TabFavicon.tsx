@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import * as React from "react";
 import type { LazyImageProps, LazyImageProviderProps } from "./LazyImage/LazyImage";
 import type { FaviconApiFaviconProps } from "./FaviconApiFavicon";
 

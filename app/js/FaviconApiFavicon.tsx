@@ -1,5 +1,3 @@
-import * as React from "react";
-
 export interface FaviconApiFaviconProps {
   alt?: string;
   className?: string;

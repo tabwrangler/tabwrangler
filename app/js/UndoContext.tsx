@@ -1,4 +1,3 @@
-import * as React from "react";
 import { SessionTab, TabWithIndex } from "./types";
 import {
   addSavedTabs,
@@ -6,6 +5,7 @@ import {
   removeSavedTabs,
   unwrangleTabs,
 } from "./actions/localStorageActions";
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { assertUnreachable } from "./util";
 
 interface RemoveAction {
@@ -51,20 +51,20 @@ interface UndoContextValue {
   undo: () => Promise<void>;
 }
 
-const UndoContext = React.createContext<UndoContextValue | null>(null);
+const UndoContext = createContext<UndoContextValue | null>(null);
 
 const MAX_HISTORY = 50;
 
 export function UndoProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = React.useState<UndoRedoState>({
+  const [state, setState] = useState<UndoRedoState>({
     future: [],
     past: [],
   });
 
   // Guard against concurrent undo/redo operations from rapid clicks
-  const isProcessingRef = React.useRef(false);
+  const isProcessingRef = useRef(false);
 
-  const recordDelete = React.useCallback((tabsWithIndices: TabWithIndex[]) => {
+  const recordDelete = useCallback((tabsWithIndices: TabWithIndex[]) => {
     if (tabsWithIndices.length === 0) return;
     const action: RemoveAction = { type: "remove", tabsWithIndices };
     setState((prev) => ({
@@ -73,7 +73,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const recordRestore = React.useCallback((tabs: chrome.tabs.Tab[]) => {
+  const recordRestore = useCallback((tabs: chrome.tabs.Tab[]) => {
     if (tabs.length === 0) return;
     const action: UndoableAction = { type: "restore", tabs };
     setState((prev) => ({
@@ -82,11 +82,11 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const reset = React.useCallback(() => {
+  const reset = useCallback(() => {
     setState({ past: [], future: [] });
   }, []);
 
-  const removeTabs = React.useCallback(
+  const removeTabs = useCallback(
     async (tabsWithIndices: TabWithIndex[]) => {
       if (tabsWithIndices.length === 0) return;
       await removeSavedTabs(tabsWithIndices.map((t) => t.tab));
@@ -95,7 +95,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     [recordDelete],
   );
 
-  const restoreTabs = React.useCallback(
+  const restoreTabs = useCallback(
     async (sessionTabs: SessionTab[]) => {
       if (sessionTabs.length === 0) return;
       const tabs = sessionTabs.map((st) => st.tab);
@@ -105,7 +105,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     [recordRestore],
   );
 
-  const undo = React.useCallback(async () => {
+  const undo = useCallback(async () => {
     if (isProcessingRef.current) return;
 
     const lastAction = state.past[state.past.length - 1];
@@ -138,7 +138,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     }));
   }, [state.past]);
 
-  const redo = React.useCallback(async (): Promise<RedoResult | null> => {
+  const redo = useCallback(async (): Promise<RedoResult | null> => {
     if (isProcessingRef.current) return null;
 
     const nextAction = state.future[0];
@@ -184,14 +184,9 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     };
   }
 
-  const lastAction = React.useMemo(
-    () => toSummary(state.past[state.past.length - 1]),
-    [state.past],
-  );
-
-  const nextRedoAction = React.useMemo(() => toSummary(state.future[0]), [state.future]);
-
-  const value = React.useMemo<UndoContextValue>(
+  const lastAction = useMemo(() => toSummary(state.past[state.past.length - 1]), [state.past]);
+  const nextRedoAction = useMemo(() => toSummary(state.future[0]), [state.future]);
+  const value = useMemo<UndoContextValue>(
     () => ({
       canUndo: state.past.length > 0,
       canRedo: state.future.length > 0,
@@ -220,7 +215,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useUndo(): UndoContextValue {
-  const context = React.useContext(UndoContext);
+  const context = useContext(UndoContext);
   if (context === null) {
     throw new Error("useUndo must be used within an UndoProvider");
   }

@@ -1,20 +1,20 @@
 import "./LazyImage.css";
-import * as React from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { createContext, memo, useContext, useEffect, useRef, useState } from "react";
 import ColorHash from "color-hash";
 import cx from "classnames";
 
 const colorHash = new ColorHash();
 const loadedSrcs = new Set<string>();
-const LazyImageContext = React.createContext(false);
+const LazyImageContext = createContext(false);
 
 export interface LazyImageProviderProps {
   children: React.ReactNode;
 }
 
 export function LazyImageProvider({ children }: LazyImageProviderProps) {
-  const [shouldCheck, setShouldCheck] = React.useState(false);
-  React.useEffect(() => {
+  const [shouldCheck, setShouldCheck] = useState(false);
+  useEffect(() => {
     // Begin the loading process a full second after initial execution to allow the popup to open
     // before loading images. If images begin to load too soon after the popup opens, Chrome waits
     // for them to fully load before showing the popup.
@@ -33,15 +33,15 @@ export interface LazyImageProps {
   width: number;
 }
 
-const LazyImage = React.memo(function LazyImage(props: LazyImageProps) {
-  const shouldCheck = React.useContext(LazyImageContext);
-  const [loaded, setLoaded] = React.useState(props.src == null || loadedSrcs.has(props.src));
-  const imgNodeRef = React.useRef<HTMLElement | null>(null);
-  const imgRef = React.useRef<HTMLImageElement | null>(null);
-  const placeholderNodeRef = React.useRef<HTMLElement | null>(null);
-  const placeholderRef = React.useRef<HTMLDivElement | null>(null);
+const LazyImage = memo(function LazyImage(props: LazyImageProps) {
+  const shouldCheck = useContext(LazyImageContext);
+  const [loaded, setLoaded] = useState(props.src == null || loadedSrcs.has(props.src));
+  const imgNodeRef = useRef<HTMLElement | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const placeholderNodeRef = useRef<HTMLElement | null>(null);
+  const placeholderRef = useRef<HTMLDivElement | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const propsSrc = props.src;
     if (loaded || !shouldCheck || propsSrc == null || !placeholderRef.current) return () => {};
 

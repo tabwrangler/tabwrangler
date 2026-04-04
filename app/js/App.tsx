@@ -1,15 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React from "react";
+import { useEffect, useState } from "react";
 import { TabFaviconProvider } from "./TabFavicon";
 import settings from "./settings";
 
 const queryClient = new QueryClient();
 
 export default function App({ children }: { children: React.ReactNode }) {
-  const [isDelayed, setIsDelayed] = React.useState(false);
-  const [isSettingsInit, setIsSettingsInit] = React.useState(false);
+  const [isDelayed, setIsDelayed] = useState(false);
+  const [isSettingsInit, setIsSettingsInit] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timeout = setTimeout(() => {
       setIsDelayed(true);
     }, 2500);
@@ -18,7 +18,7 @@ export default function App({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function initSettings() {
       // Await settings that are loaded from async browser storage before rendering.
       console.debug("[App]: awaiting settings.init");

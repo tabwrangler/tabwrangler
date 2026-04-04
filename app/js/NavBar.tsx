@@ -1,5 +1,4 @@
 import "./NavBar.css";
-import * as React from "react";
 import PauseButton from "./PauseButton";
 import cx from "classnames";
 

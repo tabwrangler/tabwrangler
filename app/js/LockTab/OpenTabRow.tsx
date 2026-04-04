@@ -1,8 +1,8 @@
-import * as React from "react";
 import TabFavicon from "../TabFavicon";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
 import settings from "../settings";
+import { useContext } from "react";
 import { useStorageSyncPersistQuery } from "../storage";
 
 interface OpenTabRowProps {
@@ -28,7 +28,7 @@ export default function OpenTabRow({
   onToggleTab,
 }: OpenTabRowProps) {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
-  const now = React.useContext(UseNowContext);
+  const now = useContext(UseNowContext);
   const paused = syncPersistData?.paused;
   const status = settings.getTabLockStatus(tab);
 

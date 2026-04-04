@@ -1,7 +1,7 @@
 import "./CorralTab.scss";
-import * as React from "react";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
 import { extractHostname, extractRootDomain, serializeTab } from "../util";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Button from "react-bootstrap/Button";
 import CloseButton from "react-bootstrap/CloseButton";
@@ -187,7 +187,7 @@ function useSessionsRecentlyClosed() {
   });
 
   const queryClient = useQueryClient();
-  React.useEffect(() => {
+  useEffect(() => {
     function handleChanged() {
       queryClient.invalidateQueries({ queryKey: SESSIONS_QUERY_KEY });
     }
@@ -207,8 +207,8 @@ export default function CorralTab() {
   // Focus the search input so it's simple to type immediately. This must be done after the popup
   // is available, which is roughly 150ms after the popup is opened (determined empirically). Use
   // 350ms to ensure this always works.
-  const searchRef = React.useRef<HTMLElement | null>(null);
-  React.useEffect(() => {
+  const searchRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
     const searchRefFocusTimeout = setTimeout(() => {
       if (searchRef.current != null) searchRef.current.focus();
     }, 350);
@@ -217,9 +217,9 @@ export default function CorralTab() {
     };
   }, []);
 
-  const [filter, setFilter] = React.useState("");
-  const [savedSortOrder, setSavedSortOrder] = React.useState(settings.get("corralTabSortOrder"));
-  const [currSorter, setCurrSorter] = React.useState(() => {
+  const [filter, setFilter] = useState("");
+  const [savedSortOrder, setSavedSortOrder] = useState(settings.get("corralTabSortOrder"));
+  const [currSorter, setCurrSorter] = useState(() => {
     const savedSortOrder = settings.get("corralTabSortOrder");
     let nextSorter =
       savedSortOrder == null ? DEFAULT_SORTER : Sorters.find((s) => s.key === savedSortOrder);
@@ -231,9 +231,9 @@ export default function CorralTab() {
 
   const sessions = useSessionsRecentlyClosed();
   const { data: localStorageData } = useStorageLocalPersistQuery();
-  const lastSelectedTabRef = React.useRef<TabWithIndex | null>(null);
-  const [selectedTabs, setSelectedTabs] = React.useState<Set<string>>(new Set());
-  const closedTabs: TabWithIndex[] = React.useMemo(() => {
+  const lastSelectedTabRef = useRef<TabWithIndex | null>(null);
+  const [selectedTabs, setSelectedTabs] = useState<Set<string>>(new Set());
+  const closedTabs: TabWithIndex[] = useMemo(() => {
     if (localStorageData == null || !("savedTabs" in localStorageData)) return [];
     return localStorageData.savedTabs
       .map((tab: chrome.tabs.Tab, index: number): TabWithIndex => ({ tab, index }))
@@ -252,7 +252,7 @@ export default function CorralTab() {
       ? 0
       : Math.trunc((localStorageData.totalTabsWrangled / localStorageData.totalTabsRemoved) * 100);
 
-  React.useEffect(() => {
+  useEffect(() => {
     function handleKeypress(event: KeyboardEvent) {
       if (event.key !== "/") return;
 

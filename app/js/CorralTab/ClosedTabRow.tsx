@@ -1,5 +1,4 @@
 import "./CorralTabRow.css";
-import * as React from "react";
 import TabFavicon from "../TabFavicon";
 import TimeAgo from "timeago-react";
 import cx from "classnames";

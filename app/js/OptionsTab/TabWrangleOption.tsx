@@ -1,5 +1,3 @@
-import * as React from "react";
-
 interface Props {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   selectedOption: string;

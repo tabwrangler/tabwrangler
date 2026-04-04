@@ -1,4 +1,3 @@
-import * as React from "react";
 import Button from "react-bootstrap/Button";
 import { mutateStorageSyncPersist } from "./storage";
 import { useMutation } from "@tanstack/react-query";

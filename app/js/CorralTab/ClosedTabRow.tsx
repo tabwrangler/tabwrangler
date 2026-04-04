@@ -58,9 +58,9 @@ export default function ClosedTabRow({
         <TabFavicon
           alt=""
           className="faviconCol--hover-hidden favicon"
-          favIconUrl={tab.favIconUrl}
           height={16}
-          url={tab.url}
+          pageUrl={tab.url}
+          src={tab.favIconUrl}
           width={16}
         />
         <span

@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { LazyImageProvider } from "./LazyImage/LazyImage";
 import React from "react";
+import { TabFaviconProvider } from "./TabFavicon";
 import settings from "./settings";
 
 const queryClient = new QueryClient();
@@ -53,7 +53,7 @@ export default function App({ children }: { children: React.ReactNode }) {
   } else {
     return (
       <QueryClientProvider client={queryClient}>
-        <LazyImageProvider>{children}</LazyImageProvider>
+        <TabFaviconProvider>{children}</TabFaviconProvider>
       </QueryClientProvider>
     );
   }

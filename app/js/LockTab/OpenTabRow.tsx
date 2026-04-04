@@ -129,9 +129,9 @@ export default function OpenTabRow({
         <TabFavicon
           alt=""
           height={16}
-          favIconUrl={tab.favIconUrl}
+          pageUrl={tab.url}
+          src={tab.favIconUrl}
           style={{ height: "16px", maxWidth: "none" }}
-          url={tab.url}
           width={16}
         />
       </td>

@@ -1,29 +1,19 @@
-import LazyImage, { LazyImageProps } from "./LazyImage/LazyImage";
-import React from "react";
+/* eslint-disable @typescript-eslint/no-var-requires */
+import * as React from "react";
+import type { LazyImageProps, LazyImageProviderProps } from "./LazyImage/LazyImage";
+import type { FaviconApiFaviconProps } from "./FaviconApiFavicon";
 
-interface TabFaviconProps extends Omit<LazyImageProps, "src"> {
-  favIconUrl?: string;
-  url?: string;
-}
+// Import only the modules needed for the given browser capability.
+// * Chrome: supports a custom favicon API for loading from disk for pages in browser history
+// * Firefox: has no custom favicon support, favicons must be fetched over the internet
+const TabFavicon = HAS_FAVICON_API
+  ? (require("./ChromeFavicon") as { default: React.ComponentType<FaviconApiFaviconProps> }).default
+  : (require("./LazyImage/LazyImage") as { default: React.ComponentType<LazyImageProps> }).default;
 
-export default function TabFavicon({ favIconUrl, ...restProps }: TabFaviconProps) {
-  return HAS_FAVICON_API ? (
-    <ChromeFavicon {...restProps} />
-  ) : (
-    <LazyImage {...restProps} src={favIconUrl ?? ""} />
-  );
-}
+export const TabFaviconProvider: React.ComponentType<LazyImageProviderProps> = HAS_FAVICON_API
+  ? function ImageProvider({ children }) {
+      return <>{children}</>;
+    }
+  : require("./LazyImage/LazyImage").LazyImageProvider;
 
-function ChromeFavicon(props: TabFaviconProps) {
-  const faviconUrl = `chrome-extension://${chrome.runtime.id}/_favicon/?pageUrl=${encodeURIComponent(props.url ?? "")}&size=${props.height}`;
-  return (
-    <img
-      alt={props.alt}
-      className={props.className}
-      height={props.height}
-      src={faviconUrl}
-      style={props.style}
-      width={props.width}
-    />
-  );
-}
+export default TabFavicon;

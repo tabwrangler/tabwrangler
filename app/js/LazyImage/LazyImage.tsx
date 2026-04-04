@@ -8,7 +8,11 @@ const colorHash = new ColorHash();
 const loadedSrcs = new Set<string>();
 const LazyImageContext = React.createContext(false);
 
-export function LazyImageProvider({ children }: { children: React.ReactNode }) {
+export interface LazyImageProviderProps {
+  children: React.ReactNode;
+}
+
+export function LazyImageProvider({ children }: LazyImageProviderProps) {
   const [shouldCheck, setShouldCheck] = React.useState(false);
   React.useEffect(() => {
     // Begin the loading process a full second after initial execution to allow the popup to open
@@ -24,8 +28,8 @@ export interface LazyImageProps {
   alt?: string;
   className?: string;
   height: number;
-  src: string;
-  style?: Record<string, unknown>;
+  src?: string;
+  style?: React.CSSProperties;
   width: number;
 }
 
@@ -38,16 +42,17 @@ const LazyImage = React.memo(function LazyImage(props: LazyImageProps) {
   const placeholderRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
-    if (loaded || !shouldCheck || props.src == null || !placeholderRef.current) return () => {};
+    const propsSrc = props.src;
+    if (loaded || !shouldCheck || propsSrc == null || !placeholderRef.current) return () => {};
 
     const img = new Image();
     imgRef.current = img;
     img.onload = () => {
       imgRef.current = null;
-      loadedSrcs.add(props.src);
+      loadedSrcs.add(propsSrc);
       setLoaded(true);
     };
-    img.src = props.src;
+    img.src = propsSrc;
 
     return () => {
       if (imgRef.current != null) {
@@ -81,7 +86,7 @@ const LazyImage = React.memo(function LazyImage(props: LazyImageProps) {
             className={props.className}
             ref={placeholderRef}
             style={Object.assign({}, props.style, {
-              background: colorHash.hex(props.src),
+              backgroundColor: props.src == null ? "black" : colorHash.hex(props.src),
               borderRadius: `${props.height / 2}px`,
               height: `${props.height}px`,
               width: `${props.width}px`,

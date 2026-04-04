@@ -117,9 +117,9 @@ const Settings = {
     );
 
     this._initPromise = new Promise((resolve) => {
-      chrome.storage.sync.get(keys, async (items) => {
+      chrome.storage.sync.get(keys, (items) => {
         Object.assign(this.cache, items);
-        await this._initLockedIds();
+        this._initLockedIds();
         resolve();
       });
     });

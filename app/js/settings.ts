@@ -119,7 +119,6 @@ const Settings = {
     this._initPromise = new Promise((resolve) => {
       chrome.storage.sync.get(keys, (items) => {
         Object.assign(this.cache, items);
-        this._initLockedIds();
         resolve();
       });
     });
@@ -127,12 +126,11 @@ const Settings = {
     return this._initPromise;
   },
 
-  async _initLockedIds(): Promise<void> {
-    if (this.cache.lockedIds == null) return Promise.resolve();
+  async cleanupLockedIds(tabs: chrome.tabs.Tab[]): Promise<void> {
+    if (this.cache.lockedIds == null) return;
 
     // Remove any tab IDs from the `lockedIds` list that no longer exist so the collection does not
     // grow unbounded. This also ensures tab IDs that are reused are not inadvertently locked.
-    const tabs = await chrome.tabs.query({});
     const currTabIds = new Set(tabs.map((tab) => tab.id));
     const nextLockedIds = this.cache.lockedIds.filter((lockedId) => {
       const lockedIdExists = currTabIds.has(lockedId);
@@ -140,8 +138,8 @@ const Settings = {
         console.debug(`Locked tab ID ${lockedId} no longer exists; removing from 'lockedIds' list`);
       return lockedIdExists;
     });
-    this.set("lockedIds", nextLockedIds);
-    return void 0;
+
+    await this.set("lockedIds", nextLockedIds);
   },
 
   get<K extends keyof SettingsSchema>(key: K): SettingsSchema[K] {

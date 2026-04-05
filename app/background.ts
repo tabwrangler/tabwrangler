@@ -472,32 +472,29 @@ async function migratePersistedData(
 
 async function startup() {
   const [restoredTabs] = await Promise.all([
-    // Wait for Chrome to finish restoring tabs from the previous session before migrating data.
+    // Wait for browser to finish restoring tabs from the previous session before migrating data.
     tabsRestoredPromise,
-    // Load settings before proceeding; Settings reads from async browser storage.
     settings.init(),
   ]);
 
-  await Promise.all([
-    updateIcon(),
-    // Because the badge count is external state, this side effect must be run once the value
-    // is read from storage.
-    updateClosedCount(),
-  ]);
+  await Promise.all([updateIcon(), updateClosedCount()]);
 
   if (settings.get("purgeClosedTabs") !== false) await removeAllSavedTabs();
 
-  // Migrate tab and window data from previous session: after a browser restart.
-  const { tabsToRelock, windowIdsToRelock } = await migratePersistedData(restoredTabs);
+  // Remove stale tab IDs from lockedIds. Use the restored tabs list on browser restart; otherwise
+  // query current tabs (service worker restart with no session restore).
+  const allTabs = restoredTabs.length > 0 ? restoredTabs : await chrome.tabs.query({});
+  await settings.cleanupLockedIds(allTabs);
 
-  // Persisted locked IDs must be relocked because they may have been culled by `settings.init`
-  // when the IDs changed.
-  await Promise.all([settings.lockTabs(tabsToRelock), settings.lockWindows(windowIdsToRelock)]);
+  // Migrate tab and window data from a browser restart. On a service worker restart,
+  // restoredTabs is empty (no tabs.onCreated events fire), tab IDs are unchanged, and there is
+  // nothing to migrate.
+  if (restoredTabs.length > 0) {
+    const { tabsToRelock, windowIdsToRelock } = await migratePersistedData(restoredTabs);
+    await Promise.all([settings.lockTabs(tabsToRelock), settings.lockWindows(windowIdsToRelock)]);
+  }
 
-  // Mark startup complete so onNewTab starts tracking new tabs normally.
   startupComplete = true;
-
-  // Kick off checking for tabs to close
   scheduleCheckToClose();
 }
 

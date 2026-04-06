@@ -1,13 +1,12 @@
+import { pauseExtension, unpauseExtension } from "./storage";
 import Button from "react-bootstrap/Button";
-import { mutateStorageSyncPersist } from "./storage";
 import { useMutation } from "@tanstack/react-query";
 import { useStorageSyncPersistQuery } from "./storage";
 
 export default function PauseButton() {
   const { data: storageSyncPersistData } = useStorageSyncPersistQuery();
   const pausedMutation = useMutation({
-    mutationFn: (nextPaused: boolean) =>
-      mutateStorageSyncPersist({ key: "paused", value: nextPaused }),
+    mutationFn: (nextPaused: boolean) => (nextPaused ? pauseExtension() : unpauseExtension()),
   });
 
   function pause() {

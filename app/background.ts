@@ -217,12 +217,8 @@ function getTabsOlderThan(
   time: number,
 ): Array<number> {
   const ret: Array<number> = [];
-  for (const i in tabTimes) {
-    if (Object.prototype.hasOwnProperty.call(tabTimes, i)) {
-      if (!time || tabTimes[i] < time) {
-        ret.push(parseInt(i, 10));
-      }
-    }
+  for (const [tabId, tabTime] of Object.entries(tabTimes)) {
+    if (!time || tabTime < time) ret.push(parseInt(tabId, 10));
   }
   return ret;
 }

@@ -102,9 +102,25 @@ export function setTabTime(tabId: string, tabTime: number) {
   });
 }
 
+export function shiftTabTimes(deltaMs: number) {
+  return ASYNC_LOCK.acquire("local.tabTimes", async () => {
+    const { tabTimes } = await chrome.storage.local.get<{ tabTimes: Record<string, number> }>({
+      tabTimes: {},
+    });
+    const shifted: Record<string, number> = {};
+    for (const [tabId, tabTime] of Object.entries(tabTimes)) {
+      shifted[tabId] = tabTime + deltaMs;
+    }
+    console.debug(`[shiftTabTimes] Shifted all tabTimes by ${deltaMs}ms`);
+    await chrome.storage.local.set({ tabTimes: shifted });
+  });
+}
+
 export function setTabTimes(tabIds: string[], tabTime: number) {
   return ASYNC_LOCK.acquire("local.tabTimes", async () => {
-    const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
+    const { tabTimes } = await chrome.storage.local.get<{ tabTimes: Record<string, number> }>({
+      tabTimes: {},
+    });
     tabIds.forEach((tabId) => {
       tabTimes[tabId] = tabTime;
     });

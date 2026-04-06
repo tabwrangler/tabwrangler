@@ -1,8 +1,8 @@
+import { setTabTime, shiftTabTimes } from "./actions/localStorageActions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AsyncLock from "async-lock";
 import { SETTINGS_DEFAULTS } from "./settings";
 import { getStorageSyncPersist } from "./queries";
-import { setTabTime } from "./actions/localStorageActions";
 import { useEffect } from "react";
 
 /* Give an (arbitrary) maxExecutionTime to ensure no dead locks occur. Throwing an error is better
@@ -52,6 +52,28 @@ export function mutateStorageSyncPersist({
       "persist:settings": { ...data["persist:settings"], [key]: value },
     });
   });
+}
+
+export async function pauseExtension(): Promise<void> {
+  await Promise.all([
+    mutateStorageSyncPersist({ key: "paused", value: true }),
+    chrome.storage.local.set({ pausedAt: Date.now() }),
+  ]);
+}
+
+export async function unpauseExtension(): Promise<void> {
+  const { pausedAt } = await chrome.storage.local.get<{ pausedAt: number | null }>({
+    pausedAt: null,
+  });
+
+  // Shift all tab times so time spent paused does not count against tab times. For example, if a
+  // tab had 1 min remaining, extension paused for 45sec, tab should still have 1min on resume.
+  if (pausedAt != null) await shiftTabTimes(Date.now() - pausedAt);
+
+  await Promise.all([
+    mutateStorageSyncPersist({ key: "paused", value: false }),
+    chrome.storage.local.remove("pausedAt"),
+  ]);
 }
 
 export function lockTabId(tabId: number) {

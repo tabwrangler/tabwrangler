@@ -15,10 +15,6 @@ import { useDebounceCallback } from "@react-hook/debounce";
 import { useMutation } from "@tanstack/react-query";
 import { useUndo } from "../UndoContext";
 
-function isValidPattern(pattern: string) {
-  return pattern != null && pattern.length > 0 && /\S/.test(pattern);
-}
-
 export default function OptionsTab() {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const { data: syncData } = useStorageSyncQuery();
@@ -594,4 +590,8 @@ export default function OptionsTab() {
       </ToastContainer>
     </>
   );
+}
+
+function isValidPattern(pattern: string) {
+  return pattern != null && pattern.length > 0 && /\S/.test(pattern);
 }

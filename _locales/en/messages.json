@@ -426,6 +426,14 @@
     "description": "Short version of tabLock_sort_timeUntilClose_desc",
     "message": "Time until close (desc.)"
   },
+  "tabLock_lockTab": {
+    "description": "Button label for locking a tab",
+    "message": "Lock tab"
+  },
+  "tabLock_unlockTab": {
+    "description": "Button label for unlocking a tab",
+    "message": "Unlock tab"
+  },
   "corral_tabsWrangledFull": {
     "description": "Description of number of tabs wrangled by this extension",
     "message": "tabs wrangled: $count$ ($percent$%)",

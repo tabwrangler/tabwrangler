@@ -1,4 +1,5 @@
 import TabFavicon from "../TabFavicon";
+import type { TabLockStatus } from "../tabUtil";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
 import settings from "../settings";
@@ -27,77 +28,7 @@ export default function OpenTabRow({
   windowLocked,
   onToggleTab,
 }: OpenTabRowProps) {
-  const { data: syncPersistData } = useStorageSyncPersistQuery();
-  const now = useContext(UseNowContext);
-  const paused = syncPersistData?.paused;
-  const status = settings.getTabLockStatus(tab);
-
-  let lockStatusElement: React.ReactNode;
-  if (status.locked) {
-    let reason: React.ReactNode;
-    switch (status.reason) {
-      case "audible":
-        reason = (
-          <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>
-            {chrome.i18n.getMessage("tabLock_lockedStatus_locked")}
-          </abbr>
-        );
-        break;
-      case "grouped":
-        reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
-        break;
-      case "manual":
-        reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
-        break;
-      case "pinned":
-        reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
-        break;
-      case "whitelist":
-        reason = (
-          <abbr
-            title={chrome.i18n.getMessage("tabLock_lockedReason_matches", status.whitelistMatch)}
-          >
-            {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
-          </abbr>
-        );
-        break;
-      case "window":
-        reason = chrome.i18n.getMessage("tabLock_lockedReason_window");
-        break;
-      default:
-        status satisfies never;
-    }
-
-    lockStatusElement = (
-      <td
-        className={cx("text-center muted", { "border-0": isLast })}
-        style={{ verticalAlign: "middle" }}
-      >
-        {reason}
-      </td>
-    );
-  } else {
-    let timeLeftContent;
-    if (windowLocked) {
-      timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_window");
-    } else if (paused) {
-      timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
-    } else {
-      const cutOff = now - settings.stayOpen();
-      const timeLeft = -1 * Math.round((cutOff - tabTime) / 1000);
-      // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the
-      // interval to clean up this tab. It's also possible the number of tabs is not below
-      // `minTabs`, which has stopped the countdown and locked this at a negative `timeLeft` until
-      // another tab is opened to jump start the countdown again.
-      timeLeftContent = timeLeft < 0 ? "…" : <time>{secondsToHms(timeLeft)}</time>;
-    }
-
-    lockStatusElement = (
-      <td className={cx("text-center", { "border-0": isLast })} style={{ verticalAlign: "middle" }}>
-        {timeLeftContent}
-      </td>
-    );
-  }
+  const tabLockStatus = settings.getTabLockStatus(tab);
 
   function setTabActive() {
     if (tab.id == null) return;
@@ -112,14 +43,20 @@ export default function OpenTabRow({
       >
         <button
           className={cx("btn btn-xs btn-outline-secondary rounded-circle", {
-            active: status.locked,
+            active: tabLockStatus.locked,
           })}
           disabled={!settings.isTabManuallyLockable(tab)}
+          title={
+            tabLockStatus.locked
+              ? chrome.i18n.getMessage("tabLock_unlockTab")
+              : chrome.i18n.getMessage("tabLock_lockTab")
+          }
+          type="button"
           onClick={(event) => {
-            onToggleTab(windowId, tab, !status.locked, event.shiftKey);
+            onToggleTab(windowId, tab, !tabLockStatus.locked, event.shiftKey);
           }}
         >
-          {status.locked ? <i className="fas fa-lock" /> : <i className="fas fa-unlock" />}
+          {tabLockStatus.locked ? <i className="fas fa-lock" /> : <i className="fas fa-unlock" />}
         </button>
       </td>
       <td
@@ -153,15 +90,106 @@ export default function OpenTabRow({
           </div>
         </div>
       </td>
-      {lockStatusElement}
+      <TabLockStatus
+        isLast={isLast}
+        tabLockStatus={tabLockStatus}
+        tabTime={tabTime}
+        windowLocked={windowLocked}
+      />
     </tr>
   );
 }
 
+function TabLockStatus({
+  isLast,
+  tabLockStatus,
+  tabTime,
+  windowLocked,
+}: {
+  isLast: boolean;
+  tabLockStatus: TabLockStatus;
+  tabTime: number;
+  windowLocked: boolean;
+}) {
+  const { data: syncPersistData } = useStorageSyncPersistQuery();
+  const now = useContext(UseNowContext);
+  const paused = syncPersistData?.paused;
+  if (tabLockStatus.locked) {
+    let reason: React.ReactNode;
+    switch (tabLockStatus.reason) {
+      case "audible":
+        reason = (
+          <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>
+            {chrome.i18n.getMessage("tabLock_lockedStatus_locked")}
+          </abbr>
+        );
+        break;
+      case "grouped":
+        reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
+        break;
+      case "manual":
+        reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
+        break;
+      case "pinned":
+        reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
+        break;
+      case "whitelist":
+        reason = (
+          <abbr
+            title={chrome.i18n.getMessage(
+              "tabLock_lockedReason_matches",
+              tabLockStatus.whitelistMatch,
+            )}
+          >
+            {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
+          </abbr>
+        );
+        break;
+      case "window":
+        reason = chrome.i18n.getMessage("tabLock_lockedReason_window");
+        break;
+      default:
+        tabLockStatus satisfies never;
+    }
+
+    return (
+      <td
+        className={cx("text-center muted", { "border-0": isLast })}
+        style={{ verticalAlign: "middle" }}
+      >
+        {reason}
+      </td>
+    );
+  } else {
+    let timeLeftContent;
+    if (windowLocked) {
+      timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_window");
+    } else if (paused) {
+      timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
+    } else {
+      const cutOff = now - settings.stayOpen();
+      const timeLeft = -1 * Math.round((cutOff - tabTime) / 1000);
+      // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the
+      // interval to clean up this tab. It's also possible the number of tabs is not below
+      // `minTabs`, which has stopped the countdown and locked this at a negative `timeLeft` until
+      // another tab is opened to jump start the countdown again.
+      timeLeftContent = timeLeft < 0 ? "…" : <time>{secondsToHms(timeLeft)}</time>;
+    }
+
+    return (
+      <td className={cx("text-center", { "border-0": isLast })} style={{ verticalAlign: "middle" }}>
+        {timeLeftContent}
+      </td>
+    );
+  }
+}
+
+const SECONDS_PER_HOUR = 3600;
 function secondsToHms(seconds: number) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor((seconds % 3600) % 60);
+  const hours = Math.floor(seconds / SECONDS_PER_HOUR);
+  const hoursRemainder = seconds % SECONDS_PER_HOUR;
+  const minutes = Math.floor(hoursRemainder / 60);
+  const s = Math.floor(hoursRemainder % 60);
   const hDisplay = hours > 0 ? `${zeropad(hours)}:` : "";
   return `${hDisplay}${zeropad(minutes)}:${zeropad(s)}`;
 }

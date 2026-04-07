@@ -217,7 +217,7 @@ export default function OptionsTab() {
               </Button>
             </ButtonGroup>
           </div>
-          <InactiveTimeOption saveSetting={saveSetting} />
+          <InactiveTimeOption onSaveSetting={saveSetting} />
           <label className="form-label mt-3" htmlFor="minTabs">
             <strong>{chrome.i18n.getMessage("options_option_minTabs_label")}</strong>
           </label>
@@ -554,9 +554,9 @@ export default function OptionsTab() {
 }
 
 function InactiveTimeOption({
-  saveSetting,
+  onSaveSetting,
 }: {
-  saveSetting: <K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) => void;
+  onSaveSetting: <K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) => void;
 }) {
   const minutesInactive = useSetting("minutesInactive");
   const secondsInactive = useSetting("secondsInactive");
@@ -573,7 +573,7 @@ function InactiveTimeOption({
       return false;
     }
     setZeroDurationError(false);
-    saveSetting("minutesInactive", total);
+    onSaveSetting("minutesInactive", total);
     return true;
   }
 
@@ -583,7 +583,7 @@ function InactiveTimeOption({
       return false;
     }
     setZeroDurationError(false);
-    saveSetting("secondsInactive", seconds);
+    onSaveSetting("secondsInactive", seconds);
     return true;
   }
 

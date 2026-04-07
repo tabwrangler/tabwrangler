@@ -194,7 +194,7 @@ function formatSecondsToDhms(seconds: number) {
   const minutes = Math.floor(hoursRemainder / 60);
   const s = Math.floor(hoursRemainder % 60);
   const dDisplay = days > 0 ? `${days}:` : "";
-  const hDisplay = hours > 0 ? `${zeropad(hours)}:` : "";
+  const hDisplay = days > 0 || hours > 0 ? `${zeropad(hours)}:` : "";
   return `${dDisplay}${hDisplay}${zeropad(minutes)}:${zeropad(s)}`;
 }
 

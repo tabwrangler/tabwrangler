@@ -410,22 +410,6 @@
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "Close inactive tabs after:"
   },
-  "options_option_timeInactive_unit_days": {
-    "description": "Full word 'days' used as the title of the days abbreviation in the inactive time input",
-    "message": "days"
-  },
-  "options_option_timeInactive_unit_hours": {
-    "description": "Full word 'hours' used as the title of the hours abbreviation in the inactive time input",
-    "message": "hours"
-  },
-  "options_option_timeInactive_unit_minutes": {
-    "description": "Full word 'minutes' used as the title of the minutes abbreviation in the inactive time input",
-    "message": "minutes"
-  },
-  "options_option_timeInactive_unit_seconds": {
-    "description": "Full word 'seconds' used as the title of the seconds abbreviation in the inactive time input",
-    "message": "seconds"
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Saving..."

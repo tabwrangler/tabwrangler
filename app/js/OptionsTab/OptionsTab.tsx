@@ -666,10 +666,7 @@ function InactiveTimeOption({
               type="number"
               {...daysDraft}
             />
-            <abbr
-              className="input-group-text"
-              title={chrome.i18n.getMessage("options_option_timeInactive_unit_days")}
-            >
+            <abbr className="input-group-text">
               {chrome.i18n.getMessage("options_option_timeInactive_abbr_days")}
             </abbr>
           </div>
@@ -684,10 +681,7 @@ function InactiveTimeOption({
               type="number"
               {...hoursDraft}
             />
-            <abbr
-              className="input-group-text"
-              title={chrome.i18n.getMessage("options_option_timeInactive_unit_hours")}
-            >
+            <abbr className="input-group-text">
               {chrome.i18n.getMessage("options_option_timeInactive_abbr_hours")}
             </abbr>
           </div>
@@ -702,10 +696,7 @@ function InactiveTimeOption({
               type="number"
               {...minutesDraft}
             />
-            <abbr
-              className="input-group-text"
-              title={chrome.i18n.getMessage("options_option_timeInactive_unit_minutes")}
-            >
+            <abbr className="input-group-text">
               {chrome.i18n.getMessage("options_option_timeInactive_abbr_minutes")}
             </abbr>
           </div>
@@ -720,10 +711,7 @@ function InactiveTimeOption({
               type="number"
               {...secondsDraft}
             />
-            <abbr
-              className="input-group-text"
-              title={chrome.i18n.getMessage("options_option_timeInactive_unit_seconds")}
-            >
+            <abbr className="input-group-text">
               {chrome.i18n.getMessage("options_option_timeInactive_abbr_seconds")}
             </abbr>
           </div>

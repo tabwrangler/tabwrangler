@@ -610,11 +610,45 @@ function InactiveTimeOption({
     seconds: number,
   ): string {
     const parts: string[] = [];
-    if (days > 0) parts.push(`${days} ${days === 1 ? "day" : "days"}`);
-    if (hours > 0) parts.push(`${hours} ${hours === 1 ? "hour" : "hours"}`);
-    if (minutes > 0) parts.push(`${minutes} ${minutes === 1 ? "minute" : "minutes"}`);
-    if (seconds > 0) parts.push(`${seconds} ${seconds === 1 ? "second" : "seconds"}`);
-    return parts.length > 0 ? parts.join(", ") : "0 seconds";
+    if (days > 0)
+      parts.push(
+        chrome.i18n.getMessage(
+          days === 1
+            ? "options_option_timeInactive_duration_day"
+            : "options_option_timeInactive_duration_days",
+          [String(days)],
+        ),
+      );
+    if (hours > 0)
+      parts.push(
+        chrome.i18n.getMessage(
+          hours === 1
+            ? "options_option_timeInactive_duration_hour"
+            : "options_option_timeInactive_duration_hours",
+          [String(hours)],
+        ),
+      );
+    if (minutes > 0)
+      parts.push(
+        chrome.i18n.getMessage(
+          minutes === 1
+            ? "options_option_timeInactive_duration_minute"
+            : "options_option_timeInactive_duration_minutes",
+          [String(minutes)],
+        ),
+      );
+    if (seconds > 0)
+      parts.push(
+        chrome.i18n.getMessage(
+          seconds === 1
+            ? "options_option_timeInactive_duration_second"
+            : "options_option_timeInactive_duration_seconds",
+          [String(seconds)],
+        ),
+      );
+    return parts.length > 0
+      ? parts.join(", ")
+      : chrome.i18n.getMessage("options_option_timeInactive_duration_seconds", ["0"]);
   }
 
   return (
@@ -632,7 +666,12 @@ function InactiveTimeOption({
               type="number"
               {...daysDraft}
             />
-            <abbr className="input-group-text">d</abbr>
+            <abbr
+              className="input-group-text"
+              title={chrome.i18n.getMessage("options_option_timeInactive_unit_days")}
+            >
+              {chrome.i18n.getMessage("options_option_timeInactive_abbr_days")}
+            </abbr>
           </div>
         </div>
         <div className="w-auto mx-n1">:</div>
@@ -645,7 +684,12 @@ function InactiveTimeOption({
               type="number"
               {...hoursDraft}
             />
-            <abbr className="input-group-text">h</abbr>
+            <abbr
+              className="input-group-text"
+              title={chrome.i18n.getMessage("options_option_timeInactive_unit_hours")}
+            >
+              {chrome.i18n.getMessage("options_option_timeInactive_abbr_hours")}
+            </abbr>
           </div>
         </div>
         <div className="w-auto mx-n1">:</div>
@@ -658,7 +702,12 @@ function InactiveTimeOption({
               type="number"
               {...minutesDraft}
             />
-            <abbr className="input-group-text">m</abbr>
+            <abbr
+              className="input-group-text"
+              title={chrome.i18n.getMessage("options_option_timeInactive_unit_minutes")}
+            >
+              {chrome.i18n.getMessage("options_option_timeInactive_abbr_minutes")}
+            </abbr>
           </div>
         </div>
         <div className="w-auto mx-n1">:</div>
@@ -671,7 +720,12 @@ function InactiveTimeOption({
               type="number"
               {...secondsDraft}
             />
-            <abbr className="input-group-text">s</abbr>
+            <abbr
+              className="input-group-text"
+              title={chrome.i18n.getMessage("options_option_timeInactive_unit_seconds")}
+            >
+              {chrome.i18n.getMessage("options_option_timeInactive_abbr_seconds")}
+            </abbr>
           </div>
         </div>
       </div>

@@ -306,6 +306,102 @@
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "System"
   },
+  "options_option_timeInactive_abbr_days": {
+    "description": "Abbreviation for 'days' shown in the inactive time input",
+    "message": "d"
+  },
+  "options_option_timeInactive_abbr_hours": {
+    "description": "Abbreviation for 'hours' shown in the inactive time input",
+    "message": "h"
+  },
+  "options_option_timeInactive_abbr_minutes": {
+    "description": "Abbreviation for 'minutes' shown in the inactive time input",
+    "message": "m"
+  },
+  "options_option_timeInactive_abbr_seconds": {
+    "description": "Abbreviation for 'seconds' shown in the inactive time input",
+    "message": "s"
+  },
+  "options_option_timeInactive_duration_day": {
+    "description": "Singular 'day' unit with count in the inactive time description",
+    "message": "$count$ day",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_days": {
+    "description": "Plural 'days' unit with count in the inactive time description",
+    "message": "$count$ days",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hour": {
+    "description": "Singular 'hour' unit with count in the inactive time description",
+    "message": "$count$ hour",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hours": {
+    "description": "Plural 'hours' unit with count in the inactive time description",
+    "message": "$count$ hours",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minute": {
+    "description": "Singular 'minute' unit with count in the inactive time description",
+    "message": "$count$ minute",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minutes": {
+    "description": "Plural 'minutes' unit with count in the inactive time description",
+    "message": "$count$ minutes",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_second": {
+    "description": "Singular 'second' unit with count in the inactive time description",
+    "message": "$count$ second",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_seconds": {
+    "description": "Plural 'seconds' unit with count in the inactive time description",
+    "message": "$count$ seconds",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
   "options_option_timeInactive_error_zero": {
     "description": "Error shown when the inactive time duration is set to zero",
     "message": "Duration must be greater than 0 seconds."
@@ -313,6 +409,22 @@
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "Close inactive tabs after:"
+  },
+  "options_option_timeInactive_unit_days": {
+    "description": "Full word 'days' used as the title of the days abbreviation in the inactive time input",
+    "message": "days"
+  },
+  "options_option_timeInactive_unit_hours": {
+    "description": "Full word 'hours' used as the title of the hours abbreviation in the inactive time input",
+    "message": "hours"
+  },
+  "options_option_timeInactive_unit_minutes": {
+    "description": "Full word 'minutes' used as the title of the minutes abbreviation in the inactive time input",
+    "message": "minutes"
+  },
+  "options_option_timeInactive_unit_seconds": {
+    "description": "Full word 'seconds' used as the title of the seconds abbreviation in the inactive time input",
+    "message": "seconds"
   },
   "options_saving": {
     "description": "Message displayed when options are being saved",

@@ -20,12 +20,12 @@ function keywordFilter(keyword: string) {
   };
 }
 
-type Sorter = {
+interface Sorter {
   key: string;
   label: () => string;
   shortLabel: () => string;
   sort: (a: chrome.tabs.Tab | null, b: chrome.tabs.Tab | null) => number;
-};
+}
 
 const AlphaSorter: Sorter = {
   key: "alpha",
@@ -142,6 +142,7 @@ export function sessionFuzzyMatchesTab(
 
 interface RowData {
   index: number;
+  isFocused: boolean;
   isSelected: boolean;
   session: chrome.sessions.Session | null;
   tab: chrome.tabs.Tab;
@@ -167,6 +168,7 @@ function rowRenderer({
   return (
     <ClosedTabRow
       index={rowData.index}
+      isFocused={rowData.isFocused}
       isSelected={rowData.isSelected}
       key={key}
       session={rowData.session}
@@ -200,6 +202,8 @@ function useSessionsRecentlyClosed() {
   return sessions;
 }
 
+const TABLE_ROW_HEIGHT_PX = 38;
+
 export default function CorralTab() {
   const { canUndo, canRedo, lastAction, nextRedoAction, undo, redo, removeTabs, restoreTabs } =
     useUndo();
@@ -232,7 +236,10 @@ export default function CorralTab() {
   const sessions = useSessionsRecentlyClosed();
   const { data: localStorageData } = useStorageLocalPersistQuery();
   const lastSelectedTabRef = useRef<TabWithIndex | null>(null);
+  const controlBarRef = useRef<HTMLDivElement>(null);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   const [selectedTabs, setSelectedTabs] = useState<Set<string>>(new Set());
+  const [focusedIndex, setFocusedIndex] = useState(0);
   const closedTabs: TabWithIndex[] = useMemo(() => {
     if (localStorageData == null || !("savedTabs" in localStorageData)) return [];
     return localStorageData.savedTabs
@@ -270,6 +277,57 @@ export default function CorralTab() {
     };
   }, []);
 
+  async function handleOpenTab(
+    tab: chrome.tabs.Tab,
+    session: chrome.sessions.Session | null | undefined,
+  ) {
+    if (session == null) return;
+    await restoreTabs([{ session, tab }]);
+    setSelectedTabs((prev) => {
+      const next = new Set(prev);
+      next.delete(serializeTab(tab));
+      return next;
+    });
+  }
+
+  function handleSearchKeydown(event: React.KeyboardEvent<HTMLInputElement>) {
+    switch (event.key) {
+      case "ArrowDown":
+        if (closedTabs.length === 0) break;
+        event.preventDefault();
+        setFocusedIndex((i) => Math.min(i + 1, closedTabs.length - 1));
+        break;
+      case "ArrowUp":
+        if (closedTabs.length === 0) break;
+        event.preventDefault();
+        setFocusedIndex((i) => Math.max(i - 1, 0));
+        break;
+      case "Enter": {
+        const tabWithIndex = closedTabs[focusedIndex];
+        if (tabWithIndex == null) break;
+        event.preventDefault();
+        handleOpenTab(
+          tabWithIndex.tab,
+          sessions?.find((s) => sessionFuzzyMatchesTab(s, tabWithIndex.tab)),
+        );
+        break;
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (tableContainerRef.current == null) return;
+    const tableTop = tableContainerRef.current.getBoundingClientRect().top + window.scrollY;
+    const rowTop = tableTop + focusedIndex * TABLE_ROW_HEIGHT_PX;
+    const rowBottom = rowTop + TABLE_ROW_HEIGHT_PX;
+    const controlBarHeight = controlBarRef.current?.offsetHeight ?? 0;
+    if (rowTop - controlBarHeight < window.scrollY) {
+      window.scrollTo(0, rowTop - controlBarHeight);
+    } else if (rowBottom > window.scrollY + window.innerHeight) {
+      window.scrollTo(0, rowBottom - window.innerHeight);
+    }
+  }, [focusedIndex]);
+
   function handleChangeSaveSortOrder(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.checked) {
       settings.set("corralTabSortOrder", currSorter.key);
@@ -297,17 +355,6 @@ export default function CorralTab() {
     const tabsToRemove = closedTabs.filter(({ tab }) => selectedTabs.has(serializeTab(tab)));
     await removeTabs(tabsToRemove);
     setSelectedTabs(new Set());
-  }
-
-  async function handleOpenTab(
-    tab: chrome.tabs.Tab,
-    _index: number,
-    session: chrome.sessions.Session | undefined,
-  ) {
-    await restoreTabs([{ session, tab }]);
-    const nextSelectedTabs = new Set(selectedTabs);
-    nextSelectedTabs.delete(serializeTab(tab));
-    setSelectedTabs(nextSelectedTabs);
   }
 
   async function handleOpenSelectedTabs() {
@@ -402,14 +449,21 @@ export default function CorralTab() {
   return (
     <div className="tab-pane active">
       <div className="row align-items-center mb-1">
-        <form className="form-search col">
+        <form
+          className="form-search col-7"
+          onSubmit={(event) => {
+            event.preventDefault();
+          }}
+        >
           <div className="form-group mb-0">
             <input
               className="form-control"
               name="search"
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 setFilter(event.target.value);
+                setFocusedIndex(0);
               }}
+              onKeyDown={handleSearchKeydown}
               placeholder={chrome.i18n.getMessage("corral_searchTabs")}
               ref={(nextSearchRef: HTMLElement | null) => {
                 searchRef.current = nextSearchRef;
@@ -419,7 +473,7 @@ export default function CorralTab() {
             />
           </div>
         </form>
-        <div className="col text-end">
+        <div className="col-5 text-end">
           {chrome.i18n.getMessage("corral_tabsWrangledFull", [
             String(
               localStorageData == null || !("totalTabsWrangled" in localStorageData)
@@ -430,8 +484,7 @@ export default function CorralTab() {
           ])}
         </div>
       </div>
-
-      <div className="corral-tab--control-bar py-2 border-bottom">
+      <div className="corral-tab--control-bar py-2 border-bottom" ref={controlBarRef}>
         <div className="d-flex gap-1">
           <Button
             disabled={closedTabs.length === 0}
@@ -580,44 +633,47 @@ export default function CorralTab() {
         </div>
       </div>
 
-      <WindowScroller>
-        {({ height, isScrolling, onChildScroll, scrollTop }: WindowScrollerChildProps) => (
-          <Table
-            autoHeight
-            className="table table-hover"
-            headerHeight={0}
-            height={height}
-            isScrolling={isScrolling}
-            noRowsRenderer={renderNoRows}
-            onScroll={onChildScroll}
-            rowCount={closedTabs.length}
-            rowGetter={({ index: rowIndex }: { index: number }) => {
-              const { tab, index } = closedTabs[rowIndex];
-              return {
-                index,
-                isSelected: selectedTabs.has(serializeTab(tab)),
-                onOpenTab: handleOpenTab,
-                onRemoveTab: handleRemoveTab,
-                onToggleTab: handleToggleTab,
-                // The Chrome extension API claims [`getRecentlyClosed`][0] always returns an
-                // Array<chrome.sessions.Session>, but in at least one case a user is getting an
-                // exception where `this.props.sessions` is null. Because it's safe to continue
-                // without Sessions, do a null check and continue on unless a more thorough solution
-                // is eventually found.
-                //
-                // See https://github.com/tabwrangler/tabwrangler/issues/275
-                session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
-                tab,
-              };
-            }}
-            rowHeight={38}
-            rowRenderer={rowRenderer}
-            scrollTop={scrollTop}
-            tabIndex={null}
-            width={676}
-          />
-        )}
-      </WindowScroller>
+      <div ref={tableContainerRef}>
+        <WindowScroller>
+          {({ height, isScrolling, onChildScroll, scrollTop }: WindowScrollerChildProps) => (
+            <Table
+              autoHeight
+              className="table table-hover"
+              headerHeight={0}
+              height={height}
+              isScrolling={isScrolling}
+              noRowsRenderer={renderNoRows}
+              onScroll={onChildScroll}
+              rowCount={closedTabs.length}
+              rowGetter={({ index: rowIndex }: { index: number }) => {
+                const { tab, index } = closedTabs[rowIndex];
+                return {
+                  index,
+                  isFocused: rowIndex === focusedIndex,
+                  isSelected: selectedTabs.has(serializeTab(tab)),
+                  onOpenTab: handleOpenTab,
+                  onRemoveTab: handleRemoveTab,
+                  onToggleTab: handleToggleTab,
+                  // The Chrome extension API claims [`getRecentlyClosed`][0] always returns an
+                  // Array<chrome.sessions.Session>, but in at least one case a user is getting an
+                  // exception where `this.props.sessions` is null. Because it's safe to continue
+                  // without Sessions, do a null check and continue on unless a more thorough solution
+                  // is eventually found.
+                  //
+                  // See https://github.com/tabwrangler/tabwrangler/issues/275
+                  session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
+                  tab,
+                };
+              }}
+              rowHeight={TABLE_ROW_HEIGHT_PX}
+              rowRenderer={rowRenderer}
+              scrollTop={scrollTop}
+              tabIndex={null}
+              width={676}
+            />
+          )}
+        </WindowScroller>
+      </div>
     </div>
   );
 }

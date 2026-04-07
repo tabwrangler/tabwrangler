@@ -6,6 +6,7 @@ import { extractHostname } from "../util";
 
 interface ClosedTabRowProps {
   index: number;
+  isFocused: boolean;
   isSelected: boolean;
   session: chrome.sessions.Session | null;
   style: Record<string, unknown>;
@@ -22,6 +23,7 @@ interface ClosedTabRowProps {
 
 export default function ClosedTabRow({
   index,
+  isFocused,
   isSelected,
   session,
   style,
@@ -33,7 +35,10 @@ export default function ClosedTabRow({
   return (
     <div
       aria-label="row"
-      className={cx("ReactVirtualized__Table__row", { "table-warning": isSelected })}
+      className={cx("ReactVirtualized__Table__row", {
+        "ClosedTabRow--focused": isFocused,
+        "table-warning": isSelected,
+      })}
       role="row"
       style={style}
     >

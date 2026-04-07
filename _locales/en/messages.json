@@ -306,6 +306,10 @@
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "System"
   },
+  "options_option_timeInactive_error_zero": {
+    "description": "Error shown when the inactive time duration is set to zero",
+    "message": "Duration must be greater than 0 seconds."
+  },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "Close inactive tabs after:"

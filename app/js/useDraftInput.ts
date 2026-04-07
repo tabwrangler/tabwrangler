@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
  */
 export default function useDraftInput(
   value: number,
-  onCommit: (value: number) => void,
+  onCommit: (value: number) => boolean | void,
   commitDelay = 1000,
 ) {
   const [draft, setDraft] = useState<string | null>(null);
@@ -27,7 +27,9 @@ export default function useDraftInput(
       timeoutRef.current = null;
     }
     const parsed = Math.max(0, parseInt(raw ?? "") || 0);
-    if (draft !== null && parsed !== value) onCommit(parsed);
+    if (draft !== null && parsed !== value) {
+      if (onCommit(parsed) === false) return;
+    }
     setDraft(null);
   }
 

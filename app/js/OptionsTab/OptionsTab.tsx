@@ -217,9 +217,6 @@ export default function OptionsTab() {
               </Button>
             </ButtonGroup>
           </div>
-          <label className="form-label mt-3">
-            <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
-          </label>
           <InactiveTimeOption saveSetting={saveSetting} />
           <label className="form-label mt-3" htmlFor="minTabs">
             <strong>{chrome.i18n.getMessage("options_option_minTabs_label")}</strong>
@@ -328,21 +325,21 @@ export default function OptionsTab() {
           </div>
           {typeof maxTabs === "string" && (
             <div className="row">
-              <div className="col-8 form-text text-primary">
+              <div className="col-9 form-text text-primary">
                 {chrome.i18n.getMessage("options_option_rememberTabs_validNumber")}
               </div>
             </div>
           )}
           {typeof maxTabs === "number" && maxTabs < settings.get("maxTabs") && (
             <div className="row">
-              <div className="col-8 form-text text-primary">
+              <div className="col-9 form-text text-primary">
                 {chrome.i18n.getMessage("options_option_rememberTabs_truncateMsg")}
               </div>
             </div>
           )}
           {typeof maxTabs === "number" && maxTabs > settings.get("maxTabs") && (
             <div className="row">
-              <div className="col-8 form-text text-primary">
+              <div className="col-9 form-text text-primary">
                 {chrome.i18n.getMessage("options_option_rememberTabs_saveToConfirm")}
               </div>
             </div>
@@ -394,7 +391,7 @@ export default function OptionsTab() {
 
         <h5 className="mt-3">{chrome.i18n.getMessage("options_section_autoLock")}</h5>
         <div className="row">
-          <div className="col-8">
+          <div className="col-9">
             <form onSubmit={addWhitelistPattern}>
               <label className="form-label" htmlFor="wl-add">
                 {chrome.i18n.getMessage("options_option_autoLock_label")}
@@ -466,10 +463,10 @@ export default function OptionsTab() {
 
         <h5 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h5>
         <div className="row">
-          <div className="col-8">{chrome.i18n.getMessage("options_importExport_description")}</div>
+          <div className="col-9">{chrome.i18n.getMessage("options_importExport_description")}</div>
         </div>
         <div className="row my-2">
-          <div className="col-8 mb-1">
+          <div className="col-9 mb-1">
             <Button variant="secondary" onClick={handleExportData}>
               <i className="fas fa-file-export me-1" />
               {chrome.i18n.getMessage("options_importExport_export")}
@@ -495,7 +492,7 @@ export default function OptionsTab() {
           </div>
         </div>
         <div className="row">
-          <div className="col-8">
+          <div className="col-9">
             <div className="alert alert-warning">
               {chrome.i18n.getMessage("options_importExport_importWarning")}
             </div>
@@ -536,7 +533,7 @@ export default function OptionsTab() {
           <Toast.Body>{importExportOperationName}</Toast.Body>
         </Toast>
         <Toast bg="success" show={saveAlertVisible}>
-          <Toast.Body>{chrome.i18n.getMessage("options_saving")}</Toast.Body>
+          <Toast.Body className="text-light">{chrome.i18n.getMessage("options_saving")}</Toast.Body>
         </Toast>
         <Toast bg="primary" show={maxTabs !== settings.get("maxTabs")}>
           <Toast.Body className="d-flex align-items-center justify-content-between">
@@ -563,17 +560,31 @@ function InactiveTimeOption({
 }) {
   const minutesInactive = useSetting("minutesInactive");
   const secondsInactive = useSetting("secondsInactive");
+  const [zeroDurationError, setZeroDurationError] = useState(false);
 
   const daysInactive = Math.floor(minutesInactive / (24 * 60));
   const hoursInactive = Math.floor((minutesInactive % (24 * 60)) / 60);
   const minutesInactiveUI = minutesInactive % 60;
 
-  function handleMinutesInactiveChange(days: number, hours: number, minutes: number) {
-    saveSetting("minutesInactive", days * 24 * 60 + hours * 60 + minutes);
+  function handleMinutesInactiveChange(days: number, hours: number, minutes: number): boolean {
+    const total = days * 24 * 60 + hours * 60 + minutes;
+    if (total === 0 && secondsInactive === 0) {
+      setZeroDurationError(true);
+      return false;
+    }
+    setZeroDurationError(false);
+    saveSetting("minutesInactive", total);
+    return true;
   }
 
-  function handleSecondsInactiveChange(seconds: number) {
+  function handleSecondsInactiveChange(seconds: number): boolean {
+    if (seconds === 0 && minutesInactive === 0) {
+      setZeroDurationError(true);
+      return false;
+    }
+    setZeroDurationError(false);
     saveSetting("secondsInactive", seconds);
+    return true;
   }
 
   const daysDraft = useDraftInput(daysInactive, (days) =>
@@ -621,9 +632,7 @@ function InactiveTimeOption({
               type="number"
               {...daysDraft}
             />
-            <abbr className="input-group-text" title="days">
-              d
-            </abbr>
+            <abbr className="input-group-text">d</abbr>
           </div>
         </div>
         <div className="w-auto mx-n1">:</div>
@@ -636,9 +645,7 @@ function InactiveTimeOption({
               type="number"
               {...hoursDraft}
             />
-            <abbr className="input-group-text" title="hours">
-              h
-            </abbr>
+            <abbr className="input-group-text">h</abbr>
           </div>
         </div>
         <div className="w-auto mx-n1">:</div>
@@ -651,9 +658,7 @@ function InactiveTimeOption({
               type="number"
               {...minutesDraft}
             />
-            <abbr className="input-group-text" title="minutes">
-              m
-            </abbr>
+            <abbr className="input-group-text">m</abbr>
           </div>
         </div>
         <div className="w-auto mx-n1">:</div>
@@ -666,12 +671,15 @@ function InactiveTimeOption({
               type="number"
               {...secondsDraft}
             />
-            <abbr className="input-group-text" title="seconds">
-              s
-            </abbr>
+            <abbr className="input-group-text">s</abbr>
           </div>
         </div>
       </div>
+      {zeroDurationError ? (
+        <div className="form-text text-danger">
+          {chrome.i18n.getMessage("options_option_timeInactive_error_zero")}
+        </div>
+      ) : null}
       <div className="form-text">
         {formatInactiveDuration(daysInactive, hoursInactive, minutesInactiveUI, secondsInactive)}
       </div>

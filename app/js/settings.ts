@@ -90,6 +90,7 @@ export const SETTINGS_DEFAULTS: SettingsSchema = {
 // environments.
 const Settings = {
   _initPromise: undefined as Promise<void> | undefined,
+  _listeners: {} as { [K in keyof SettingsSchema]?: Set<() => void> },
   cache: { ...SETTINGS_DEFAULTS } as SettingsSchema,
 
   // Gets all settings from sync and stores them locally.
@@ -111,6 +112,7 @@ const Settings = {
         for (const [key, value] of Object.entries(changes)) {
           if (key in SETTINGS_DEFAULTS) {
             Object.assign(this.cache, { [key]: value.newValue });
+            this._listeners[key as keyof SettingsSchema]?.forEach((l) => l());
           }
         }
       },
@@ -301,8 +303,19 @@ const Settings = {
     }
   },
 
+  subscribe<K extends keyof SettingsSchema>(key: K, listener: () => void): () => void {
+    let set = this._listeners[key];
+    if (set == null) {
+      set = new Set();
+      this._listeners[key] = set;
+    }
+    set.add(listener);
+    return () => this._listeners[key]?.delete(listener);
+  },
+
   setValue<K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]): Promise<void> {
     this.cache[key] = value;
+    this._listeners[key]?.forEach((l) => l());
     return chrome.storage.sync.set({ [key]: value });
   },
 

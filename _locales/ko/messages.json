@@ -310,22 +310,6 @@
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "다음시간 후 탭 비활성화:"
   },
-  "options_option_timeInactive_minutes": {
-    "description": "Input title for number of minutes before closing tabs",
-    "message": "0보다 크고 7200보다 작은 숫자여야 합니다."
-  },
-  "options_option_timeInactive_label_minutes": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "분"
-  },
-  "options_option_timeInactive_label_seconds": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "초"
-  },
-  "options_option_timeInactive_seconds": {
-    "description": "Input title for number of seconds before closing tabs",
-    "message": "0보다 크고 60보다 작은 숫자여야 합니다."
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "저장중..."

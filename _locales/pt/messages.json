@@ -310,22 +310,6 @@
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "remover abas inativas após:"
   },
-  "options_option_timeInactive_minutes": {
-    "description": "Input title for number of minutes before closing tabs",
-    "message": "Deve ser um número maior que 0 e menor que 7200"
-  },
-  "options_option_timeInactive_label_minutes": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "minutos"
-  },
-  "options_option_timeInactive_label_seconds": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "segundos"
-  },
-  "options_option_timeInactive_seconds": {
-    "description": "Input title for number of seconds before closing tabs",
-    "message": "Deve ser um número maior que 0 e menor que 60"
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Salvando..."

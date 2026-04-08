@@ -302,22 +302,6 @@
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "Закрывать неактивные вкладки через:"
   },
-  "options_option_timeInactive_minutes": {
-    "description": "Input title for number of minutes before closing tabs",
-    "message": "Здесь должно быть число которое больше 0 и меньше чем 7200"
-  },
-  "options_option_timeInactive_label_minutes": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "минут"
-  },
-  "options_option_timeInactive_label_seconds": {
-    "description": "Label following inputs for setting inactive time before tabs are closed",
-    "message": "секунд"
-  },
-  "options_option_timeInactive_seconds": {
-    "description": "Input title for number of seconds before closing tabs",
-    "message": "Здесь должно быть число которое больше 0 и меньше чем 60"
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Сохраняем..."

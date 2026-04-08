@@ -2,6 +2,9 @@ import {
   AVERAGE_TAB_BYTES_SIZE,
   findPositionByHostnameAndTitle,
   findPositionByURL,
+  findTabsToCloseCandidates,
+  getTabClosableStatus,
+  getTabIdsOlderThan,
   getTabLockStatus,
   getURLPositionFilterByWrangleOption,
   getWhitelistMatch,
@@ -360,5 +363,249 @@ describe("getURLPositionFilterByWrangleOption", () => {
     const filterFunction = getURLPositionFilterByWrangleOption([], "hostnameAndTitleMatch");
     expect(filterFunction).not.toBeNull();
     expect(filterFunction(createTab({ url: "http://www.test.com", title: "test" }))).toBe(-1);
+  });
+});
+
+describe("getTabClosableStatus", () => {
+  beforeEach(() => {
+    settings.get = jest.fn().mockImplementation((key: string) => {
+      switch (key) {
+        case "filterAudio":
+          return false;
+        case "filterGroupedTabs":
+          return false;
+        case "lockedIds":
+          return [];
+        case "lockedWindowIds":
+          return [];
+        case "whitelist":
+          return [];
+        default:
+          return undefined;
+      }
+    });
+  });
+
+  test("active tab is not closable", () => {
+    const tab = createTab({ active: true });
+    expect(getTabClosableStatus(tab)).toEqual({
+      closable: false,
+      reason: "active",
+      tab,
+    });
+  });
+
+  test("pinned tab is not closable", () => {
+    const tab = createTab({ pinned: true });
+    expect(getTabClosableStatus(tab)).toEqual({
+      closable: false,
+      reason: "locked",
+      tab,
+      tabLockStatus: { locked: true, reason: "pinned" },
+    });
+  });
+
+  test("normal tab is closable", () => {
+    const tab = createTab({ groupId: -1 });
+    expect(getTabClosableStatus(tab)).toEqual({ closable: true, tab });
+  });
+
+  test("manually locked tab is not closable", () => {
+    settings.get = jest.fn().mockImplementation((key: string) => {
+      if (key === "lockedIds") return [42];
+      if (key === "lockedWindowIds") return [];
+      if (key === "whitelist") return [];
+      if (key === "filterAudio") return false;
+      if (key === "filterGroupedTabs") return false;
+      return undefined;
+    });
+    const tab = createTab({ id: 42, groupId: -1 });
+    expect(getTabClosableStatus(tab)).toEqual({
+      closable: false,
+      reason: "locked",
+      tab,
+      tabLockStatus: { locked: true, reason: "manual" },
+    });
+  });
+
+  test("whitelisted tab is not closable", () => {
+    settings.get = jest.fn().mockImplementation((key: string) => {
+      if (key === "whitelist") return ["github.com"];
+      if (key === "lockedIds") return [];
+      if (key === "lockedWindowIds") return [];
+      if (key === "filterAudio") return false;
+      if (key === "filterGroupedTabs") return false;
+      return undefined;
+    });
+    const tab = createTab({ groupId: -1, url: "https://github.com/foo" });
+    expect(getTabClosableStatus(tab)).toEqual({
+      closable: false,
+      reason: "locked",
+      tab,
+      tabLockStatus: { locked: true, reason: "whitelist", whitelistMatch: "github.com" },
+    });
+  });
+});
+
+describe("getTabIdsOlderThan", () => {
+  test("returns empty set for empty tabTimes", () => {
+    expect(getTabIdsOlderThan({}, 1000)).toEqual(new Set());
+  });
+
+  test("returns all IDs when all tabs are older than time", () => {
+    const now = Date.now();
+    expect(getTabIdsOlderThan({ "1": now - 2000, "2": now - 3000 }, now - 1000)).toEqual(
+      new Set([1, 2]),
+    );
+  });
+
+  test("returns only IDs older than time", () => {
+    const now = Date.now();
+    expect(getTabIdsOlderThan({ "1": now - 2000, "2": now }, now - 1000)).toEqual(new Set([1]));
+  });
+
+  test("returns all IDs when time is 0 (falsy shortcut)", () => {
+    const now = Date.now();
+    expect(getTabIdsOlderThan({ "1": now, "2": now }, 0)).toEqual(new Set([1, 2]));
+  });
+});
+
+describe("findTabsToCloseCandidates", () => {
+  const OLD_TIME = 0; // always older than any real cutOff
+
+  function mockSettings({ minTabs = 2, stayOpen = 60_000 } = {}) {
+    settings.get = jest.fn().mockImplementation((key: string) => {
+      switch (key) {
+        case "minTabs":
+          return minTabs;
+        case "filterAudio":
+          return false;
+        case "filterGroupedTabs":
+          return false;
+        case "lockedIds":
+          return [];
+        case "lockedWindowIds":
+          return [];
+        case "whitelist":
+          return [];
+        default:
+          return undefined;
+      }
+    });
+    jest.spyOn(settings, "stayOpen").mockReturnValue(stayOpen);
+  }
+
+  test("returns [] when total tabs does not exceed minTabs", () => {
+    mockSettings({ minTabs: 3 });
+    const tabs = [createTab({ id: 1 }), createTab({ id: 2 }), createTab({ id: 3 })];
+    expect(
+      findTabsToCloseCandidates({ "1": OLD_TIME, "2": OLD_TIME, "3": OLD_TIME }, tabs),
+    ).toEqual([]);
+  });
+
+  test("returns [] when no tabs are old enough", () => {
+    mockSettings({ minTabs: 1 });
+    const now = Date.now();
+    const tabs = [createTab({ id: 1 }), createTab({ id: 2 })];
+    expect(findTabsToCloseCandidates({ "1": now, "2": now }, tabs)).toEqual([]);
+  });
+
+  test("returns old closable tabs when above minTabs", () => {
+    mockSettings({ minTabs: 1 });
+    const oldTab = createTab({ id: 1, groupId: -1 });
+    const freshTab = createTab({ id: 2 });
+    expect(
+      findTabsToCloseCandidates({ "1": OLD_TIME, "2": Date.now() }, [oldTab, freshTab]),
+    ).toEqual([oldTab]);
+  });
+
+  test("limits results so total tabs does not fall below minTabs", () => {
+    mockSettings({ minTabs: 2 });
+    const tabs = [
+      createTab({ id: 1, groupId: -1 }),
+      createTab({ id: 2, groupId: -1 }),
+      createTab({ id: 3, groupId: -1 }),
+      createTab({ id: 4, groupId: -1 }),
+    ];
+    // 4 tabs, minTabs=2 → at most 2 may be closed
+    const result = findTabsToCloseCandidates(
+      { "1": OLD_TIME, "2": OLD_TIME, "3": OLD_TIME, "4": OLD_TIME },
+      tabs,
+    );
+    expect(result).toHaveLength(2);
+  });
+
+  test("excludes active tabs from candidates", () => {
+    mockSettings({ minTabs: 1 });
+    const activeOldTab = createTab({ id: 1, active: true });
+    const inactiveOldTab = createTab({ id: 2, groupId: -1 });
+    const freshTab = createTab({ id: 3 });
+    expect(
+      findTabsToCloseCandidates({ "1": OLD_TIME, "2": OLD_TIME, "3": Date.now() }, [
+        activeOldTab,
+        inactiveOldTab,
+        freshTab,
+      ]),
+    ).toEqual([inactiveOldTab]);
+  });
+
+  test("excludes locked (pinned) tabs from candidates", () => {
+    mockSettings({ minTabs: 1 });
+    const pinnedOldTab = createTab({ id: 1, pinned: true });
+    const normalOldTab = createTab({ id: 2, groupId: -1 });
+    const freshTab = createTab({ id: 3 });
+    expect(
+      findTabsToCloseCandidates({ "1": OLD_TIME, "2": OLD_TIME, "3": Date.now() }, [
+        pinnedOldTab,
+        normalOldTab,
+        freshTab,
+      ]),
+    ).toEqual([normalOldTab]);
+  });
+
+  test("sorts candidates by lastAccessed ascending (oldest first)", () => {
+    mockSettings({ minTabs: 1 });
+    const olderTab = createTab({ id: 1, lastAccessed: 100, groupId: -1 });
+    const newerTab = createTab({ id: 2, lastAccessed: 200, groupId: -1 });
+    const freshTab = createTab({ id: 3 });
+    // Pass newerTab first to ensure sorting is applied, not array order
+    const result = findTabsToCloseCandidates({ "1": OLD_TIME, "2": OLD_TIME, "3": Date.now() }, [
+      newerTab,
+      olderTab,
+      freshTab,
+    ]);
+    expect(result.map((t) => t.id)).toEqual([1, 2]);
+  });
+
+  test("active tab counts toward minTabs total even though it cannot be closed", () => {
+    // 3 tabs: 1 active + 2 old closable. minTabs=2.
+    // The active tab should count toward the total (3 non-locked - 2 minTabs = 1 may close),
+    // not be excluded from the count (which would incorrectly allow 2 closures).
+    mockSettings({ minTabs: 2 });
+    const activeTab = createTab({ id: 1, active: true });
+    const oldTab1 = createTab({ id: 2, groupId: -1 });
+    const oldTab2 = createTab({ id: 3, groupId: -1 });
+    const result = findTabsToCloseCandidates({ "1": OLD_TIME, "2": OLD_TIME, "3": OLD_TIME }, [
+      activeTab,
+      oldTab1,
+      oldTab2,
+    ]);
+    expect(result).toHaveLength(1);
+  });
+
+  test("locked tabs do not count toward minTabs total", () => {
+    // 4 tabs: 2 pinned (locked) + 1 active + 1 old closable. minTabs=2.
+    // Non-locked count = 2 (active + closable). 2 - 2 = 0 → nothing should be closed.
+    // If locked tabs were mistakenly counted (tabs.length=4), 4 - 2 = 2 would allow 1 closure.
+    mockSettings({ minTabs: 2 });
+    const pinnedTab1 = createTab({ id: 1, pinned: true });
+    const pinnedTab2 = createTab({ id: 2, pinned: true });
+    const activeTab = createTab({ id: 3, active: true });
+    const oldTab = createTab({ id: 4, groupId: -1 });
+    const result = findTabsToCloseCandidates(
+      { "1": OLD_TIME, "2": OLD_TIME, "3": OLD_TIME, "4": OLD_TIME },
+      [pinnedTab1, pinnedTab2, activeTab, oldTab],
+    );
+    expect(result).toHaveLength(0);
   });
 });

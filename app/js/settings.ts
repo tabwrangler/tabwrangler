@@ -6,6 +6,7 @@ import {
 } from "./tabUtil";
 import Menus from "./menus";
 
+type MinTabsStrategyOption = "allWindows" | "givenWindow";
 export type SettingsSchemaWrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDupes";
 
 export interface SettingsSchema {
@@ -19,7 +20,7 @@ export interface SettingsSchema {
   lockTabSortOrder: string | null;
   maxTabs: number;
   minTabs: number;
-  minTabsStrategy: string;
+  minTabsStrategy: MinTabsStrategyOption;
   minutesInactive: number;
   purgeClosedTabs: boolean;
   secondsInactive: number;

@@ -339,10 +339,7 @@ export default function LockTab() {
                           <div className="d-flex align-items-center gap-2">
                             <abbr title={`ID: ${windowId}`}>Window</abbr>
                             {currWindow?.id === windowId && (
-                              <span
-                                className="badge text-bg-success position-relative"
-                                style={{ top: "-1px" }}
-                              >
+                              <span className="badge text-bg-success position-relative">
                                 CURRENT
                               </span>
                             )}

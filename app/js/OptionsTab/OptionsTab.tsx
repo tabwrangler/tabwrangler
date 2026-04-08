@@ -240,6 +240,8 @@ export default function OptionsTab() {
                   id="minTabsStrategy"
                   name="minTabsStrategy"
                   onChange={(event) => {
+                    if (event.target.value !== "allWindows" && event.target.value !== "givenWindow")
+                      return;
                     saveSetting("minTabsStrategy", event.target.value);
                   }}
                   style={{ flex: 3 }}
@@ -656,61 +658,22 @@ function InactiveTimeOption({
       <label className="form-label mt-3">
         <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
       </label>
-      <div className="row align-items-center g-2">
-        <div className="col-auto">
+      <div className="row">
+        <div className="col-8">
           <div className="input-group">
-            <input
-              className="form-control"
-              min="0"
-              style={{ width: "4rem" }}
-              type="number"
-              {...daysDraft}
-            />
+            <input className="form-control" min="0" type="number" {...daysDraft} />
             <abbr className="input-group-text">
               {chrome.i18n.getMessage("options_option_timeInactive_abbr_days")}
             </abbr>
-          </div>
-        </div>
-        <div className="w-auto mx-n1">:</div>
-        <div className="col-auto">
-          <div className="input-group">
-            <input
-              className="form-control"
-              min="0"
-              style={{ width: "4rem" }}
-              type="number"
-              {...hoursDraft}
-            />
+            <input className="form-control" min="0" type="number" {...hoursDraft} />
             <abbr className="input-group-text">
               {chrome.i18n.getMessage("options_option_timeInactive_abbr_hours")}
             </abbr>
-          </div>
-        </div>
-        <div className="w-auto mx-n1">:</div>
-        <div className="col-auto">
-          <div className="input-group">
-            <input
-              className="form-control"
-              min="0"
-              style={{ width: "4rem" }}
-              type="number"
-              {...minutesDraft}
-            />
+            <input className="form-control" min="0" type="number" {...minutesDraft} />
             <abbr className="input-group-text">
               {chrome.i18n.getMessage("options_option_timeInactive_abbr_minutes")}
             </abbr>
-          </div>
-        </div>
-        <div className="w-auto mx-n1">:</div>
-        <div className="col-auto">
-          <div className="input-group">
-            <input
-              className="form-control"
-              min="0"
-              style={{ width: "4rem" }}
-              type="number"
-              {...secondsDraft}
-            />
+            <input className="form-control" min="0" type="number" {...secondsDraft} />
             <abbr className="input-group-text">
               {chrome.i18n.getMessage("options_option_timeInactive_abbr_seconds")}
             </abbr>

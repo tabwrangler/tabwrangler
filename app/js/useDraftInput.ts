@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Manages a number input's editing lifecycle so the user can freely edit the
- * raw text (including clearing the field) without the reactive value clobbering
- * the input mid-edit. The committed value is written on blur or after the user
- * stops typing for `commitDelay` ms.
+ * Manages a number input's editing lifecycle so the user can freely edit the raw text (including
+ * clearing the field) without the reactive value clobbering the input mid-edit. The committed value
+ * is written on blur or after the user stops typing for `commitDelay` ms.
  */
 export default function useDraftInput(
   value: number,

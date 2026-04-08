@@ -1,22 +1,18 @@
 import { ASYNC_LOCK, migrateLocal } from "./js/storage";
 import {
-  StorageLocalPersistState,
-  getStorageLocalPersist,
-  getStorageSyncPersist,
-} from "./js/queries";
-import {
+  findTabsToCloseCandidates,
   initTabs,
   isTabLocked,
   makeTabPersistKey,
   makeWindowPersistKey,
   onNewTab,
   removeTab,
-  shouldTabBeClosed,
   updateClosedCount,
   updateLastAccessed,
   wrangleTabs,
   wrangleTabsAndPersist,
 } from "./js/tabUtil";
+import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
 import Menus from "./js/menus";
 import { debounce } from "lodash-es";
 import { removeAllSavedTabs } from "./js/actions/localStorageActions";
@@ -212,17 +208,6 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-function getTabsOlderThan(
-  tabTimes: StorageLocalPersistState["tabTimes"],
-  time: number,
-): Array<number> {
-  const ret: Array<number> = [];
-  for (const [tabId, tabTime] of Object.entries(tabTimes)) {
-    if (!time || tabTime < time) ret.push(parseInt(tabId, 10));
-  }
-  return ret;
-}
-
 let checkToCloseTimeout: NodeJS.Timeout | undefined;
 function scheduleCheckToClose() {
   if (checkToCloseTimeout != null) clearTimeout(checkToCloseTimeout);
@@ -233,84 +218,54 @@ async function checkToClose() {
   const startTime = Date.now();
   try {
     const storageSyncPersist = await getStorageSyncPersist();
-    if (storageSyncPersist.paused) return; // Extension is paused, no work needs to be done.
 
-    const cutOff = new Date().getTime() - settings.stayOpen();
-    const minTabs = settings.get("minTabs");
-    const tabsToCloseCandidates = await ASYNC_LOCK.acquire("local.tabTimes", async () => {
-      const allTabs = await chrome.tabs.query({});
-      const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
+    // Extension is paused, no work needs to be done.
+    if (storageSyncPersist.paused) return;
 
-      // Tabs which have been locked via the checkbox.
+    const tabsToClose = await ASYNC_LOCK.acquire("local.tabTimes", async () => {
+      const [lastFocusedWindow, allWindows, { tabTimes }] = await Promise.all([
+        // "last focused“ must be queried separately because "last focused" is not a property of
+        // `Window`, only whether it is *currently* focused
+        chrome.windows.getLastFocused(),
+        chrome.windows.getAll({ populate: true }),
+        chrome.storage.local.get({ tabTimes: {} }),
+      ]);
+
+      const allTabs = allWindows.flatMap((win) => win.tabs ?? []);
       const lockedIds = new Set(settings.get("lockedIds"));
       const lockedWindowIds = new Set(settings.get("lockedWindowIds"));
-      const toCut = new Set(getTabsOlderThan(tabTimes, cutOff));
       const updatedAt = Date.now();
 
-      // Update selected tabs to make sure they don't get closed.
-      const activeTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-      activeTabs.forEach((tab) => {
-        tabTimes[String(tab.id)] = updatedAt;
-      });
+      // Update active tab in last focused window to make sure it does not get closed.
+      const lastFocusedActiveTabId = allWindows
+        .find((window) => window.id === lastFocusedWindow.id)
+        ?.tabs?.find((tab) => tab.active)?.id;
+      if (lastFocusedActiveTabId != null) {
+        tabTimes[String(lastFocusedActiveTabId)] = updatedAt;
+      }
 
-      // Update audible tabs if the setting is enabled to prevent them from being closed.
+      // Refresh audible tabs if the setting is enabled to prevent them from being closed.
       if (settings.get("filterAudio") === true) {
-        // Note: This does not use the `audible:true` filter in `.query` because it is broken in
-        // some Chromium browsers.
-        // @see https://github.com/tabwrangler/tabwrangler/issues/519
         allTabs.forEach((tab) => {
           if (tab.audible) tabTimes[String(tab.id)] = updatedAt;
         });
       }
 
-      function findTabsToCloseCandidates(tabs: chrome.tabs.Tab[]): chrome.tabs.Tab[] {
-        tabs = tabs.filter(shouldTabBeClosed);
-
-        let tabsToCut = tabs.filter((tab) => tab.id == null || toCut.has(tab.id));
-        if (tabs.length - minTabs <= 0) {
-          return [];
-        }
-
-        // Sort by lastAccessed ascending (oldest first) so the least recently used tabs are closed
-        // first. `lastAccessed` is not available on all browsers/versions, so fall back to the
-        // original tab order when it is absent.
-        tabsToCut.sort((a, b) => {
-          if (a.lastAccessed == null || b.lastAccessed == null) return 0;
-          return a.lastAccessed - b.lastAccessed;
-        });
-
-        // If cutting will reduce us below `minTabs`, only remove the first N to get to `minTabs`.
-        tabsToCut = tabsToCut.splice(0, tabs.length - minTabs);
-        if (tabsToCut.length === 0) {
-          return [];
-        }
-
-        const candidates = [];
-        for (let i = 0; i < tabsToCut.length; i++) {
-          const tabId = tabsToCut[i].id;
-          if (tabId == null) continue;
-          if (lockedIds.has(tabId)) {
-            // Update its time so it gets checked less frequently.
-            // Would also be smart to just never add it.
-            // @todo: fix that.
-            tabTimes[String(tabId)] = updatedAt;
-            continue;
-          }
-          candidates.push(tabsToCut[i]);
-        }
-        return candidates;
-      }
-
-      const allWindows = await chrome.windows.getAll({ populate: true });
       let candidateTabs: chrome.tabs.Tab[] = [];
-      if (settings.get("minTabsStrategy") === "allWindows") {
-        // * "allWindows" - sum tabs across all open browser windows
-        candidateTabs = findTabsToCloseCandidates(allTabs);
-      } else {
-        // * "givenWindow" (default) - count tabs within any given window
-        candidateTabs = allWindows
-          .map((win) => (win.tabs == null ? [] : findTabsToCloseCandidates(win.tabs)))
-          .reduce((acc, candidates) => acc.concat(candidates), []);
+      const minTabsStrategy = settings.get("minTabsStrategy");
+      switch (minTabsStrategy) {
+        case "allWindows":
+          // * "allWindows" - sum tabs across all open browser windows
+          candidateTabs = findTabsToCloseCandidates(tabTimes, allTabs);
+          break;
+        case "givenWindow":
+          // * "givenWindow" (default) - count tabs within any given window
+          candidateTabs = allWindows.flatMap((win) =>
+            win.tabs == null ? [] : findTabsToCloseCandidates(tabTimes, win.tabs),
+          );
+          break;
+        default:
+          minTabsStrategy satisfies never;
       }
 
       // Populate and cull `tabTimes` before storing again.
@@ -349,8 +304,6 @@ async function checkToClose() {
       });
       return candidateTabs;
     });
-
-    const tabsToClose = tabsToCloseCandidates.filter(shouldTabBeClosed);
 
     if (tabsToClose.length > 0) {
       await ASYNC_LOCK.acquire("persist:localStorage", async () => {

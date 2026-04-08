@@ -65,7 +65,7 @@ exports[`TabWrangleOption renders options with exactURLMatch selected 1`] = `
     class="row"
   >
     <div
-      class="col-8 form-text text-muted"
+      class="col-9 form-text text-muted"
       style="margin-bottom: 0px;"
     >
       <dl
@@ -164,7 +164,7 @@ exports[`TabWrangleOption renders options with hostnameAndTitleMatch selected 1`
     class="row"
   >
     <div
-      class="col-8 form-text text-muted"
+      class="col-9 form-text text-muted"
       style="margin-bottom: 0px;"
     >
       <dl
@@ -263,7 +263,7 @@ exports[`TabWrangleOption renders options with withDupes selected 1`] = `
     class="row"
   >
     <div
-      class="col-8 form-text text-muted"
+      class="col-9 form-text text-muted"
       style="margin-bottom: 0px;"
     >
       <dl

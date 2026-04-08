@@ -173,7 +173,7 @@ function TabLockStatus({
       // interval to clean up this tab. It's also possible the number of tabs is not below
       // `minTabs`, which has stopped the countdown and locked this at a negative `timeLeft` until
       // another tab is opened to jump start the countdown again.
-      timeLeftContent = timeLeft < 0 ? "…" : <time>{secondsToHms(timeLeft)}</time>;
+      timeLeftContent = timeLeft < 0 ? "…" : <time>{formatSecondsToDhms(timeLeft)}</time>;
     }
 
     return (
@@ -185,13 +185,17 @@ function TabLockStatus({
 }
 
 const SECONDS_PER_HOUR = 3600;
-function secondsToHms(seconds: number) {
-  const hours = Math.floor(seconds / SECONDS_PER_HOUR);
+const SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR;
+function formatSecondsToDhms(seconds: number) {
+  const days = Math.floor(seconds / SECONDS_PER_DAY);
+  const daysRemainder = seconds % SECONDS_PER_DAY;
+  const hours = Math.floor(daysRemainder / SECONDS_PER_HOUR);
   const hoursRemainder = seconds % SECONDS_PER_HOUR;
   const minutes = Math.floor(hoursRemainder / 60);
   const s = Math.floor(hoursRemainder % 60);
-  const hDisplay = hours > 0 ? `${zeropad(hours)}:` : "";
-  return `${hDisplay}${zeropad(minutes)}:${zeropad(s)}`;
+  const dDisplay = days > 0 ? `${days}:` : "";
+  const hDisplay = days > 0 || hours > 0 ? `${zeropad(hours)}:` : "";
+  return `${dDisplay}${hDisplay}${zeropad(minutes)}:${zeropad(s)}`;
 }
 
 function zeropad(num: number): string {

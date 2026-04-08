@@ -12,7 +12,9 @@ import cx from "classnames";
 import { exportFileName } from "../actions/importExportActions";
 import { mutateStorageSyncPersist } from "../storage";
 import { useDebounceCallback } from "@react-hook/debounce";
+import useDraftInput from "../useDraftInput";
 import { useMutation } from "@tanstack/react-query";
+import useSetting from "../useSetting";
 import { useUndo } from "../UndoContext";
 
 export default function OptionsTab() {
@@ -215,48 +217,7 @@ export default function OptionsTab() {
               </Button>
             </ButtonGroup>
           </div>
-          <label className="form-label mt-3">
-            <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
-          </label>
-          <div className="row align-items-center">
-            <div className="col-4">
-              <div className="input-group">
-                <input
-                  className="form-control"
-                  defaultValue={settings.get("minutesInactive")}
-                  id="minutesInactive"
-                  max="7200"
-                  min="0"
-                  name="minutesInactive"
-                  onChange={handleSettingsChange}
-                  title={chrome.i18n.getMessage("options_option_timeInactive_minutes")}
-                  type="number"
-                />
-                <span className="input-group-text">
-                  {chrome.i18n.getMessage("options_option_timeInactive_label_minutes")}
-                </span>
-              </div>
-            </div>
-            <div className="w-auto p-0 mx-n1">:</div>
-            <div className="col-4">
-              <div className="input-group">
-                <input
-                  className="form-control"
-                  defaultValue={settings.get("secondsInactive")}
-                  id="secondsInactive"
-                  max="59"
-                  min="0"
-                  name="secondsInactive"
-                  onChange={handleSettingsChange}
-                  title={chrome.i18n.getMessage("options_option_timeInactive_seconds")}
-                  type="number"
-                />
-                <span className="input-group-text">
-                  {chrome.i18n.getMessage("options_option_timeInactive_label_seconds")}
-                </span>
-              </div>
-            </div>
-          </div>
+          <InactiveTimeOption onSaveSetting={saveSetting} />
           <label className="form-label mt-3" htmlFor="minTabs">
             <strong>{chrome.i18n.getMessage("options_option_minTabs_label")}</strong>
           </label>
@@ -364,21 +325,21 @@ export default function OptionsTab() {
           </div>
           {typeof maxTabs === "string" && (
             <div className="row">
-              <div className="col-8 form-text text-primary">
+              <div className="col-9 form-text text-primary">
                 {chrome.i18n.getMessage("options_option_rememberTabs_validNumber")}
               </div>
             </div>
           )}
           {typeof maxTabs === "number" && maxTabs < settings.get("maxTabs") && (
             <div className="row">
-              <div className="col-8 form-text text-primary">
+              <div className="col-9 form-text text-primary">
                 {chrome.i18n.getMessage("options_option_rememberTabs_truncateMsg")}
               </div>
             </div>
           )}
           {typeof maxTabs === "number" && maxTabs > settings.get("maxTabs") && (
             <div className="row">
-              <div className="col-8 form-text text-primary">
+              <div className="col-9 form-text text-primary">
                 {chrome.i18n.getMessage("options_option_rememberTabs_saveToConfirm")}
               </div>
             </div>
@@ -430,7 +391,7 @@ export default function OptionsTab() {
 
         <h5 className="mt-3">{chrome.i18n.getMessage("options_section_autoLock")}</h5>
         <div className="row">
-          <div className="col-8">
+          <div className="col-9">
             <form onSubmit={addWhitelistPattern}>
               <label className="form-label" htmlFor="wl-add">
                 {chrome.i18n.getMessage("options_option_autoLock_label")}
@@ -502,10 +463,10 @@ export default function OptionsTab() {
 
         <h5 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h5>
         <div className="row">
-          <div className="col-8">{chrome.i18n.getMessage("options_importExport_description")}</div>
+          <div className="col-9">{chrome.i18n.getMessage("options_importExport_description")}</div>
         </div>
         <div className="row my-2">
-          <div className="col-8 mb-1">
+          <div className="col-9 mb-1">
             <Button variant="secondary" onClick={handleExportData}>
               <i className="fas fa-file-export me-1" />
               {chrome.i18n.getMessage("options_importExport_export")}
@@ -531,7 +492,7 @@ export default function OptionsTab() {
           </div>
         </div>
         <div className="row">
-          <div className="col-8">
+          <div className="col-9">
             <div className="alert alert-warning">
               {chrome.i18n.getMessage("options_importExport_importWarning")}
             </div>
@@ -572,7 +533,7 @@ export default function OptionsTab() {
           <Toast.Body>{importExportOperationName}</Toast.Body>
         </Toast>
         <Toast bg="success" show={saveAlertVisible}>
-          <Toast.Body>{chrome.i18n.getMessage("options_saving")}</Toast.Body>
+          <Toast.Body className="text-light">{chrome.i18n.getMessage("options_saving")}</Toast.Body>
         </Toast>
         <Toast bg="primary" show={maxTabs !== settings.get("maxTabs")}>
           <Toast.Body className="d-flex align-items-center justify-content-between">
@@ -588,6 +549,182 @@ export default function OptionsTab() {
           </Toast.Body>
         </Toast>
       </ToastContainer>
+    </>
+  );
+}
+
+function InactiveTimeOption({
+  onSaveSetting,
+}: {
+  onSaveSetting: <K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) => void;
+}) {
+  const minutesInactive = useSetting("minutesInactive");
+  const secondsInactive = useSetting("secondsInactive");
+  const [zeroDurationError, setZeroDurationError] = useState(false);
+
+  const daysInactive = Math.floor(minutesInactive / (24 * 60));
+  const hoursInactive = Math.floor((minutesInactive % (24 * 60)) / 60);
+  const minutesInactiveUI = minutesInactive % 60;
+
+  function handleMinutesInactiveChange(days: number, hours: number, minutes: number): boolean {
+    const total = days * 24 * 60 + hours * 60 + minutes;
+    if (total === 0 && secondsInactive === 0) {
+      setZeroDurationError(true);
+      return false;
+    }
+    setZeroDurationError(false);
+    onSaveSetting("minutesInactive", total);
+    return true;
+  }
+
+  function handleSecondsInactiveChange(seconds: number): boolean {
+    if (seconds === 0 && minutesInactive === 0) {
+      setZeroDurationError(true);
+      return false;
+    }
+    setZeroDurationError(false);
+    onSaveSetting("secondsInactive", seconds);
+    return true;
+  }
+
+  const daysDraft = useDraftInput(daysInactive, (days) =>
+    handleMinutesInactiveChange(days, hoursInactive, minutesInactiveUI),
+  );
+
+  const hoursDraft = useDraftInput(hoursInactive, (hours) =>
+    handleMinutesInactiveChange(daysInactive, hours, minutesInactiveUI),
+  );
+
+  const minutesDraft = useDraftInput(minutesInactiveUI, (minutes) =>
+    handleMinutesInactiveChange(daysInactive, hoursInactive, minutes),
+  );
+
+  const secondsDraft = useDraftInput(secondsInactive, (seconds) =>
+    handleSecondsInactiveChange(Math.min(59, seconds)),
+  );
+
+  function formatInactiveDuration(
+    days: number,
+    hours: number,
+    minutes: number,
+    seconds: number,
+  ): string {
+    const parts: string[] = [];
+    if (days > 0)
+      parts.push(
+        chrome.i18n.getMessage(
+          days === 1
+            ? "options_option_timeInactive_duration_day"
+            : "options_option_timeInactive_duration_days",
+          [String(days)],
+        ),
+      );
+    if (hours > 0)
+      parts.push(
+        chrome.i18n.getMessage(
+          hours === 1
+            ? "options_option_timeInactive_duration_hour"
+            : "options_option_timeInactive_duration_hours",
+          [String(hours)],
+        ),
+      );
+    if (minutes > 0)
+      parts.push(
+        chrome.i18n.getMessage(
+          minutes === 1
+            ? "options_option_timeInactive_duration_minute"
+            : "options_option_timeInactive_duration_minutes",
+          [String(minutes)],
+        ),
+      );
+    if (seconds > 0)
+      parts.push(
+        chrome.i18n.getMessage(
+          seconds === 1
+            ? "options_option_timeInactive_duration_second"
+            : "options_option_timeInactive_duration_seconds",
+          [String(seconds)],
+        ),
+      );
+    return parts.length > 0
+      ? parts.join(", ")
+      : chrome.i18n.getMessage("options_option_timeInactive_duration_seconds", ["0"]);
+  }
+
+  return (
+    <>
+      <label className="form-label mt-3">
+        <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
+      </label>
+      <div className="row align-items-center g-2">
+        <div className="col-auto">
+          <div className="input-group">
+            <input
+              className="form-control"
+              min="0"
+              style={{ width: "4rem" }}
+              type="number"
+              {...daysDraft}
+            />
+            <abbr className="input-group-text">
+              {chrome.i18n.getMessage("options_option_timeInactive_abbr_days")}
+            </abbr>
+          </div>
+        </div>
+        <div className="w-auto mx-n1">:</div>
+        <div className="col-auto">
+          <div className="input-group">
+            <input
+              className="form-control"
+              min="0"
+              style={{ width: "4rem" }}
+              type="number"
+              {...hoursDraft}
+            />
+            <abbr className="input-group-text">
+              {chrome.i18n.getMessage("options_option_timeInactive_abbr_hours")}
+            </abbr>
+          </div>
+        </div>
+        <div className="w-auto mx-n1">:</div>
+        <div className="col-auto">
+          <div className="input-group">
+            <input
+              className="form-control"
+              min="0"
+              style={{ width: "4rem" }}
+              type="number"
+              {...minutesDraft}
+            />
+            <abbr className="input-group-text">
+              {chrome.i18n.getMessage("options_option_timeInactive_abbr_minutes")}
+            </abbr>
+          </div>
+        </div>
+        <div className="w-auto mx-n1">:</div>
+        <div className="col-auto">
+          <div className="input-group">
+            <input
+              className="form-control"
+              min="0"
+              style={{ width: "4rem" }}
+              type="number"
+              {...secondsDraft}
+            />
+            <abbr className="input-group-text">
+              {chrome.i18n.getMessage("options_option_timeInactive_abbr_seconds")}
+            </abbr>
+          </div>
+        </div>
+      </div>
+      {zeroDurationError ? (
+        <div className="form-text text-danger">
+          {chrome.i18n.getMessage("options_option_timeInactive_error_zero")}
+        </div>
+      ) : null}
+      <div className="form-text">
+        {formatInactiveDuration(daysInactive, hoursInactive, minutesInactiveUI, secondsInactive)}
+      </div>
     </>
   );
 }

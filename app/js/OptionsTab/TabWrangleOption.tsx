@@ -40,7 +40,7 @@ export default function TabWrangleOption(props: Props) {
         </div>
       ))}
       <div className="row">
-        <div className="col-8 form-text text-muted" style={{ marginBottom: 0 }}>
+        <div className="col-9 form-text text-muted" style={{ marginBottom: 0 }}>
           <dl style={{ marginBottom: 0 }}>
             <dt>{chrome.i18n.getMessage("options_dedupe_option_withDupes_label")}</dt>
             <dd>{chrome.i18n.getMessage("options_dedupe_option_withDupes_description")}</dd>

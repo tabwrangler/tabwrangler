@@ -249,14 +249,6 @@
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "关闭不活动的标签页，如果超过："
   },
-  "options_option_timeInactive_minutes": {
-    "description": "Input title for number of minutes before closing tabs",
-    "message": "必须是一个大于 0 且小于 7200 的数字"
-  },
-  "options_option_timeInactive_seconds": {
-    "description": "Input title for number of seconds before closing tabs",
-    "message": "必须是一个大于 0 且小于 60 的数字"
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "保存中..."

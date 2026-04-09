@@ -1,15 +1,15 @@
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { lockTabId, lockWindowId, unlockTabId, unlockWindowId } from "../storage";
+import settings, { type LockTabSortOrderOption } from "../settings";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
-import settings from "../settings";
 import { useStorageSyncQuery } from "../storage";
 
-type Sorter = {
-  key: string;
+interface Sorter {
+  key: LockTabSortOrderOption;
   label: () => string;
   shortLabel: () => string;
   sort: (
@@ -19,7 +19,7 @@ type Sorter = {
       [tabid: string]: number;
     },
   ) => number;
-};
+}
 
 const AlphaSorter: Sorter = {
   key: "alpha",

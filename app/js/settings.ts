@@ -6,6 +6,13 @@ import {
 } from "./tabUtil";
 import Menus from "./menus";
 
+export type LockTabSortOrderOption =
+  | "alpha"
+  | "chrono"
+  | "reverseAlpha"
+  | "reverseChrono"
+  | "reverseTabOrder"
+  | "tabOrder";
 type MinTabsStrategyOption = "allWindows" | "givenWindow";
 export type SettingsSchemaWrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDupes";
 
@@ -17,7 +24,7 @@ export interface SettingsSchema {
   filterGroupedTabs: boolean;
   lockedIds: number[];
   lockedWindowIds: number[];
-  lockTabSortOrder: string | null;
+  lockTabSortOrder: LockTabSortOrderOption | null;
   maxTabs: number;
   minTabs: number;
   minTabsStrategy: MinTabsStrategyOption;

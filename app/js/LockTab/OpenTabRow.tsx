@@ -120,7 +120,7 @@ function TabLockStatus({
       case "audible":
         reason = (
           <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>
-            {chrome.i18n.getMessage("tabLock_lockedStatus_locked")}
+            {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
           </abbr>
         );
         break;

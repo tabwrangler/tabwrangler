@@ -60,7 +60,7 @@ const COMMON_CONFIG = {
       patterns: [
         { from: "_locales/**" },
         { from: "app/img/", to: "img/" },
-        { from: "MIT-LICENSE.txt" },
+        { from: "LICENSE" },
         { from: "README.md" },
       ],
     }),

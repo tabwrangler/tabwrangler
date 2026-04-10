@@ -1,0 +1,16 @@
+:root {
+  --tw-tab-group-color-cyan: #78D9EC;
+  --tw-tab-group-color-blue: #8AB4F8;
+  --tw-tab-group-color-green: #81C995;
+  --tw-tab-group-color-grey: #BCC1C6;
+  --tw-tab-group-color-orange: #FCAD70;
+  --tw-tab-group-color-pink: #FF8BCB;
+  --tw-tab-group-color-purple: #D7AEFB;
+  --tw-tab-group-color-red: #F28B82;
+  --tw-tab-group-color-yellow: #FDD663;
+}
+
+/* Hide bottom border of final child to prevent double border from window container */
+.table>tbody:last-child>tr:last-child>td {
+  border-bottom: 0;
+}

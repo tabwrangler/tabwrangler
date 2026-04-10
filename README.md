@@ -157,6 +157,8 @@ Tab Wrangler's requested permissions are listed in its
 - [`"storage"`][5]: Allows syncing your Tab Wrangler settings with your browser account and enables
   saving your closed tabs to your local computer. _Note: closed tabs are not synced because the
   "sync" storage area has only a small amount of storage._
+- [`"tabGroups"`][10]: Allows creating tab groups and reading their details, like their color, to
+  show matching tab group colors in Tab Wrangler's own interface.
 - [`"tabs"`][6]: Allows reading the title and location of any current tabs as well as closing those
   tabs and opening new tabs. This permission **does not** enable Tab Wrangler to read information on
   web pages that you visit.
@@ -192,7 +194,7 @@ Pull requests for bug fixes and features are more than welcome. Please check out
 ["Developing" section][2] of the CONTRIBUTING doc to see how to get started. Once your code is
 working and tested, submit a pull request to this primary project and we'll get going.
 
-- Modernized and maintained by [ssorallen](https://github.com/ssorallen) in 2017
+- Modernized and maintained by [ssorallen](https://github.com/ssorallen) since 2017
 - Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012
 - Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010
 
@@ -207,3 +209,4 @@ working and tested, submit a pull request to this primary project and we'll get 
 [7]: https://developer.chrome.com/docs/extensions/reference/alarms/
 [8]: https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria
 [9]: https://developer.chrome.com/docs/extensions/how-to/ui/favicons
+[10]: https://developer.chrome.com/docs/extensions/reference/api/tabGroups

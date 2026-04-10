@@ -277,11 +277,7 @@ export default function CorralTab() {
     };
   }, []);
 
-  async function handleOpenTab(
-    tab: chrome.tabs.Tab,
-    session: chrome.sessions.Session | null | undefined,
-  ) {
-    if (session == null) return;
+  async function handleOpenTab(tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) {
     await restoreTabs([{ session, tab }]);
     setSelectedTabs((prev) => {
       const next = new Set(prev);

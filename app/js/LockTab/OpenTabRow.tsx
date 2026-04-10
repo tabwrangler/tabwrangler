@@ -1,3 +1,4 @@
+import "./OpenTabRow.css";
 import TabFavicon from "../TabFavicon";
 import type { TabLockStatus } from "../tabUtil";
 import { UseNowContext } from "./LockTab";
@@ -7,9 +8,11 @@ import { useContext } from "react";
 import { useStorageSyncPersistQuery } from "../storage";
 
 interface OpenTabRowProps {
-  isLast: boolean;
+  isFirstInGroup?: boolean;
   tab: chrome.tabs.Tab;
+  tabGroup?: chrome.tabGroups.TabGroup;
   tabTime: number | undefined;
+  windowHasGroups?: boolean;
   windowId: number;
   windowLocked: boolean;
   onToggleTab: (
@@ -21,26 +24,37 @@ interface OpenTabRowProps {
 }
 
 export default function OpenTabRow({
-  isLast,
+  isFirstInGroup = false,
   tab,
+  tabGroup,
   tabTime = Date.now(),
+  windowHasGroups = false,
   windowId,
   windowLocked,
   onToggleTab,
 }: OpenTabRowProps) {
   const tabLockStatus = settings.getTabLockStatus(tab);
+  const { data: syncPersistData } = useStorageSyncPersistQuery();
+  const now = useContext(UseNowContext);
+  const paused = syncPersistData?.paused;
+  const cutOff = now - settings.stayOpen();
+  const timeRemaining = -1 * Math.round((cutOff - tabTime) / 1000);
+  const isOverdue = !tabLockStatus.locked && !windowLocked && !paused && timeRemaining < 0;
 
   function setTabActive() {
     if (tab.id == null) return;
     chrome.tabs.update(tab.id, { active: true });
   }
 
+  let groupColor: string | undefined;
+  if (tabGroup != null) {
+    groupColor =
+      tabGroup.color != null ? `var(--tw-tab-group-color-${tabGroup.color})` : "var(--bs-primary)";
+  }
+
   return (
-    <tr className={tab.active ? "table-success" : undefined}>
-      <td
-        className={cx("text-center", { "border-0": isLast })}
-        style={{ verticalAlign: "middle", width: "1px" }}
-      >
+    <tr className={cx({ "table-success": tab.active, "fst-italic": isOverdue })}>
+      <td className={cx("text-center")} style={{ verticalAlign: "middle", width: "1px" }}>
         <button
           className={cx("btn btn-xs btn-outline-secondary rounded-circle", {
             active: tabLockStatus.locked,
@@ -59,10 +73,7 @@ export default function OpenTabRow({
           {tabLockStatus.locked ? <i className="fas fa-lock" /> : <i className="fas fa-unlock" />}
         </button>
       </td>
-      <td
-        className={cx("text-center", { "border-0": isLast })}
-        style={{ verticalAlign: "middle", width: "32px" }}
-      >
+      <td className="text-center" style={{ verticalAlign: "middle", width: "32px" }}>
         <TabFavicon
           alt=""
           height={16}
@@ -72,12 +83,9 @@ export default function OpenTabRow({
           width={16}
         />
       </td>
-      <td
-        className={cx({ "border-0": isLast })}
-        style={{ paddingBottom: "4px", paddingTop: "4px", width: "75%" }}
-      >
+      <td style={{ paddingBottom: "4px", paddingTop: "4px", width: "100%" }}>
         <div
-          className="d-flex"
+          className={cx("d-flex", { "text-muted": isOverdue && !tab.active })}
           role="button"
           style={{ lineHeight: "1.3" }}
           tabIndex={0}
@@ -90,30 +98,62 @@ export default function OpenTabRow({
           </div>
         </div>
       </td>
-      <TabLockStatus
-        isLast={isLast}
-        tabLockStatus={tabLockStatus}
-        tabTime={tabTime}
-        windowLocked={windowLocked}
-      />
+      <td
+        style={{
+          position: "relative",
+          verticalAlign: "middle",
+          whiteSpace: "nowrap",
+          width: "1px",
+        }}
+      >
+        {windowHasGroups && (
+          <div
+            className="OpenTabRow-group-border"
+            style={
+              groupColor == null
+                ? undefined
+                : {
+                    backgroundColor: groupColor,
+                  }
+            }
+          />
+        )}
+        <div className="d-flex align-items-center justify-content-end gap-2 pe-2">
+          <TabLockContent
+            isTabActive={tab.active}
+            tabLockStatus={tabLockStatus}
+            timeRemaining={timeRemaining}
+            windowLocked={windowLocked}
+          />
+          {isFirstInGroup && (
+            <div
+              className="OpenTabRow-group-indicator"
+              style={{
+                backgroundColor: groupColor,
+              }}
+              title={tabGroup?.title}
+            />
+          )}
+        </div>
+      </td>
     </tr>
   );
 }
 
-function TabLockStatus({
-  isLast,
+function TabLockContent({
+  isTabActive,
   tabLockStatus,
-  tabTime,
+  timeRemaining,
   windowLocked,
 }: {
-  isLast: boolean;
+  isTabActive: boolean;
   tabLockStatus: TabLockStatus;
-  tabTime: number;
+  timeRemaining: number;
   windowLocked: boolean;
 }) {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
-  const now = useContext(UseNowContext);
   const paused = syncPersistData?.paused;
+
   if (tabLockStatus.locked) {
     let reason: React.ReactNode;
     switch (tabLockStatus.reason) {
@@ -152,35 +192,23 @@ function TabLockStatus({
         tabLockStatus satisfies never;
     }
 
-    return (
-      <td
-        className={cx("text-center muted", { "border-0": isLast })}
-        style={{ verticalAlign: "middle" }}
-      >
-        {reason}
-      </td>
-    );
+    return <span className={isTabActive ? undefined : "text-muted"}>{reason}</span>;
   } else {
     let timeLeftContent;
     if (windowLocked) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_window");
     } else if (paused) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
+    } else if (timeRemaining <= 0) {
+      // `timeLeft` went negative — the countdown continued and is waiting for the interval to close
+      // this tab. It's also possible `minTabs` stopped the countdown and this will stay overdue
+      // until another tab is opened to jump-start it again.
+      timeLeftContent = <time style={isTabActive ? undefined : { opacity: 0.4 }}>⋯</time>;
     } else {
-      const cutOff = now - settings.stayOpen();
-      const timeLeft = -1 * Math.round((cutOff - tabTime) / 1000);
-      // If `timeLeft` is less than 0, the countdown likely continued and is waiting for the
-      // interval to clean up this tab. It's also possible the number of tabs is not below
-      // `minTabs`, which has stopped the countdown and locked this at a negative `timeLeft` until
-      // another tab is opened to jump start the countdown again.
-      timeLeftContent = timeLeft < 0 ? "…" : <time>{formatSecondsToDhms(timeLeft)}</time>;
+      timeLeftContent = <time>{formatSecondsToDhms(timeRemaining)}</time>;
     }
 
-    return (
-      <td className={cx("text-center", { "border-0": isLast })} style={{ verticalAlign: "middle" }}>
-        {timeLeftContent}
-      </td>
-    );
+    return <span>{timeLeftContent}</span>;
   }
 }
 

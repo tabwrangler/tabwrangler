@@ -1,3 +1,4 @@
+import "./LockTab.css";
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { lockTabId, lockWindowId, unlockTabId, unlockWindowId } from "../storage";
 import settings, { type LockTabSortOrderOption } from "../settings";
@@ -7,6 +8,8 @@ import Dropdown from "react-bootstrap/Dropdown";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
 import { useStorageSyncQuery } from "../storage";
+import useTabGroupsQuery from "./useTabGroupsQuery";
+import useTabsQuery from "./useTabsQuery";
 
 interface Sorter {
   key: LockTabSortOrderOption;
@@ -95,6 +98,41 @@ const ReverseTabOrderSorter: Sorter = {
   },
 };
 
+interface TabSegmentTab {
+  isFirstInGroup: boolean;
+  tab: chrome.tabs.Tab;
+}
+
+type TabSegment =
+  | { type: "ungrouped"; tabs: TabSegmentTab[] }
+  | { type: "group"; groupId: number; tabs: TabSegmentTab[] };
+
+function groupTabsIntoSegments(tabs: chrome.tabs.Tab[]): TabSegment[] {
+  const segments: TabSegment[] = [];
+  const seenGroupIds = new Set<number>();
+  for (const tab of tabs) {
+    const groupId = tab.groupId != null && tab.groupId > 0 ? tab.groupId : null;
+    const last = segments[segments.length - 1];
+    if (groupId != null && last?.type === "group" && last.groupId === groupId) {
+      last.tabs.push({ isFirstInGroup: false, tab });
+    } else if (groupId == null && last?.type === "ungrouped") {
+      last.tabs.push({ isFirstInGroup: false, tab });
+    } else {
+      segments.push(
+        groupId == null
+          ? { type: "ungrouped", tabs: [{ isFirstInGroup: !seenGroupIds.has(tab.groupId), tab }] }
+          : {
+              type: "group",
+              groupId,
+              tabs: [{ isFirstInGroup: !seenGroupIds.has(tab.groupId), tab }],
+            },
+      );
+    }
+    if (groupId != null) seenGroupIds.add(groupId);
+  }
+  return segments;
+}
+
 const DEFAULT_SORTER = TabOrderSorter;
 const Sorters = [
   TabOrderSorter,
@@ -121,30 +159,6 @@ function useNow() {
     };
   }, []);
   return now;
-}
-
-function useTabsQuery() {
-  const queryClient = useQueryClient();
-  const query = useQuery({
-    queryFn: () => chrome.tabs.query({}),
-    queryKey: ["tabsQuery"],
-  });
-  useEffect(() => {
-    function invalidateTabsQuery() {
-      queryClient.invalidateQueries({ queryKey: ["tabsQuery"] });
-    }
-    chrome.tabs.onActivated.addListener(invalidateTabsQuery);
-    chrome.tabs.onCreated.addListener(invalidateTabsQuery);
-    chrome.tabs.onRemoved.addListener(invalidateTabsQuery);
-    chrome.tabs.onUpdated.addListener(invalidateTabsQuery);
-    return () => {
-      chrome.tabs.onActivated.removeListener(invalidateTabsQuery);
-      chrome.tabs.onCreated.removeListener(invalidateTabsQuery);
-      chrome.tabs.onRemoved.removeListener(invalidateTabsQuery);
-      chrome.tabs.onUpdated.removeListener(invalidateTabsQuery);
-    };
-  }, [queryClient]);
-  return query;
 }
 
 function useTabTimesQuery() {
@@ -195,6 +209,9 @@ export default function LockTab() {
 
   const tabsQuery = useTabsQuery();
   const tabTimesQuery = useTabTimesQuery();
+  const tabGroupsQuery = useTabGroupsQuery();
+  const tabGroupsById = new Map((tabGroupsQuery.data ?? []).map((group) => [group.id, group]));
+
   const tabsByWindowId: Array<[number, chrome.tabs.Tab[]]> = useMemo(() => {
     const tabs =
       tabsQuery.data == null || tabTimesQuery.data == null
@@ -217,10 +234,10 @@ export default function LockTab() {
   }, [currSorter, currWindow?.id, tabTimesQuery.data, tabsQuery.data]);
 
   const { data: syncData } = useStorageSyncQuery();
-  const lockedWindowIds: number[] = syncData?.lockedWindowIds ?? [];
+  const lockedWindowIds: Set<number> = new Set(syncData?.lockedWindowIds ?? []);
 
   async function toggleWindow(windowId: number) {
-    if (lockedWindowIds.indexOf(windowId) !== -1) {
+    if (lockedWindowIds.has(windowId)) {
       await unlockWindowId(windowId);
     } else {
       await lockWindowId(windowId);
@@ -321,75 +338,115 @@ export default function LockTab() {
       </div>
       <div className="d-flex flex-column gap-4">
         <UseNowContext.Provider value={now}>
-          {tabsByWindowId.map(([windowId, tabs]) => {
-            const isLocked = lockedWindowIds.indexOf(windowId) !== -1;
-            return (
-              <div className="border overflow-hidden rounded" key={windowId}>
-                <table className="table table-hover table-sm mb-0">
-                  <thead>
-                    <tr>
-                      <th
-                        className={cx("p-2 align-middle", {
-                          "table-warning": isLocked,
-                          "bg-body-tertiary": !isLocked,
-                        })}
-                        colSpan={5}
-                      >
-                        <div className="d-flex justify-content-between align-items-center">
-                          <div className="d-flex align-items-center gap-2">
-                            <abbr title={`ID: ${windowId}`}>Window</abbr>
-                            {currWindow?.id === windowId && (
-                              <span className="badge text-bg-success position-relative">
-                                CURRENT
-                              </span>
-                            )}
-                          </div>
-                          <Button
-                            active={isLocked}
-                            className="d-flex align-items-center gap-1"
-                            // @ts-expect-error Need to expand size type to include "xs"
-                            size="xs"
-                            type="button"
-                            variant="outline-secondary"
-                            onClick={() => toggleWindow(windowId)}
-                          >
-                            {isLocked ? (
-                              <>
-                                Locked <i className="fas fa-lock" />
-                              </>
-                            ) : (
-                              <>
-                                Unlocked <i className="fas fa-unlock" />
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tabs.map((tab, index) => (
-                      <OpenTabRow
-                        isLast={index === tabs.length - 1}
-                        key={tab.id}
-                        onToggleTab={toggleTab}
-                        tab={tab}
-                        tabTime={
-                          tabTimesQuery.data == null || tab.id == null
-                            ? undefined
-                            : tabTimesQuery.data[tab.id]
-                        }
-                        windowId={windowId}
-                        windowLocked={lockedWindowIds.indexOf(windowId) !== -1}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            );
-          })}
+          {tabsByWindowId.map(([windowId, tabs]) => (
+            <WindowCard
+              isCurrent={currWindow?.id === windowId}
+              isLocked={lockedWindowIds.has(windowId)}
+              key={windowId}
+              windowId={windowId}
+              tabGroupsById={tabGroupsById}
+              tabs={tabs}
+              tabTimes={tabTimesQuery.data}
+              onToggle={toggleWindow}
+              onToggleTab={toggleTab}
+            />
+          ))}
         </UseNowContext.Provider>
       </div>
+    </div>
+  );
+}
+
+function WindowCard({
+  isCurrent,
+  isLocked,
+  windowId,
+  tabGroupsById,
+  tabs,
+  tabTimes,
+  onToggle,
+  onToggleTab,
+}: {
+  isCurrent: boolean;
+  isLocked: boolean;
+  windowId: number;
+  tabGroupsById: Map<number, chrome.tabGroups.TabGroup>;
+  tabs: chrome.tabs.Tab[];
+  tabTimes: Record<number, number> | undefined;
+  onToggle: (windowId: number) => void;
+  onToggleTab: (
+    windowId: number,
+    tab: chrome.tabs.Tab,
+    selected: boolean,
+    multiselect: boolean,
+  ) => void;
+}) {
+  const segments = groupTabsIntoSegments(tabs);
+  const windowHasGroups = segments.some((s) => s.type === "group");
+  const tbodies = segments.map((segment, segIndex) => {
+    return (
+      <tbody key={segIndex}>
+        {segment.tabs.map(({ tab, isFirstInGroup }) => (
+          <OpenTabRow
+            isFirstInGroup={segment.type === "group" && isFirstInGroup}
+            key={tab.id}
+            tab={tab}
+            tabGroup={segment.type === "group" ? tabGroupsById.get(segment.groupId) : undefined}
+            tabTime={tabTimes == null || tab.id == null ? undefined : tabTimes[tab.id]}
+            windowHasGroups={windowHasGroups}
+            windowId={windowId}
+            windowLocked={isLocked}
+            onToggleTab={onToggleTab}
+          />
+        ))}
+      </tbody>
+    );
+  });
+
+  return (
+    <div className="border overflow-hidden rounded" key={windowId}>
+      <table className="table table-hover table-sm mb-0">
+        <thead>
+          <tr>
+            <th
+              className={cx("p-2 align-middle", {
+                "table-warning": isLocked,
+                "bg-body-tertiary": !isLocked,
+              })}
+              colSpan={4}
+            >
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center gap-2">
+                  <abbr title={`ID: ${windowId}`}>Window</abbr>
+                  {isCurrent && (
+                    <span className="badge text-bg-success position-relative">CURRENT</span>
+                  )}
+                </div>
+                <Button
+                  active={isLocked}
+                  className="d-flex align-items-center gap-1"
+                  // @ts-expect-error Need to expand size type to include "xs"
+                  size="xs"
+                  type="button"
+                  variant="outline-secondary"
+                  onClick={() => onToggle(windowId)}
+                >
+                  {isLocked ? (
+                    <>
+                      Locked <i className="fas fa-lock" />
+                    </>
+                  ) : (
+                    <>
+                      Unlocked <i className="fas fa-unlock" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        {tbodies}
+      </table>
     </div>
   );
 }

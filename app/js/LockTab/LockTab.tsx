@@ -1,13 +1,12 @@
 import "./LockTab.css";
+import { Button, Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { lockTabId, lockWindowId, unlockTabId, unlockWindowId } from "../storage";
 import settings, { type LockTabSortOrderOption } from "../settings";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import Button from "react-bootstrap/Button";
-import Dropdown from "react-bootstrap/Dropdown";
+import { useStorageSyncPersistQuery, useStorageSyncQuery } from "../storage";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
-import { useStorageSyncQuery } from "../storage";
 import useTabGroupsQuery from "./useTabGroupsQuery";
 import useTabsQuery from "./useTabsQuery";
 
@@ -233,6 +232,7 @@ export default function LockTab() {
     });
   }, [currSorter, currWindow?.id, tabTimesQuery.data, tabsQuery.data]);
 
+  const unlockedTabCount = tabsQuery.data?.filter((tab) => !settings.isTabLocked(tab)).length ?? 0;
   const { data: syncData } = useStorageSyncQuery();
   const lockedWindowIds: Set<number> = new Set(syncData?.lockedWindowIds ?? []);
 
@@ -277,9 +277,25 @@ export default function LockTab() {
     lastSelectedTabRef.current = tab;
   }
 
+  const minTabs = settings.get("minTabs");
+  const minTabsStrategy = settings.get("minTabsStrategy");
+  const showMinTabsBadge = minTabsStrategy === "allWindows";
+
   return (
     <div className="tab-pane active">
-      <div className="d-flex align-items-center justify-content-end pb-2">
+      <div
+        className={cx("d-flex align-items-center pb-2", {
+          "justify-content-between": showMinTabsBadge,
+          "justify-content-end": !showMinTabsBadge,
+        })}
+      >
+        {showMinTabsBadge && (
+          <MinimumTabsBadge
+            minTabs={minTabs}
+            minTabsStrategyState={{ minTabsStrategy }}
+            unlockedTabCount={unlockedTabCount}
+          />
+        )}
         <Dropdown>
           <Dropdown.Toggle
             size="sm"
@@ -347,6 +363,7 @@ export default function LockTab() {
               tabGroupsById={tabGroupsById}
               tabs={tabs}
               tabTimes={tabTimesQuery.data}
+              totalUnlockedTabCount={unlockedTabCount}
               onToggle={toggleWindow}
               onToggleTab={toggleTab}
             />
@@ -364,6 +381,7 @@ function WindowCard({
   tabGroupsById,
   tabs,
   tabTimes,
+  totalUnlockedTabCount,
   onToggle,
   onToggleTab,
 }: {
@@ -373,6 +391,7 @@ function WindowCard({
   tabGroupsById: Map<number, chrome.tabGroups.TabGroup>;
   tabs: chrome.tabs.Tab[];
   tabTimes: Record<number, number> | undefined;
+  totalUnlockedTabCount: number;
   onToggle: (windowId: number) => void;
   onToggleTab: (
     windowId: number,
@@ -381,8 +400,14 @@ function WindowCard({
     multiselect: boolean,
   ) => void;
 }) {
+  const minTabs = settings.get("minTabs");
+  const minTabsStrategy = settings.get("minTabsStrategy");
   const segments = groupTabsIntoSegments(tabs);
   const windowHasGroups = segments.some((s) => s.type === "group");
+  const unlockedTabCount = tabs.filter((tab) => !settings.isTabLocked(tab)).length ?? 0;
+  const relevantUnlockedCount =
+    minTabsStrategy === "allWindows" ? totalUnlockedTabCount : unlockedTabCount;
+  const tabsWillAutoClose = relevantUnlockedCount > minTabs;
   const tbodies = segments.map((segment, segIndex) => {
     return (
       <tbody key={segIndex}>
@@ -393,6 +418,7 @@ function WindowCard({
             tab={tab}
             tabGroup={segment.type === "group" ? tabGroupsById.get(segment.groupId) : undefined}
             tabTime={tabTimes == null || tab.id == null ? undefined : tabTimes[tab.id]}
+            tabsWillAutoClose={tabsWillAutoClose}
             windowHasGroups={windowHasGroups}
             windowId={windowId}
             windowLocked={isLocked}
@@ -403,44 +429,53 @@ function WindowCard({
     );
   });
 
+  let thBgColor: string;
+  if (isLocked) {
+    thBgColor = "table-warning";
+  } else if (isCurrent) {
+    thBgColor = "bg-body-secondary";
+  } else {
+    thBgColor = "bg-body-tertiary";
+  }
+
   return (
     <div className="border overflow-hidden rounded" key={windowId}>
       <table className="table table-hover table-sm mb-0">
         <thead>
           <tr>
-            <th
-              className={cx("p-2 align-middle", {
-                "table-warning": isLocked,
-                "bg-body-tertiary": !isLocked,
-              })}
-              colSpan={4}
-            >
+            <th className={cx("p-2 align-middle", thBgColor)} colSpan={4}>
               <div className="d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center gap-2">
                   <abbr title={`ID: ${windowId}`}>Window</abbr>
-                  {isCurrent && (
-                    <span className="badge text-bg-success position-relative">CURRENT</span>
-                  )}
                 </div>
-                <Button
-                  active={isLocked}
-                  className="d-flex align-items-center gap-1"
-                  // @ts-expect-error Need to expand size type to include "xs"
-                  size="xs"
-                  type="button"
-                  variant="outline-secondary"
-                  onClick={() => onToggle(windowId)}
-                >
-                  {isLocked ? (
-                    <>
-                      Locked <i className="fas fa-lock" />
-                    </>
-                  ) : (
-                    <>
-                      Unlocked <i className="fas fa-unlock" />
-                    </>
+                <div className="d-flex align-items-center gap-2">
+                  {minTabsStrategy === "givenWindow" && (
+                    <MinimumTabsBadge
+                      minTabs={minTabs}
+                      minTabsStrategyState={{ minTabsStrategy, isWindowLocked: isLocked }}
+                      unlockedTabCount={unlockedTabCount}
+                    />
                   )}
-                </Button>
+                  <Button
+                    active={isLocked}
+                    className="d-flex align-items-center gap-1"
+                    // @ts-expect-error Need to expand size type to include "xs"
+                    size="xs"
+                    type="button"
+                    variant="outline-secondary"
+                    onClick={() => onToggle(windowId)}
+                  >
+                    {isLocked ? (
+                      <>
+                        Locked <i className="fas fa-lock" />
+                      </>
+                    ) : (
+                      <>
+                        Unlocked <i className="fas fa-unlock" />
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </th>
           </tr>
@@ -448,5 +483,84 @@ function WindowCard({
         {tbodies}
       </table>
     </div>
+  );
+}
+
+type MinTabsStrategyState =
+  | {
+      minTabsStrategy: "allWindows";
+    }
+  | { minTabsStrategy: "givenWindow"; isWindowLocked: boolean };
+
+function MinimumTabsBadge({
+  minTabs,
+  minTabsStrategyState,
+  unlockedTabCount,
+}: {
+  minTabs: number;
+  minTabsStrategyState: MinTabsStrategyState;
+  unlockedTabCount: number;
+}) {
+  const { data: syncPersistData } = useStorageSyncPersistQuery();
+  const paused = syncPersistData?.paused ?? false;
+  const tabsWillAutoClose = unlockedTabCount > minTabs;
+
+  let tooltipMessage;
+  if (paused) {
+    tooltipMessage = chrome.i18n.getMessage("tabLock_minTabsBadge_paused");
+  } else {
+    switch (minTabsStrategyState.minTabsStrategy) {
+      case "allWindows":
+        tooltipMessage = chrome.i18n.getMessage(
+          tabsWillAutoClose
+            ? "tabLock_minTabsBadge_allWindows_aboveMin"
+            : "tabLock_minTabsBadge_allWindows_belowMin",
+        );
+        break;
+      case "givenWindow":
+        if (minTabsStrategyState.isWindowLocked) {
+          tooltipMessage = chrome.i18n.getMessage("tabLock_minTabsBadge_givenWindow_locked");
+        } else {
+          tooltipMessage = chrome.i18n.getMessage(
+            tabsWillAutoClose
+              ? "tabLock_minTabsBadge_givenWindow_aboveMin"
+              : "tabLock_minTabsBadge_givenWindow_belowMin",
+          );
+        }
+        break;
+      default:
+        minTabsStrategyState satisfies never;
+    }
+  }
+
+  let badgeClassName;
+  let badgeIconClassName;
+  if (paused) {
+    badgeClassName = "text-bg-secondary";
+    badgeIconClassName = "fa-hourglass";
+  } else if (
+    minTabsStrategyState.minTabsStrategy === "givenWindow" &&
+    minTabsStrategyState.isWindowLocked
+  ) {
+    badgeClassName = "text-bg-secondary";
+    badgeIconClassName = "fa-hourglass";
+  } else if (tabsWillAutoClose) {
+    badgeClassName = "text-bg-secondary";
+    badgeIconClassName = "fa-check";
+  } else {
+    badgeClassName = "text-bg-warning";
+    badgeIconClassName = "fa-hourglass";
+  }
+
+  return (
+    <OverlayTrigger overlay={<Tooltip>{tooltipMessage}</Tooltip>}>
+      <span className={cx("badge rounded-pill", badgeClassName)}>
+        <span className={`fas ${badgeIconClassName}`} />{" "}
+        {chrome.i18n.getMessage("tabLock_minTabsStatus", [
+          unlockedTabCount.toLocaleString(),
+          minTabs.toLocaleString(),
+        ])}
+      </span>
+    </OverlayTrigger>
   );
 }

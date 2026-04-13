@@ -1,4 +1,5 @@
 import "./OpenTabRow.css";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import TabFavicon from "../TabFavicon";
 import type { TabLockStatus } from "../tabUtil";
 import { UseNowContext } from "./LockTab";
@@ -12,6 +13,7 @@ interface OpenTabRowProps {
   tab: chrome.tabs.Tab;
   tabGroup?: chrome.tabGroups.TabGroup;
   tabTime: number | undefined;
+  tabsWillAutoClose: boolean;
   windowHasGroups?: boolean;
   windowId: number;
   windowLocked: boolean;
@@ -28,6 +30,7 @@ export default function OpenTabRow({
   tab,
   tabGroup,
   tabTime = Date.now(),
+  tabsWillAutoClose,
   windowHasGroups = false,
   windowId,
   windowLocked,
@@ -53,8 +56,18 @@ export default function OpenTabRow({
   }
 
   return (
-    <tr className={cx({ "table-success": tab.active, "fst-italic": isOverdue })}>
-      <td className={cx("text-center")} style={{ verticalAlign: "middle", width: "1px" }}>
+    <tr className={cx({ "fst-italic": isOverdue })}>
+      <td
+        className="text-center ps-2"
+        style={{ position: "relative", verticalAlign: "middle", width: "1px" }}
+      >
+        {tab.active && (
+          <OverlayTrigger
+            overlay={<Tooltip>{chrome.i18n.getMessage("tabLock_activeTab_tooltip")}</Tooltip>}
+          >
+            <div className="OpenTabRow-active-border" />
+          </OverlayTrigger>
+        )}
         <button
           className={cx("btn btn-xs btn-outline-secondary rounded-circle", {
             active: tabLockStatus.locked,
@@ -122,17 +135,25 @@ export default function OpenTabRow({
           <TabLockContent
             isTabActive={tab.active}
             tabLockStatus={tabLockStatus}
+            tabsWillAutoClose={tabsWillAutoClose}
             timeRemaining={timeRemaining}
             windowLocked={windowLocked}
           />
           {isFirstInGroup && (
-            <div
-              className="OpenTabRow-group-indicator"
-              style={{
-                backgroundColor: groupColor,
-              }}
-              title={tabGroup?.title}
-            />
+            <OverlayTrigger
+              overlay={
+                <Tooltip>
+                  {tabGroup?.title || chrome.i18n.getMessage("tabLock_groupIndicator_unnamed")}
+                </Tooltip>
+              }
+            >
+              <div
+                className="OpenTabRow-group-indicator"
+                style={{
+                  backgroundColor: groupColor,
+                }}
+              />
+            </OverlayTrigger>
           )}
         </div>
       </td>
@@ -143,11 +164,13 @@ export default function OpenTabRow({
 function TabLockContent({
   isTabActive,
   tabLockStatus,
+  tabsWillAutoClose,
   timeRemaining,
   windowLocked,
 }: {
   isTabActive: boolean;
   tabLockStatus: TabLockStatus;
+  tabsWillAutoClose: boolean;
   timeRemaining: number;
   windowLocked: boolean;
 }) {
@@ -199,13 +222,24 @@ function TabLockContent({
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_window");
     } else if (paused) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
-    } else if (timeRemaining <= 0) {
-      // `timeLeft` went negative — the countdown continued and is waiting for the interval to close
-      // this tab. It's also possible `minTabs` stopped the countdown and this will stay overdue
-      // until another tab is opened to jump-start it again.
-      timeLeftContent = <time style={isTabActive ? undefined : { opacity: 0.4 }}>⋯</time>;
+    } else if (timeRemaining <= 0 && tabsWillAutoClose) {
+      // Countdown finished and tabs are eligible to close — waiting for the background interval.
+      timeLeftContent = <time className="font-monospace">{formatSecondsToDhms(0)}</time>;
+    } else if (timeRemaining <= 0 && !tabsWillAutoClose) {
+      // Countdown finished but minTabs is holding this tab open.
+      timeLeftContent = (
+        <OverlayTrigger
+          overlay={<Tooltip>{chrome.i18n.getMessage("tabLock_overdueTooltip")}</Tooltip>}
+        >
+          <span className="font-monospace">
+            <small className="fas fa-hourglass text-warning" /> {formatSecondsToDhms(0)}
+          </span>
+        </OverlayTrigger>
+      );
     } else {
-      timeLeftContent = <time>{formatSecondsToDhms(timeRemaining)}</time>;
+      timeLeftContent = (
+        <time className="font-monospace">{formatSecondsToDhms(timeRemaining)}</time>
+      );
     }
 
     return <span>{timeLeftContent}</span>;

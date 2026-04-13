@@ -13,7 +13,7 @@ export type LockTabSortOrderOption =
   | "reverseChrono"
   | "reverseTabOrder"
   | "tabOrder";
-type MinTabsStrategyOption = "allWindows" | "givenWindow";
+export type MinTabsStrategyOption = "allWindows" | "givenWindow";
 export type SettingsSchemaWrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDupes";
 
 export interface SettingsSchema {

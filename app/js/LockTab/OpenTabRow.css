@@ -4,6 +4,15 @@
   width: 20px;
 }
 
+.OpenTabRow-active-border {
+  background-color: var(--bs-primary);
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 3px;
+}
+
 .OpenTabRow-group-border {
   background-color: transparent;
   bottom: 0;

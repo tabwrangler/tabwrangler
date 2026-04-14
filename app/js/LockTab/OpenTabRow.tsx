@@ -1,5 +1,5 @@
 import "./OpenTabRow.css";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import TabFavicon from "../TabFavicon";
 import type { TabLockStatus } from "../tabUtil";
 import { UseNowContext } from "./LockTab";
@@ -68,23 +68,25 @@ export default function OpenTabRow({
             <div className="OpenTabRow-active-border" />
           </OverlayTrigger>
         )}
-        <button
-          className={cx("btn btn-xs btn-outline-secondary rounded-circle", {
-            active: tabLockStatus.locked,
-          })}
+        <Button
+          active={tabLockStatus.locked}
+          className="rounded-circle"
           disabled={!settings.isTabManuallyLockable(tab)}
           title={
             tabLockStatus.locked
               ? chrome.i18n.getMessage("tabLock_unlockTab")
               : chrome.i18n.getMessage("tabLock_lockTab")
           }
+          // @ts-expect-error "xs" not in type and not is not extensible.
+          size="xs"
           type="button"
+          variant="outline-secondary"
           onClick={(event) => {
             onToggleTab(windowId, tab, !tabLockStatus.locked, event.shiftKey);
           }}
         >
           {tabLockStatus.locked ? <i className="fas fa-lock" /> : <i className="fas fa-unlock" />}
-        </button>
+        </Button>
       </td>
       <td className="text-center" style={{ verticalAlign: "middle", width: "32px" }}>
         <TabFavicon
@@ -132,6 +134,7 @@ export default function OpenTabRow({
           />
         )}
         <div className="d-flex align-items-center justify-content-end gap-2 pe-2">
+          <TabVolumeControl tab={tab} />
           <TabLockContent
             isTabActive={tab.active}
             tabLockStatus={tabLockStatus}
@@ -158,6 +161,35 @@ export default function OpenTabRow({
         </div>
       </td>
     </tr>
+  );
+}
+
+function TabVolumeControl({ tab }: { tab: chrome.tabs.Tab }) {
+  if (!tab.audible) return null;
+  const isMuted = tab.mutedInfo?.muted;
+
+  function toggleMuted() {
+    if (tab.id == null) return;
+    chrome.tabs.update(tab.id, { muted: !isMuted });
+  }
+
+  return (
+    <Button
+      active={isMuted}
+      className="rounded-circle"
+      disabled={tab.id == null}
+      // @ts-expect-error "xs" not in type and not is not extensible.
+      size="xs"
+      title={
+        isMuted
+          ? chrome.i18n.getMessage("tabLock_unmuteSite")
+          : chrome.i18n.getMessage("tabLock_muteSite")
+      }
+      variant="outline-secondary"
+      onClick={toggleMuted}
+    >
+      {isMuted ? <i className="fas fa-volume-mute" /> : <i className="fas fa-volume-up" />}
+    </Button>
   );
 }
 

@@ -520,6 +520,14 @@
     "description": "Explanation of the lock checkbox's functionality",
     "message": "Check a tab's box to lock the tab (prevent it from auto-closing)."
   },
+  "tabLock_unmuteSite": {
+    "description": "Label for button that unmutes a site",
+    "message": "Unmute site"
+  },
+  "tabLock_muteSite": {
+    "description": "Label for button that mutes a site",
+    "message": "Mute site"
+  },
   "tabLock_name": {
     "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
     "message": "Tab Lock"

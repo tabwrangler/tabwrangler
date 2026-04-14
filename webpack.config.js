@@ -122,6 +122,8 @@ module.exports = [
           "https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/",
         ),
         HAS_FAVICON_API: JSON.stringify(true),
+        // See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType#browser_compatibility
+        HAS_MENU_CONTEXT_TYPE_TAB: JSON.stringify(false),
       }),
     ]),
   }),
@@ -174,6 +176,8 @@ module.exports = [
           "https://addons.mozilla.org/en-US/firefox/addon/tabwrangler/",
         ),
         HAS_FAVICON_API: JSON.stringify(false),
+        // See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/menus/ContextType#browser_compatibility
+        HAS_MENU_CONTEXT_TYPE_TAB: JSON.stringify(true),
       }),
     ]),
   }),

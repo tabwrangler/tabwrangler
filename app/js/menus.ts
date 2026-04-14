@@ -1,11 +1,6 @@
 import settings from "./settings";
 import { wrangleTabsAndPersist } from "./tabUtil";
 
-function getDomain(url: string): string | null {
-  const match = url.match(/[^:]+:\/\/([^/]+)\//);
-  return match == null ? null : match[1];
-}
-
 export default class Menus {
   // Note: intended to be called only once, which is why this function is static. Context menus
   // should be once when the extension is installed.
@@ -16,24 +11,33 @@ export default class Menus {
     await Menus.destroy();
 
     console.debug("[menus] Creating context menu");
+    let contexts: chrome.contextMenus.ContextType[];
+    if (HAS_MENU_CONTEXT_TYPE_TAB) {
+      // Some browsers (e.g. Firefox) support the "tab" ContextType, which adds entries to the tab
+      // strip's right-click menu.
+      // @ts-expect-error "tab" is not supported by Chrome and is therefore not in its types
+      contexts = ["page", "tab"];
+    } else {
+      contexts = ["page"];
+    }
     chrome.contextMenus.create({
+      contexts,
       id: "corralTab",
       title: chrome.i18n.getMessage("contextMenu_corralTab"),
       type: "normal",
-      contexts: ["page"],
     });
-    chrome.contextMenus.create({ id: "separator", type: "separator" });
+    chrome.contextMenus.create({ contexts, id: "separator", type: "separator" });
     chrome.contextMenus.create({
+      contexts,
       id: "lockTab",
       title: chrome.i18n.getMessage("contextMenu_lockTab"),
       type: "checkbox",
-      contexts: ["page"],
     });
     chrome.contextMenus.create({
+      contexts,
       id: "lockDomain",
       title: chrome.i18n.getMessage("contextMenu_lockDomain"),
       type: "checkbox",
-      contexts: ["page"],
     });
   }
 
@@ -115,4 +119,9 @@ export default class Menus {
       });
     });
   }
+}
+
+function getDomain(url: string): string | null {
+  const match = url.match(/[^:]+:\/\/([^/]+)\//);
+  return match == null ? null : match[1];
 }

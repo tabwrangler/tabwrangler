@@ -7,8 +7,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useStorageSyncPersistQuery, useStorageSyncQuery } from "../storage";
 import OpenTabRow from "./OpenTabRow";
 import cx from "classnames";
-import useTabGroupsQuery from "./useTabGroupsQuery";
-import useTabsQuery from "./useTabsQuery";
+import useTabGroupsQuery from "../api/useTabGroupsQuery";
+import useTabsQuery from "../api/useTabsQuery";
+import useWindowsGetLastFocused from "../api/useWindowsGetLastFocused";
 
 interface Sorter {
   key: LockTabSortOrderOption;
@@ -189,6 +190,7 @@ export default function LockTab() {
   const now = useNow();
   const lastSelectedTabRef = useRef<chrome.tabs.Tab | null>(null);
   const [sortOrder, setSortOrder] = useState<string | null>(settings.get("lockTabSortOrder"));
+  const lastFocusedWindowQuery = useWindowsGetLastFocused();
 
   const [currWindow, setCurrWindow] = useState<chrome.windows.Window>();
   useEffect(() => {
@@ -358,6 +360,7 @@ export default function LockTab() {
             <WindowCard
               isCurrent={currWindow?.id === windowId}
               isLocked={lockedWindowIds.has(windowId)}
+              isLastFocused={lastFocusedWindowQuery.data?.id === windowId}
               key={windowId}
               windowId={windowId}
               tabGroupsById={tabGroupsById}
@@ -377,6 +380,7 @@ export default function LockTab() {
 function WindowCard({
   isCurrent,
   isLocked,
+  isLastFocused,
   windowId,
   tabGroupsById,
   tabs,
@@ -387,6 +391,7 @@ function WindowCard({
 }: {
   isCurrent: boolean;
   isLocked: boolean;
+  isLastFocused: boolean;
   windowId: number;
   tabGroupsById: Map<number, chrome.tabGroups.TabGroup>;
   tabs: chrome.tabs.Tab[];
@@ -414,6 +419,7 @@ function WindowCard({
         {segment.tabs.map(({ tab, isFirstInGroup }) => (
           <OpenTabRow
             isFirstInGroup={segment.type === "group" && isFirstInGroup}
+            isInLastFocusedWindow={isLastFocused}
             key={tab.id}
             tab={tab}
             tabGroup={segment.type === "group" ? tabGroupsById.get(segment.groupId) : undefined}

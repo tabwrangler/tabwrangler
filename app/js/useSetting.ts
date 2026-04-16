@@ -6,7 +6,7 @@ import { useSyncExternalStore } from "react";
  */
 export default function useSetting<K extends keyof SettingsSchema>(key: K): SettingsSchema[K] {
   return useSyncExternalStore(
-    (listener) => Settings.subscribe(key, listener),
+    (onStoreChange) => Settings.subscribe(key, onStoreChange),
     () => Settings.get(key),
   );
 }

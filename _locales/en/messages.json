@@ -508,6 +508,10 @@
     "description": "Tooltip on the active-tab indicator strip.",
     "message": "Active tab"
   },
+  "tabLock_timerFrozen_tooltip": {
+    "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
+    "message": "Frozen: active tab in last focused window does NOT count down"
+  },
   "tabLock_groupIndicator_unnamed": {
     "description": "Fallback tooltip for a tab group with no title.",
     "message": "Unnamed group"

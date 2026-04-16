@@ -5,11 +5,13 @@ import type { TabLockStatus } from "../tabUtil";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
 import settings from "../settings";
+import { shouldFreezeActiveTabTimer } from "../tabUtil";
 import { useContext } from "react";
 import { useStorageSyncPersistQuery } from "../storage";
 
 interface OpenTabRowProps {
   isFirstInGroup?: boolean;
+  isInLastFocusedWindow?: boolean;
   tab: chrome.tabs.Tab;
   tabGroup?: chrome.tabGroups.TabGroup;
   tabTime: number | undefined;
@@ -27,6 +29,7 @@ interface OpenTabRowProps {
 
 export default function OpenTabRow({
   isFirstInGroup = false,
+  isInLastFocusedWindow = false,
   tab,
   tabGroup,
   tabTime = Date.now(),
@@ -137,6 +140,9 @@ export default function OpenTabRow({
           <TabVolumeControl tab={tab} />
           <TabLockContent
             isTabActive={tab.active}
+            timerFrozen={
+              tab.active && isInLastFocusedWindow && shouldFreezeActiveTabTimer(timeRemaining)
+            }
             tabLockStatus={tabLockStatus}
             tabsWillAutoClose={tabsWillAutoClose}
             timeRemaining={timeRemaining}
@@ -195,12 +201,14 @@ function TabVolumeControl({ tab }: { tab: chrome.tabs.Tab }) {
 
 function TabLockContent({
   isTabActive,
+  timerFrozen,
   tabLockStatus,
   tabsWillAutoClose,
   timeRemaining,
   windowLocked,
 }: {
   isTabActive: boolean;
+  timerFrozen: boolean;
   tabLockStatus: TabLockStatus;
   tabsWillAutoClose: boolean;
   timeRemaining: number;
@@ -254,6 +262,19 @@ function TabLockContent({
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_window");
     } else if (paused) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
+    } else if (timerFrozen) {
+      timeLeftContent = (
+        <OverlayTrigger
+          overlay={<Tooltip>{chrome.i18n.getMessage("tabLock_timerFrozen_tooltip")}</Tooltip>}
+        >
+          <span>
+            <i className="text-primary fas fa-snowflake" />{" "}
+            <time className="font-monospace">
+              {formatSecondsToDhms(settings.stayOpen() / 1000)}
+            </time>
+          </span>
+        </OverlayTrigger>
+      );
     } else if (timeRemaining <= 0 && tabsWillAutoClose) {
       // Countdown finished and tabs are eligible to close — waiting for the background interval.
       timeLeftContent = <time className="font-monospace">{formatSecondsToDhms(0)}</time>;
@@ -263,8 +284,9 @@ function TabLockContent({
         <OverlayTrigger
           overlay={<Tooltip>{chrome.i18n.getMessage("tabLock_overdueTooltip")}</Tooltip>}
         >
-          <span className="font-monospace">
-            <small className="fas fa-hourglass text-warning" /> {formatSecondsToDhms(0)}
+          <span>
+            <small className="fas fa-hourglass text-warning" />{" "}
+            <time className="font-monospace">{formatSecondsToDhms(0)}</time>
           </span>
         </OverlayTrigger>
       );
@@ -274,7 +296,7 @@ function TabLockContent({
       );
     }
 
-    return <span>{timeLeftContent}</span>;
+    return timeLeftContent;
   }
 }
 

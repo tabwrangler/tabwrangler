@@ -122,26 +122,32 @@ export default function OpenTabRow({
             timeRemaining={timeRemaining}
             windowLocked={windowLocked}
           />
-          <TabVolumeControl tab={tab} />
-          <Button
-            active={tabLockStatus.locked}
-            className="rounded-circle"
-            disabled={!settings.isTabManuallyLockable(tab)}
-            title={
-              tabLockStatus.locked
-                ? chrome.i18n.getMessage("tabLock_unlockTab")
-                : chrome.i18n.getMessage("tabLock_lockTab")
-            }
-            // @ts-expect-error "xs" not in type and not is not extensible.
-            size="xs"
-            type="button"
-            variant="outline-secondary"
-            onClick={(event) => {
-              onToggleTab(windowId, tab, !tabLockStatus.locked, event.shiftKey);
-            }}
-          >
-            {tabLockStatus.locked ? <i className="fas fa-lock" /> : <i className="fas fa-unlock" />}
-          </Button>
+          <div className="d-flex gap-1">
+            <TabVolumeControl tab={tab} />
+            <Button
+              active={tabLockStatus.locked}
+              className="rounded-circle"
+              disabled={!settings.isTabManuallyLockable(tab)}
+              title={
+                tabLockStatus.locked
+                  ? chrome.i18n.getMessage("tabLock_unlockTab")
+                  : chrome.i18n.getMessage("tabLock_lockTab")
+              }
+              // @ts-expect-error "xs" not in type and not is not extensible.
+              size="xs"
+              type="button"
+              variant="outline-secondary"
+              onClick={(event) => {
+                onToggleTab(windowId, tab, !tabLockStatus.locked, event.shiftKey);
+              }}
+            >
+              {tabLockStatus.locked ? (
+                <i className="fas fa-lock" />
+              ) : (
+                <i className="fas fa-unlock" />
+              )}
+            </Button>
+          </div>
         </div>
       </td>
     </tr>

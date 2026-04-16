@@ -426,6 +426,14 @@
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
     "message": "Tab Corral"
   },
+  "tabLock_locked": {
+    "description": "Label for a locked window",
+    "message": "Locked"
+  },
+  "tabLock_unlocked": {
+    "description": "Label for an unlocked window",
+    "message": "Unlocked"
+  },
   "tabLock_lockedStatus_autolocked": {
     "message": "Auto-locked"
   },

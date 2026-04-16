@@ -98,11 +98,11 @@ export default function WindowCard({
                   >
                     {isLocked ? (
                       <>
-                        Locked <i className="fas fa-lock" />
+                        {chrome.i18n.getMessage("tabLock_locked")} <i className="fas fa-lock" />
                       </>
                     ) : (
                       <>
-                        Unlocked <i className="fas fa-unlock" />
+                        {chrome.i18n.getMessage("tabLock_unlocked")} <i className="fas fa-unlock" />
                       </>
                     )}
                   </Button>

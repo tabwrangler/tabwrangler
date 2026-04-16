@@ -408,7 +408,6 @@ function WindowCard({
   const minTabs = settings.get("minTabs");
   const minTabsStrategy = settings.get("minTabsStrategy");
   const segments = groupTabsIntoSegments(tabs);
-  const windowHasGroups = segments.some((s) => s.type === "group");
   const unlockedTabCount = tabs.filter((tab) => !settings.isTabLocked(tab)).length ?? 0;
   const relevantUnlockedCount =
     minTabsStrategy === "allWindows" ? totalUnlockedTabCount : unlockedTabCount;
@@ -425,7 +424,6 @@ function WindowCard({
             tabGroup={segment.type === "group" ? tabGroupsById.get(segment.groupId) : undefined}
             tabTime={tabTimes == null || tab.id == null ? undefined : tabTimes[tab.id]}
             tabsWillAutoClose={tabsWillAutoClose}
-            windowHasGroups={windowHasGroups}
             windowId={windowId}
             windowLocked={isLocked}
             onToggleTab={onToggleTab}
@@ -436,9 +434,7 @@ function WindowCard({
   });
 
   let thBgColor: string;
-  if (isLocked) {
-    thBgColor = "table-warning";
-  } else if (isCurrent) {
+  if (isCurrent) {
     thBgColor = "bg-body-secondary";
   } else {
     thBgColor = "bg-body-tertiary";
@@ -449,7 +445,7 @@ function WindowCard({
       <table className="table table-hover table-sm mb-0">
         <thead>
           <tr>
-            <th className={cx("p-2 align-middle", thBgColor)} colSpan={4}>
+            <th className={cx("p-2 align-middle", thBgColor)} colSpan={2}>
               <div className="d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center gap-2">
                   <abbr title={`ID: ${windowId}`}>Window</abbr>

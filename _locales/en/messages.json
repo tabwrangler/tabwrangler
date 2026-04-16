@@ -504,10 +504,6 @@
     "description": "Min-tabs badge tooltip when this window's tabs are at or below the minimum.",
     "message": "Minimum NOT exceeded: tabs will NOT auto-close in this window"
   },
-  "tabLock_activeTab_tooltip": {
-    "description": "Tooltip on the active-tab indicator strip.",
-    "message": "Active tab"
-  },
   "tabLock_timerFrozen_tooltip": {
     "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
     "message": "Frozen: active tab in last focused window does NOT count down"

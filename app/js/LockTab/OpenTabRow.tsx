@@ -16,7 +16,6 @@ interface OpenTabRowProps {
   tabGroup?: chrome.tabGroups.TabGroup;
   tabTime: number | undefined;
   tabsWillAutoClose: boolean;
-  windowHasGroups?: boolean;
   windowId: number;
   windowLocked: boolean;
   onToggleTab: (
@@ -34,7 +33,6 @@ export default function OpenTabRow({
   tabGroup,
   tabTime = Date.now(),
   tabsWillAutoClose,
-  windowHasGroups = false,
   windowId,
   windowLocked,
   onToggleTab,
@@ -59,85 +57,61 @@ export default function OpenTabRow({
   }
 
   return (
-    <tr className={cx({ "fst-italic": isOverdue })}>
+    <tr className={cx({ "fst-italic": isOverdue, "table-active": tab.active })}>
       <td
-        className="text-center ps-2"
-        style={{ position: "relative", verticalAlign: "middle", width: "1px" }}
+        className="ps-2"
+        style={{ paddingBottom: "4px", paddingTop: "4px", position: "relative", width: "100%" }}
       >
-        {tab.active && (
-          <OverlayTrigger
-            overlay={<Tooltip>{chrome.i18n.getMessage("tabLock_activeTab_tooltip")}</Tooltip>}
-          >
-            <div className="OpenTabRow-active-border" />
-          </OverlayTrigger>
+        {tabGroup != null && (
+          <div className="OpenTabRow-group-border" style={{ backgroundColor: groupColor }} />
         )}
-        <Button
-          active={tabLockStatus.locked}
-          className="rounded-circle"
-          disabled={!settings.isTabManuallyLockable(tab)}
-          title={
-            tabLockStatus.locked
-              ? chrome.i18n.getMessage("tabLock_unlockTab")
-              : chrome.i18n.getMessage("tabLock_lockTab")
-          }
-          // @ts-expect-error "xs" not in type and not is not extensible.
-          size="xs"
-          type="button"
-          variant="outline-secondary"
-          onClick={(event) => {
-            onToggleTab(windowId, tab, !tabLockStatus.locked, event.shiftKey);
-          }}
-        >
-          {tabLockStatus.locked ? <i className="fas fa-lock" /> : <i className="fas fa-unlock" />}
-        </Button>
-      </td>
-      <td className="text-center" style={{ verticalAlign: "middle", width: "32px" }}>
-        <TabFavicon
-          alt=""
-          height={16}
-          pageUrl={tab.url}
-          src={tab.favIconUrl}
-          style={{ height: "16px", maxWidth: "none" }}
-          width={16}
-        />
-      </td>
-      <td style={{ paddingBottom: "4px", paddingTop: "4px", width: "100%" }}>
-        <div
-          className={cx("d-flex", { "text-muted": isOverdue && !tab.active })}
-          role="button"
-          style={{ lineHeight: "1.3" }}
-          tabIndex={0}
-          onClick={setTabActive}
-        >
-          <div className="flex-fill text-truncate" style={{ width: "1px" }}>
-            {tab.title}
-            <br />
-            <small className={cx({ "text-muted": !tab.active })}>({tab.url})</small>
+        <div className={cx("d-flex align-items-center gap-2", { "ps-1": tabGroup != null })}>
+          {isFirstInGroup && (
+            <OverlayTrigger
+              overlay={
+                <Tooltip>
+                  {tabGroup?.title || chrome.i18n.getMessage("tabLock_groupIndicator_unnamed")}
+                </Tooltip>
+              }
+            >
+              <div
+                className="OpenTabRow-group-indicator flex-shrink-0"
+                style={{ backgroundColor: groupColor }}
+              />
+            </OverlayTrigger>
+          )}
+          <TabFavicon
+            alt=""
+            height={16}
+            pageUrl={tab.url}
+            src={tab.favIconUrl}
+            style={{ height: "16px", maxWidth: "none" }}
+            width={16}
+          />
+          <div
+            className={cx("flex-fill d-flex min-w-0", { "text-muted": isOverdue && !tab.active })}
+            role="button"
+            style={{ lineHeight: "1.3" }}
+            tabIndex={0}
+            onClick={setTabActive}
+          >
+            <div className="flex-fill text-truncate" style={{ width: "1px" }}>
+              {tab.title}
+              <br />
+              <small className={cx({ "text-muted": !tab.active })}>({tab.url})</small>
+            </div>
           </div>
         </div>
       </td>
       <td
+        className="pe-2"
         style={{
-          position: "relative",
           verticalAlign: "middle",
           whiteSpace: "nowrap",
           width: "1px",
         }}
       >
-        {windowHasGroups && (
-          <div
-            className="OpenTabRow-group-border"
-            style={
-              groupColor == null
-                ? undefined
-                : {
-                    backgroundColor: groupColor,
-                  }
-            }
-          />
-        )}
-        <div className="d-flex align-items-center justify-content-end gap-2 pe-2">
-          <TabVolumeControl tab={tab} />
+        <div className="d-flex align-items-center justify-content-end gap-2">
           <TabLockContent
             isTabActive={tab.active}
             timerFrozen={
@@ -148,22 +122,26 @@ export default function OpenTabRow({
             timeRemaining={timeRemaining}
             windowLocked={windowLocked}
           />
-          {isFirstInGroup && (
-            <OverlayTrigger
-              overlay={
-                <Tooltip>
-                  {tabGroup?.title || chrome.i18n.getMessage("tabLock_groupIndicator_unnamed")}
-                </Tooltip>
-              }
-            >
-              <div
-                className="OpenTabRow-group-indicator"
-                style={{
-                  backgroundColor: groupColor,
-                }}
-              />
-            </OverlayTrigger>
-          )}
+          <TabVolumeControl tab={tab} />
+          <Button
+            active={tabLockStatus.locked}
+            className="rounded-circle"
+            disabled={!settings.isTabManuallyLockable(tab)}
+            title={
+              tabLockStatus.locked
+                ? chrome.i18n.getMessage("tabLock_unlockTab")
+                : chrome.i18n.getMessage("tabLock_lockTab")
+            }
+            // @ts-expect-error "xs" not in type and not is not extensible.
+            size="xs"
+            type="button"
+            variant="outline-secondary"
+            onClick={(event) => {
+              onToggleTab(windowId, tab, !tabLockStatus.locked, event.shiftKey);
+            }}
+          >
+            {tabLockStatus.locked ? <i className="fas fa-lock" /> : <i className="fas fa-unlock" />}
+          </Button>
         </div>
       </td>
     </tr>

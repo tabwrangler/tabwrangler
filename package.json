@@ -1,6 +1,6 @@
 {
   "name": "tabwrangler",
-  "version": "8.1.0",
+  "version": "8.2.0",
   "description": "Automatically closes inactive tabs and makes it easy to get them back",
   "homepage": "https://github.com/tabwrangler/tabwrangler",
   "bugs": {

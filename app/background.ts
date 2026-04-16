@@ -13,6 +13,7 @@ import {
   wrangleTabsAndPersist,
 } from "./js/tabUtil";
 import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
+import { CHECK_TO_CLOSE_INTERVAL_MS } from "./js/constants";
 import Menus from "./js/menus";
 import { debounce } from "lodash-es";
 import { removeAllSavedTabs } from "./js/actions/localStorageActions";
@@ -211,7 +212,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 let checkToCloseTimeout: NodeJS.Timeout | undefined;
 function scheduleCheckToClose() {
   if (checkToCloseTimeout != null) clearTimeout(checkToCloseTimeout);
-  checkToCloseTimeout = setTimeout(checkToClose, 5000);
+  checkToCloseTimeout = setTimeout(checkToClose, CHECK_TO_CLOSE_INTERVAL_MS);
 }
 
 async function checkToClose() {
@@ -318,7 +319,7 @@ async function checkToClose() {
     console.error("[checkToClose]", error);
   } finally {
     const elapsedTime = Date.now() - startTime;
-    if (elapsedTime > 5_000)
+    if (elapsedTime > CHECK_TO_CLOSE_INTERVAL_MS)
       console.warn(`[checkToClose] Took longer than maxExecutionTime: ${elapsedTime}ms`);
 
     // Record the last time the browser was seen running so startup can correctly compute the

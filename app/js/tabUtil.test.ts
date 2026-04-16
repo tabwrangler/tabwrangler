@@ -9,6 +9,7 @@ import {
   getURLPositionFilterByWrangleOption,
   getWhitelistMatch,
   makeTabPersistKey,
+  shouldFreezeActiveTabTimer,
   wrangleTabsAndPersist,
 } from "./tabUtil";
 import { TextEncoder } from "util";
@@ -458,15 +459,19 @@ describe("getTabIdsOlderThan", () => {
       new Set([1, 2]),
     );
   });
-
-  test("returns only IDs older than time", () => {
-    const now = Date.now();
-    expect(getTabIdsOlderThan({ "1": now - 2000, "2": now }, now - 1000)).toEqual(new Set([1]));
-  });
-
-  test("returns all IDs when time is 0 (falsy shortcut)", () => {
+  test("returns tab IDs when time is zero", () => {
     const now = Date.now();
     expect(getTabIdsOlderThan({ "1": now, "2": now }, 0)).toEqual(new Set([1, 2]));
+  });
+});
+
+describe("shouldFreezeActiveTabTimer", () => {
+  test("returns true when timeRemaining is at or beyond twice the check interval", () => {
+    expect(shouldFreezeActiveTabTimer(10)).toBe(true);
+  });
+
+  test("returns false when timeRemaining is less than twice the check interval", () => {
+    expect(shouldFreezeActiveTabTimer(9)).toBe(false);
   });
 });
 

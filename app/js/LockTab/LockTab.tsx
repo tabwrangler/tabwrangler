@@ -535,28 +535,23 @@ function MinimumTabsBadge({
     }
   }
 
-  let badgeClassName;
   let badgeIconClassName;
   if (paused) {
-    badgeClassName = "text-bg-secondary";
     badgeIconClassName = "fa-hourglass";
   } else if (
     minTabsStrategyState.minTabsStrategy === "givenWindow" &&
     minTabsStrategyState.isWindowLocked
   ) {
-    badgeClassName = "text-bg-secondary";
     badgeIconClassName = "fa-hourglass";
   } else if (tabsWillAutoClose) {
-    badgeClassName = "text-bg-secondary";
     badgeIconClassName = "fa-check";
   } else {
-    badgeClassName = "text-bg-warning";
-    badgeIconClassName = "fa-hourglass";
+    badgeIconClassName = "fa-hourglass text-warning";
   }
 
   return (
     <OverlayTrigger overlay={<Tooltip>{tooltipMessage}</Tooltip>}>
-      <span className={cx("badge rounded-pill", badgeClassName)}>
+      <span className="badge rounded-pill text-bg-secondary">
         <span className={`fas ${badgeIconClassName}`} />{" "}
         {chrome.i18n.getMessage("tabLock_minTabsStatus", [
           unlockedTabCount.toLocaleString(),

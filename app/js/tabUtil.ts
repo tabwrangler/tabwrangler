@@ -6,7 +6,7 @@ import {
   setTabTimes,
 } from "./actions/localStorageActions";
 import settings, { SettingsSchemaWrangleOption } from "./settings";
-import { CHECK_TO_CLOSE_INTERVAL_MS } from "./constants";
+import { ACTIVE_TAB_TIMER_FREEZE_WINDOW_MS } from "./constants";
 
 export const AVERAGE_TAB_BYTES_SIZE = 600;
 
@@ -253,7 +253,7 @@ export function getTabIdsOlderThan(tabTimes: TabTimes, time: number): Set<number
 }
 
 export function shouldFreezeActiveTabTimer(timeRemainingSeconds: number): boolean {
-  return timeRemainingSeconds >= (CHECK_TO_CLOSE_INTERVAL_MS * 2) / 1000;
+  return timeRemainingSeconds >= ACTIVE_TAB_TIMER_FREEZE_WINDOW_MS / 1000;
 }
 
 /**

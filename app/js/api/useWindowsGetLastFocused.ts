@@ -16,7 +16,7 @@ export default function useWindowsGetLastFocused() {
     return () => {
       chrome.windows.onFocusChanged.removeListener(invalidateQuery);
     };
-  });
+  }, [queryClient]);
   return useQuery({
     queryFn: () => chrome.windows.getLastFocused(),
     queryKey: WINDOWS_LAST_FOCUSED_QUERY_KEY,

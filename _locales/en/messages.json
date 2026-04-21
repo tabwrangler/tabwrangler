@@ -9,7 +9,7 @@
   },
   "about_sourceCode": {
     "description": "Link to the extension's source code and its license type (MIT)",
-    "message": "Source Code (MIT)"
+    "message": "Source Code (GPLv3)"
   },
   "about_support": {
     "description": "Link to the extension's support site",

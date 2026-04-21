@@ -7,10 +7,6 @@
     "description": "Link to the extension's list of changes per release",
     "message": "Változások"
   },
-  "about_sourceCode": {
-    "description": "Link to the extension's source code and its license type (MIT)",
-    "message": "Forrás kód (MIT)"
-  },
   "about_support": {
     "description": "Link to the extension's support site",
     "message": "Segítségnyújtás"

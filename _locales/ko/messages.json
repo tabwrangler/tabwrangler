@@ -7,10 +7,6 @@
     "description": "Link to the extension's list of changes per release",
     "message": "변경내역"
   },
-  "about_sourceCode": {
-    "description": "Link to the extension's source code and its license type (MIT)",
-    "message": "소스코드 (MIT)"
-  },
   "about_support": {
     "description": "Link to the extension's support site",
     "message": "지원"

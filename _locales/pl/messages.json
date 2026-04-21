@@ -7,10 +7,6 @@
     "description": "Link to the extension's list of changes per release",
     "message": "Lista zmian"
   },
-  "about_sourceCode": {
-    "description": "Link to the extension's source code and its license type (MIT)",
-    "message": "Kod źródłowy (MIT)"
-  },
   "about_support": {
     "description": "Link to the extension's support site",
     "message": "Wsparcie"

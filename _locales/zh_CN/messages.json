@@ -7,10 +7,6 @@
     "description": "Link to the extension's list of changes per release",
     "message": "变更日志"
   },
-  "about_sourceCode": {
-    "description": "Link to the extension's source code and its license type (MIT)",
-    "message": "源代码 (MIT 许可证)"
-  },
   "about_support": {
     "description": "Link to the extension's support site",
     "message": "支持"

@@ -7,10 +7,6 @@
     "description": "Link to the extension's list of changes per release",
     "message": "மாற்றங்களின் பதிவு"
   },
-  "about_sourceCode": {
-    "description": "Link to the extension's source code and its license type (MIT)",
-    "message": "மென்பொருள் மூலம்\t(எம்ஐடி)"
-  },
   "about_support": {
     "description": "Link to the extension's support site",
     "message": "ஆதரவு"

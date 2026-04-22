@@ -17,11 +17,15 @@
   },
   "commandLockUnlockActiveTab": {
     "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "Lock/Unlock the active tab"
+    "message": "Lock/Unlock active tab"
+  },
+  "commandLockUnlockCurrentWindow": {
+    "description": "Description of keyboard shortcut to lock or unlock the current window",
+    "message": "Lock/Unlock current window"
   },
   "commandWrangleCurrentTab": {
     "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "Close and save the active tab"
+    "message": "Close and save active tab"
   },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",

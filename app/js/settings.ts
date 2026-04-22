@@ -218,6 +218,12 @@ const Settings = {
     return this.set("lockedWindowIds", nextLockedWindowIds);
   },
 
+  toggleWindow(windowId: number): Promise<void> {
+    const lockedWindowIds = this.get("lockedWindowIds");
+    const index = lockedWindowIds.indexOf(windowId);
+    return index === -1 ? this.lockWindow(windowId) : this.unlockWindow(windowId);
+  },
+
   unlockWindow(windowId: number): Promise<void> {
     const lockedWindowIds = this.get("lockedWindowIds");
     const index = lockedWindowIds.indexOf(windowId);

@@ -157,19 +157,25 @@ chrome.windows.onRemoved.addListener((windowId: number) => {
   settings.unlockWindow(windowId);
 });
 
-chrome.commands.onCommand.addListener((command) => {
+chrome.commands.onCommand.addListener(async (command) => {
   switch (command) {
     case "lock-unlock-active-tab":
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         settings.toggleTabs(tabs);
       });
       break;
-    case "wrangle-current-tab":
+    case "lock-unlock-current-window": {
+      const currentWindow = await chrome.windows.getCurrent();
+      if (currentWindow.id != null) settings.toggleWindow(currentWindow.id);
+      break;
+    }
+    case "wrangle-active-tab":
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         wrangleTabsAndPersist(tabs);
       });
       break;
     default:
+      console.warn(`[onCommand]: Received unhandled command "${command}"`);
       break;
   }
 });

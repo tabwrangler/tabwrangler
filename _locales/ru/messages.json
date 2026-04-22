@@ -11,14 +11,6 @@
     "description": "Link to the extension's support site",
     "message": "Поддержка"
   },
-  "commandLockUnlockActiveTab": {
-    "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "Зафиксировать/Расфиксировать активную вкладку"
-  },
-  "commandWrangleCurrentTab": {
-    "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "Закрыть и сохранить активную вкладку"
-  },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "Открыть окно"

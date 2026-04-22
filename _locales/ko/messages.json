@@ -11,14 +11,6 @@
     "description": "Link to the extension's support site",
     "message": "지원"
   },
-  "commandLockUnlockActiveTab": {
-    "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "현재 탭을 잠그기"
-  },
-  "commandWrangleCurrentTab": {
-    "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "현재 탭을 저장하고 닫기"
-  },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "팝업 열기"

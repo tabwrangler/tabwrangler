@@ -11,14 +11,6 @@
     "description": "Link to the extension's support site",
     "message": "Suporte"
   },
-  "commandLockUnlockActiveTab": {
-    "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "Bloquear/Desbloquear A aba ativa"
-  },
-  "commandWrangleCurrentTab": {
-    "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "Feche e salve a aba ativa"
-  },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "Abrir pop-up"

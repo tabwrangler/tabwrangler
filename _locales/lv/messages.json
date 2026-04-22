@@ -11,14 +11,6 @@
     "description": "Link to the extension's support site",
     "message": "Atbalsts"
   },
-  "commandLockUnlockActiveTab": {
-    "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "Bloķēt/Atbloķēt aktīvo cilni"
-  },
-  "commandWrangleCurrentTab": {
-    "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "Aizvērt un saglabāt aktīvo cilni"
-  },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
     "message": "Nekavējoties aizvērt cilni un saglabāt vietnes URL"

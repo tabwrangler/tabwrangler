@@ -11,14 +11,6 @@
     "description": "Link to the extension's support site",
     "message": "支持"
   },
-  "commandLockUnlockActiveTab": {
-    "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "锁定/解锁活动标签页"
-  },
-  "commandWrangleCurrentTab": {
-    "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "关闭并保存活动标签页"
-  },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
     "message": "关闭标签页并保存网址"

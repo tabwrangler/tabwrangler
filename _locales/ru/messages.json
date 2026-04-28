@@ -7,9 +7,25 @@
     "description": "Link to the extension's list of changes per release",
     "message": "Список изменений"
   },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "Исходный код (GPLv3)"
+  },
   "about_support": {
     "description": "Link to the extension's support site",
     "message": "Поддержка"
+  },
+  "commandLockUnlockActiveTab": {
+    "description": "Description of keyboard shortcut to lock or unlock the active tab",
+    "message": "Закрепить/открепить активную вкладку"
+  },
+  "commandLockUnlockCurrentWindow": {
+    "description": "Description of keyboard shortcut to lock or unlock the current window",
+    "message": "Закрепить/открепить текущее окно"
+  },
+  "commandWrangleCurrentTab": {
+    "description": "Description of keyboard shortcut to close and save the active tab",
+    "message": "Закрыть и сохранить активную вкладку"
   },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
@@ -182,6 +198,10 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Опции"
   },
+  "options_option_autoLock_add": {
+    "description": "Button label for adding to whitelist",
+    "message": "Добавить правило"
+  },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
     "message": "Автоматически блокируемые ссылки отсутствуют. Используйте форму выше, чтобы добавить их в белый список."
@@ -258,6 +278,10 @@
     "description": "Reminder to press save",
     "message": "Нажмите «Сохранить», чтобы подтвердить изменения."
   },
+  "options_option_rememberTabs_truncateMsg": {
+    "description": "Message shown when decreasing number of saved tabs",
+    "message": "Уменьшение этого числа сократит список закрытых вкладок. Данные вкладок, не вошедших в новый лимит, будут удалены. Нажмите «Сохранить» для подтверждения."
+  },
   "options_option_rememberTabs_validNumber": {
     "description": "Validation error when input is empty",
     "message": "Введите корректный номер."
@@ -286,6 +310,106 @@
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "Системная"
   },
+  "options_option_timeInactive_abbr_days": {
+    "description": "Abbreviation for 'days' shown in the inactive time input",
+    "message": "дн."
+  },
+  "options_option_timeInactive_abbr_hours": {
+    "description": "Abbreviation for 'hours' shown in the inactive time input",
+    "message": "ч"
+  },
+  "options_option_timeInactive_abbr_minutes": {
+    "description": "Abbreviation for 'minutes' shown in the inactive time input",
+    "message": "мин"
+  },
+  "options_option_timeInactive_abbr_seconds": {
+    "description": "Abbreviation for 'seconds' shown in the inactive time input",
+    "message": "с"
+  },
+  "options_option_timeInactive_duration_day": {
+    "description": "Singular 'day' unit with count in the inactive time description",
+    "message": "$count$ day день",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_days": {
+    "description": "Plural 'days' unit with count in the inactive time description",
+    "message": "$count$ дн.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hour": {
+    "description": "Singular 'hour' unit with count in the inactive time description",
+    "message": "$count$ ч",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hours": {
+    "description": "Plural 'hours' unit with count in the inactive time description",
+    "message": "$count$ ч",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minute": {
+    "description": "Singular 'minute' unit with count in the inactive time description",
+    "message": "$count$ мин",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minutes": {
+    "description": "Plural 'minutes' unit with count in the inactive time description",
+    "message": "$count$ мин",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_second": {
+    "description": "Singular 'second' unit with count in the inactive time description",
+    "message": "$count$ с",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_seconds": {
+    "description": "Plural 'seconds' unit with count in the inactive time description",
+    "message": "$count$ с",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_error_zero": {
+    "description": "Error shown when the inactive time duration is set to zero",
+    "message": "Длительность должна быть больше 0 секунд."
+  },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "Закрывать неактивные вкладки через:"
@@ -305,6 +429,20 @@
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
     "message": "Список вкладок"
+  },
+  "tabLock_locked": {
+    "description": "Label for a locked window",
+    "message": "Закреплено"
+  },
+  "tabLock_unlocked": {
+    "description": "Label for an unlocked window",
+    "message": "Откреплено"
+  },
+  "tabLock_lockedStatus_autolocked": {
+    "message": "Закреплено автоматически"
+  },
+  "tabLock_lockedStatus_locked": {
+    "message": "Закреплено"
   },
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
@@ -336,9 +474,71 @@
     "description": "Label for a tab that is locked because it's in a group",
     "message": "Сгруппировано"
   },
+  "tabLock_lockedReason_window": {
+    "description": "Label for a tab that is protected because its window is locked",
+    "message": "Окно закреплено"
+  },
+  "tabLock_minTabsStatus": {
+    "description": "Tab count / minimum shown in the min-tabs badge.",
+    "message": "Вкладок: $count$/$minTabs$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "minTabs": {
+        "content": "$2",
+        "example": "20"
+      }
+    }
+  },
+  "tabLock_minTabsBadge_paused": {
+    "description": "Min-tabs badge tooltip when the extension is paused.",
+    "message": "Работа расширения приостановлена: вкладки НЕ будут закрываться автоматически"
+  },
+  "tabLock_minTabsBadge_allWindows_aboveMin": {
+    "description": "Min-tabs badge tooltip when total tabs exceed the minimum.",
+    "message": "Превышено минимальное значение: вкладки БУДУТ закрываться автоматически"
+  },
+  "tabLock_minTabsBadge_allWindows_belowMin": {
+    "description": "Min-tabs badge tooltip when total tabs are at or below the minimum.",
+    "message": "Минимальное значение НЕ превышено: вкладки НЕ будут закрываться автоматически"
+  },
+  "tabLock_minTabsBadge_givenWindow_locked": {
+    "description": "Min-tabs badge tooltip when the window is locked.",
+    "message": "Окно закреплено: вкладки НЕ будут закрываться автоматически"
+  },
+  "tabLock_minTabsBadge_givenWindow_aboveMin": {
+    "description": "Min-tabs badge tooltip when this window's tabs exceed the minimum.",
+    "message": "Превышено минимальное значение: вкладки БУДУТ закрываться автоматически в этом окне"
+  },
+  "tabLock_minTabsBadge_givenWindow_belowMin": {
+    "description": "Min-tabs badge tooltip when this window's tabs are at or below the minimum.",
+    "message": "Минимальное значение НЕ превышено: вкладки НЕ будут закрываться автоматически в этом окне"
+  },
+  "tabLock_timerFrozen_tooltip": {
+    "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
+    "message": "Заморожено: таймер для активной вкладки в последнем активном окне ОСТАНОВЛЕН"
+  },
+  "tabLock_groupIndicator_unnamed": {
+    "description": "Fallback tooltip for a tab group with no title.",
+    "message": "Безымянная группа"
+  },
+  "tabLock_overdueTooltip": {
+    "description": "Tooltip on the hourglass shown when a tab's countdown has expired.",
+    "message": "Ожидает автозакрытия"
+  },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
     "message": "Выберите вкладки которые надо зафиксировать (предотвратить их автоматическое закрытие)."
+  },
+  "tabLock_unmuteSite": {
+    "description": "Label for button that unmutes a site",
+    "message": "Включить звук для сайта"
+  },
+  "tabLock_muteSite": {
+    "description": "Label for button that mutes a site",
+    "message": "Отключить звук для сайта"
   },
   "tabLock_name": {
     "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
@@ -380,6 +580,14 @@
     "description": "Short version of tabLock_sort_timeUntilClose_desc",
     "message": "Времени до закрытия (убыв.)"
   },
+  "tabLock_lockTab": {
+    "description": "Button label for locking a tab",
+    "message": "Закрепить вкладку"
+  },
+  "tabLock_unlockTab": {
+    "description": "Button label for unlocking a tab",
+    "message": "Открепить вкладку"
+  },
   "corral_tabsWrangledFull": {
     "description": "Description of number of tabs wrangled by this extension",
     "message": "закладками: $count$ ($percent$%)",
@@ -397,6 +605,20 @@
   "settings_setmaxTabs_error_invalid": {
     "description": "Error shown when invalid max tabs setting is supplied.",
     "message": "Максимальное количество вкладок должно быть числом больше 1"
+  },
+  "settings_setmaxTabs_error_too_big": {
+    "description": "Error shown when the supplied max tabs setting could exceed quota.",
+    "message": "Максимальное количество вкладок, которое можно хранить, ограничено доступным объемом памяти браузера (вкладок: $upperBound$, рассчитано на основе лимита в $quota$ Б)",
+    "placeholders": {
+      "upperBound": {
+        "content": "$1",
+        "example": "18"
+      },
+      "quota": {
+        "content": "$2",
+        "example": "5242880"
+      }
+    }
   },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
@@ -466,6 +688,10 @@
     "description": "Brief description of the extension",
     "message": "Автоматически закрывает неактивные вкладки и упрощает их возврат"
   },
+  "corral_remove": {
+    "description": "Label for button that removes selected tabs",
+    "message": "Удалить"
+  },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",
     "message": "Восстановление данной вкладки также восстановит всю её сессию: историю, позицию прокрутки и так далее. Эта особенность ограничена браузером для 25 последних закрытых вкладок."
@@ -473,5 +699,53 @@
   "corral_noTabsMatch": {
     "description": "Message shown when no tabs match the user's search query",
     "message": "Вкладок по вашему запросу не найдено. Попробуйте другой запрос или сделайте его менее конкретным."
+  },
+  "corral_undo": {
+    "description": "Button title for undoing the last action",
+    "message": "Отменить"
+  },
+  "corral_redo": {
+    "description": "Button title for redoing the last undone action",
+    "message": "Повторить"
+  },
+  "corral_undo_remove": {
+    "description": "Button title for undoing a remove action",
+    "message": "Отменить удаление (вкладок: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_undo_restore": {
+    "description": "Button title for undoing a restore action",
+    "message": "Отменить восстановление (вкладок: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_remove": {
+    "description": "Button title for redoing a remove action",
+    "message": "Повторить удаление (вкладок: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_restore": {
+    "description": "Button title for redoing a restore action",
+    "message": "Повторить восстановление (вкладок: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   }
 }

@@ -1,6 +1,751 @@
 {
+  "about_name": {
+    "description": "Name of the 'About' section, where users can see information about the extension",
+    "message": "情報"
+  },
+  "about_changeLog": {
+    "description": "Link to the extension's list of changes per release",
+    "message": "更新履歴"
+  },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "ソースコード（GPLv3）"
+  },
+  "about_support": {
+    "description": "Link to the extension's support site",
+    "message": "サポート"
+  },
+  "commandLockUnlockActiveTab": {
+    "description": "Description of keyboard shortcut to lock or unlock the active tab",
+    "message": "アクティブタブをロック／ロック解除"
+  },
+  "commandLockUnlockCurrentWindow": {
+    "description": "Description of keyboard shortcut to lock or unlock the current window",
+    "message": "現在のウィンドウをロック／ロック解除"
+  },
+  "commandWrangleCurrentTab": {
+    "description": "Description of keyboard shortcut to close and save the active tab",
+    "message": "アクティブタブを閉じて保存"
+  },
+  "commandWrangleOpenPopup": {
+    "description": "Description of keyboard shortcut to open TabWrangler popup",
+    "message": "ポップアップを開く"
+  },
+  "contextMenu_corralTab": {
+    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
+    "message": "タブを閉じて即座にURLを保存"
+  },
+  "contextMenu_lockDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "このドメインでは閉じない"
+  },
+  "contextMenu_lockSpecificDomain": {
+    "description": "Label for context menu item that locks the domain of the clicked tab",
+    "message": "$domain$では閉じない",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "www.wikipedia.org"
+      }
+    }
+  },
+  "contextMenu_lockTab": {
+    "description": "Label for context menu item that locks the clicked tab",
+    "message": "このタブを閉じない"
+  },
+  "corral_currentSort": {
+    "description": "Button title for showing current sort order",
+    "message": "$sort_order$ 順で並べ替え中",
+    "placeholders": {
+      "sort_order": {
+        "content": "$1",
+        "example": "Reverse Chrono"
+      }
+    }
+  },
+  "corral_emptyList": {
+    "description": "Message displayed in the tab corral when the extension has not yet closed any tabs",
+    "message": "閉じられたタブはまだありません。Tab Wranglerでタブが閉じられると、ここに表示されます。タブは開いたままにしておきましょう！"
+  },
+  "corral_removeSelectedTabs": {
+    "description": "Button title for removing all selected tabs from the corral",
+    "message": "選択したタブを削除"
+  },
+  "corral_restoreSelectedTabs": {
+    "description": "Button title for restoring / re-opening all selected tabs from the corral",
+    "message": "選択したタブを復元"
+  },
+  "corral_searchResults_clear": {
+    "description": "Button title for clearing the search value and resetting results",
+    "message": "検索をクリア"
+  },
+  "corral_searchResults_label": {
+    "description": "Label showing number of tab search results",
+    "message": "$count$ 件の検索結果",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "33"
+      }
+    }
+  },
+  "corral_searchTabs": {
+    "description": "Text input placeholder for searching list of closed tabs",
+    "message": "タブを検索…"
+  },
+  "corral_toggleAllTabs_deselectAll": {
+    "description": "Button title for deselecting all tabs in the tab corral",
+    "message": "すべてのタブの選択を解除"
+  },
+  "corral_toggleAllTabs_selectAll": {
+    "description": "Button title for selecting all tabs in the tab corral",
+    "message": "すべて選択"
+  },
   "extName": {
     "description": "The name of this extension",
     "message": "Tab Wrangler"
+  },
+  "extension_pause": {
+    "description": "Label for button that pauses the extension",
+    "message": "一時停止"
+  },
+  "extension_resume": {
+    "description": "Label for button that resumes (unpauses) the extension",
+    "message": "再開"
+  },
+  "options_dedupe_label": {
+    "description": "Label for the de-duplicating option",
+    "message": "タブ整理内で重複タブを防止する："
+  },
+  "options_dedupe_option_exactURLMatch": {
+    "description": "Label for option to de-duplicate when URL matches exactly",
+    "message": "URLが完全に一致する場合"
+  },
+  "options_dedupe_option_exactURLMatch_description": {
+    "description": "Description for option to de-duplicate when URL matches exactly",
+    "message": "タブが整理されると一覧に追加され、同じURLの古いタブは一覧から削除されます。"
+  },
+  "options_dedupe_option_exactURLMatch_label": {
+    "description": "Extended label of the de-duplicate when tab URL matches exactly option",
+    "message": "URLが完全に一致する場合"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch": {
+    "description": "Label for option to de-duplicate when hostname and page title match",
+    "message": "ホスト名とページタイトルが一致する場合"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_description": {
+    "description": "Extended description for option to de-duplicate when hostname and page title match",
+    "message": "タブが整理されると一覧に追加され、同じホスト名（例：「wikipedia.org」）とページタイトルを持つ古いタブは一覧から削除されます。"
+  },
+  "options_dedupe_option_hostnameAndTitleMatch_label": {
+    "description": "Extended label for option to de-duplicate when hostname and page title match",
+    "message": "ホスト名とページタイトルが一致する場合"
+  },
+  "options_dedupe_option_withDupes": {
+    "description": "Label for option to never de-duplicate the tab corral",
+    "message": "常にしない（デフォルト）"
+  },
+  "options_dedupe_option_withDupes_description": {
+    "description": "Description of the never de-duplicating tabs option",
+    "message": "タブが整理されると一覧に追加されます。その他、一覧に変更は加えられません。"
+  },
+  "options_dedupe_option_withDupes_label": {
+    "description": "Label for never de-duplicating option",
+    "message": "しない"
+  },
+  "options_discard": {
+    "description": "Button title to discard unsaved settings changes",
+    "message": "破棄"
+  },
+  "options_save": {
+    "description": "Button title to save settings changes",
+    "message": "保存"
+  },
+  "options_errorImportExport": {
+    "message": "インポート／エクスポートエラー"
+  },
+  "options_errorSavingSettings": {
+    "message": "設定の保存エラー"
+  },
+  "options_unsavedChanges": {
+    "message": "未保存の変更"
+  },
+  "options_importExport_description": {
+    "description": "Description of the import/export feature shown next to import/export buttons",
+    "message": "整理されたタブのすべての情報をエクスポートします。拡張機能を再インストール後に以前の状態を復元するのに便利です。"
+  },
+  "options_importExport_export": {
+    "description": "Button label to begin exporting closed tabs",
+    "message": "エクスポート"
+  },
+  "options_importExport_exporting": {
+    "description": "Label displayed when exporting closed tabs",
+    "message": "エクスポート中…"
+  },
+  "options_importExport_import": {
+    "description": "Button label to begin importing closed tabs",
+    "message": "インポート"
+  },
+  "options_importExport_importing": {
+    "description": "Label displayed when importing closed tabs",
+    "message": "インポート中…"
+  },
+  "options_importExport_importWarning": {
+    "description": "Description of the destructiveness of importing; current tabs are overwritten",
+    "message": "警告：インポートすると既存のデータはすべて上書きされます。元に戻すことはできません（バックアップがある場合を除く）。"
+  },
+  "options_name": {
+    "description": "Name of the 'Options' section, where users can configure the extension",
+    "message": "オプション"
+  },
+  "options_option_autoLock_add": {
+    "description": "Button label for adding to whitelist",
+    "message": "パターンを追加"
+  },
+  "options_option_autoLock_empty": {
+    "description": "Message shown when there are no whitelisted URLs",
+    "message": "自動ロック対象のURLはまだありません。上のフォームからホワイトリストに追加してください。"
+  },
+  "options_option_autoLock_example": {
+    "description": "Example describing how the whitelist works",
+    "message": "例：「cnn」は「https://www.cnn.com」上のすべてのページ、およびURL内に「cnn」を含むすべてのURLに一致します。"
+  },
+  "options_option_autoLock_label": {
+    "description": "Label preceeding input for adding URL to whitelist",
+    "message": "次を含むURLのタブを自動ロック："
+  },
+  "options_option_autoLock_remove": {
+    "description": "Button label for removing a URL from the whitelist",
+    "message": "削除"
+  },
+  "options_option_autoLock_urlHeader": {
+    "description": "Table column header for list of whitelisted URL strings",
+    "message": "URL文字列"
+  },
+  "options_option_clearOnQuit_label": {
+    "description": "Label for checkbox to clear the tab list after quitting the Browser",
+    "message": "終了時に閉じたタブのリストをクリア"
+  },
+  "options_option_createContextMenu_label": {
+    "description": "Label for checkbox to create a 'Tab Wrangler' context menu item",
+    "message": "「Tab Wrangler」のコンテキストメニュー項目を追加"
+  },
+  "options_option_debounceOnActivated_label": {
+    "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
+    "message": "タブが1秒以上アクティブになった場合のみタイマーをリセット"
+  },
+  "options_option_filterAudio_label": {
+    "description": "Label for checkbox to filter tabs that are playing audio",
+    "message": "音声再生中のタブは閉じない"
+  },
+  "options_option_filterGroupedTabs_label": {
+    "description": "Label for checkbox to lock tabs that are in a tab group",
+    "message": "グループ内のタブは閉じない"
+  },
+  "options_option_minTabs_label": {
+    "description": "Label preceeding input for setting minimum number of tabs",
+    "message": "非アクティブタブを自動的に閉じる（次の数を超えた場合）："
+  },
+  "options_option_minTabs_option_givenWindow": {
+    "description": "Label for option to count tabs per window",
+    "message": "現在のウィンドウ内"
+  },
+  "options_option_minTabs_option_total": {
+    "description": "Label for option to count tabs across all windows",
+    "message": "合計（すべてのウィンドウ）"
+  },
+  "options_option_minTabs_postLabel": {
+    "description": "Label following input for setting minimum number of tabs",
+    "message": "（ピン留めまたはロックされたタブは含まれません）。"
+  },
+  "options_option_minTabs_tabs": {
+    "description": "Input title for minimum number of tabs",
+    "message": "0以上の数字を入力してください"
+  },
+  "options_option_rememberTabs_label": {
+    "description": "Label preceeding input for number of tabs to remember",
+    "message": "最大で記憶するタブ数："
+  },
+  "options_option_rememberTabs_postLabel": {
+    "description": "Label following input for number of tabs to remember",
+    "message": "閉じたタブ。"
+  },
+  "options_option_rememberTabs_tabs": {
+    "description": "Input title for number of tabs to remember",
+    "message": "0以上の数字を入力してください"
+  },
+  "options_option_rememberTabs_saveToConfirm": {
+    "description": "Reminder to press save",
+    "message": "変更を確定するには「保存」を押してください。"
+  },
+  "options_option_rememberTabs_truncateMsg": {
+    "description": "Message shown when decreasing number of saved tabs",
+    "message": "この数字を減らすと、閉じたタブのリストは切り詰められ、削除されたデータは失われます。「保存」を押して確定してください。"
+  },
+  "options_option_rememberTabs_validNumber": {
+    "description": "Validation error when input is empty",
+    "message": "有効な数字を入力してください。"
+  },
+  "options_option_saveSortOrder": {
+    "description": "Label for toggling saving sort order in Corral and Lock Tabs",
+    "message": "並べ替え順を保存"
+  },
+  "options_option_showBadgeCount_label": {
+    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
+    "message": "ツールバーボタンに閉じたタブの数を表示"
+  },
+  "options_option_theme_label": {
+    "description": "Label preceding button group for choosing the color theme",
+    "message": "テーマ"
+  },
+  "options_option_theme_dark": {
+    "description": "'Dark' choice for color theme. Dark background, light font",
+    "message": "ダーク"
+  },
+  "options_option_theme_light": {
+    "description": "'Light' choice for color theme. Light background, dark font",
+    "message": "ライト"
+  },
+  "options_option_theme_system": {
+    "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
+    "message": "システム"
+  },
+  "options_option_timeInactive_abbr_days": {
+    "description": "Abbreviation for 'days' shown in the inactive time input",
+    "message": "日"
+  },
+  "options_option_timeInactive_abbr_hours": {
+    "description": "Abbreviation for 'hours' shown in the inactive time input",
+    "message": "時間"
+  },
+  "options_option_timeInactive_abbr_minutes": {
+    "description": "Abbreviation for 'minutes' shown in the inactive time input",
+    "message": "分"
+  },
+  "options_option_timeInactive_abbr_seconds": {
+    "description": "Abbreviation for 'seconds' shown in the inactive time input",
+    "message": "秒"
+  },
+  "options_option_timeInactive_duration_day": {
+    "description": "Singular 'day' unit with count in the inactive time description",
+    "message": "$count$ 日",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_days": {
+    "description": "Plural 'days' unit with count in the inactive time description",
+    "message": "$count$ 日",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hour": {
+    "description": "Singular 'hour' unit with count in the inactive time description",
+    "message": "$count$ 時間",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hours": {
+    "description": "Plural 'hours' unit with count in the inactive time description",
+    "message": "$count$ 時間",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minute": {
+    "description": "Singular 'minute' unit with count in the inactive time description",
+    "message": "$count$ 分",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minutes": {
+    "description": "Plural 'minutes' unit with count in the inactive time description",
+    "message": "$count$ 分",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_second": {
+    "description": "Singular 'second' unit with count in the inactive time description",
+    "message": "$count$ 秒",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_seconds": {
+    "description": "Plural 'seconds' unit with count in the inactive time description",
+    "message": "$count$ 秒",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_error_zero": {
+    "description": "Error shown when the inactive time duration is set to zero",
+    "message": "期間には0秒より大きい値を設定してください。"
+  },
+  "options_option_timeInactive_label": {
+    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
+    "message": "非アクティブタブを閉じるまでの時間："
+  },
+  "options_saving": {
+    "description": "Message displayed when options are being saved",
+    "message": "保存中…"
+  },
+  "options_section_autoLock": {
+    "description": "Header for the auto-lock section of the options tab",
+    "message": "自動ロック"
+  },
+  "options_section_importExport": {
+    "description": "Header for the import/export feature section of the options tab",
+    "message": "インポート／エクスポート"
+  },
+  "tabCorral_name": {
+    "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
+    "message": "タブ整理"
+  },
+  "tabLock_locked": {
+    "description": "Label for a locked window",
+    "message": "ロック済み"
+  },
+  "tabLock_unlocked": {
+    "description": "Label for an unlocked window",
+    "message": "ロック解除"
+  },
+  "tabLock_lockedStatus_autolocked": {
+    "message": "自動ロック済み"
+  },
+  "tabLock_lockedStatus_locked": {
+    "message": "ロック済み"
+  },
+  "tabLock_lockedReason_locked": {
+    "description": "Label for tab that is locked because the user locked it",
+    "message": "ロック済み"
+  },
+  "tabLock_lockedReason_matches": {
+    "description": "Label for a tab that is locked because it matches the whitelist",
+    "message": "「$pattern$」に一致",
+    "placeholders": {
+      "pattern": {
+        "content": "$1",
+        "example": "chrome://"
+      }
+    }
+  },
+  "tabLock_lockedReason_paused": {
+    "description": "Label for a tab when the extension is paused",
+    "message": "一時停止中"
+  },
+  "tabLock_lockedReason_pinned": {
+    "description": "Label for a tab that is locked because it's pinned",
+    "message": "固定済み"
+  },
+  "tabLock_lockedReason_audible": {
+    "description": "Label for a tab that is locked because it's audible",
+    "message": "音声再生中のタブは閉じない"
+  },
+  "tabLock_lockedReason_group": {
+    "description": "Label for a tab that is locked because it's in a group",
+    "message": "グループ化済み"
+  },
+  "tabLock_lockedReason_window": {
+    "description": "Label for a tab that is protected because its window is locked",
+    "message": "ウィンドウをロック中"
+  },
+  "tabLock_minTabsStatus": {
+    "description": "Tab count / minimum shown in the min-tabs badge.",
+    "message": "$count$ / $minTabs$ タブ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "minTabs": {
+        "content": "$2",
+        "example": "20"
+      }
+    }
+  },
+  "tabLock_minTabsBadge_paused": {
+    "description": "Min-tabs badge tooltip when the extension is paused.",
+    "message": "拡張機能一時停止中：タブは自動で閉じません"
+  },
+  "tabLock_minTabsBadge_allWindows_aboveMin": {
+    "description": "Min-tabs badge tooltip when total tabs exceed the minimum.",
+    "message": "最小数を超過：タブは自動で閉じます"
+  },
+  "tabLock_minTabsBadge_allWindows_belowMin": {
+    "description": "Min-tabs badge tooltip when total tabs are at or below the minimum.",
+    "message": "最小数未満：タブは自動で閉じません"
+  },
+  "tabLock_minTabsBadge_givenWindow_locked": {
+    "description": "Min-tabs badge tooltip when the window is locked.",
+    "message": "ウィンドウロック中：タブは自動で閉じません"
+  },
+  "tabLock_minTabsBadge_givenWindow_aboveMin": {
+    "description": "Min-tabs badge tooltip when this window's tabs exceed the minimum.",
+    "message": "最小数を超過：このウィンドウのタブは自動で閉じます"
+  },
+  "tabLock_minTabsBadge_givenWindow_belowMin": {
+    "description": "Min-tabs badge tooltip when this window's tabs are at or below the minimum.",
+    "message": "最小数未満：このウィンドウのタブは自動で閉じません"
+  },
+  "tabLock_timerFrozen_tooltip": {
+    "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
+    "message": "停止中：最後にフォーカスしたウィンドウのアクティブタブはカウントダウンしません"
+  },
+  "tabLock_groupIndicator_unnamed": {
+    "description": "Fallback tooltip for a tab group with no title.",
+    "message": "名称未設定のグループ"
+  },
+  "tabLock_overdueTooltip": {
+    "description": "Tooltip on the hourglass shown when a tab's countdown has expired.",
+    "message": "自動で閉じられるのを待機中"
+  },
+  "tabLock_lockLabel": {
+    "description": "Explanation of the lock checkbox's functionality",
+    "message": "タブのチェックボックスをオンにするとロックされます（自動で閉じるのを防ぎます）。"
+  },
+  "tabLock_unmuteSite": {
+    "description": "Label for button that unmutes a site",
+    "message": "サイトのミュートを解除"
+  },
+  "tabLock_muteSite": {
+    "description": "Label for button that mutes a site",
+    "message": "サイトをミュート"
+  },
+  "tabLock_name": {
+    "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
+    "message": "タブロック"
+  },
+  "tabLock_remainingTimeLabel": {
+    "description": "Explanation of time remaining before tab is closed",
+    "message": "閉じるまで…"
+  },
+  "tabLock_sort_tabOrder": {
+    "description": "Description for sorting tabs by how they appear in browser",
+    "message": "タブの順序"
+  },
+  "tabLock_sort_tabOrder_short": {
+    "description": "Short version of tabLock_sort_tabOrder",
+    "message": "タブの順序"
+  },
+  "tabLock_sort_tabOrder_desc": {
+    "description": "Description for sorting tabs by how they appear in browser, in reverse",
+    "message": "タブの順序（逆順）"
+  },
+  "tabLock_sort_tabOrder_desc_short": {
+    "description": "Short version of tabLock_sort_tabOrder_desc",
+    "message": "タブの順序（逆順）"
+  },
+  "tabLock_sort_timeUntilClose": {
+    "description": "Description for sorting tabs by how much time until TW closes them",
+    "message": "閉じるまでの時間"
+  },
+  "tabLock_sort_timeUntilClose_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose",
+    "message": "閉じるまでの時間"
+  },
+  "tabLock_sort_timeUntilClose_desc": {
+    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
+    "message": "閉じるまでの時間（降順）"
+  },
+  "tabLock_sort_timeUntilClose_desc_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose_desc",
+    "message": "閉じるまでの時間（降順）"
+  },
+  "tabLock_lockTab": {
+    "description": "Button label for locking a tab",
+    "message": "タブをロック"
+  },
+  "tabLock_unlockTab": {
+    "description": "Button label for unlocking a tab",
+    "message": "タブをロック解除"
+  },
+  "corral_tabsWrangledFull": {
+    "description": "Description of number of tabs wrangled by this extension",
+    "message": "整理済みタブ：$count$（$percent$%）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "18"
+      }
+    }
+  },
+  "settings_setmaxTabs_error_invalid": {
+    "description": "Error shown when invalid max tabs setting is supplied.",
+    "message": "最大タブ数は1より大きい数字にしてください"
+  },
+  "settings_setmaxTabs_error_too_big": {
+    "description": "Error shown when the supplied max tabs setting could exceed quota.",
+    "message": "最大タブ数はストレージ容量の上限を超えることはできません（上限：$upperBound$個、ストレージ容量 $quota$ バイトからの推定）",
+    "placeholders": {
+      "upperBound": {
+        "content": "$1",
+        "example": "18"
+      },
+      "quota": {
+        "content": "$2",
+        "example": "5242880"
+      }
+    }
+  },
+  "settings_setminTabs_error": {
+    "description": "Error shown when invalid min tabs setting is supplied.",
+    "message": "最小タブ数は0以上の数字にしてください"
+  },
+  "settings_setminutesInactive_error": {
+    "description": "Error shown when invalid minutes inactive setting is supplied.",
+    "message": "非アクティブ時間（分）は0以上にしてください"
+  },
+  "settings_setsecondsInactive_error": {
+    "description": "Error shown when invalid seconds inactive setting is supplied.",
+    "message": "非アクティブ時間（秒）は0以上60未満にしてください"
+  },
+  "corral_sortBy": {
+    "description": "Label prefixing sort order of the tab corral",
+    "message": "並べ替え："
+  },
+  "corral_sortPageTitle": {
+    "description": "Label for sorting the tab corral list by page title",
+    "message": "ページタイトル"
+  },
+  "corral_sortPageTitle_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title",
+    "message": "ページタイトル"
+  },
+  "corral_sortPageTitle_descending": {
+    "description": "Label for sorting the tab corral list by page title in descending order",
+    "message": "ページタイトル（降順）"
+  },
+  "corral_sortPageTitle_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by page title in descending order",
+    "message": "ページタイトル（降順）"
+  },
+  "corral_sortTimeClosed": {
+    "description": "Label for sorting the tab corral list by tab closed time",
+    "message": "閉じた時刻"
+  },
+  "corral_sortTimeClosed_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time",
+    "message": "閉じた時刻"
+  },
+  "corral_sortTimeClosed_descending": {
+    "description": "Label for sorting the tab corral list by tab closed time in descending order",
+    "message": "閉じた時刻（降順）"
+  },
+  "corral_sortTimeClosed_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by tab closed time in descending order",
+    "message": "閉じた時刻（降順）"
+  },
+  "corral_sortDomain": {
+    "description": "Label for sorting the tab corral list by domain",
+    "message": "ドメイン"
+  },
+  "corral_sortDomain_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain",
+    "message": "ドメイン"
+  },
+  "corral_sortDomain_descending": {
+    "description": "Label for sorting the tab corral list by domain in descending order",
+    "message": "ドメイン（降順）"
+  },
+  "corral_sortDomain_descending_short": {
+    "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
+    "message": "ドメイン（降順）"
+  },
+  "extDescription": {
+    "description": "Brief description of the extension",
+    "message": "非アクティブタブを自動で閉じ、簡単に復元できるようにします"
+  },
+  "corral_remove": {
+    "description": "Label for button that removes selected tabs",
+    "message": "削除"
+  },
+  "corral_tabSessionFresh": {
+    "description": "Tooltip describing why certain tabs will have their full session restored",
+    "message": "このタブを復元すると、履歴やスクロール位置など、セッション全体が復元されます。これはブラウザの制限により、直近に閉じた25タブまでに制限されます。"
+  },
+  "corral_noTabsMatch": {
+    "description": "Message shown when no tabs match the user's search query",
+    "message": "検索条件に一致するタブが見つかりません。別のキーワードを試すか、条件を広げてください。"
+  },
+  "corral_undo": {
+    "description": "Button title for undoing the last action",
+    "message": "元に戻す"
+  },
+  "corral_redo": {
+    "description": "Button title for redoing the last undone action",
+    "message": "やり直し"
+  },
+  "corral_undo_remove": {
+    "description": "Button title for undoing a remove action",
+    "message": "削除を取り消す（タブ数: $count$）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_undo_restore": {
+    "description": "Button title for undoing a restore action",
+    "message": "復元を取り消す（タブ数: $count$）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_remove": {
+    "description": "Button title for redoing a remove action",
+    "message": "削除をやり直す（タブ数: $count$）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_restore": {
+    "description": "Button title for redoing a restore action",
+    "message": "復元をやり直す（タブ数: $count$）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   }
 }

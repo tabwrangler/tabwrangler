@@ -7,9 +7,29 @@
     "description": "Link to the extension's list of changes per release",
     "message": "Registro de cambios"
   },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "Código fuente (GPLv3)"
+  },
   "about_support": {
     "description": "Link to the extension's support site",
     "message": "Soporte"
+  },
+  "commandLockUnlockActiveTab": {
+    "description": "Description of keyboard shortcut to lock or unlock the active tab",
+    "message": "Bloquear/desbloquear la pestaña activa"
+  },
+  "commandLockUnlockCurrentWindow": {
+    "description": "Description of keyboard shortcut to lock or unlock the current window",
+    "message": "Bloquear/desbloquear la ventana actual"
+  },
+  "commandWrangleCurrentTab": {
+    "description": "Description of keyboard shortcut to close and save the active tab",
+    "message": "Cerrar y guardar la pestaña activa"
+  },
+  "commandWrangleOpenPopup": {
+    "description": "Description of keyboard shortcut to open TabWrangler popup",
+    "message": "Abrir la ventana emergente"
   },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
@@ -121,6 +141,10 @@
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Si el dominio y el título de la página coinciden"
   },
+  "options_dedupe_option_withDupes": {
+    "description": "Label for option to never de-duplicate the tab corral",
+    "message": "Nunca (por defecto)"
+  },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
     "message": "Cuando una pestaña se cierre, se añadirá al registro. No se hará ningún otro cambio al registro."
@@ -128,6 +152,23 @@
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
     "message": "Nunca"
+  },
+  "options_discard": {
+    "description": "Button title to discard unsaved settings changes",
+    "message": "Descartar"
+  },
+  "options_save": {
+    "description": "Button title to save settings changes",
+    "message": "Guardar"
+  },
+  "options_errorImportExport": {
+    "message": "Error al importar/exportar"
+  },
+  "options_errorSavingSettings": {
+    "message": "Error al guardar ajustes"
+  },
+  "options_unsavedChanges": {
+    "message": "Cambios sin guardar"
   },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
@@ -157,6 +198,10 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Opciones"
   },
+  "options_option_autoLock_add": {
+    "description": "Button label for adding to whitelist",
+    "message": "Añadir patrón"
+  },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
     "message": "No hay URLs auto-bloqueadas todavía. Utilice el formulario superior para añadir alguna a la lista blanca."
@@ -181,6 +226,10 @@
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
     "message": "Eliminar pestañas cerradas al salir"
   },
+  "options_option_createContextMenu_label": {
+    "description": "Label for checkbox to create a 'Tab Wrangler' context menu item",
+    "message": "Crear la opción «Tab Wrangler» en el menú contextual"
+  },
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Restablecer el temporizador de una pestaña solo cuando este activa durante 1 segundo"
@@ -188,6 +237,26 @@
   "options_option_filterAudio_label": {
     "description": "Label for checkbox to filter tabs that are playing audio",
     "message": "No cerrar pestañas que estén reproduciendo audio"
+  },
+  "options_option_filterGroupedTabs_label": {
+    "description": "Label for checkbox to lock tabs that are in a tab group",
+    "message": "No cerrar pestañas que estén dentro de un grupo"
+  },
+  "options_option_minTabs_label": {
+    "description": "Label preceeding input for setting minimum number of tabs",
+    "message": "Cerrar pestañas inactivas automáticamente si son más de:"
+  },
+  "options_option_minTabs_option_givenWindow": {
+    "description": "Label for option to count tabs per window",
+    "message": "en una ventana determinada"
+  },
+  "options_option_minTabs_option_total": {
+    "description": "Label for option to count tabs across all windows",
+    "message": "total (todas las ventanas)"
+  },
+  "options_option_minTabs_postLabel": {
+    "description": "Label following input for setting minimum number of tabs",
+    "message": "(no incluye las pestañas bloqueadas o ancladas)."
   },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
@@ -204,6 +273,142 @@
   "options_option_rememberTabs_tabs": {
     "description": "Input title for number of tabs to remember",
     "message": "Debe ser un número mayor o igual que cero"
+  },
+  "options_option_rememberTabs_saveToConfirm": {
+    "description": "Reminder to press save",
+    "message": "Pulsa «Guardar» para confirmar el cambio."
+  },
+  "options_option_rememberTabs_truncateMsg": {
+    "description": "Message shown when decreasing number of saved tabs",
+    "message": "Al reducir este número, se acortará la lista de pestañas cerradas, y los datos de las pestañas más antiguas se eliminarán. Pulsa «Guardar» para confirmar."
+  },
+  "options_option_rememberTabs_validNumber": {
+    "description": "Validation error when input is empty",
+    "message": "Escribe un número válido."
+  },
+  "options_option_saveSortOrder": {
+    "description": "Label for toggling saving sort order in Corral and Lock Tabs",
+    "message": "Guardar el criterio de ordenación"
+  },
+  "options_option_showBadgeCount_label": {
+    "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
+    "message": "Mostrar el número de pestañas cerradas en el botón de la barra de herramientas"
+  },
+  "options_option_theme_label": {
+    "description": "Label preceding button group for choosing the color theme",
+    "message": "Tema"
+  },
+  "options_option_theme_dark": {
+    "description": "'Dark' choice for color theme. Dark background, light font",
+    "message": "Oscuro"
+  },
+  "options_option_theme_light": {
+    "description": "'Light' choice for color theme. Light background, dark font",
+    "message": "Claro"
+  },
+  "options_option_theme_system": {
+    "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
+    "message": "Sistema"
+  },
+  "options_option_timeInactive_abbr_days": {
+    "description": "Abbreviation for 'days' shown in the inactive time input",
+    "message": "d"
+  },
+  "options_option_timeInactive_abbr_hours": {
+    "description": "Abbreviation for 'hours' shown in the inactive time input",
+    "message": "h"
+  },
+  "options_option_timeInactive_abbr_minutes": {
+    "description": "Abbreviation for 'minutes' shown in the inactive time input",
+    "message": "min"
+  },
+  "options_option_timeInactive_abbr_seconds": {
+    "description": "Abbreviation for 'seconds' shown in the inactive time input",
+    "message": "s"
+  },
+  "options_option_timeInactive_duration_day": {
+    "description": "Singular 'day' unit with count in the inactive time description",
+    "message": "$count$ día",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_days": {
+    "description": "Plural 'days' unit with count in the inactive time description",
+    "message": "$count$ días",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hour": {
+    "description": "Singular 'hour' unit with count in the inactive time description",
+    "message": "$count$ hora",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hours": {
+    "description": "Plural 'hours' unit with count in the inactive time description",
+    "message": "$count$ horas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minute": {
+    "description": "Singular 'minute' unit with count in the inactive time description",
+    "message": "$count$ minuto",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minutes": {
+    "description": "Plural 'minutes' unit with count in the inactive time description",
+    "message": "$count$ minutos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_second": {
+    "description": "Singular 'second' unit with count in the inactive time description",
+    "message": "$count$ segundo",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_seconds": {
+    "description": "Plural 'seconds' unit with count in the inactive time description",
+    "message": "$count$ segundos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_error_zero": {
+    "description": "Error shown when the inactive time duration is set to zero",
+    "message": "La duración debe ser mayor que 0 segundos."
   },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
@@ -224,6 +429,20 @@
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
     "message": "Registro"
+  },
+  "tabLock_locked": {
+    "description": "Label for a locked window",
+    "message": "Bloqueado"
+  },
+  "tabLock_unlocked": {
+    "description": "Label for an unlocked window",
+    "message": "Desbloqueado"
+  },
+  "tabLock_lockedStatus_autolocked": {
+    "message": "Bloqueado automáticamente"
+  },
+  "tabLock_lockedStatus_locked": {
+    "message": "Bloqueado"
   },
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
@@ -251,9 +470,75 @@
     "description": "Label for a tab that is locked because it's audible",
     "message": "Las pestañas que estén reproduciendo audio no se cerrarán"
   },
+  "tabLock_lockedReason_group": {
+    "description": "Label for a tab that is locked because it's in a group",
+    "message": "Agrupado"
+  },
+  "tabLock_lockedReason_window": {
+    "description": "Label for a tab that is protected because its window is locked",
+    "message": "Ventana bloqueada"
+  },
+  "tabLock_minTabsStatus": {
+    "description": "Tab count / minimum shown in the min-tabs badge.",
+    "message": "$count$/$minTabs$ pestañas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "minTabs": {
+        "content": "$2",
+        "example": "20"
+      }
+    }
+  },
+  "tabLock_minTabsBadge_paused": {
+    "description": "Min-tabs badge tooltip when the extension is paused.",
+    "message": "Extensión pausada: las pestañas NO se cerrarán automáticamente"
+  },
+  "tabLock_minTabsBadge_allWindows_aboveMin": {
+    "description": "Min-tabs badge tooltip when total tabs exceed the minimum.",
+    "message": "Mínimo superado: las pestañas SE CERRARÁN AUTOMÁTICAMENTE"
+  },
+  "tabLock_minTabsBadge_allWindows_belowMin": {
+    "description": "Min-tabs badge tooltip when total tabs are at or below the minimum.",
+    "message": "Mínimo NO superado: las pestañas NO se cerrarán automáticamente"
+  },
+  "tabLock_minTabsBadge_givenWindow_locked": {
+    "description": "Min-tabs badge tooltip when the window is locked.",
+    "message": "Ventana bloqueada: las pestañas NO se cerrarán automáticamente"
+  },
+  "tabLock_minTabsBadge_givenWindow_aboveMin": {
+    "description": "Min-tabs badge tooltip when this window's tabs exceed the minimum.",
+    "message": "Mínimo superado: las pestañas SE CERRARÁN AUTOMÁTICAMENTE en esta ventana"
+  },
+  "tabLock_minTabsBadge_givenWindow_belowMin": {
+    "description": "Min-tabs badge tooltip when this window's tabs are at or below the minimum.",
+    "message": "Mínimo NO superado: las pestañas NO se cerrarán automáticamente en esta ventana"
+  },
+  "tabLock_timerFrozen_tooltip": {
+    "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
+    "message": "Congelado: la pestaña activa en la ventana utilizada por última vez NO cuenta para el temporizador"
+  },
+  "tabLock_groupIndicator_unnamed": {
+    "description": "Fallback tooltip for a tab group with no title.",
+    "message": "Grupo sin nombre"
+  },
+  "tabLock_overdueTooltip": {
+    "description": "Tooltip on the hourglass shown when a tab's countdown has expired.",
+    "message": "A la espera del cierre automático"
+  },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
     "message": "Marque la casilla de una pestaña para bloquearla (evitará que se cierre automáticamente)."
+  },
+  "tabLock_unmuteSite": {
+    "description": "Label for button that unmutes a site",
+    "message": "Reactivar el sonido del sitio"
+  },
+  "tabLock_muteSite": {
+    "description": "Label for button that mutes a site",
+    "message": "Silenciar el sitio"
   },
   "tabLock_name": {
     "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
@@ -262,6 +547,78 @@
   "tabLock_remainingTimeLabel": {
     "description": "Explanation of time remaining before tab is closed",
     "message": "Cerrando en..."
+  },
+  "tabLock_sort_tabOrder": {
+    "description": "Description for sorting tabs by how they appear in browser",
+    "message": "Orden de pestañas"
+  },
+  "tabLock_sort_tabOrder_short": {
+    "description": "Short version of tabLock_sort_tabOrder",
+    "message": "Orden de pestañas"
+  },
+  "tabLock_sort_tabOrder_desc": {
+    "description": "Description for sorting tabs by how they appear in browser, in reverse",
+    "message": "Orden de pestañas (inverso)"
+  },
+  "tabLock_sort_tabOrder_desc_short": {
+    "description": "Short version of tabLock_sort_tabOrder_desc",
+    "message": "Orden de pestañas (inv.)"
+  },
+  "tabLock_sort_timeUntilClose": {
+    "description": "Description for sorting tabs by how much time until TW closes them",
+    "message": "Tiempo hasta el cierre"
+  },
+  "tabLock_sort_timeUntilClose_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose",
+    "message": "Tiempo hasta el cierre"
+  },
+  "tabLock_sort_timeUntilClose_desc": {
+    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
+    "message": "Tiempo hasta el cierre (descendente)"
+  },
+  "tabLock_sort_timeUntilClose_desc_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose_desc",
+    "message": "Tiempo hasta el cierre (desc.)"
+  },
+  "tabLock_lockTab": {
+    "description": "Button label for locking a tab",
+    "message": "Bloquear pestaña"
+  },
+  "tabLock_unlockTab": {
+    "description": "Button label for unlocking a tab",
+    "message": "Desbloquear pestaña"
+  },
+  "corral_tabsWrangledFull": {
+    "description": "Description of number of tabs wrangled by this extension",
+    "message": "pestañas gestionadas: $count$ ($percent$ %)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "percent": {
+        "content": "$2",
+        "example": "18"
+      }
+    }
+  },
+  "settings_setmaxTabs_error_invalid": {
+    "description": "Error shown when invalid max tabs setting is supplied.",
+    "message": "El número máximo de pestañas debe ser un número mayor a 1"
+  },
+  "settings_setmaxTabs_error_too_big": {
+    "description": "Error shown when the supplied max tabs setting could exceed quota.",
+    "message": "El número máximo de pestañas no debe superar el límite permitido por la cuota de almacenamiento ($upperBound$ pestañas, estimadas a partir de $quota$ bytes disponibles)",
+    "placeholders": {
+      "upperBound": {
+        "content": "$1",
+        "example": "18"
+      },
+      "quota": {
+        "content": "$2",
+        "example": "5242880"
+      }
+    }
   },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
@@ -331,6 +688,10 @@
     "description": "Brief description of the extension",
     "message": "Cierra las pestañas inactivas automáticamente y facilita recuperarlas"
   },
+  "corral_remove": {
+    "description": "Label for button that removes selected tabs",
+    "message": "Eliminar"
+  },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",
     "message": "Restaurar esta pestaña restaurará la sesión completa: historial, posición del scroll, etc. Esta opción esta limitada por el navegador a las 25 últimas pestañas."
@@ -338,5 +699,53 @@
   "corral_noTabsMatch": {
     "description": "Message shown when no tabs match the user's search query",
     "message": "Ninguna pestaña coincide con tu consulta. Prueba con una consulta nueva o menos específica."
+  },
+  "corral_undo": {
+    "description": "Button title for undoing the last action",
+    "message": "Deshacer"
+  },
+  "corral_redo": {
+    "description": "Button title for redoing the last undone action",
+    "message": "Rehacer"
+  },
+  "corral_undo_remove": {
+    "description": "Button title for undoing a remove action",
+    "message": "Deshacer eliminación (pestañas: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_undo_restore": {
+    "description": "Button title for undoing a restore action",
+    "message": "Deshacer restauración (pestañas: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_remove": {
+    "description": "Button title for redoing a remove action",
+    "message": "Rehacer eliminación (pestañas: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_restore": {
+    "description": "Button title for redoing a restore action",
+    "message": "Rehacer restauración (pestañas: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   }
 }

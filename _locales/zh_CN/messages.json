@@ -7,9 +7,29 @@
     "description": "Link to the extension's list of changes per release",
     "message": "变更日志"
   },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "源代码 (GPLv3)"
+  },
   "about_support": {
     "description": "Link to the extension's support site",
     "message": "支持"
+  },
+  "commandLockUnlockActiveTab": {
+    "description": "Description of keyboard shortcut to lock or unlock the active tab",
+    "message": "锁定/解锁活动标签页"
+  },
+  "commandLockUnlockCurrentWindow": {
+    "description": "Description of keyboard shortcut to lock or unlock the current window",
+    "message": "锁定/解锁当前窗口"
+  },
+  "commandWrangleCurrentTab": {
+    "description": "Description of keyboard shortcut to close and save the active tab",
+    "message": "关闭并保存活动标签页"
+  },
+  "commandWrangleOpenPopup": {
+    "description": "Description of keyboard shortcut to open TabWrangler popup",
+    "message": "打开弹出窗口"
   },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
@@ -121,6 +141,10 @@
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "主机名和页面标题匹配"
   },
+  "options_dedupe_option_withDupes": {
+    "description": "Label for option to never de-duplicate the tab corral",
+    "message": "从不（默认）"
+  },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
     "message": "在一个标签页被贮藏关闭时，它被添加到“待用标签页”列表。不会更改以前贮藏的标签页记录。"
@@ -128,6 +152,23 @@
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
     "message": "从不"
+  },
+  "options_discard": {
+    "description": "Button title to discard unsaved settings changes",
+    "message": "丢弃"
+  },
+  "options_save": {
+    "description": "Button title to save settings changes",
+    "message": "保存"
+  },
+  "options_errorImportExport": {
+    "message": "导入/导出错误"
+  },
+  "options_errorSavingSettings": {
+    "message": "保存设置时出错"
+  },
+  "options_unsavedChanges": {
+    "message": "未保存的更改"
   },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
@@ -157,6 +198,10 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "选项"
   },
+  "options_option_autoLock_add": {
+    "description": "Button label for adding to whitelist",
+    "message": "添加模式"
+  },
   "options_option_autoLock_empty": {
     "description": "Message shown when there are no whitelisted URLs",
     "message": "尚无自动锁定的网址。使用上面的表单可以添加一些到白名单。"
@@ -181,6 +226,10 @@
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
     "message": "退出时清除已关闭标签页的列表"
   },
+  "options_option_createContextMenu_label": {
+    "description": "Label for checkbox to create a 'Tab Wrangler' context menu item",
+    "message": "创建“Tab Wrangler”右键菜单项"
+  },
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "仅在标签页活动超过 1 秒后重置该标签页的计时器"
@@ -192,6 +241,22 @@
   "options_option_filterGroupedTabs_label": {
     "description": "Label for checkbox to lock tabs that are in a tab group",
     "message": "不要关闭群组内的标签页"
+  },
+  "options_option_minTabs_label": {
+    "description": "Label preceeding input for setting minimum number of tabs",
+    "message": "当不活动标签页数量超过以下值时自动关闭："
+  },
+  "options_option_minTabs_option_givenWindow": {
+    "description": "Label for option to count tabs per window",
+    "message": "在给定窗口中"
+  },
+  "options_option_minTabs_option_total": {
+    "description": "Label for option to count tabs across all windows",
+    "message": "总计（所有窗口）"
+  },
+  "options_option_minTabs_postLabel": {
+    "description": "Label following input for setting minimum number of tabs",
+    "message": "（不包括固定或锁定标签页）。"
   },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
@@ -208,6 +273,18 @@
   "options_option_rememberTabs_tabs": {
     "description": "Input title for number of tabs to remember",
     "message": "必须是一个大于或等于 0 的数字"
+  },
+  "options_option_rememberTabs_saveToConfirm": {
+    "description": "Reminder to press save",
+    "message": "请按“保存”确认更改。"
+  },
+  "options_option_rememberTabs_truncateMsg": {
+    "description": "Message shown when decreasing number of saved tabs",
+    "message": "减小此数值将截断已关闭标签页列表，且被截断的标签页数据将被删除。请按“保存”确认。"
+  },
+  "options_option_rememberTabs_validNumber": {
+    "description": "Validation error when input is empty",
+    "message": "请输入有效数字。"
   },
   "options_option_saveSortOrder": {
     "description": "Label for toggling saving sort order in Corral and Lock Tabs",
@@ -233,6 +310,106 @@
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "系统"
   },
+  "options_option_timeInactive_abbr_days": {
+    "description": "Abbreviation for 'days' shown in the inactive time input",
+    "message": "天"
+  },
+  "options_option_timeInactive_abbr_hours": {
+    "description": "Abbreviation for 'hours' shown in the inactive time input",
+    "message": "小时"
+  },
+  "options_option_timeInactive_abbr_minutes": {
+    "description": "Abbreviation for 'minutes' shown in the inactive time input",
+    "message": "分"
+  },
+  "options_option_timeInactive_abbr_seconds": {
+    "description": "Abbreviation for 'seconds' shown in the inactive time input",
+    "message": "秒"
+  },
+  "options_option_timeInactive_duration_day": {
+    "description": "Singular 'day' unit with count in the inactive time description",
+    "message": "$count$ 天",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_days": {
+    "description": "Plural 'days' unit with count in the inactive time description",
+    "message": "$count$ 天",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hour": {
+    "description": "Singular 'hour' unit with count in the inactive time description",
+    "message": "$count$ 小时",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hours": {
+    "description": "Plural 'hours' unit with count in the inactive time description",
+    "message": "$count$ 小时",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minute": {
+    "description": "Singular 'minute' unit with count in the inactive time description",
+    "message": "$count$ 分钟",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minutes": {
+    "description": "Plural 'minutes' unit with count in the inactive time description",
+    "message": "$count$ 分钟",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_second": {
+    "description": "Singular 'second' unit with count in the inactive time description",
+    "message": "$count$ 秒",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_seconds": {
+    "description": "Plural 'seconds' unit with count in the inactive time description",
+    "message": "$count$ 秒",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_error_zero": {
+    "description": "Error shown when the inactive time duration is set to zero",
+    "message": "时长必须大于 0 秒。"
+  },
   "options_option_timeInactive_label": {
     "description": "Label preceeding inputs for setting inactive time before tabs are closed",
     "message": "关闭不活动的标签页，如果超过："
@@ -252,6 +429,20 @@
   "tabCorral_name": {
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
     "message": "待用标签页"
+  },
+  "tabLock_locked": {
+    "description": "Label for a locked window",
+    "message": "已锁定"
+  },
+  "tabLock_unlocked": {
+    "description": "Label for an unlocked window",
+    "message": "已解锁"
+  },
+  "tabLock_lockedStatus_autolocked": {
+    "message": "自动锁定"
+  },
+  "tabLock_lockedStatus_locked": {
+    "message": "已锁定"
   },
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
@@ -283,9 +474,71 @@
     "description": "Label for a tab that is locked because it's in a group",
     "message": "群组内"
   },
+  "tabLock_lockedReason_window": {
+    "description": "Label for a tab that is protected because its window is locked",
+    "message": "窗口已锁定"
+  },
+  "tabLock_minTabsStatus": {
+    "description": "Tab count / minimum shown in the min-tabs badge.",
+    "message": "$count$ / $minTabs$ 个标签页",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "minTabs": {
+        "content": "$2",
+        "example": "20"
+      }
+    }
+  },
+  "tabLock_minTabsBadge_paused": {
+    "description": "Min-tabs badge tooltip when the extension is paused.",
+    "message": "扩展已暂停：标签页将不会自动关闭"
+  },
+  "tabLock_minTabsBadge_allWindows_aboveMin": {
+    "description": "Min-tabs badge tooltip when total tabs exceed the minimum.",
+    "message": "已超过最小值：标签页将自动关闭"
+  },
+  "tabLock_minTabsBadge_allWindows_belowMin": {
+    "description": "Min-tabs badge tooltip when total tabs are at or below the minimum.",
+    "message": "未超过最小值：标签页不会自动关闭"
+  },
+  "tabLock_minTabsBadge_givenWindow_locked": {
+    "description": "Min-tabs badge tooltip when the window is locked.",
+    "message": "窗口已锁定：标签页不会自动关闭"
+  },
+  "tabLock_minTabsBadge_givenWindow_aboveMin": {
+    "description": "Min-tabs badge tooltip when this window's tabs exceed the minimum.",
+    "message": "已超过最小值：此窗口中的标签页将自动关闭"
+  },
+  "tabLock_minTabsBadge_givenWindow_belowMin": {
+    "description": "Min-tabs badge tooltip when this window's tabs are at or below the minimum.",
+    "message": "未超过最小值：此窗口中的标签页不会自动关闭"
+  },
+  "tabLock_timerFrozen_tooltip": {
+    "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
+    "message": "已冻结：最后聚焦窗口中的活动标签页不会倒计时"
+  },
+  "tabLock_groupIndicator_unnamed": {
+    "description": "Fallback tooltip for a tab group with no title.",
+    "message": "未命名群组"
+  },
+  "tabLock_overdueTooltip": {
+    "description": "Tooltip on the hourglass shown when a tab's countdown has expired.",
+    "message": "正在等待自动关闭"
+  },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
     "message": "选中一个标签页的复选框则锁定该标签页，避免自动关闭它。"
+  },
+  "tabLock_unmuteSite": {
+    "description": "Label for button that unmutes a site",
+    "message": "取消网站静音"
+  },
+  "tabLock_muteSite": {
+    "description": "Label for button that mutes a site",
+    "message": "网站静音"
   },
   "tabLock_name": {
     "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
@@ -327,6 +580,14 @@
     "description": "Short version of tabLock_sort_timeUntilClose_desc",
     "message": "关闭前时间 (降序)"
   },
+  "tabLock_lockTab": {
+    "description": "Button label for locking a tab",
+    "message": "锁定标签页"
+  },
+  "tabLock_unlockTab": {
+    "description": "Button label for unlocking a tab",
+    "message": "解锁标签页"
+  },
   "corral_tabsWrangledFull": {
     "description": "Description of number of tabs wrangled by this extension",
     "message": "已贮藏 $count$ 个标签页 ($percent$%)",
@@ -338,6 +599,24 @@
       "percent": {
         "content": "$2",
         "example": "18"
+      }
+    }
+  },
+  "settings_setmaxTabs_error_invalid": {
+    "description": "Error shown when invalid max tabs setting is supplied.",
+    "message": "最大标签页数量必须大于 1"
+  },
+  "settings_setmaxTabs_error_too_big": {
+    "description": "Error shown when the supplied max tabs setting could exceed quota.",
+    "message": "最大标签页数量不得超过存储配额允许的限制（根据 $quota$ 字节的存储配额估算，上限为 $upperBound$ 个标签页）",
+    "placeholders": {
+      "upperBound": {
+        "content": "$1",
+        "example": "18"
+      },
+      "quota": {
+        "content": "$2",
+        "example": "5242880"
       }
     }
   },
@@ -409,6 +688,10 @@
     "description": "Brief description of the extension",
     "message": "自动关闭不常用的标签页，并允许您轻松还原找回它们"
   },
+  "corral_remove": {
+    "description": "Label for button that removes selected tabs",
+    "message": "移除"
+  },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",
     "message": "还原标签页将还原其会话，包含历史记录、滚动位置等。受浏览器功能所限，只能还原最近关闭的 25 个标签页。"
@@ -416,5 +699,53 @@
   "corral_noTabsMatch": {
     "description": "Message shown when no tabs match the user's search query",
     "message": "没有标签页匹配您的查询。尝试新查询，或缩减查询关键词。"
+  },
+  "corral_undo": {
+    "description": "Button title for undoing the last action",
+    "message": "撤销"
+  },
+  "corral_redo": {
+    "description": "Button title for redoing the last undone action",
+    "message": "重做"
+  },
+  "corral_undo_remove": {
+    "description": "Button title for undoing a remove action",
+    "message": "撤销移除（标签页：$count$）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_undo_restore": {
+    "description": "Button title for undoing a restore action",
+    "message": "撤销恢复（标签页：$count$）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_remove": {
+    "description": "Button title for redoing a remove action",
+    "message": "重做移除（标签页：$count$）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_redo_restore": {
+    "description": "Button title for redoing a restore action",
+    "message": "重做恢复（标签页：$count$）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   }
 }

@@ -3,7 +3,6 @@ import {
   findPositionByHostnameAndTitle,
   findPositionByURL,
   findTabsToCloseCandidates,
-  getTabClosableStatus,
   getTabIdsOlderThan,
   getTabLockStatus,
   getURLPositionFilterByWrangleOption,
@@ -367,87 +366,6 @@ describe("getURLPositionFilterByWrangleOption", () => {
   });
 });
 
-describe("getTabClosableStatus", () => {
-  beforeEach(() => {
-    settings.get = jest.fn().mockImplementation((key: string) => {
-      switch (key) {
-        case "filterAudio":
-          return false;
-        case "filterGroupedTabs":
-          return false;
-        case "lockedIds":
-          return [];
-        case "lockedWindowIds":
-          return [];
-        case "whitelist":
-          return [];
-        default:
-          return undefined;
-      }
-    });
-  });
-
-  test("active tab is not closable", () => {
-    const tab = createTab({ active: true });
-    expect(getTabClosableStatus(tab)).toEqual({
-      closable: false,
-      reason: "active",
-      tab,
-    });
-  });
-
-  test("pinned tab is not closable", () => {
-    const tab = createTab({ pinned: true });
-    expect(getTabClosableStatus(tab)).toEqual({
-      closable: false,
-      reason: "locked",
-      tab,
-      tabLockStatus: { locked: true, reason: "pinned" },
-    });
-  });
-
-  test("normal tab is closable", () => {
-    const tab = createTab({ groupId: -1 });
-    expect(getTabClosableStatus(tab)).toEqual({ closable: true, tab });
-  });
-
-  test("manually locked tab is not closable", () => {
-    settings.get = jest.fn().mockImplementation((key: string) => {
-      if (key === "lockedIds") return [42];
-      if (key === "lockedWindowIds") return [];
-      if (key === "whitelist") return [];
-      if (key === "filterAudio") return false;
-      if (key === "filterGroupedTabs") return false;
-      return undefined;
-    });
-    const tab = createTab({ id: 42, groupId: -1 });
-    expect(getTabClosableStatus(tab)).toEqual({
-      closable: false,
-      reason: "locked",
-      tab,
-      tabLockStatus: { locked: true, reason: "manual" },
-    });
-  });
-
-  test("whitelisted tab is not closable", () => {
-    settings.get = jest.fn().mockImplementation((key: string) => {
-      if (key === "whitelist") return ["github.com"];
-      if (key === "lockedIds") return [];
-      if (key === "lockedWindowIds") return [];
-      if (key === "filterAudio") return false;
-      if (key === "filterGroupedTabs") return false;
-      return undefined;
-    });
-    const tab = createTab({ groupId: -1, url: "https://github.com/foo" });
-    expect(getTabClosableStatus(tab)).toEqual({
-      closable: false,
-      reason: "locked",
-      tab,
-      tabLockStatus: { locked: true, reason: "whitelist", whitelistMatch: "github.com" },
-    });
-  });
-});
-
 describe("getTabIdsOlderThan", () => {
   test("returns empty set for empty tabTimes", () => {
     expect(getTabIdsOlderThan({}, 1000)).toEqual(new Set());
@@ -540,7 +458,10 @@ describe("findTabsToCloseCandidates", () => {
     expect(result).toHaveLength(2);
   });
 
-  test("excludes active tabs from candidates", () => {
+  test("includes active tabs in candidates when their timer has expired", () => {
+    // Active tabs in non-focused windows have expired tabTimes and should be closable.
+    // The last-focused-window active tab is protected by background.ts refreshing its tabTime
+    // (making it appear fresh here), not by excluding active tabs from candidates.
     mockSettings({ minTabs: 1 });
     const activeOldTab = createTab({ id: 1, active: true });
     const inactiveOldTab = createTab({ id: 2, groupId: -1 });
@@ -551,7 +472,7 @@ describe("findTabsToCloseCandidates", () => {
         inactiveOldTab,
         freshTab,
       ]),
-    ).toEqual([inactiveOldTab]);
+    ).toEqual([activeOldTab, inactiveOldTab]);
   });
 
   test("excludes locked (pinned) tabs from candidates", () => {
@@ -582,10 +503,10 @@ describe("findTabsToCloseCandidates", () => {
     expect(result.map((t) => t.id)).toEqual([1, 2]);
   });
 
-  test("active tab counts toward minTabs total even though it cannot be closed", () => {
-    // 3 tabs: 1 active + 2 old closable. minTabs=2.
-    // The active tab should count toward the total (3 non-locked - 2 minTabs = 1 may close),
-    // not be excluded from the count (which would incorrectly allow 2 closures).
+  test("active tab counts toward minTabs total and can itself be closed", () => {
+    // 3 non-locked tabs, minTabs=2 → only 1 may close.
+    // The active tab counts toward the total and is itself a candidate (its tabTime would be
+    // fresh if it were the last-focused-window active tab, which is not simulated here).
     mockSettings({ minTabs: 2 });
     const activeTab = createTab({ id: 1, active: true });
     const oldTab1 = createTab({ id: 2, groupId: -1 });
@@ -598,9 +519,18 @@ describe("findTabsToCloseCandidates", () => {
     expect(result).toHaveLength(1);
   });
 
+  test("closes active tab that is the last remaining tab in a non-focused window (issue #579)", () => {
+    // Regression: active tabs were unconditionally excluded from candidates, so a window's last
+    // tab would stall at 00:00 and never close. The active tab in the last-focused window is
+    // protected by background.ts keeping its tabTime fresh — not by this function.
+    mockSettings({ minTabs: 0 });
+    const activeOldTab = createTab({ id: 1, active: true });
+    expect(findTabsToCloseCandidates({ "1": OLD_TIME }, [activeOldTab])).toEqual([activeOldTab]);
+  });
+
   test("locked tabs do not count toward minTabs total", () => {
     // 4 tabs: 2 pinned (locked) + 1 active + 1 old closable. minTabs=2.
-    // Non-locked count = 2 (active + closable). 2 - 2 = 0 → nothing should be closed.
+    // Non-locked count = 2. 2 - 2 = 0 → nothing should be closed.
     // If locked tabs were mistakenly counted (tabs.length=4), 4 - 2 = 2 would allow 1 closure.
     mockSettings({ minTabs: 2 });
     const pinnedTab1 = createTab({ id: 1, pinned: true });

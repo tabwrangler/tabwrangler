@@ -225,25 +225,6 @@ export function makeWindowPersistKey(tabs: chrome.tabs.Tab[]): string | undefine
   return keys.length > 0 ? keys.join("|") : undefined;
 }
 
-type TabWithCloseableStatus =
-  | { closable: true; tab: chrome.tabs.Tab }
-  | { closable: false; reason: "active"; tab: chrome.tabs.Tab }
-  | { closable: false; reason: "locked"; tab: chrome.tabs.Tab; tabLockStatus: TabLockStatus };
-
-export function getTabClosableStatus(tab: chrome.tabs.Tab): TabWithCloseableStatus {
-  const tabLockStatus = getTabLockStatus(tab, {
-    filterAudio: settings.get("filterAudio"),
-    filterGroupedTabs: settings.get("filterGroupedTabs"),
-    lockedIds: settings.get("lockedIds"),
-    lockedWindowIds: settings.get("lockedWindowIds"),
-    whitelist: settings.get("whitelist"),
-  });
-  if (tabLockStatus.locked) return { closable: false, reason: "locked", tab, tabLockStatus };
-  if (tab.active) return { closable: false, reason: "active", tab };
-  return { closable: true, tab };
-}
-
-/** Returns tab IDs from `tabTimes` whose times are older than `time`. */
 export function getTabIdsOlderThan(tabTimes: TabTimes, time: number): Set<number> {
   const ret: Set<number> = new Set();
   for (const [tabId, tabTime] of Object.entries(tabTimes)) {
@@ -256,39 +237,31 @@ export function shouldFreezeActiveTabTimer(timeRemainingSeconds: number): boolea
   return timeRemainingSeconds >= ACTIVE_TAB_TIMER_FREEZE_WINDOW_MS / 1000;
 }
 
-/**
- * Given a snapshot of tab times and a list of tabs, returns the subset that should be closed:
- * tabs that are closable (not active, not locked), old enough to exceed `stayOpen`, and whose
- * removal would not reduce the window below `minTabs`.
- */
 export function findTabsToCloseCandidates(
   tabTimes: TabTimes,
   tabs: chrome.tabs.Tab[],
 ): chrome.tabs.Tab[] {
   const cutOff = Date.now() - settings.stayOpen();
   const minTabs = settings.get("minTabs");
-
-  const tabClosableStatuses = tabs.map(getTabClosableStatus);
-  const closableTabsWithStatuses = tabClosableStatuses.filter((tabStatus) => tabStatus.closable);
-  const activeNonLockedTabsWithStatuses = tabClosableStatuses.filter(
-    (tabStatus) => !tabStatus.closable && tabStatus.reason === "active",
+  const unlockedTabs = tabs.filter(
+    (tab) =>
+      !isTabLocked(tab, {
+        filterAudio: settings.get("filterAudio"),
+        filterGroupedTabs: settings.get("filterGroupedTabs"),
+        lockedIds: settings.get("lockedIds"),
+        lockedWindowIds: settings.get("lockedWindowIds"),
+        whitelist: settings.get("whitelist"),
+      }),
   );
 
-  const countableTabs = activeNonLockedTabsWithStatuses.length + closableTabsWithStatuses.length;
-  if (countableTabs - minTabs <= 0) {
-    return [];
-  }
+  if (unlockedTabs.length - minTabs <= 0) return [];
 
   const tabIdsToCut = getTabIdsOlderThan(tabTimes, cutOff);
-  let tabsWithStatusesToCut = closableTabsWithStatuses.filter(
-    (tabWithStatus) => tabWithStatus.tab.id != null && tabIdsToCut.has(tabWithStatus.tab.id),
-  );
-  tabsWithStatusesToCut.sort((a, b) => {
-    if (a.tab.lastAccessed == null || b.tab.lastAccessed == null) return 0;
-    return a.tab.lastAccessed - b.tab.lastAccessed;
+  const candidates = unlockedTabs.filter((tab) => tab.id != null && tabIdsToCut.has(tab.id));
+  candidates.sort((a, b) => {
+    if (a.lastAccessed == null || b.lastAccessed == null) return 0;
+    return a.lastAccessed - b.lastAccessed;
   });
 
-  // If cutting will reduce below `minTabs`, only remove the first N to get to `minTabs`.
-  tabsWithStatusesToCut = tabsWithStatusesToCut.splice(0, countableTabs - minTabs);
-  return tabsWithStatusesToCut.map((tabWithStatus) => tabWithStatus.tab);
+  return candidates.splice(0, unlockedTabs.length - minTabs);
 }

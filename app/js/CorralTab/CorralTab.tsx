@@ -466,6 +466,7 @@ export default function CorralTab() {
               }}
               type="search"
               value={filter}
+              autocomplete="off"
             />
           </div>
         </form>

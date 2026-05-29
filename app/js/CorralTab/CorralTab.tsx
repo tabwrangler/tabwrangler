@@ -453,6 +453,7 @@ export default function CorralTab() {
         >
           <div className="form-group mb-0">
             <input
+              autoComplete="off"
               className="form-control"
               name="search"
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {

@@ -23,17 +23,9 @@
     "description": "Description of keyboard shortcut to lock or unlock the current window",
     "message": "Bloquear/desbloquear la ventana actual"
   },
-  "commandWrangleCurrentTab": {
-    "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "Cerrar y guardar la pestaña activa"
-  },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "Abrir la ventana emergente"
-  },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "Cerrar pestaña y guardar URL inmediatamente"
   },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",

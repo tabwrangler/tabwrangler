@@ -11,10 +11,6 @@
     "description": "Link to the extension's support site",
     "message": "技術支援"
   },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "立即儲存網址並關閉分頁"
-  },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
     "message": "不對此網域關閉任何分頁"

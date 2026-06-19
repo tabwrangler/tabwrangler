@@ -11,10 +11,6 @@
     "description": "Link to the extension's support site",
     "message": "Hilfe"
   },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "Tab schließen und URL sichern"
-  },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
     "message": "Niemals einen Tab aus dieser Domain schließen"

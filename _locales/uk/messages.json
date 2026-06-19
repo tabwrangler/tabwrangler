@@ -15,10 +15,6 @@
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "Відкрити спливаюче вікно"
   },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "Закрити вкладку та одразу зберегти URL"
-  },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
     "message": "Ніколи не закривати цей домен"

@@ -11,10 +11,6 @@
     "description": "Link to the extension's support site",
     "message": "Segítségnyújtás"
   },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "Lap bezárása és URL azonnali mentése"
-  },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
     "message": "Soha ne zárjon be semmit ezen a domainen"

@@ -15,10 +15,6 @@
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "팝업 열기"
   },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "탭을 닫고 URL을 저장합니다"
-  },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
     "message": "이 탭을 절대로 닫지 않습니다"

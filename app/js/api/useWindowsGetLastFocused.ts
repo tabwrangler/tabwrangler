@@ -8,6 +8,7 @@ const WINDOWS_LAST_FOCUSED_QUERY_KEY = ["windowsLastFocusedQuery"] as const;
  */
 export default function useWindowsGetLastFocused() {
   const queryClient = useQueryClient();
+
   useEffect(() => {
     function invalidateQuery() {
       queryClient.invalidateQueries({ queryKey: WINDOWS_LAST_FOCUSED_QUERY_KEY });
@@ -17,6 +18,7 @@ export default function useWindowsGetLastFocused() {
       chrome.windows.onFocusChanged.removeListener(invalidateQuery);
     };
   }, [queryClient]);
+
   return useQuery({
     queryFn: () => chrome.windows.getLastFocused(),
     queryKey: WINDOWS_LAST_FOCUSED_QUERY_KEY,

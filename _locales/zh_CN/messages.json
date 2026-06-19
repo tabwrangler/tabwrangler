@@ -23,17 +23,9 @@
     "description": "Description of keyboard shortcut to lock or unlock the current window",
     "message": "锁定/解锁当前窗口"
   },
-  "commandWrangleCurrentTab": {
-    "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "关闭并保存活动标签页"
-  },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "打开弹出窗口"
-  },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "关闭标签页并保存网址"
   },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",

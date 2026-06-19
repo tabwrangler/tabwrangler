@@ -23,17 +23,9 @@
     "description": "Description of keyboard shortcut to lock or unlock the current window",
     "message": "現在のウィンドウをロック／ロック解除"
   },
-  "commandWrangleCurrentTab": {
-    "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "アクティブタブを閉じて保存"
-  },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "ポップアップを開く"
-  },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "タブを閉じて即座にURLを保存"
   },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",

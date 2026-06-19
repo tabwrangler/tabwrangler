@@ -23,17 +23,9 @@
     "description": "Description of keyboard shortcut to lock or unlock the current window",
     "message": "Закрепить/открепить текущее окно"
   },
-  "commandWrangleCurrentTab": {
-    "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "Закрыть и сохранить активную вкладку"
-  },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "Открыть окно"
-  },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "Немедленно закрыть вкладку и сохранить URL"
   },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",

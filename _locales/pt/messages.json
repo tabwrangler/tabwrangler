@@ -15,10 +15,6 @@
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "Abrir pop-up"
   },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "Feche a aba e salve a URL imediatamente"
-  },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
     "message": "Nunca feche nada neste domínio"

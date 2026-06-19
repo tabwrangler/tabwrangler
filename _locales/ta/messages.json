@@ -11,10 +11,6 @@
     "description": "Link to the extension's support site",
     "message": "ஆதரவு"
   },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "தாவலை மூடி, URLஐ உடனடியாகச் சேமிக்கவும்"
-  },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
     "message": "இந்த வலைகளத்தில் எதையும் மூட வேண்டாம்"

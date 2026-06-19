@@ -11,10 +11,6 @@
     "description": "Link to the extension's support site",
     "message": "Atbalsts"
   },
-  "contextMenu_corralTab": {
-    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "Nekavējoties aizvērt cilni un saglabāt vietnes URL"
-  },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
     "message": "Nekad neko neaizvērt šajā domēnā"

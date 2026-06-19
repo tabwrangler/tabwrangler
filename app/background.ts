@@ -10,9 +10,15 @@ import {
   updateClosedCount,
   updateLastAccessed,
   wrangleTabs,
-  wrangleTabsAndPersist,
 } from "./js/tabUtil";
 import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
+import {
+  lockUnlockActiveTab,
+  lockUnlockCurrentWindow,
+  wrangleActiveTab,
+  wrangleOtherTabs,
+  wrangleTabsToRight,
+} from "./js/commands";
 import { CHECK_TO_CLOSE_INTERVAL_MS } from "./js/constants";
 import Menus from "./js/menus";
 import { debounce } from "lodash-es";
@@ -110,19 +116,19 @@ chrome.tabs.onActivated.addListener(async function onActivated(tabInfo) {
 });
 
 chrome.tabs.onCreated.addListener((tab: chrome.tabs.Tab) => {
-  // During startup, accumulate restored tabs. The first event switches from the 5s first-event
-  // timeout to a 1s debounce; each subsequent event resets that debounce. Once 1s passes without a
-  // new onCreated event, tabsRestoredPromise resolves with the full list.
   if (!startupComplete) {
+    // During startup, accumulate restored tabs. The first event switches from the 5s first-event
+    // timeout to a 1s debounce; each subsequent event resets that debounce. Once 1s passes without a
+    // new onCreated event, tabsRestoredPromise resolves with the full list.
     restoredTabs.push(tab);
     if (tabsRestoredTimeout != null) clearTimeout(tabsRestoredTimeout);
     tabsRestoredTimeout = setTimeout(
       () => resolveTabsRestored(restoredTabs),
       TABS_RESTORED_DEBOUNCE_MS,
     );
-    return;
+  } else {
+    onNewTab(tab);
   }
-  onNewTab(tab);
 });
 
 chrome.tabs.onRemoved.addListener(removeTab);
@@ -160,19 +166,19 @@ chrome.windows.onRemoved.addListener((windowId: number) => {
 chrome.commands.onCommand.addListener(async (command) => {
   switch (command) {
     case "lock-unlock-active-tab":
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        settings.toggleTabs(tabs);
-      });
+      await lockUnlockActiveTab();
       break;
-    case "lock-unlock-current-window": {
-      const currentWindow = await chrome.windows.getCurrent();
-      if (currentWindow.id != null) settings.toggleWindow(currentWindow.id);
+    case "lock-unlock-current-window":
+      await lockUnlockCurrentWindow();
       break;
-    }
     case "wrangle-active-tab":
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        wrangleTabsAndPersist(tabs);
-      });
+      await wrangleActiveTab();
+      break;
+    case "wrangle-other-tabs":
+      await wrangleOtherTabs();
+      break;
+    case "wrangle-tabs-to-right":
+      await wrangleTabsToRight();
       break;
     default:
       console.warn(`[onCommand]: Received unhandled command "${command}"`);

@@ -25,7 +25,15 @@
   },
   "commandWrangleCurrentTab": {
     "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "Close and save active tab"
+    "message": "Wrangle active tab"
+  },
+  "commandWrangleTabsToRight": {
+    "description": "Description of keyboard shortcut to close and save all tabs to the right of the active tab",
+    "message": "Wrangle tabs to the right"
+  },
+  "commandWrangleOtherTabs": {
+    "description": "Description of keyboard shortcut to close and save all tabs except the active tab",
+    "message": "Wrangle other tabs"
   },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
@@ -33,7 +41,7 @@
   },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "Close tab and save URL immediately"
+    "message": "Wrangle this tab"
   },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",

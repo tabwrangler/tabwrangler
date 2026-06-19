@@ -22,6 +22,12 @@
     },
     "wrangle-active-tab": {
       "description": "__MSG_commandWrangleCurrentTab__"
+    },
+    "wrangle-other-tabs": {
+      "description": "__MSG_commandWrangleOtherTabs__"
+    },
+    "wrangle-tabs-to-right": {
+      "description": "__MSG_commandWrangleTabsToRight__"
     }
   },
   "minimum_chrome_version": "110",

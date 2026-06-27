@@ -12,8 +12,21 @@
     "default_popup": "popup.html",
     "default_title": "__MSG_extName__"
   },
-  "background": {},
+  "background": {
+    "scripts": [
+      "background.entry.js"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{81b74d53-9416-4fb3-afa2-ab46684b253b}",
+      "strict_min_version": "109.0"
+    }
+  },
   "commands": {
+    "_execute_action": {
+      "description": "__MSG_commandWrangleOpenPopup__"
+    },
     "lock-unlock-active-tab": {
       "description": "__MSG_commandLockUnlockActiveTab__"
     },
@@ -30,7 +43,6 @@
       "description": "__MSG_commandWrangleTabsToRight__"
     }
   },
-  "minimum_chrome_version": "110",
   "options_ui": {
     "open_in_tab": true,
     "page": "options.html"

@@ -95,22 +95,13 @@ module.exports = [
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: "app/manifest.template.json",
+            from: "app/manifest.chrome.json",
             to: "manifest.json",
             transform(buffer) {
               const manifest = JSON.parse(buffer.toString());
 
-              // Use background script as a ServiceWorker, as required by Chrome's Manifest v3
-              // implementation.
-              // See https://developer.chrome.com/docs/extensions/migrating/to-service-workers/
-              manifest.background = {
-                service_worker: "background.entry.js",
-              };
-
               // Sync extension version to the version in package.json.
               manifest.version = package.version;
-
-              manifest.permissions = [...manifest.permissions, "favicon"];
 
               return JSON.stringify(manifest, null, 2);
             },
@@ -137,34 +128,13 @@ module.exports = [
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: "app/manifest.template.json",
+            from: "app/manifest.firefox.json",
             to: "manifest.json",
             transform(buffer) {
               const manifest = JSON.parse(buffer.toString());
 
-              // Use background script as intended because Firefox supports background scripts in
-              // its Manifest v3 implementation.
-              // See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Background_scripts
-              manifest.background = {
-                scripts: ["background.entry.js"],
-              };
-
-              // Firefox (Gecko) settings
-              // See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings
-              manifest.browser_specific_settings = {
-                gecko: {
-                  id: "{81b74d53-9416-4fb3-afa2-ab46684b253b}",
-                  strict_min_version: "109.0",
-                },
-              };
-
               // Sync extension version to the version in package.json.
               manifest.version = package.version;
-
-              // Supports extension popup activation shortcut
-              manifest.commands["_execute_action"] = {
-                description: "__MSG_commandWrangleOpenPopup__",
-              };
 
               return JSON.stringify(manifest, null, 2);
             },

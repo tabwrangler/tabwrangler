@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "version": "__VERSION__",
+  "default_locale": "en",
+  "description": "__MSG_extDescription__",
+  "icons": {
+    "128": "img/icon128.png"
+  },
+  "action": {
+    "default_icon": "img/icon.png",
+    "default_popup": "popup.html",
+    "default_title": "__MSG_extName__"
+  },
+  "background": {
+    "service_worker": "background.entry.js"
+  },
+  "commands": {
+    "lock-unlock-active-tab": {
+      "description": "__MSG_commandLockUnlockActiveTab__"
+    },
+    "lock-unlock-current-window": {
+      "description": "__MSG_commandLockUnlockCurrentWindow__"
+    },
+    "wrangle-active-tab": {
+      "description": "__MSG_commandWrangleCurrentTab__"
+    },
+    "wrangle-other-tabs": {
+      "description": "__MSG_commandWrangleOtherTabs__"
+    },
+    "wrangle-tabs-to-right": {
+      "description": "__MSG_commandWrangleTabsToRight__"
+    }
+  },
+  "minimum_chrome_version": "110",
+  "options_ui": {
+    "open_in_tab": true,
+    "page": "options.html"
+  },
+  "permissions": [
+    "alarms",
+    "contextMenus",
+    "favicon",
+    "sessions",
+    "storage",
+    "tabGroups",
+    "tabs"
+  ]
+}

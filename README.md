@@ -55,8 +55,6 @@ focus on the tabs that matter
   ready.
 - _Pinned and active tabs are always safe_: The tab you're looking at right now and any pinned tabs
   are never auto-closed.
-- _Synced settings_: Your Tab Wrangler preferences sync automatically across all browsers where
-  you're signed in.
 
 ## Usage
 
@@ -69,7 +67,6 @@ The Tab Corral is your saved list of every tab Tab Wrangler has automatically cl
 - **Restore a tab**: Click any row to reopen that tab. Tabs marked with a 🌿 icon will restore with
   their full browsing history (back/forward buttons) and scroll position.
 - **Search**: Use the search box to filter tabs by title or URL.
-- **Sort**: Sort the list by close time, page title, domain name, or time the tab was open.
 - **Remove**: Delete individual saved tabs from the list, or clear the entire Tab Corral at once.
 - **Statistics**: The header shows how many tabs Tab Wrangler has closed in total.
 
@@ -90,7 +87,6 @@ Wrangler is allowed to close.
   holding off on closing tabs because the minimum hasn't been reached yet.
 - **Pause**: The extension can be paused from the popup header, stopping all countdowns and
   auto-closing until you resume it.
-- **Sort**: Sort open tabs by time remaining, tab order, or title.
 
 ### Options Tab
 
@@ -108,7 +104,6 @@ The Options tab lets you configure how Tab Wrangler behaves.
   whether the list is cleared when you close your browser.
 - **Duplicate tabs**: Control how Tab Wrangler handles saving a tab whose URL is already in the
   Corral.
-- **Appearance**: Choose between light, dark, or system-matched theme for Tab Wrangler.
 - **Icon badge**: Optionally show a count of saved tabs on the extension icon.
 - **Keyboard shortcuts**: Configure keyboard shortcuts for common Tab Wrangler actions.
 - **Import / Export**: Back up your saved tabs list and settings to a file, or restore from a
@@ -203,8 +198,9 @@ your tabs but not the content inside those tabs.
 
 ### Explanation of Requested Permissions
 
-Tab Wrangler's requested permissions are listed in its
-[manifest.json](app/manifest.template.json#L29-L35) under the `"permissions"` key.
+Tab Wrangler's requested permissions are listed in its `manifest.json`
+([Chrome](app/manifest.chrome.json)|[Firefox](app/manifest.firefox.json)) under the `"permissions"`
+key.
 
 - [`"alarms"`][7]: Allows creating alarms to periodically check Tab Wrangler's background script
   that checks for stale tabs is running and healthy.

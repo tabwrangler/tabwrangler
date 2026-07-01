@@ -199,7 +199,7 @@ your tabs but not the content inside those tabs.
 ### Explanation of Requested Permissions
 
 Tab Wrangler's requested permissions are listed in its `manifest.json`
-([Chrome](app/manifest.chrome.json)|[Firefox](app/manifest.firefox.json)) under the `"permissions"`
+([Chrome](app/manifest.chrome.json) | [Firefox](app/manifest.firefox.json)) under the `"permissions"`
 key.
 
 - [`"alarms"`][7]: Allows creating alarms to periodically check Tab Wrangler's background script

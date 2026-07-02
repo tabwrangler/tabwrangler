@@ -38,7 +38,7 @@ let startupComplete = false;
 // resolves 1s after the last onCreated event, indicating the burst of restored tabs has settled.
 const TABS_RESTORED_FIRST_EVENT_MS = 5_000;
 const TABS_RESTORED_DEBOUNCE_MS = 1_000;
-let resolveTabsRestored!: (tabs: chrome.tabs.Tab[]) => void;
+let resolveTabsRestored: (tabs: chrome.tabs.Tab[]) => void;
 const tabsRestoredPromise = new Promise<chrome.tabs.Tab[]>((resolve) => {
   resolveTabsRestored = resolve;
 });
@@ -156,6 +156,10 @@ chrome.tabs.onReplaced.addListener(function replaceTab(addedTabId: number, remov
     });
     console.debug("[onReplaced] Replaced tab time: removedId, addedId", removedTabId, addedTabId);
   });
+});
+
+chrome.tabs.onUpdated.addListener((_tabId, _changeInfo, tab) => {
+  if (tab.active) updateIcon(tab);
 });
 
 // Clean up locked window IDs when windows are closed.

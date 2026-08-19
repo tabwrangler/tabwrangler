@@ -58,8 +58,8 @@ const COMMON_CONFIG = {
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
-        { from: "_locales/**" },
         { from: "app/img/", to: "img/" },
+        { from: "app/_locales/", to: "_locales/" },
         { from: "LICENSE.txt" },
         { from: "README.md" },
       ],

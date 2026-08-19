@@ -8,7 +8,7 @@
   [
     {
       "dest": "messages.json",
-      "source": "/_locales/en/messages.json",
-      "translation": "/_locales/%two_letters_code%/%original_file_name%",
+      "source": "/app/_locales/en/messages.json",
+      "translation": "/app/_locales/%two_letters_code%/%original_file_name%",
     },
   ]

@@ -34,12 +34,12 @@ All coordination goes through storage events:
 
 ### Storage layout
 
-| Area | Key | Contents |
-|------|-----|----------|
-| `sync` | `persist:settings` | All user settings (pause state, thresholds, whitelist, locked IDs, …) |
-| `local` | `persist:localStorage` | Saved/closed tabs, statistics, install date |
-| `local` | `tabTimes` | `{ [tabId]: lastAccessedTimestamp }` — written frequently, kept separate |
-| `local` | `pausedAt` | Timestamp when paused; absent when running |
+| Area    | Key                    | Contents                                                                 |
+| ------- | ---------------------- | ------------------------------------------------------------------------ |
+| `sync`  | `persist:settings`     | All user settings (pause state, thresholds, whitelist, locked IDs, …)    |
+| `local` | `persist:localStorage` | Saved/closed tabs, statistics, install date                              |
+| `local` | `tabTimes`             | `{ [tabId]: lastAccessedTimestamp }` — written frequently, kept separate |
+| `local` | `pausedAt`             | Timestamp when paused; absent when running                               |
 
 `app/js/storage.ts` wraps all storage access. Every mutating function acquires `ASYNC_LOCK`
 (5s max) to prevent race conditions. React Query hooks (`useStorageSyncPersistQuery`,
@@ -70,6 +70,6 @@ window-locked), respects `minTabs` / `minTabsStrategy` (`"givenWindow"` counts p
 ### i18n
 
 All user-visible strings go through `chrome.i18n.getMessage(key)`. Messages live in
-`_locales/{locale}/messages.json`. When adding a new string, add it to `_locales/en/messages.json`
-with a `description` field (used by translators on Crowdin) and `placeholders` for any substitution
-values.
+`app/_locales/{locale}/messages.json`. When adding a new string, add it to
+`app/_locales/en/messages.json` with a `description` field (used by translators on Crowdin) and
+`placeholders` for any substitution values.

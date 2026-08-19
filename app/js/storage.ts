@@ -68,7 +68,7 @@ export async function unpauseExtension(): Promise<void> {
 
   // Shift all tab times so time spent paused does not count against tab times. For example, if a
   // tab had 1 min remaining, extension paused for 45sec, tab should still have 1min on resume.
-  if (pausedAt != null) await shiftTabTimes(Date.now() - pausedAt);
+  if (pausedAt != null) await shiftTabTimes(pausedAt);
 
   await Promise.all([
     mutateStorageSyncPersist({ key: "paused", value: false }),

@@ -1,6 +1,7 @@
 import { Button } from "react-bootstrap";
 import MinimumTabsBadge from "./MinimumTabsBadge";
 import OpenTabRow from "./OpenTabRow";
+import { TabTimes } from "../types";
 import cx from "classnames";
 import settings from "../settings";
 
@@ -11,7 +12,7 @@ interface WindowCardProps {
   windowId: number;
   tabGroupsById: Map<number, chrome.tabGroups.TabGroup>;
   tabs: chrome.tabs.Tab[];
-  tabTimes: Record<number, number> | undefined;
+  tabTimes: TabTimes | undefined;
   totalUnlockedTabCount: number;
   onToggle: (windowId: number) => void;
   onToggleTab: (

@@ -5,6 +5,7 @@ import settings, { type LockTabSortOrderOption } from "../settings";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dropdown } from "react-bootstrap";
 import MinimumTabsBadge from "./MinimumTabsBadge";
+import { TabTimes } from "../types";
 import WindowCard from "./WindowCard";
 import cx from "classnames";
 import { useStorageSyncQuery } from "../storage";
@@ -130,7 +131,7 @@ function useNow() {
 function useTabTimesQuery() {
   const queryClient = useQueryClient();
   const query = useQuery({
-    queryFn: () => chrome.storage.local.get({ tabTimes: {} }),
+    queryFn: () => chrome.storage.local.get<{ tabTimes: TabTimes }>({ tabTimes: {} }),
     queryKey: ["tabTimesQuery"],
   });
   useEffect(() => {
@@ -180,12 +181,11 @@ export default function LockTab() {
   const tabGroupsById = new Map((tabGroupsQuery.data ?? []).map((group) => [group.id, group]));
 
   const tabsByWindowId: Array<[number, chrome.tabs.Tab[]]> = useMemo(() => {
+    const tabTimesData = tabTimesQuery.data;
     const tabs =
-      tabsQuery.data == null || tabTimesQuery.data == null
+      tabsQuery.data == null || tabTimesData == null
         ? []
-        : tabsQuery.data
-            .slice()
-            .sort((tabA, tabB) => currSorter.sort(tabA, tabB, tabTimesQuery.data));
+        : tabsQuery.data.slice().sort((tabA, tabB) => currSorter.sort(tabA, tabB, tabTimesData));
     const map = new Map<number, chrome.tabs.Tab[]>();
     tabs.forEach((tab) => {
       if (!map.has(tab.windowId)) map.set(tab.windowId, []);

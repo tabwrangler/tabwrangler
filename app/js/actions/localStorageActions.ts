@@ -1,7 +1,8 @@
-import { SessionTab, TabWithIndex } from "../types";
+import { SessionTab, TabTimes, TabWithIndex } from "../types";
 import { ASYNC_LOCK } from "../storage";
 import { getStorageLocalPersist } from "../queries";
 import { serializeTab } from "../util";
+import settings from "../settings";
 
 export function removeAllSavedTabs(): Promise<void> {
   return ASYNC_LOCK.acquire("persist:localStorage", async () => {
@@ -92,7 +93,7 @@ export function openTabs(tabs: Array<chrome.tabs.Tab>): Promise<chrome.tabs.Tab[
 
 export function setTabTime(tabId: string, tabTime: number) {
   return ASYNC_LOCK.acquire("local.tabTimes", async () => {
-    const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
+    const { tabTimes } = await chrome.storage.local.get<{ tabTimes: TabTimes }>({ tabTimes: {} });
     await chrome.storage.local.set({
       tabTimes: {
         ...tabTimes,
@@ -102,23 +103,39 @@ export function setTabTime(tabId: string, tabTime: number) {
   });
 }
 
-export function shiftTabTimes(deltaMs: number) {
+export function shiftTabTimes(pausedAtMs: number) {
   return ASYNC_LOCK.acquire("local.tabTimes", async () => {
-    const { tabTimes } = await chrome.storage.local.get<{ tabTimes: Record<string, number> }>({
+    const { tabTimes } = await chrome.storage.local.get<{ tabTimes: TabTimes }>({
       tabTimes: {},
     });
-    const shifted: Record<string, number> = {};
-    for (const [tabId, tabTime] of Object.entries(tabTimes)) {
-      shifted[tabId] = tabTime + deltaMs;
+
+    const now = Date.now();
+    const deltaMs = now - pausedAtMs;
+    const shifted: TabTimes = {};
+    const minShiftedTimeMs = now - settings.stayOpen();
+    for (const [tabId, tabTimeMs] of Object.entries(tabTimes)) {
+      let shiftedTimeMs: number;
+
+      // Shift tabTimes that predate the pause to account for the paused time
+      if (tabTimeMs <= pausedAtMs) shiftedTimeMs = tabTimeMs + deltaMs;
+      else shiftedTimeMs = tabTimeMs;
+
+      // Clamp new tabTimes to `stayOpen` setting. Two ways the clamping could be needed:
+      // 1. `tabTimeMs` predates the pause, but `stayOpen` setting changed while paused
+      // 2. `tabTimeMs` postdates the pause, but it is older than max `stayOpen` setting (either
+      //     because the setting changed or because tab was activated longer than `stayOpen` ago)
+      const clampedShiftedTimeMs = Math.max(shiftedTimeMs, minShiftedTimeMs);
+
+      shifted[tabId] = clampedShiftedTimeMs;
     }
-    console.debug(`[shiftTabTimes] Shifted all tabTimes by ${deltaMs}ms`);
+    console.debug(`[shiftTabTimes] Shifted tabTimes predating pause by ${deltaMs}ms`);
     await chrome.storage.local.set({ tabTimes: shifted });
   });
 }
 
 export function setTabTimes(tabIds: string[], tabTime: number) {
   return ASYNC_LOCK.acquire("local.tabTimes", async () => {
-    const { tabTimes } = await chrome.storage.local.get<{ tabTimes: Record<string, number> }>({
+    const { tabTimes } = await chrome.storage.local.get<{ tabTimes: TabTimes }>({
       tabTimes: {},
     });
     tabIds.forEach((tabId) => {
@@ -144,7 +161,7 @@ export function incrementTotalTabsRemoved() {
 
 export function removeTabTime(tabId: string) {
   return ASYNC_LOCK.acquire("local.tabTimes", async () => {
-    const { tabTimes } = await chrome.storage.local.get({ tabTimes: {} });
+    const { tabTimes } = await chrome.storage.local.get<{ tabTimes: TabTimes }>({ tabTimes: {} });
     delete tabTimes[tabId];
     await chrome.storage.local.set({
       tabTimes,

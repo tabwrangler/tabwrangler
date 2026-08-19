@@ -1,3 +1,5 @@
+import { TabTimes } from "./types";
+
 type ThemeSettingValue = "dark" | "light" | "system";
 
 type StorageSyncPersistState = {
@@ -19,8 +21,6 @@ export async function getStorageSyncPersist(): Promise<StorageSyncPersistState> 
 
 // StorageLocalPersistState grows linearly with the size of tabTimes and savedTabs
 // We defined an estimate of the size of an individual tab at tabUtil.AVERAGE_TAB_BYTES_SIZE
-
-export type TabTimes = Record<string, number>;
 
 export interface StorageLocalPersistState {
   // Date of installation of Tab Wrangler

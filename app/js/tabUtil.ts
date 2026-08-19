@@ -1,4 +1,4 @@
-import { StorageLocalPersistState, TabTimes, getStorageLocalPersist } from "./queries";
+import { StorageLocalPersistState, getStorageLocalPersist } from "./queries";
 import {
   incrementTotalTabsRemoved,
   removeTabTime,
@@ -7,6 +7,7 @@ import {
 } from "./actions/localStorageActions";
 import settings, { SettingsSchemaWrangleOption } from "./settings";
 import { ACTIVE_TAB_TIMER_FREEZE_WINDOW_MS } from "./constants";
+import { TabTimes } from "./types";
 
 export const AVERAGE_TAB_BYTES_SIZE = 600;
 

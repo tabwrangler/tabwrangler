@@ -21,6 +21,7 @@ import {
 } from "./js/commands";
 import { CHECK_TO_CLOSE_INTERVAL_MS } from "./js/constants";
 import Menus from "./js/menus";
+import { TabTimes } from "./js/types";
 import { debounce } from "lodash-es";
 import { removeAllSavedTabs } from "./js/actions/localStorageActions";
 import settings from "./js/settings";
@@ -138,7 +139,7 @@ chrome.tabs.onReplaced.addListener(function replaceTab(addedTabId: number, remov
     // Read from both storage areas in parallel (they are independent).
     const [{ lockedIds }, { tabTimes }] = await Promise.all([
       chrome.storage.sync.get({ lockedIds: [] }),
-      chrome.storage.local.get({ tabTimes: {} }),
+      chrome.storage.local.get<{ tabTimes: TabTimes }>({ tabTimes: {} }),
     ]);
 
     // Replace tab ID in array of locked IDs if the removed tab was locked
@@ -241,7 +242,7 @@ async function checkToClose() {
         // `Window`, only whether it is *currently* focused
         chrome.windows.getLastFocused(),
         chrome.windows.getAll({ populate: true }),
-        chrome.storage.local.get({ tabTimes: {} }),
+        chrome.storage.local.get<{ tabTimes: TabTimes }>({ tabTimes: {} }),
       ]);
 
       const allTabs = allWindows.flatMap((win) => win.tabs ?? []);
@@ -286,7 +287,7 @@ async function checkToClose() {
       //   populated
       // * Tab no longer exists? reducing `tabs.query` will not yield that dead tab ID and it will
       //   not exist in resulting `nextTabTimes`
-      const nextTabTimes: { [key: string]: number } = {};
+      const nextTabTimes: TabTimes = {};
       const nextTabTimesByPersistKey: { [key: string]: number } = {};
       const lockedTabPersistKeys: string[] = [];
       for (const tab of allTabs) {
@@ -372,7 +373,7 @@ async function migratePersistedData(
     const offlineGap = lastSeenAt == null ? 0 : Math.max(0, now - lastSeenAt);
     const lockedTabPersistKeySet = new Set(lockedTabPersistKeys);
     const tabsToRelock: chrome.tabs.Tab[] = [];
-    const nextTabTimes: { [key: string]: number } = {};
+    const nextTabTimes: TabTimes = {};
     const nextTabTimesByPersistKey: { [key: string]: number } = {};
     const nextLockedTabPersistKeys: string[] = [];
     for (const tab of tabs) {

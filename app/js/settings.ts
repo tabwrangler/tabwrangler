@@ -18,6 +18,7 @@ export type SettingsSchemaWrangleOption = "exactURLMatch" | "hostnameAndTitleMat
 
 export interface SettingsSchema {
   corralTabSortOrder: string | null;
+  countOfflineTime: boolean;
   createContextMenu: boolean;
   debounceOnActivated: boolean;
   filterAudio: boolean;
@@ -42,6 +43,10 @@ const defaultLockedWindowIds: Array<number> = [];
 export const SETTINGS_DEFAULTS: SettingsSchema = {
   // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
   corralTabSortOrder: null,
+
+  // Count time while the browser is closed toward tabs' inactivity timers. When false, timers
+  // resume where they left off when the browser reopens.
+  countOfflineTime: false,
 
   // Create a context menu for accessing Tab Wrangler functionality on click
   createContextMenu: true,

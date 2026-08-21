@@ -370,11 +370,13 @@ async function migratePersistedData(
       }),
     ]);
 
-    // Time the browser was closed. Applied to migrated timestamps so that offline time
-    // is not counted against a tab's countdown.
+    // Time the browser was closed. Unless the user opts in to counting offline time via
+    // `countOfflineTime`, it is applied to migrated timestamps so that offline time is not
+    // counted against a tab's countdown.
     let migratedLockedIds = 0;
     let migratedTabTimes = 0;
-    const offlineGap = lastSeenAt == null ? 0 : Math.max(0, now - lastSeenAt);
+    const offlineGap =
+      settings.get("countOfflineTime") || lastSeenAt == null ? 0 : Math.max(0, now - lastSeenAt);
     const lockedTabPersistKeySet = new Set(lockedTabPersistKeys);
     const tabsToRelock: chrome.tabs.Tab[] = [];
     const nextTabTimes: TabTimes = {};
@@ -390,7 +392,7 @@ async function migratePersistedData(
         tabTime = tabTimes[tab.id];
       } else if (tabPersistKey != null && tabTimesByPersistKey[tabPersistKey] != null) {
         // Tab ID changed (browser restart) - look up by persist key and shift the timestamp
-        // forward by the offline gap so time spent with the browser closed is not counted.
+        // forward by the offline gap.
         tabTime = tabTimesByPersistKey[tabPersistKey] + offlineGap;
         migratedTabTimes++;
       } else {

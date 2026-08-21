@@ -234,6 +234,10 @@
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
     "message": "Clear closed tabs list on quit"
   },
+  "options_option_countOfflineTime_label": {
+    "description": "Label for checkbox to keep counting tabs' inactivity time while the browser is closed",
+    "message": "Keep counting down tabs' timers while the browser is closed"
+  },
   "options_option_createContextMenu_label": {
     "description": "Label for checkbox to create a 'Tab Wrangler' context menu item",
     "message": "Create a \"Tab Wrangler\" context menu item"

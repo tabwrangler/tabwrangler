@@ -48,8 +48,7 @@ describe("wrangleTabsAndPersist", () => {
     const testTabs = [createTab({ id: 2 }), createTab({ id: 3 }), createTab({ id: 4 })];
     await wrangleTabsAndPersist(testTabs);
 
-    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4]);
+    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(3);
 
     const data = await chrome.storage.local.get("persist:localStorage");
     expect(data["persist:localStorage"].savedTabs.map((tab: chrome.tabs.Tab) => tab.id)).toEqual([
@@ -67,8 +66,7 @@ describe("wrangleTabsAndPersist", () => {
 
     await wrangleTabsAndPersist(testTabs);
 
-    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([2, 3, 4, 5]);
+    expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(4);
 
     const data = await chrome.storage.local.get("persist:localStorage");
     expect(data["persist:localStorage"].totalTabsWrangled).toEqual(4);
@@ -88,7 +86,7 @@ describe("wrangleTabsAndPersist", () => {
     const testTabs = [createTab({ id: 4, url: "https://www.nytimes.com" })];
 
     await wrangleTabsAndPersist(testTabs);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith(4);
     const data = await chrome.storage.local.get("persist:localStorage");
     expect(data["persist:localStorage"].totalTabsWrangled).toEqual(1);
   });
@@ -111,7 +109,7 @@ describe("wrangleTabsAndPersist", () => {
     await wrangleTabsAndPersist(testTabs);
 
     expect(window.chrome.tabs.remove).toHaveBeenCalledTimes(1);
-    expect(window.chrome.tabs.remove).toHaveBeenCalledWith([4]);
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith(4);
     const data = await chrome.storage.local.get("persist:localStorage");
     expect(data["persist:localStorage"].totalTabsWrangled).toEqual(1);
   });

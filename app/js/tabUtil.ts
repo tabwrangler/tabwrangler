@@ -77,9 +77,15 @@ export function wrangleTabs(
     }
   }
 
-  // Note: intentionally not awaiting tab removal! If removal does need to be awaited then this
-  // function must be rewritten to get store values before/after async operations.
-  if (tabIdsToRemove.length > 0) chrome.tabs.remove(tabIdsToRemove);
+  if (tabIdsToRemove.length > 0)
+    tabIdsToRemove.forEach((tabId) => {
+      // * Intentionally not awaiting tab removal! If removal needs to be awaited then this func
+      //   must be rewritten to get store values before/after async ops.
+      // * Close 1 tab at a time because if an invalid/unclosable tabId is passed in array func
+      //   signature then the *whole call* fails and closes nothing. Close all tabs possible.
+      //   @see https://github.com/tabwrangler/tabwrangler/issues/597
+      void chrome.tabs.remove(tabId);
+    });
 
   // Trim saved tabs to the max allocated by the setting. Browser extension storage is limited and
   // thus cannot allow saved tabs to grow indefinitely.
@@ -92,7 +98,6 @@ export function wrangleTabs(
 }
 
 export async function wrangleTabsAndPersist(tabs: Array<chrome.tabs.Tab>) {
-  // No tabs, nothing to do
   if (tabs.length === 0) return;
 
   const storageLocalPersist = await getStorageLocalPersist();

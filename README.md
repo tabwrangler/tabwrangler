@@ -255,6 +255,10 @@ working and tested, submit a pull request to this primary project and we'll get 
 - Rewritten by [JacobSingh](https://github.com/jacobSingh) in 2012
 - Original extension and idea by [jacktasia](https://github.com/jacktasia) in 2010
 
+### Design
+
+Extension icon and marketing screenshots created by Rob Struble <<https://layers.to/rob>>
+
 [0]: https://chrome.google.com/sync
 [1]: https://crowdin.com/project/tab-wrangler
 [2]: CONTRIBUTING.md#developing
@@ -262,7 +266,6 @@ working and tested, submit a pull request to this primary project and we'll get 
 [4]: https://developer.chrome.com/extensions/sessions
 [5]: https://developer.chrome.com/extensions/storage
 [6]: https://developer.chrome.com/extensions/tabs
-[manifest.json]: https://github.com/tabwrangler/tabwrangler/blob/main/app/manifest.json
 [7]: https://developer.chrome.com/docs/extensions/reference/alarms/
 [8]: https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria
 [9]: https://developer.chrome.com/docs/extensions/how-to/ui/favicons

@@ -393,6 +393,9 @@ export default function OptionsTab() {
 
         <h5 className="mt-3">{chrome.i18n.getMessage("options_section_autoLock")}</h5>
         <div className="row">
+          <div className="col-9">{chrome.i18n.getMessage("options_autoLock_description")}</div>
+        </div>
+        <div className="row mt-2">
           <div className="col-9">
             <form onSubmit={addWhitelistPattern}>
               <label className="form-label" htmlFor="wl-add">

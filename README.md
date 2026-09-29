@@ -42,7 +42,7 @@ focus on the tabs that matter
   (Limited to the most recent 25 closed tabs by the browser.)
 - _Tab Lock_: Lock individual tabs to prevent them from being auto-closed. You can also lock entire
   browser windows at once. Locked tabs stay open no matter how long they've been inactive.
-- _Exclude list_: Add a website address or domain to the exclude list and Tab Wrangler will never
+- _Auto-Lock_: Add a website address or domain to the Auto-Lock list and Tab Wrangler will never
   close tabs from that site. For example, adding `mail.google.com` keeps your Gmail tab open
   indefinitely.
 - _Audio & Tab Group protection_: Optionally keep tabs that are playing audio, or tabs that belong
@@ -97,7 +97,8 @@ The Options tab lets you configure how Tab Wrangler behaves.
 - **Minimum tabs**: The minimum number of tabs that must be open before Tab Wrangler starts closing
   anything. Choose whether this minimum applies to each window individually or to all windows
   combined.
-- **Exclude list**: Add website addresses or domains that should never be auto-closed.
+- **Auto-Lock**: Add website addresses or domains that should never be auto-closed. Tabs with
+  matching URLs are locked automatically.
 - **Tabs playing audio**: Choose whether to protect tabs that are playing audio from being closed.
 - **Tab Groups**: Choose whether to protect tabs inside a tab group from being closed.
 - **Closed tabs storage**: Set the maximum number of closed tabs to keep in the Corral, and choose

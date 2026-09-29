@@ -16,24 +16,28 @@
     "message": "Support"
   },
   "commandLockUnlockActiveTab": {
-    "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "Lock/Unlock active tab"
+    "description": "Description of keyboard shortcut to lock or unlock the current tab",
+    "message": "Lock/Unlock current tab"
   },
   "commandLockUnlockCurrentWindow": {
     "description": "Description of keyboard shortcut to lock or unlock the current window",
     "message": "Lock/Unlock current window"
   },
-  "commandWrangleCurrentTab": {
-    "description": "Description of keyboard shortcut to close and save the active tab",
-    "message": "Wrangle active tab"
+  "commandCloseCurrentTab": {
+    "description": "Description of keyboard shortcut to close and save the current tab",
+    "message": "Close current tab"
   },
-  "commandWrangleTabsToRight": {
-    "description": "Description of keyboard shortcut to close and save all tabs to the right of the active tab",
-    "message": "Wrangle tabs to the right"
+  "commandCloseTabsToRight": {
+    "description": "Description of keyboard shortcut to close and save all tabs to the right of the current tab",
+    "message": "Close tabs to the right"
   },
-  "commandWrangleOtherTabs": {
-    "description": "Description of keyboard shortcut to close and save all tabs except the active tab",
-    "message": "Wrangle other tabs"
+  "commandCloseOtherTabs": {
+    "description": "Description of keyboard shortcut to close and save all tabs except the current tab",
+    "message": "Close other tabs"
+  },
+  "commandWrangleNow": {
+    "description": "Description of keyboard shortcut that does the same thing as the 'Wrangle Now' button: immediately closes the unlocked tabs with the least time remaining, down to the minimum number of tabs, and saves them to the Tab Corral",
+    "message": "Wrangle now"
   },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
@@ -41,7 +45,7 @@
   },
   "contextMenu_corralTab": {
     "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
-    "message": "Wrangle this tab"
+    "message": "Close this tab"
   },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
@@ -120,6 +124,50 @@
   "extension_resume": {
     "description": "Label for button that resumes (unpauses) the extension",
     "message": "Resume"
+  },
+  "extension_wrangleNow": {
+    "description": "Label for button that immediately closes tabs down to the minimum number of tabs",
+    "message": "Wrangle Now"
+  },
+  "extension_wrangleNow_done": {
+    "description": "Message shown after the 'Wrangle Now' button closed tabs",
+    "message": "Tabs wrangled: $count$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "extension_wrangleNow_title": {
+    "description": "Tooltip for the 'Wrangle Now' button when there are tabs it would close",
+    "message": "Close the $count$ oldest unlocked tabs. They go to the Tab Corral.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "extension_wrangleNow_title_none_allWindows": {
+    "description": "Tooltip for the disabled 'Wrangle Now' button when there are no tabs it would close and the minimum tabs setting counts tabs across all windows",
+    "message": "Nothing to wrangle: at least $minTabs$ unlocked tabs are always left open.",
+    "placeholders": {
+      "minTabs": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "extension_wrangleNow_title_none_givenWindow": {
+    "description": "Tooltip for the disabled 'Wrangle Now' button when there are no tabs it would close and the minimum tabs setting counts tabs in each window separately",
+    "message": "Nothing to wrangle: at least $minTabs$ unlocked tabs per window are always left open.",
+    "placeholders": {
+      "minTabs": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "options_dedupe_label": {
     "description": "Label for the de-duplicating option",
@@ -729,6 +777,16 @@
   "corral_undo_restore": {
     "description": "Button title for undoing a restore action",
     "message": "Undo restore (tabs: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "corral_undo_wrangle": {
+    "description": "Button title for undoing a 'Wrangle Now' action, which reopens the wrangled tabs",
+    "message": "Undo wrangle (tabs: $count$)",
     "placeholders": {
       "count": {
         "content": "$1",

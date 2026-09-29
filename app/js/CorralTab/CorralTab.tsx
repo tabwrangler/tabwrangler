@@ -9,6 +9,7 @@ import ClosedTabRow from "./ClosedTabRow";
 import Dropdown from "react-bootstrap/Dropdown";
 import { TabWithIndex } from "../types";
 import escape from "regexp.escape";
+import { sessionFuzzyMatchesTab } from "../tabUtil";
 import settings from "../settings";
 import { useStorageLocalPersistQuery } from "../storage";
 import { useUndo } from "../UndoContext";
@@ -115,30 +116,6 @@ const Sorters: Array<Sorter> = [
   ChronoSorter,
   ReverseChronoSorter,
 ];
-
-export function sessionFuzzyMatchesTab(
-  session: chrome.sessions.Session,
-  tab: chrome.tabs.Tab,
-): boolean {
-  // Sessions' `lastModified` is only accurate to the second in Chrome whereas `closedAt` is
-  // accurate to the millisecond. Convert to ms if needed.
-  const lastModifiedMs =
-    session.lastModified < 10000000000 ? session.lastModified * 1000 : session.lastModified;
-
-  return (
-    session.tab != null &&
-    // Tabs with no favIcons have the value `undefined`, but once converted into a session the tab
-    // has an empty string (`''`) as its favIcon value. Account for that case for "equality".
-    (session.tab.favIconUrl === tab.favIconUrl ||
-      (session.tab.favIconUrl === "" && tab.favIconUrl == null)) &&
-    session.tab.title === tab.title &&
-    session.tab.url === tab.url &&
-    // Ensure the browser's last modified time is within 1s of Tab Wrangler's close to as a fuzzy,
-    // but likely always correct, match.
-    // @ts-expect-error `closedAt` is a TW expando property on tabs
-    Math.abs(lastModifiedMs - tab.closedAt) < 1000
-  );
-}
 
 interface RowData {
   index: number;
@@ -550,7 +527,7 @@ export default function CorralTab() {
               title={
                 lastAction
                   ? chrome.i18n.getMessage(
-                      lastAction.type === "remove" ? "corral_undo_remove" : "corral_undo_restore",
+                      `corral_undo_${lastAction.type}`,
                       String(lastAction.tabCount),
                     )
                   : chrome.i18n.getMessage("corral_undo")

@@ -5,8 +5,11 @@ import {
   removeSavedTabs,
   unwrangleTabs,
 } from "./actions/localStorageActions";
+import { assertUnreachable, serializeTab } from "./util";
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
-import { assertUnreachable } from "./util";
+import { getStorageLocalPersist } from "./queries";
+import { sessionFuzzyMatchesTab } from "./tabUtil";
+import { wrangleNow as wrangleNowCommand } from "./commands";
 
 interface RemoveAction {
   tabsWithIndices: TabWithIndex[];
@@ -18,7 +21,12 @@ interface RestoreAction {
   type: "restore";
 }
 
-type UndoableAction = RemoveAction | RestoreAction;
+interface WrangleAction {
+  tabs: chrome.tabs.Tab[];
+  type: "wrangle";
+}
+
+type UndoableAction = RemoveAction | RestoreAction | WrangleAction;
 
 function getActionTabs(action: UndoableAction): chrome.tabs.Tab[] {
   return action.type === "remove" ? action.tabsWithIndices.map((t) => t.tab) : action.tabs;
@@ -26,7 +34,7 @@ function getActionTabs(action: UndoableAction): chrome.tabs.Tab[] {
 
 export interface ActionSummary {
   tabCount: number;
-  type: "remove" | "restore";
+  type: UndoableAction["type"];
 }
 
 interface UndoRedoState {
@@ -42,6 +50,7 @@ interface RedoResult {
 interface UndoContextValue {
   canRedo: boolean;
   canUndo: boolean;
+  discardLastAction: (type: UndoableAction["type"]) => void;
   lastAction: ActionSummary | null;
   nextRedoAction: ActionSummary | null;
   redo: () => Promise<RedoResult | null>;
@@ -49,6 +58,7 @@ interface UndoContextValue {
   reset: () => void;
   restoreTabs: (sessionTabs: SessionTab[]) => Promise<void>;
   undo: () => Promise<void>;
+  wrangleNow: () => Promise<void>;
 }
 
 const UndoContext = createContext<UndoContextValue | null>(null);
@@ -64,6 +74,14 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
   // Guard against concurrent undo/redo operations from rapid clicks
   const isProcessingRef = useRef(false);
 
+  const discardLastAction = useCallback((type: UndoableAction["type"]) => {
+    setState((prev) =>
+      prev.past[prev.past.length - 1]?.type === type
+        ? { past: prev.past.slice(0, -1), future: prev.future }
+        : prev,
+    );
+  }, []);
+
   const recordDelete = useCallback((tabsWithIndices: TabWithIndex[]) => {
     if (tabsWithIndices.length === 0) return;
     const action: RemoveAction = { type: "remove", tabsWithIndices };
@@ -76,6 +94,15 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
   const recordRestore = useCallback((tabs: chrome.tabs.Tab[]) => {
     if (tabs.length === 0) return;
     const action: UndoableAction = { type: "restore", tabs };
+    setState((prev) => ({
+      past: [...prev.past, action].slice(-MAX_HISTORY),
+      future: [],
+    }));
+  }, []);
+
+  const recordWrangle = useCallback((tabs: chrome.tabs.Tab[]) => {
+    if (tabs.length === 0) return;
+    const action: WrangleAction = { type: "wrangle", tabs };
     setState((prev) => ({
       past: [...prev.past, action].slice(-MAX_HISTORY),
       future: [],
@@ -105,6 +132,10 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     [recordRestore],
   );
 
+  const wrangleNow = useCallback(async () => {
+    recordWrangle(await wrangleNowCommand());
+  }, [recordWrangle]);
+
   const undo = useCallback(async () => {
     if (isProcessingRef.current) return;
 
@@ -123,6 +154,23 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
           // Note: Does NOT close the browser tabs - this is intentional
           await addSavedTabs(lastAction.tabs);
           break;
+        case "wrangle": {
+          // Undo wrangle: Reopen the wrangled tabs that are still in the corral
+          const [{ savedTabs }, sessions] = await Promise.all([
+            getStorageLocalPersist(),
+            chrome.sessions.getRecentlyClosed(),
+          ]);
+          const savedTabKeys = new Set(savedTabs.map(serializeTab));
+          await unwrangleTabs(
+            lastAction.tabs
+              .filter((tab) => savedTabKeys.has(serializeTab(tab)))
+              .map((tab) => ({
+                session: sessions.find((session) => sessionFuzzyMatchesTab(session, tab)),
+                tab,
+              })),
+          );
+          break;
+        }
         default:
           assertUnreachable(lastAction, "lastAction.type");
       }
@@ -134,7 +182,11 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
 
     setState((prev) => ({
       past: prev.past.slice(0, -1),
-      future: [lastAction, ...prev.future].slice(0, MAX_HISTORY),
+      // Reopened tabs have new IDs and cannot be re-wrangled, so wrangles are not redoable.
+      future:
+        lastAction.type === "wrangle"
+          ? prev.future
+          : [lastAction, ...prev.future].slice(0, MAX_HISTORY),
     }));
   }, [state.past]);
 
@@ -159,6 +211,8 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
           await removeSavedTabs(nextAction.tabs);
           tabs = nextAction.tabs;
           break;
+        case "wrangle":
+          return null;
         default:
           assertUnreachable(nextAction, "nextAction.type");
       }
@@ -190,6 +244,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     () => ({
       canUndo: state.past.length > 0,
       canRedo: state.future.length > 0,
+      discardLastAction,
       lastAction,
       nextRedoAction,
       redo,
@@ -197,10 +252,12 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
       reset,
       restoreTabs,
       undo,
+      wrangleNow,
     }),
     [
       state.past.length,
       state.future.length,
+      discardLastAction,
       lastAction,
       nextRedoAction,
       redo,
@@ -208,6 +265,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
       reset,
       restoreTabs,
       undo,
+      wrangleNow,
     ],
   );
 

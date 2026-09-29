@@ -2,14 +2,13 @@ import "./LockTab.css";
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { lockTabId, lockWindowId, unlockTabId, unlockWindowId } from "../storage";
 import settings, { type LockTabSortOrderOption } from "../settings";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dropdown } from "react-bootstrap";
 import MinimumTabsBadge from "./MinimumTabsBadge";
-import { TabTimes } from "../types";
 import WindowCard from "./WindowCard";
 import cx from "classnames";
 import { useStorageSyncQuery } from "../storage";
 import useTabGroupsQuery from "../api/useTabGroupsQuery";
+import useTabTimesQuery from "../api/useTabTimesQuery";
 import useTabsQuery from "../api/useTabsQuery";
 import useWindowsGetLastFocused from "../api/useWindowsGetLastFocused";
 
@@ -126,31 +125,6 @@ function useNow() {
     };
   }, []);
   return now;
-}
-
-function useTabTimesQuery() {
-  const queryClient = useQueryClient();
-  const query = useQuery({
-    queryFn: () => chrome.storage.local.get<{ tabTimes: TabTimes }>({ tabTimes: {} }),
-    queryKey: ["tabTimesQuery"],
-  });
-  useEffect(() => {
-    function invalidateTabTimesQuery(
-      changes: { [key: string]: chrome.storage.StorageChange },
-      areaName: chrome.storage.AreaName,
-    ) {
-      if (areaName === "local" && "tabTimes" in changes)
-        queryClient.invalidateQueries({ queryKey: ["tabTimesQuery"] });
-    }
-    chrome.storage.onChanged.addListener(invalidateTabTimesQuery);
-    return () => {
-      chrome.storage.onChanged.removeListener(invalidateTabTimesQuery);
-    };
-  }, [queryClient]);
-  return {
-    ...query,
-    data: query.data?.tabTimes, // unwrap `StorageArea.get` response since `tabTimes` is implied
-  };
 }
 
 export default function LockTab() {

@@ -1,8 +1,10 @@
 import {
   AVERAGE_TAB_BYTES_SIZE,
+  type WrangleNowSettings,
   findPositionByHostnameAndTitle,
   findPositionByURL,
   findTabsToCloseCandidates,
+  findTabsToWrangleNow,
   getTabIdsOlderThan,
   getTabLockStatus,
   getURLPositionFilterByWrangleOption,
@@ -540,5 +542,96 @@ describe("findTabsToCloseCandidates", () => {
       [pinnedTab1, pinnedTab2, activeTab, oldTab],
     );
     expect(result).toHaveLength(0);
+  });
+});
+
+describe("findTabsToWrangleNow", () => {
+  function makeSettings(overrides: Partial<WrangleNowSettings> = {}): WrangleNowSettings {
+    return {
+      filterAudio: false,
+      filterGroupedTabs: false,
+      lockedIds: [],
+      lockedWindowIds: [],
+      minTabs: 2,
+      minTabsStrategy: "givenWindow",
+      whitelist: [],
+      ...overrides,
+    };
+  }
+
+  test("closes tabs with the least time remaining regardless of cutoff", () => {
+    const now = Date.now();
+    const tabs = [
+      createTab({ id: 1 }),
+      createTab({ id: 2 }),
+      createTab({ id: 3 }),
+      createTab({ id: 4 }),
+    ];
+    // Matches the example in https://github.com/tabwrangler/tabwrangler/issues/240
+    const result = findTabsToWrangleNow(
+      { "1": now - 4000, "2": now - 1000, "3": now - 3000, "4": now - 2000 },
+      tabs,
+      undefined,
+      makeSettings({ minTabs: 2 }),
+    );
+    expect(result.map((t) => t.id)).toEqual([1, 3]);
+  });
+
+  test("returns [] when unlocked tabs do not exceed minTabs", () => {
+    const tabs = [createTab({ id: 1 }), createTab({ id: 2 }), createTab({ id: 3 })];
+    expect(
+      findTabsToWrangleNow(
+        { "1": 0, "2": 0, "3": 0 },
+        tabs,
+        undefined,
+        makeSettings({ minTabs: 3 }),
+      ),
+    ).toEqual([]);
+  });
+
+  test("never closes the protected tab or locked tabs, but counts the protected tab", () => {
+    const tabs = [
+      createTab({ id: 1, active: true }),
+      createTab({ id: 2, pinned: true }),
+      createTab({ id: 3 }),
+      createTab({ id: 4 }),
+    ];
+    const result = findTabsToWrangleNow(
+      { "1": 0, "2": 0, "3": 10, "4": 20 },
+      tabs,
+      1,
+      makeSettings({ minTabs: 1 }),
+    );
+    expect(result.map((t) => t.id)).toEqual([3, 4]);
+  });
+
+  test("keeps minTabs per window with the givenWindow strategy", () => {
+    const tabs = [
+      createTab({ id: 1, windowId: 1 }),
+      createTab({ id: 2, windowId: 1 }),
+      createTab({ id: 3, windowId: 2 }),
+    ];
+    const result = findTabsToWrangleNow(
+      { "1": 0, "2": 10, "3": 0 },
+      tabs,
+      undefined,
+      makeSettings({ minTabs: 1, minTabsStrategy: "givenWindow" }),
+    );
+    expect(result.map((t) => t.id)).toEqual([1]);
+  });
+
+  test("keeps minTabs across windows with the allWindows strategy", () => {
+    const tabs = [
+      createTab({ id: 1, windowId: 1 }),
+      createTab({ id: 2, windowId: 1 }),
+      createTab({ id: 3, windowId: 2 }),
+    ];
+    const result = findTabsToWrangleNow(
+      { "1": 0, "2": 10, "3": 5 },
+      tabs,
+      undefined,
+      makeSettings({ minTabs: 1, minTabsStrategy: "allWindows" }),
+    );
+    expect(result.map((t) => t.id)).toEqual([1, 3]);
   });
 });

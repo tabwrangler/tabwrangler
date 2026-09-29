@@ -1,4 +1,5 @@
 import NavBar, { NavBarTabID } from "./NavBar";
+import { ToastPortalProvider } from "./ToastPortal";
 import { UndoProvider } from "./UndoContext";
 import { register } from "timeago.js";
 import timeagoLocale from "./timeagoLocale";
@@ -25,10 +26,12 @@ export default function PageShell({
   }, []);
 
   return (
-    <UndoProvider>
-      <NavBar activeTabId={activeTabId} isOptionsPage={isOptionsPage} onClickTab={onClickTab} />
-      <div className="tab-content container-fluid">{children}</div>
-    </UndoProvider>
+    <ToastPortalProvider>
+      <UndoProvider>
+        <NavBar activeTabId={activeTabId} isOptionsPage={isOptionsPage} onClickTab={onClickTab} />
+        <div className="tab-content container-fluid">{children}</div>
+      </UndoProvider>
+    </ToastPortalProvider>
   );
 }
 

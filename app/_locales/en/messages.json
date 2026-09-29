@@ -226,6 +226,10 @@
   "options_unsavedChanges": {
     "message": "Unsaved changes"
   },
+  "options_autoLock_description": {
+    "description": "Description of the auto-lock feature shown below the auto-lock section header",
+    "message": "Tabs with URLs matching any auto-locked pattern will never be auto-closed by the extension."
+  },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension."

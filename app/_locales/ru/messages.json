@@ -15,10 +15,6 @@
     "description": "Link to the extension's support site",
     "message": "Поддержка"
   },
-  "commandLockUnlockActiveTab": {
-    "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "Закрепить/открепить активную вкладку"
-  },
   "commandLockUnlockCurrentWindow": {
     "description": "Description of keyboard shortcut to lock or unlock the current window",
     "message": "Закрепить/открепить текущее окно"

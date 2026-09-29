@@ -15,10 +15,6 @@
     "description": "Link to the extension's support site",
     "message": "支持"
   },
-  "commandLockUnlockActiveTab": {
-    "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "锁定/解锁活动标签页"
-  },
   "commandLockUnlockCurrentWindow": {
     "description": "Description of keyboard shortcut to lock or unlock the current window",
     "message": "锁定/解锁当前窗口"

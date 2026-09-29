@@ -90,6 +90,12 @@
     "webpack-cli": "^5.1.4",
     "zip-webpack-plugin": "^4.0.1"
   },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "onFail": "error"
+    }
+  },
   "private": true,
   "sideEffects": [
     "*.css",

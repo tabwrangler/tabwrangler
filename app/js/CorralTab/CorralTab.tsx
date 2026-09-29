@@ -1,6 +1,6 @@
 import "./CorralTab.scss";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
-import { extractHostname, extractRootDomain, serializeTab } from "../util";
+import { extractHostname, extractRootDomain, getRestorableGroupId, serializeTab } from "../util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Button from "react-bootstrap/Button";
@@ -11,7 +11,9 @@ import { TabWithIndex } from "../types";
 import escape from "regexp.escape";
 import { sessionFuzzyMatchesTab } from "../tabUtil";
 import settings from "../settings";
+import useBrowserStartedAtQuery from "../api/useBrowserStartedAtQuery";
 import { useStorageLocalPersistQuery } from "../storage";
+import useTabGroupsQuery from "../api/useTabGroupsQuery";
 import { useUndo } from "../UndoContext";
 
 function keywordFilter(keyword: string) {
@@ -123,6 +125,7 @@ interface RowData {
   isSelected: boolean;
   session: chrome.sessions.Session | null;
   tab: chrome.tabs.Tab;
+  tabGroup: chrome.tabGroups.TabGroup | undefined;
   onOpenTab: (tab: chrome.tabs.Tab, index: number, session: chrome.sessions.Session | null) => void;
   onRemoveTab: (tab: chrome.tabs.Tab, index: number) => void;
   onToggleTab: (
@@ -151,6 +154,7 @@ function rowRenderer({
       session={rowData.session}
       style={style}
       tab={rowData.tab}
+      tabGroup={rowData.tabGroup}
       onOpenTab={rowData.onOpenTab}
       onRemoveTab={rowData.onRemoveTab}
       onToggleTab={rowData.onToggleTab}
@@ -182,8 +186,17 @@ function useSessionsRecentlyClosed() {
 const TABLE_ROW_HEIGHT_PX = 38;
 
 export default function CorralTab() {
-  const { canUndo, canRedo, lastAction, nextRedoAction, undo, redo, removeTabs, restoreTabs } =
-    useUndo();
+  const {
+    canRedo,
+    canUndo,
+    isProcessing,
+    lastAction,
+    nextRedoAction,
+    redo,
+    removeTabs,
+    restoreTabs,
+    undo,
+  } = useUndo();
 
   // Focus the search input so it's simple to type immediately. This must be done after the popup
   // is available, which is roughly 150ms after the popup is opened (determined empirically). Use
@@ -211,6 +224,12 @@ export default function CorralTab() {
   });
 
   const sessions = useSessionsRecentlyClosed();
+  const { data: browserStartedAt } = useBrowserStartedAtQuery();
+  const tabGroupsQuery = useTabGroupsQuery();
+  const tabGroupsById = useMemo(
+    () => new Map((tabGroupsQuery.data ?? []).map((group) => [group.id, group])),
+    [tabGroupsQuery.data],
+  );
   const { data: localStorageData } = useStorageLocalPersistQuery();
   const lastSelectedTabRef = useRef<TabWithIndex | null>(null);
   const controlBarRef = useRef<HTMLDivElement>(null);
@@ -255,7 +274,7 @@ export default function CorralTab() {
   }, []);
 
   async function handleOpenTab(tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) {
-    await restoreTabs([{ session, tab }]);
+    if (!(await restoreTabs([{ session, tab }]))) return;
     setSelectedTabs((prev) => {
       const next = new Set(prev);
       next.delete(serializeTab(tab));
@@ -332,13 +351,13 @@ export default function CorralTab() {
 
   async function handleOpenSelectedTabs() {
     const tabsToRestore = closedTabs.filter(({ tab }) => selectedTabs.has(serializeTab(tab)));
-    await restoreTabs(
+    const restored = await restoreTabs(
       tabsToRestore.map(({ tab }) => ({
         session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
         tab,
       })),
     );
-    setSelectedTabs(new Set());
+    if (restored) setSelectedTabs(new Set());
   }
 
   async function handleRemoveTab(tab: chrome.tabs.Tab, index: number) {
@@ -483,6 +502,7 @@ export default function CorralTab() {
             <>
               <Button
                 className="px-3"
+                disabled={isProcessing}
                 onClick={handleOpenSelectedTabs}
                 title={chrome.i18n.getMessage("corral_restoreSelectedTabs")}
                 size="sm"
@@ -495,6 +515,7 @@ export default function CorralTab() {
                 <i className="fas fa-external-link-alt" />
               </Button>
               <Button
+                disabled={isProcessing}
                 onClick={handleRemoveSelectedTabs}
                 size="sm"
                 title={chrome.i18n.getMessage("corral_removeSelectedTabs")}
@@ -521,7 +542,7 @@ export default function CorralTab() {
           ) : null}
           <div className="btn-group">
             <Button
-              disabled={!canUndo}
+              disabled={isProcessing || !canUndo}
               onClick={undo}
               size="sm"
               title={
@@ -538,7 +559,7 @@ export default function CorralTab() {
               <i className="fas fa-undo" /> {chrome.i18n.getMessage("corral_undo")}
             </Button>
             <Button
-              disabled={!canRedo}
+              disabled={isProcessing || !canRedo}
               onClick={handleRedo}
               size="sm"
               title={
@@ -621,6 +642,7 @@ export default function CorralTab() {
               rowCount={closedTabs.length}
               rowGetter={({ index: rowIndex }: { index: number }) => {
                 const { tab, index } = closedTabs[rowIndex];
+                const groupId = getRestorableGroupId(tab, browserStartedAt);
                 return {
                   index,
                   isFocused: rowIndex === focusedIndex,
@@ -637,6 +659,7 @@ export default function CorralTab() {
                   // See https://github.com/tabwrangler/tabwrangler/issues/275
                   session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
                   tab,
+                  tabGroup: groupId == null ? undefined : tabGroupsById.get(groupId),
                 };
               }}
               rowHeight={TABLE_ROW_HEIGHT_PX}

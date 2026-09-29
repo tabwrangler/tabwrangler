@@ -47,3 +47,15 @@ export function serializeTab(tab: chrome.tabs.Tab): string {
   // @ts-expect-error `closedAt` is a TW expando property
   return `${tab.id}:${tab.windowId}:${tab.closedAt}`;
 }
+
+// Tab group IDs are only unique within a browser session, so a saved tab's `groupId` refers to a
+// group that may still exist only if the tab was closed after the browser last started.
+export function getRestorableGroupId(
+  tab: chrome.tabs.Tab,
+  browserStartedAt: number | null | undefined,
+): number | null {
+  if (browserStartedAt == null || tab.groupId == null || tab.groupId < 0) return null;
+  // @ts-expect-error `closedAt` is a TW expando property on tabs
+  const closedAt: number | undefined = tab.closedAt;
+  return closedAt != null && closedAt >= browserStartedAt ? tab.groupId : null;
+}

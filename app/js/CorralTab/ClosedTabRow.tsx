@@ -11,6 +11,7 @@ interface ClosedTabRowProps {
   session: chrome.sessions.Session | null;
   style: Record<string, unknown>;
   tab: chrome.tabs.Tab;
+  tabGroup: chrome.tabGroups.TabGroup | undefined;
   onOpenTab: (tab: chrome.tabs.Tab, index: number, session: chrome.sessions.Session | null) => void;
   onRemoveTab: (tab: chrome.tabs.Tab, index: number) => void;
   onToggleTab: (
@@ -28,6 +29,7 @@ export default function ClosedTabRow({
   session,
   style,
   tab,
+  tabGroup,
   onOpenTab,
   onRemoveTab,
   onToggleTab,
@@ -37,11 +39,19 @@ export default function ClosedTabRow({
       aria-label="row"
       className={cx("ReactVirtualized__Table__row", {
         "ClosedTabRow--focused": isFocused,
+        "ClosedTabRow--grouped": tabGroup != null,
         "table-warning": isSelected,
       })}
       role="row"
       style={style}
     >
+      {tabGroup != null && (
+        <div
+          aria-hidden
+          className="ClosedTabRow-group-border"
+          style={{ backgroundColor: `var(--tw-tab-group-color-${tabGroup.color})` }}
+        />
+      )}
       <div className="ReactVirtualized__Table__rowColumn" style={{ verticalAlign: "middle" }}>
         <input
           checked={isSelected}

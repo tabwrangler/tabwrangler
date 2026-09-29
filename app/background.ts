@@ -1,4 +1,6 @@
 import { ASYNC_LOCK, migrateLocal } from "./js/storage";
+import { RuntimeMessage, UnwrangleTabsResponse } from "./js/messages";
+import { SessionTab, TabTimes } from "./js/types";
 import {
   findTabsToCloseCandidates,
   initTabs,
@@ -20,11 +22,10 @@ import {
   wrangleOtherTabs,
   wrangleTabsToRight,
 } from "./js/commands";
+import { removeAllSavedTabs, unwrangleTabs } from "./js/actions/localStorageActions";
 import { CHECK_TO_CLOSE_INTERVAL_MS } from "./js/constants";
 import Menus from "./js/menus";
-import { TabTimes } from "./js/types";
 import { debounce } from "lodash-es";
-import { removeAllSavedTabs } from "./js/actions/localStorageActions";
 import settings from "./js/settings";
 
 const menus = new Menus();
@@ -90,9 +91,16 @@ async function updateIcon(tab?: chrome.tabs.Tab): Promise<void> {
 
 const debouncedUpdateLastAccessed = debounce(updateLastAccessed, 1000);
 chrome.runtime.onInstalled.addListener(async () => {
+  // Without a known start time, conservatively treat every saved tab's group as stale
+  const { browserStartedAt } = await chrome.storage.local.get("browserStartedAt");
+  if (browserStartedAt == null) await chrome.storage.local.set({ browserStartedAt: Date.now() });
   await settings.init();
   if (settings.get("createContextMenu")) Menus.create();
   migrateLocal();
+});
+
+chrome.runtime.onStartup.addListener(async () => {
+  await chrome.storage.local.set({ browserStartedAt: Date.now() });
 });
 
 let onActivatedGeneration = 0;
@@ -499,10 +507,27 @@ let lastAlarm = 0;
 
 chrome.alarms.onAlarm.addListener(() => (lastAlarm = Date.now()));
 
-chrome.runtime.onMessage.addListener((message) => {
+async function handleUnwrangleTabs(
+  sessionTabs: SessionTab[],
+  sendResponse: (response: UnwrangleTabsResponse) => void,
+) {
+  try {
+    await unwrangleTabs(sessionTabs);
+    sendResponse({ ok: true });
+  } catch (error) {
+    console.log("[runtime.onMessage]: Failed to unwrangle tabs", error);
+    sendResponse({ error: String(error), ok: false });
+  }
+}
+
+chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResponse) => {
   if (message === "reload") {
     console.warn("[runtime.onMessage]: Manual reload");
     chrome.runtime.reload();
+    return true;
+  } else if (typeof message === "object" && message.type === "unwrangleTabs") {
+    handleUnwrangleTabs(message.sessionTabs, sendResponse);
+    // Keeps the message channel open until `sendResponse` is called asynchronously
     return true;
   } else return false;
 });

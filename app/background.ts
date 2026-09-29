@@ -91,9 +91,16 @@ async function updateIcon(tab?: chrome.tabs.Tab): Promise<void> {
 
 const debouncedUpdateLastAccessed = debounce(updateLastAccessed, 1000);
 chrome.runtime.onInstalled.addListener(async () => {
+  // Without a known start time, conservatively treat every saved tab's group as stale
+  const { browserStartedAt } = await chrome.storage.local.get("browserStartedAt");
+  if (browserStartedAt == null) await chrome.storage.local.set({ browserStartedAt: Date.now() });
   await settings.init();
   if (settings.get("createContextMenu")) Menus.create();
   migrateLocal();
+});
+
+chrome.runtime.onStartup.addListener(async () => {
+  await chrome.storage.local.set({ browserStartedAt: Date.now() });
 });
 
 let onActivatedGeneration = 0;
@@ -508,7 +515,7 @@ async function handleUnwrangleTabs(
     await unwrangleTabs(sessionTabs);
     sendResponse({ ok: true });
   } catch (error) {
-    console.error("[runtime.onMessage]: Failed to unwrangle tabs", error);
+    console.log("[runtime.onMessage]: Failed to unwrangle tabs", error);
     sendResponse({ error: String(error), ok: false });
   }
 }

@@ -1,6 +1,6 @@
 import "./CorralTab.scss";
 import { Table, WindowScroller, WindowScrollerChildProps } from "react-virtualized";
-import { extractHostname, extractRootDomain, serializeTab } from "../util";
+import { extractHostname, extractRootDomain, getRestorableGroupId, serializeTab } from "../util";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Button from "react-bootstrap/Button";
@@ -11,7 +11,9 @@ import { TabWithIndex } from "../types";
 import escape from "regexp.escape";
 import { sessionFuzzyMatchesTab } from "../tabUtil";
 import settings from "../settings";
+import useBrowserStartedAtQuery from "../api/useBrowserStartedAtQuery";
 import { useStorageLocalPersistQuery } from "../storage";
+import useTabGroupsQuery from "../api/useTabGroupsQuery";
 import { useUndo } from "../UndoContext";
 
 function keywordFilter(keyword: string) {
@@ -123,6 +125,7 @@ interface RowData {
   isSelected: boolean;
   session: chrome.sessions.Session | null;
   tab: chrome.tabs.Tab;
+  tabGroup: chrome.tabGroups.TabGroup | undefined;
   onOpenTab: (tab: chrome.tabs.Tab, index: number, session: chrome.sessions.Session | null) => void;
   onRemoveTab: (tab: chrome.tabs.Tab, index: number) => void;
   onToggleTab: (
@@ -151,6 +154,7 @@ function rowRenderer({
       session={rowData.session}
       style={style}
       tab={rowData.tab}
+      tabGroup={rowData.tabGroup}
       onOpenTab={rowData.onOpenTab}
       onRemoveTab={rowData.onRemoveTab}
       onToggleTab={rowData.onToggleTab}
@@ -220,6 +224,12 @@ export default function CorralTab() {
   });
 
   const sessions = useSessionsRecentlyClosed();
+  const { data: browserStartedAt } = useBrowserStartedAtQuery();
+  const tabGroupsQuery = useTabGroupsQuery();
+  const tabGroupsById = useMemo(
+    () => new Map((tabGroupsQuery.data ?? []).map((group) => [group.id, group])),
+    [tabGroupsQuery.data],
+  );
   const { data: localStorageData } = useStorageLocalPersistQuery();
   const lastSelectedTabRef = useRef<TabWithIndex | null>(null);
   const controlBarRef = useRef<HTMLDivElement>(null);
@@ -632,6 +642,7 @@ export default function CorralTab() {
               rowCount={closedTabs.length}
               rowGetter={({ index: rowIndex }: { index: number }) => {
                 const { tab, index } = closedTabs[rowIndex];
+                const groupId = getRestorableGroupId(tab, browserStartedAt);
                 return {
                   index,
                   isFocused: rowIndex === focusedIndex,
@@ -648,6 +659,7 @@ export default function CorralTab() {
                   // See https://github.com/tabwrangler/tabwrangler/issues/275
                   session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
                   tab,
+                  tabGroup: groupId == null ? undefined : tabGroupsById.get(groupId),
                 };
               }}
               rowHeight={TABLE_ROW_HEIGHT_PX}

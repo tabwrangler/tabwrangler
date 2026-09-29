@@ -78,6 +78,8 @@ describe("unwrangleTabs", () => {
       selected: false,
       url: "https://example.com",
       windowId: 1,
+      // @ts-expect-error `closedAt` is a TW expando property on tabs
+      closedAt: 2000,
       ...overrides,
     };
   }
@@ -93,7 +95,8 @@ describe("unwrangleTabs", () => {
     Promise.resolve({ lastModified: 0, tab: createSavedTab({ id: 200, groupId: -1 }) }),
   );
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await chrome.storage.local.set({ browserStartedAt: 1000 });
     Object.assign(chrome.tabs, { create: tabsCreateMock, group: groupMock });
     Object.assign(chrome, {
       sessions: { restore: sessionsRestoreMock },
@@ -127,6 +130,14 @@ describe("unwrangleTabs", () => {
     expect(groupMock).toHaveBeenCalledWith({ groupId: existingGroupId, tabIds: 200 });
   });
 
+  test("opens the tab by URL when its session is no longer valid", async () => {
+    sessionsRestoreMock.mockRejectedValueOnce(new Error('Invalid session id: "abc".'));
+    const tab = createSavedTab({ groupId: existingGroupId });
+    await unwrangleTabs([{ session: { lastModified: 0, tab: { ...tab, sessionId: "abc" } }, tab }]);
+    expect(tabsCreateMock).toHaveBeenCalledWith({ active: false, url: tab.url });
+    expect(groupMock).toHaveBeenCalledWith({ groupId: existingGroupId, tabIds: 100 });
+  });
+
   test("does not regroup a tab the browser already restored into a group", async () => {
     sessionsRestoreMock.mockResolvedValueOnce({
       lastModified: 0,
@@ -134,6 +145,14 @@ describe("unwrangleTabs", () => {
     });
     const tab = createSavedTab({ groupId: existingGroupId });
     await unwrangleTabs([{ session: { lastModified: 0, tab: { ...tab, sessionId: "abc" } }, tab }]);
+    expect(groupMock).not.toHaveBeenCalled();
+  });
+
+  test("leaves a restored tab ungrouped when it was closed before the browser started", async () => {
+    await unwrangleTabs([
+      // @ts-expect-error `closedAt` is a TW expando property on tabs
+      { session: undefined, tab: createSavedTab({ closedAt: 500, groupId: existingGroupId }) },
+    ]);
     expect(groupMock).not.toHaveBeenCalled();
   });
 

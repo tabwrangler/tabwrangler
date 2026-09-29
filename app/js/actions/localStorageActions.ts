@@ -1,7 +1,7 @@
 import { SessionTab, TabTimes, TabWithIndex } from "../types";
+import { getRestorableGroupId, serializeTab } from "../util";
 import { ASYNC_LOCK } from "../storage";
 import { getStorageLocalPersist } from "../queries";
-import { serializeTab } from "../util";
 import settings from "../settings";
 
 export function removeAllSavedTabs(): Promise<void> {
@@ -198,29 +198,44 @@ export async function unwrangleTabs(sessionTabs: Array<SessionTab>): Promise<voi
     });
   });
 
+  const { browserStartedAt } = await chrome.storage.local.get<{ browserStartedAt?: number }>(
+    "browserStartedAt",
+  );
   await Promise.all(
     sessionTabs.map(async (sessionTab) => {
-      let restoredTab: chrome.tabs.Tab | undefined;
-      if (sessionTab.session == null || sessionTab.session.tab == null) {
-        restoredTab = await chrome.tabs.create({ active: false, url: sessionTab.tab.url });
-      } else {
-        const restoredSession = await chrome.sessions.restore(sessionTab.session.tab.sessionId);
-        restoredTab = restoredSession.tab;
-      }
-      if (restoredTab != null) await regroupRestoredTab(restoredTab, sessionTab.tab.groupId);
+      const restoredTab = await restoreSessionTab(sessionTab);
+      if (restoredTab != null)
+        await regroupRestoredTab(
+          restoredTab,
+          getRestorableGroupId(sessionTab.tab, browserStartedAt),
+        );
     }),
   );
 }
 
+async function restoreSessionTab(sessionTab: SessionTab): Promise<chrome.tabs.Tab | undefined> {
+  const sessionId = sessionTab.session?.tab?.sessionId;
+  if (sessionId != null) {
+    try {
+      const restoredSession = await chrome.sessions.restore(sessionId);
+      return restoredSession.tab;
+    } catch (error) {
+      // The session list the popup matched against can be stale, e.g. the browser already
+      // restored that session, so the ID is no longer valid
+      console.log(`[restoreSessionTab] Failed to restore session ${sessionId}, opening URL`, error);
+    }
+  }
+  return chrome.tabs.create({ active: false, url: sessionTab.tab.url });
+}
+
 async function regroupRestoredTab(
   restoredTab: chrome.tabs.Tab,
-  groupId: number | undefined,
+  groupId: number | null,
 ): Promise<void> {
   if (
     chrome.tabGroups == null ||
     restoredTab.id == null ||
     groupId == null ||
-    groupId < 0 ||
     // The browser's own session restore may have already put the tab back in a group
     (restoredTab.groupId != null && restoredTab.groupId >= 0)
   )
@@ -237,6 +252,6 @@ async function regroupRestoredTab(
     await chrome.tabs.group({ groupId, tabIds: restoredTab.id });
     console.info(`[regroupRestoredTab] Added tab ${restoredTab.id} to group ${groupId}`);
   } catch (error) {
-    console.warn(`[regroupRestoredTab] Failed to add tab to group ${groupId}`, error);
+    console.log(`[regroupRestoredTab] Failed to add tab to group ${groupId}`, error);
   }
 }

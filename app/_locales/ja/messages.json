@@ -15,10 +15,6 @@
     "description": "Link to the extension's support site",
     "message": "サポート"
   },
-  "commandLockUnlockActiveTab": {
-    "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "アクティブタブをロック／ロック解除"
-  },
   "commandLockUnlockCurrentWindow": {
     "description": "Description of keyboard shortcut to lock or unlock the current window",
     "message": "現在のウィンドウをロック／ロック解除"

@@ -15,10 +15,6 @@
     "description": "Link to the extension's support site",
     "message": "Soporte"
   },
-  "commandLockUnlockActiveTab": {
-    "description": "Description of keyboard shortcut to lock or unlock the active tab",
-    "message": "Bloquear/desbloquear la pestaña activa"
-  },
   "commandLockUnlockCurrentWindow": {
     "description": "Description of keyboard shortcut to lock or unlock the current window",
     "message": "Bloquear/desbloquear la ventana actual"

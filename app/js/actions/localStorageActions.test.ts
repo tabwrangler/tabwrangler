@@ -134,7 +134,7 @@ describe("unwrangleTabs", () => {
     sessionsRestoreMock.mockRejectedValueOnce(new Error('Invalid session id: "abc".'));
     const tab = createSavedTab({ groupId: existingGroupId });
     await unwrangleTabs([{ session: { lastModified: 0, tab: { ...tab, sessionId: "abc" } }, tab }]);
-    expect(tabsCreateMock).toHaveBeenCalledWith({ active: false, url: tab.url });
+    expect(tabsCreateMock).toHaveBeenCalledWith({ active: false, pinned: false, url: tab.url });
     expect(groupMock).toHaveBeenCalledWith({ groupId: existingGroupId, tabIds: 100 });
   });
 
@@ -162,5 +162,11 @@ describe("unwrangleTabs", () => {
       { session: undefined, tab: createSavedTab({ groupId: existingGroupId }) },
     ]);
     expect(groupMock).not.toHaveBeenCalled();
+  });
+
+  test("opens a tab pinned when it was pinned when it was closed", async () => {
+    const tab = createSavedTab({ pinned: true });
+    await unwrangleTabs([{ session: undefined, tab }]);
+    expect(tabsCreateMock).toHaveBeenCalledWith({ active: false, pinned: true, url: tab.url });
   });
 });

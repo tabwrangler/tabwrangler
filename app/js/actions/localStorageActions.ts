@@ -225,7 +225,11 @@ async function restoreSessionTab(sessionTab: SessionTab): Promise<chrome.tabs.Ta
       console.log(`[restoreSessionTab] Failed to restore session ${sessionId}, opening URL`, error);
     }
   }
-  return chrome.tabs.create({ active: false, url: sessionTab.tab.url });
+  return chrome.tabs.create({
+    active: false,
+    pinned: sessionTab.tab.pinned,
+    url: sessionTab.tab.url,
+  });
 }
 
 async function regroupRestoredTab(

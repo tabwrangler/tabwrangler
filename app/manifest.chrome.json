@@ -23,13 +23,16 @@
       "description": "__MSG_commandLockUnlockCurrentWindow__"
     },
     "wrangle-active-tab": {
-      "description": "__MSG_commandWrangleCurrentTab__"
+      "description": "__MSG_commandCloseCurrentTab__"
     },
     "wrangle-other-tabs": {
-      "description": "__MSG_commandWrangleOtherTabs__"
+      "description": "__MSG_commandCloseOtherTabs__"
     },
     "wrangle-tabs-to-right": {
-      "description": "__MSG_commandWrangleTabsToRight__"
+      "description": "__MSG_commandCloseTabsToRight__"
+    },
+    "wrangle-now": {
+      "description": "__MSG_commandWrangleNow__"
     }
   },
   "minimum_chrome_version": "110",

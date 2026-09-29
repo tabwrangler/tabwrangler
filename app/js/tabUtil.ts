@@ -5,7 +5,7 @@ import {
   setTabTime,
   setTabTimes,
 } from "./actions/localStorageActions";
-import settings, { SettingsSchemaWrangleOption } from "./settings";
+import settings, { SettingsSchema, SettingsSchemaWrangleOption } from "./settings";
 import { ACTIVE_TAB_TIMER_FREEZE_WINDOW_MS } from "./constants";
 import { TabTimes } from "./types";
 
@@ -243,22 +243,33 @@ export function shouldFreezeActiveTabTimer(timeRemainingSeconds: number): boolea
   return timeRemainingSeconds >= ACTIVE_TAB_TIMER_FREEZE_WINDOW_MS / 1000;
 }
 
+type LockSettings = Pick<
+  SettingsSchema,
+  "filterAudio" | "filterGroupedTabs" | "lockedIds" | "lockedWindowIds" | "whitelist"
+>;
+
+export type WrangleNowSettings = LockSettings & Pick<SettingsSchema, "minTabs" | "minTabsStrategy">;
+
+function filterUnlockedTabs(
+  tabs: chrome.tabs.Tab[],
+  lockSettings: LockSettings,
+): chrome.tabs.Tab[] {
+  return tabs.filter((tab) => !isTabLocked(tab, lockSettings));
+}
+
 export function findTabsToCloseCandidates(
   tabTimes: TabTimes,
   tabs: chrome.tabs.Tab[],
 ): chrome.tabs.Tab[] {
   const cutOff = Date.now() - settings.stayOpen();
   const minTabs = settings.get("minTabs");
-  const unlockedTabs = tabs.filter(
-    (tab) =>
-      !isTabLocked(tab, {
-        filterAudio: settings.get("filterAudio"),
-        filterGroupedTabs: settings.get("filterGroupedTabs"),
-        lockedIds: settings.get("lockedIds"),
-        lockedWindowIds: settings.get("lockedWindowIds"),
-        whitelist: settings.get("whitelist"),
-      }),
-  );
+  const unlockedTabs = filterUnlockedTabs(tabs, {
+    filterAudio: settings.get("filterAudio"),
+    filterGroupedTabs: settings.get("filterGroupedTabs"),
+    lockedIds: settings.get("lockedIds"),
+    lockedWindowIds: settings.get("lockedWindowIds"),
+    whitelist: settings.get("whitelist"),
+  });
 
   if (unlockedTabs.length - minTabs <= 0) return [];
 
@@ -270,4 +281,69 @@ export function findTabsToCloseCandidates(
   });
 
   return candidates.splice(0, unlockedTabs.length - minTabs);
+}
+
+/**
+ * Tabs "Wrangle Now" would close: ignores time remaining and closes unlocked tabs with the least
+ * time remaining until only `minTabs` unlocked tabs are left, respecting `minTabsStrategy`. Tabs
+ * that are not closed keep their current time remaining.
+ */
+export function findTabsToWrangleNow(
+  tabTimes: TabTimes,
+  tabs: chrome.tabs.Tab[],
+  protectedTabId: number | undefined,
+  { minTabs, minTabsStrategy, ...lockSettings }: WrangleNowSettings,
+): chrome.tabs.Tab[] {
+  const now = Date.now();
+
+  function findInGroup(groupTabs: chrome.tabs.Tab[]): chrome.tabs.Tab[] {
+    const unlockedTabs = filterUnlockedTabs(groupTabs, lockSettings);
+    const excess = unlockedTabs.length - minTabs;
+    if (excess <= 0) return [];
+    return unlockedTabs
+      .filter((tab) => tab.id != null && tab.id !== protectedTabId)
+      .sort((a, b) => (tabTimes[a.id!] ?? now) - (tabTimes[b.id!] ?? now))
+      .slice(0, excess);
+  }
+
+  switch (minTabsStrategy) {
+    case "allWindows":
+      return findInGroup(tabs);
+    case "givenWindow": {
+      const tabsByWindowId = new Map<number, chrome.tabs.Tab[]>();
+      for (const tab of tabs) {
+        const windowTabs = tabsByWindowId.get(tab.windowId) ?? [];
+        windowTabs.push(tab);
+        tabsByWindowId.set(tab.windowId, windowTabs);
+      }
+      return Array.from(tabsByWindowId.values()).flatMap(findInGroup);
+    }
+    default:
+      minTabsStrategy satisfies never;
+      return [];
+  }
+}
+
+export function sessionFuzzyMatchesTab(
+  session: chrome.sessions.Session,
+  tab: chrome.tabs.Tab,
+): boolean {
+  // Sessions' `lastModified` is only accurate to the second in Chrome whereas `closedAt` is
+  // accurate to the millisecond. Convert to ms if needed.
+  const lastModifiedMs =
+    session.lastModified < 10000000000 ? session.lastModified * 1000 : session.lastModified;
+
+  return (
+    session.tab != null &&
+    // Tabs with no favIcons have the value `undefined`, but once converted into a session the tab
+    // has an empty string (`''`) as its favIcon value. Account for that case for "equality".
+    (session.tab.favIconUrl === tab.favIconUrl ||
+      (session.tab.favIconUrl === "" && tab.favIconUrl == null)) &&
+    session.tab.title === tab.title &&
+    session.tab.url === tab.url &&
+    // Ensure the browser's last modified time is within 1s of Tab Wrangler's close to as a fuzzy,
+    // but likely always correct, match.
+    // @ts-expect-error `closedAt` is a TW expando property on tabs
+    Math.abs(lastModifiedMs - tab.closedAt) < 1000
+  );
 }

@@ -1,5 +1,6 @@
 import "./NavBar.css";
 import PauseButton from "./PauseButton";
+import WrangleNowButton from "./WrangleNowButton";
 import cx from "classnames";
 
 export type NavBarTabID = "about" | "corral" | "lock" | "options";
@@ -14,6 +15,7 @@ export default function NavBar({ activeTabId, isOptionsPage, onClickTab }: Props
   return (
     <>
       <div className="nav-bar--buttons">
+        <WrangleNowButton />
         <PauseButton />
       </div>
       <ul className="nav nav-tabs">

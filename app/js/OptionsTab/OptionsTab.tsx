@@ -7,7 +7,7 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import FileSaver from "file-saver";
 import TabWrangleOption from "./TabWrangleOption";
 import Toast from "react-bootstrap/Toast";
-import ToastContainer from "react-bootstrap/ToastContainer";
+import { ToastPortal } from "../ToastPortal";
 import cx from "classnames";
 import { exportFileName } from "../actions/importExportActions";
 import { mutateStorageSyncPersist } from "../storage";
@@ -502,7 +502,7 @@ export default function OptionsTab() {
         </div>
       </div>
 
-      <ToastContainer className="p-3" containerPosition="fixed" position="bottom-start">
+      <ToastPortal>
         <Toast bg="danger" show={errors.length > 0}>
           <Toast.Body>
             <strong>{chrome.i18n.getMessage("options_errorSavingSettings")}</strong>
@@ -550,7 +550,7 @@ export default function OptionsTab() {
             </div>
           </Toast.Body>
         </Toast>
-      </ToastContainer>
+      </ToastPortal>
     </>
   );
 }

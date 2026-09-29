@@ -16,6 +16,7 @@ import {
   lockUnlockActiveTab,
   lockUnlockCurrentWindow,
   wrangleActiveTab,
+  wrangleNow,
   wrangleOtherTabs,
   wrangleTabsToRight,
 } from "./js/commands";
@@ -184,6 +185,9 @@ chrome.commands.onCommand.addListener(async (command) => {
       break;
     case "wrangle-tabs-to-right":
       await wrangleTabsToRight();
+      break;
+    case "wrangle-now":
+      await wrangleNow();
       break;
     default:
       console.warn(`[onCommand]: Received unhandled command "${command}"`);

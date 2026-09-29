@@ -1,4 +1,6 @@
 .nav-bar--buttons {
+  display: flex;
+  gap: 0.5rem;
   position: absolute;
   right: 15px;
   top: 5px;

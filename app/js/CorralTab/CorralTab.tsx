@@ -182,8 +182,17 @@ function useSessionsRecentlyClosed() {
 const TABLE_ROW_HEIGHT_PX = 38;
 
 export default function CorralTab() {
-  const { canUndo, canRedo, lastAction, nextRedoAction, undo, redo, removeTabs, restoreTabs } =
-    useUndo();
+  const {
+    canRedo,
+    canUndo,
+    isProcessing,
+    lastAction,
+    nextRedoAction,
+    redo,
+    removeTabs,
+    restoreTabs,
+    undo,
+  } = useUndo();
 
   // Focus the search input so it's simple to type immediately. This must be done after the popup
   // is available, which is roughly 150ms after the popup is opened (determined empirically). Use
@@ -255,7 +264,7 @@ export default function CorralTab() {
   }, []);
 
   async function handleOpenTab(tab: chrome.tabs.Tab, session: chrome.sessions.Session | undefined) {
-    await restoreTabs([{ session, tab }]);
+    if (!(await restoreTabs([{ session, tab }]))) return;
     setSelectedTabs((prev) => {
       const next = new Set(prev);
       next.delete(serializeTab(tab));
@@ -332,13 +341,13 @@ export default function CorralTab() {
 
   async function handleOpenSelectedTabs() {
     const tabsToRestore = closedTabs.filter(({ tab }) => selectedTabs.has(serializeTab(tab)));
-    await restoreTabs(
+    const restored = await restoreTabs(
       tabsToRestore.map(({ tab }) => ({
         session: sessions?.find((session) => sessionFuzzyMatchesTab(session, tab)),
         tab,
       })),
     );
-    setSelectedTabs(new Set());
+    if (restored) setSelectedTabs(new Set());
   }
 
   async function handleRemoveTab(tab: chrome.tabs.Tab, index: number) {
@@ -483,6 +492,7 @@ export default function CorralTab() {
             <>
               <Button
                 className="px-3"
+                disabled={isProcessing}
                 onClick={handleOpenSelectedTabs}
                 title={chrome.i18n.getMessage("corral_restoreSelectedTabs")}
                 size="sm"
@@ -495,6 +505,7 @@ export default function CorralTab() {
                 <i className="fas fa-external-link-alt" />
               </Button>
               <Button
+                disabled={isProcessing}
                 onClick={handleRemoveSelectedTabs}
                 size="sm"
                 title={chrome.i18n.getMessage("corral_removeSelectedTabs")}
@@ -521,7 +532,7 @@ export default function CorralTab() {
           ) : null}
           <div className="btn-group">
             <Button
-              disabled={!canUndo}
+              disabled={isProcessing || !canUndo}
               onClick={undo}
               size="sm"
               title={
@@ -538,7 +549,7 @@ export default function CorralTab() {
               <i className="fas fa-undo" /> {chrome.i18n.getMessage("corral_undo")}
             </Button>
             <Button
-              disabled={!canRedo}
+              disabled={isProcessing || !canRedo}
               onClick={handleRedo}
               size="sm"
               title={

@@ -1,13 +1,9 @@
 import { SessionTab, TabWithIndex } from "./types";
-import {
-  addSavedTabs,
-  insertSavedTabsAt,
-  removeSavedTabs,
-  unwrangleTabs,
-} from "./actions/localStorageActions";
+import { addSavedTabs, insertSavedTabsAt, removeSavedTabs } from "./actions/localStorageActions";
 import { assertUnreachable, serializeTab } from "./util";
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { getStorageLocalPersist } from "./queries";
+import { requestUnwrangleTabs } from "./messages";
 import { sessionFuzzyMatchesTab } from "./tabUtil";
 import { wrangleNow as wrangleNowCommand } from "./commands";
 
@@ -51,12 +47,13 @@ interface UndoContextValue {
   canRedo: boolean;
   canUndo: boolean;
   discardLastAction: (type: UndoableAction["type"]) => void;
+  isProcessing: boolean;
   lastAction: ActionSummary | null;
   nextRedoAction: ActionSummary | null;
   redo: () => Promise<RedoResult | null>;
   removeTabs: (tabsWithIndices: TabWithIndex[]) => Promise<void>;
   reset: () => void;
-  restoreTabs: (sessionTabs: SessionTab[]) => Promise<void>;
+  restoreTabs: (sessionTabs: SessionTab[]) => Promise<boolean>;
   undo: () => Promise<void>;
   wrangleNow: () => Promise<void>;
 }
@@ -71,8 +68,14 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     past: [],
   });
 
-  // Guard against concurrent undo/redo operations from rapid clicks
+  // Guard against concurrent restore/undo/redo operations from rapid clicks. The ref is the guard
+  // and the state lets buttons render as disabled.
   const isProcessingRef = useRef(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const setProcessing = useCallback((processing: boolean) => {
+    isProcessingRef.current = processing;
+    setIsProcessing(processing);
+  }, []);
 
   const discardLastAction = useCallback((type: UndoableAction["type"]) => {
     setState((prev) =>
@@ -123,13 +126,21 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
   );
 
   const restoreTabs = useCallback(
-    async (sessionTabs: SessionTab[]) => {
-      if (sessionTabs.length === 0) return;
-      const tabs = sessionTabs.map((st) => st.tab);
-      await unwrangleTabs(sessionTabs);
-      recordRestore(tabs);
+    async (sessionTabs: SessionTab[]): Promise<boolean> => {
+      if (isProcessingRef.current || sessionTabs.length === 0) return false;
+      setProcessing(true);
+      try {
+        await requestUnwrangleTabs(sessionTabs);
+      } catch (error) {
+        console.error("[restoreTabs] Failed to restore tabs", error);
+        return false;
+      } finally {
+        setProcessing(false);
+      }
+      recordRestore(sessionTabs.map((st) => st.tab));
+      return true;
     },
-    [recordRestore],
+    [recordRestore, setProcessing],
   );
 
   const wrangleNow = useCallback(async () => {
@@ -142,7 +153,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     const lastAction = state.past[state.past.length - 1];
     if (!lastAction) return;
 
-    isProcessingRef.current = true;
+    setProcessing(true);
     try {
       switch (lastAction.type) {
         case "remove":
@@ -161,7 +172,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
             chrome.sessions.getRecentlyClosed(),
           ]);
           const savedTabKeys = new Set(savedTabs.map(serializeTab));
-          await unwrangleTabs(
+          await requestUnwrangleTabs(
             lastAction.tabs
               .filter((tab) => savedTabKeys.has(serializeTab(tab)))
               .map((tab) => ({
@@ -174,10 +185,11 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
         default:
           assertUnreachable(lastAction, "lastAction.type");
       }
-    } catch {
+    } catch (error) {
+      console.error("[undo] Failed to undo", error);
       return;
     } finally {
-      isProcessingRef.current = false;
+      setProcessing(false);
     }
 
     setState((prev) => ({
@@ -188,7 +200,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
           ? prev.future
           : [lastAction, ...prev.future].slice(0, MAX_HISTORY),
     }));
-  }, [state.past]);
+  }, [setProcessing, state.past]);
 
   const redo = useCallback(async (): Promise<RedoResult | null> => {
     if (isProcessingRef.current) return null;
@@ -196,7 +208,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     const nextAction = state.future[0];
     if (!nextAction) return null;
 
-    isProcessingRef.current = true;
+    setProcessing(true);
     let tabs: chrome.tabs.Tab[];
     try {
       switch (nextAction.type) {
@@ -219,7 +231,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     } catch {
       return null;
     } finally {
-      isProcessingRef.current = false;
+      setProcessing(false);
     }
 
     setState((prev) => ({
@@ -228,7 +240,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     }));
 
     return { tabs, type: nextAction.type };
-  }, [state.future]);
+  }, [setProcessing, state.future]);
 
   function toSummary(action: UndoableAction | undefined): ActionSummary | null {
     if (!action) return null;
@@ -245,6 +257,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
       canUndo: state.past.length > 0,
       canRedo: state.future.length > 0,
       discardLastAction,
+      isProcessing,
       lastAction,
       nextRedoAction,
       redo,
@@ -258,6 +271,7 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
       state.past.length,
       state.future.length,
       discardLastAction,
+      isProcessing,
       lastAction,
       nextRedoAction,
       redo,

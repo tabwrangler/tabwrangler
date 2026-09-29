@@ -11,7 +11,7 @@ import { useUndo } from "./UndoContext";
 import useWindowsGetLastFocused from "./api/useWindowsGetLastFocused";
 
 export default function WrangleNowButton() {
-  const { discardLastAction, lastAction, undo, wrangleNow } = useUndo();
+  const { discardLastAction, isProcessing, lastAction, undo, wrangleNow } = useUndo();
   const tabsQuery = useTabsQuery();
   const tabTimesQuery = useTabTimesQuery();
   const [isWrangling, setIsWrangling] = useState(false);
@@ -93,7 +93,7 @@ export default function WrangleNowButton() {
         >
           <Toast.Body className="d-flex align-items-center justify-content-between text-light">
             {chrome.i18n.getMessage("extension_wrangleNow_done", String(lastAction?.tabCount))}
-            <Button onClick={undo} type="button" variant="outline-light">
+            <Button disabled={isProcessing} onClick={undo} type="button" variant="outline-light">
               <i className="fas fa-undo" /> {chrome.i18n.getMessage("corral_undo")}
             </Button>
           </Toast.Body>

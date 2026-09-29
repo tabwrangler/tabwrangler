@@ -199,12 +199,44 @@ export async function unwrangleTabs(sessionTabs: Array<SessionTab>): Promise<voi
   });
 
   await Promise.all(
-    sessionTabs.map((sessionTab) => {
+    sessionTabs.map(async (sessionTab) => {
+      let restoredTab: chrome.tabs.Tab | undefined;
       if (sessionTab.session == null || sessionTab.session.tab == null) {
-        return chrome.tabs.create({ active: false, url: sessionTab.tab.url });
+        restoredTab = await chrome.tabs.create({ active: false, url: sessionTab.tab.url });
       } else {
-        return chrome.sessions.restore(sessionTab.session.tab.sessionId);
+        const restoredSession = await chrome.sessions.restore(sessionTab.session.tab.sessionId);
+        restoredTab = restoredSession.tab;
       }
+      if (restoredTab != null) await regroupRestoredTab(restoredTab, sessionTab.tab.groupId);
     }),
   );
+}
+
+async function regroupRestoredTab(
+  restoredTab: chrome.tabs.Tab,
+  groupId: number | undefined,
+): Promise<void> {
+  if (
+    chrome.tabGroups == null ||
+    restoredTab.id == null ||
+    groupId == null ||
+    groupId < 0 ||
+    // The browser's own session restore may have already put the tab back in a group
+    (restoredTab.groupId != null && restoredTab.groupId >= 0)
+  )
+    return;
+
+  try {
+    await chrome.tabGroups.get(groupId);
+  } catch {
+    // The group no longer exists, e.g. it was closed or emptied when its last tab was wrangled
+    return;
+  }
+
+  try {
+    await chrome.tabs.group({ groupId, tabIds: restoredTab.id });
+    console.info(`[regroupRestoredTab] Added tab ${restoredTab.id} to group ${groupId}`);
+  } catch (error) {
+    console.warn(`[regroupRestoredTab] Failed to add tab to group ${groupId}`, error);
+  }
 }

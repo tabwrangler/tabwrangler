@@ -40,6 +40,9 @@
     "open_in_tab": true,
     "page": "options.html"
   },
+  "optional_permissions": [
+    "idle"
+  ],
   "permissions": [
     "alarms",
     "contextMenus",

@@ -6,3 +6,5 @@ export const CHECK_TO_CLOSE_INTERVAL_MS = 5_000;
  * `checkTcClose` interval.
  */
 export const ACTIVE_TAB_TIMER_FREEZE_WINDOW_MS = CHECK_TO_CLOSE_INTERVAL_MS * 2;
+
+export const IDLE_PERMISSIONS: chrome.permissions.Permissions = { permissions: ["idle"] };

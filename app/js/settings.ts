@@ -29,6 +29,7 @@ export interface SettingsSchema {
   minTabs: number;
   minTabsStrategy: MinTabsStrategyOption;
   minutesInactive: number;
+  pauseWhenIdle: boolean;
   purgeClosedTabs: boolean;
   secondsInactive: number;
   showBadgeCount: boolean;
@@ -77,6 +78,9 @@ export const SETTINGS_DEFAULTS: SettingsSchema = {
 
   // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
   minutesInactive: 60,
+
+  // Stop tab timers from counting down while the browser is idle. Requires the "idle" permission.
+  pauseWhenIdle: false,
 
   // Save closed tabs in between browser sessions.
   purgeClosedTabs: false,

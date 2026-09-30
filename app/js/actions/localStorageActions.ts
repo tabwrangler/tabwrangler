@@ -114,21 +114,14 @@ export function shiftTabTimes(pausedAtMs: number) {
     const shifted: TabTimes = {};
     const minShiftedTimeMs = now - settings.stayOpen();
     for (const [tabId, tabTimeMs] of Object.entries(tabTimes)) {
-      let shiftedTimeMs: number;
+      // Timers do not count down while paused: a tab resumes with the time it had remaining when
+      // paused, and a tab activated during the pause resumes with a full timer.
+      const shiftedTimeMs = Math.min(tabTimeMs, pausedAtMs) + deltaMs;
 
-      // Shift tabTimes that predate the pause to account for the paused time
-      if (tabTimeMs <= pausedAtMs) shiftedTimeMs = tabTimeMs + deltaMs;
-      else shiftedTimeMs = tabTimeMs;
-
-      // Clamp new tabTimes to `stayOpen` setting. Two ways the clamping could be needed:
-      // 1. `tabTimeMs` predates the pause, but `stayOpen` setting changed while paused
-      // 2. `tabTimeMs` postdates the pause, but it is older than max `stayOpen` setting (either
-      //     because the setting changed or because tab was activated longer than `stayOpen` ago)
-      const clampedShiftedTimeMs = Math.max(shiftedTimeMs, minShiftedTimeMs);
-
-      shifted[tabId] = clampedShiftedTimeMs;
+      // Clamp new tabTimes to `stayOpen` setting in case the setting changed while paused
+      shifted[tabId] = Math.max(shiftedTimeMs, minShiftedTimeMs);
     }
-    console.debug(`[shiftTabTimes] Shifted tabTimes predating pause by ${deltaMs}ms`);
+    console.debug(`[shiftTabTimes] Shifted tabTimes by ${deltaMs}ms pause`);
     await chrome.storage.local.set({ tabTimes: shifted });
   });
 }

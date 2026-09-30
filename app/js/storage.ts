@@ -54,7 +54,24 @@ export function mutateStorageSyncPersist({
   });
 }
 
+/**
+ * Records when the browser became idle. Once it is no longer idle, shifts tab times so time spent
+ * idle does not count against them (same as unpausing).
+ */
+export async function setIdle(idle: boolean): Promise<void> {
+  const { idleAt } = await chrome.storage.local.get<{ idleAt: number | null }>({ idleAt: null });
+  if (idle && idleAt == null) {
+    await chrome.storage.local.set({ idleAt: Date.now() });
+  } else if (!idle && idleAt != null) {
+    await shiftTabTimes(idleAt);
+    await chrome.storage.local.remove("idleAt");
+  }
+}
+
 export async function pauseExtension(): Promise<void> {
+  // Pausing is user activity, so end any idle period now. Otherwise the idle period would overlap
+  // the pause and tab times would be shifted for both.
+  await setIdle(false);
   await Promise.all([
     mutateStorageSyncPersist({ key: "paused", value: true }),
     chrome.storage.local.set({ pausedAt: Date.now() }),

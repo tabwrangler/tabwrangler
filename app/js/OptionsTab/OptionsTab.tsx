@@ -5,6 +5,7 @@ import { useStorageSyncPersistQuery, useStorageSyncQuery } from "../storage";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import FileSaver from "file-saver";
+import { IDLE_PERMISSIONS } from "../constants";
 import TabWrangleOption from "./TabWrangleOption";
 import Toast from "react-bootstrap/Toast";
 import { ToastPortal } from "../ToastPortal";
@@ -13,6 +14,7 @@ import { exportFileName } from "../actions/importExportActions";
 import { mutateStorageSyncPersist } from "../storage";
 import { useDebounceCallback } from "@react-hook/debounce";
 import useDraftInput from "../useDraftInput";
+import useIdlePermissionQuery from "../api/useIdlePermissionQuery";
 import { useMutation } from "@tanstack/react-query";
 import useSetting from "../useSetting";
 import { useUndo } from "../UndoContext";
@@ -260,33 +262,36 @@ export default function OptionsTab() {
           <div className="form-text mb-1">
             {chrome.i18n.getMessage("options_option_minTabs_postLabel")}
           </div>
-          <div className="form-check mb-1">
+          <div className="form-check form-switch mb-1">
             <input
               className="form-check-input"
               defaultChecked={settings.get("debounceOnActivated")}
               id="debounceOnActivated"
               name="debounceOnActivated"
               onChange={handleSettingsChange}
+              role="switch"
               type="checkbox"
             />
             <label className="form-check-label" htmlFor="debounceOnActivated">
               {chrome.i18n.getMessage("options_option_debounceOnActivated_label")}
             </label>
           </div>
-          <div className="form-check mb-1">
+          <PauseWhenIdleOption onSaveSetting={saveSetting} />
+          <div className="form-check form-switch mb-1">
             <input
               className="form-check-input"
               defaultChecked={settings.get("filterAudio")}
               id="filterAudio"
               name="filterAudio"
               onChange={handleSettingsChange}
+              role="switch"
               type="checkbox"
             />
             <label className="form-check-label" htmlFor="filterAudio">
               {chrome.i18n.getMessage("options_option_filterAudio_label")}
             </label>
           </div>
-          <div className="form-check">
+          <div className="form-check form-switch">
             <input
               className="form-check-input"
               defaultChecked={settings.get("filterGroupedTabs")}
@@ -294,6 +299,7 @@ export default function OptionsTab() {
               id="filterGroupedTabs"
               name="filterGroupedTabs"
               onChange={handleSettingsChange}
+              role="switch"
               type="checkbox"
             />
             <label className="form-check-label" htmlFor="filterGroupedTabs">
@@ -346,39 +352,42 @@ export default function OptionsTab() {
               </div>
             </div>
           )}
-          <div className="form-check mb-1 mt-2">
+          <div className="form-check form-switch mb-1 mt-2">
             <input
               className="form-check-input"
               defaultChecked={settings.get("purgeClosedTabs")}
               id="purgeClosedTabs"
               name="purgeClosedTabs"
               onChange={handleSettingsChange}
+              role="switch"
               type="checkbox"
             />
             <label className="form-check-label" htmlFor="purgeClosedTabs">
               {chrome.i18n.getMessage("options_option_clearOnQuit_label")}
             </label>
           </div>
-          <div className="form-check mb-1">
+          <div className="form-check form-switch mb-1">
             <input
               className="form-check-input"
               defaultChecked={settings.get("showBadgeCount")}
               id="showBadgeCount"
               name="showBadgeCount"
               onChange={handleSettingsChange}
+              role="switch"
               type="checkbox"
             />
             <label className="form-check-label" htmlFor="showBadgeCount">
               {chrome.i18n.getMessage("options_option_showBadgeCount_label")}
             </label>
           </div>
-          <div className="form-check mb-3">
+          <div className="form-check form-switch mb-3">
             <input
               className="form-check-input"
               defaultChecked={settings.get("createContextMenu")}
               id="createContextMenu"
               name="createContextMenu"
               onChange={handleSettingsChange}
+              role="switch"
               type="checkbox"
             />
             <label className="form-check-label" htmlFor="createContextMenu">
@@ -692,6 +701,44 @@ function InactiveTimeOption({
         {formatInactiveDuration(daysInactive, hoursInactive, minutesInactiveUI, secondsInactive)}
       </div>
     </>
+  );
+}
+
+function PauseWhenIdleOption({
+  onSaveSetting,
+}: {
+  onSaveSetting: <K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) => void;
+}) {
+  const pauseWhenIdle = useSetting("pauseWhenIdle");
+  const { data: hasIdlePermission } = useIdlePermissionQuery();
+
+  async function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.checked) {
+      // Must be requested synchronously in the event handler. Firefox rejects permission requests
+      // made outside of a user gesture.
+      const granted = await chrome.permissions.request(IDLE_PERMISSIONS);
+      if (granted) onSaveSetting("pauseWhenIdle", true);
+    } else {
+      onSaveSetting("pauseWhenIdle", false);
+      await chrome.permissions.remove(IDLE_PERMISSIONS);
+    }
+  }
+
+  return (
+    <div className="form-check form-switch mb-1">
+      <input
+        checked={pauseWhenIdle && hasIdlePermission === true}
+        className="form-check-input"
+        id="pauseWhenIdle"
+        name="pauseWhenIdle"
+        onChange={handleChange}
+        role="switch"
+        type="checkbox"
+      />
+      <label className="form-check-label" htmlFor="pauseWhenIdle">
+        {chrome.i18n.getMessage("options_option_pauseWhenIdle_label")}
+      </label>
+    </div>
   );
 }
 

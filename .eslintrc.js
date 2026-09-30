@@ -11,6 +11,7 @@ module.exports = {
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
     "plugin:react/jsx-runtime",
+    "plugin:react-hooks/recommended",
     "plugin:prettier/recommended",
   ],
   parser: "@typescript-eslint/parser",
@@ -21,7 +22,6 @@ module.exports = {
     ecmaVersion: 2017,
     sourceType: "module",
   },
-  plugins: ["react-hooks"],
   root: true,
   rules: {
     // Rules included in ESLint
@@ -33,7 +33,6 @@ module.exports = {
     "require-await": "error",
 
     // React Hooks
-    "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "error",
 
     // TypeScript

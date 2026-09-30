@@ -214,14 +214,6 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "탭의 타이머가 1초 동안 활성화된 후에만 재설정"
   },
-  "options_option_filterAudio_label": {
-    "description": "Label for checkbox to filter tabs that are playing audio",
-    "message": "오디오를 재생 중인 탭을 닫지 않기"
-  },
-  "options_option_filterGroupedTabs_label": {
-    "description": "Label for checkbox to lock tabs that are in a tab group",
-    "message": "탭 그룹 안에 있는 탭을 닫지 않기"
-  },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
     "message": "비활성화된 탭이 이보다 많은 경우에 자동으로 닫음:"

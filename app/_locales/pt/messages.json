@@ -214,14 +214,6 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Reiniciar o cronômetro da aba somente após ela estar ativa por 1 segundo"
   },
-  "options_option_filterAudio_label": {
-    "description": "Label for checkbox to filter tabs that are playing audio",
-    "message": "Não fechar abas que estejam reproduzindo áudio"
-  },
-  "options_option_filterGroupedTabs_label": {
-    "description": "Label for checkbox to lock tabs that are in a tab group",
-    "message": "Não fechar abas que estejam em um grupo"
-  },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
     "message": "Fechar automaticamente abas inativas se houver mais de:"

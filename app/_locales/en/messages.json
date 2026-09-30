@@ -296,11 +296,11 @@
   },
   "options_option_filterAudio_label": {
     "description": "Label for checkbox to filter tabs that are playing audio",
-    "message": "Don't close tabs that are playing audio"
+    "message": "Don't auto-close tabs that are playing audio"
   },
   "options_option_filterGroupedTabs_label": {
     "description": "Label for checkbox to lock tabs that are in a tab group",
-    "message": "Don't close tabs that are in a group"
+    "message": "Don't auto-close tabs that are in tab groups"
   },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",

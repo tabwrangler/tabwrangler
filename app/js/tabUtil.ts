@@ -239,6 +239,36 @@ export function getTabIdsOlderThan(tabTimes: TabTimes, time: number): Set<number
   return ret;
 }
 
+/**
+ * Returns the ID of the tab whose timer should be frozen: the active tab in the last focused
+ * window. If that window is not accessible (e.g. a private window), falls back to the tab with the
+ * most time remaining.
+ */
+export function findTabToFreeze(
+  windows: chrome.windows.Window[],
+  lastFocusedWindowId: number | undefined,
+  tabTimes: TabTimes,
+): number | undefined {
+  const activeTabId = windows
+    .find((win) => win.id === lastFocusedWindowId)
+    ?.tabs?.find((tab) => tab.active)?.id;
+  if (activeTabId != null) return activeTabId;
+
+  let newestTabId: number | undefined;
+  let newestTime = -Infinity;
+  for (const win of windows) {
+    for (const tab of win.tabs ?? []) {
+      if (tab.id == null) continue;
+      const time = tabTimes[tab.id];
+      if (time != null && time > newestTime) {
+        newestTime = time;
+        newestTabId = tab.id;
+      }
+    }
+  }
+  return newestTabId;
+}
+
 export function shouldFreezeActiveTabTimer(timeRemainingSeconds: number): boolean {
   return timeRemainingSeconds >= ACTIVE_TAB_TIMER_FREEZE_WINDOW_MS / 1000;
 }

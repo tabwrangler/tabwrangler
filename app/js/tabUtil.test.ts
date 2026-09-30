@@ -3,6 +3,7 @@ import {
   type WrangleNowSettings,
   findPositionByHostnameAndTitle,
   findPositionByURL,
+  findTabToFreeze,
   findTabsToCloseCandidates,
   findTabsToWrangleNow,
   getTabIdsOlderThan,
@@ -633,5 +634,35 @@ describe("findTabsToWrangleNow", () => {
       makeSettings({ minTabs: 1, minTabsStrategy: "allWindows" }),
     );
     expect(result.map((t) => t.id)).toEqual([1, 3]);
+  });
+});
+
+describe("findTabToFreeze", () => {
+  const windows: chrome.windows.Window[] = [
+    {
+      id: 1,
+      tabs: [createTab({ id: 1, windowId: 1, active: true }), createTab({ id: 2, windowId: 1 })],
+    } as chrome.windows.Window,
+    {
+      id: 2,
+      tabs: [createTab({ id: 3, windowId: 2, active: true }), createTab({ id: 4, windowId: 2 })],
+    } as chrome.windows.Window,
+  ];
+  const tabTimes = { "1": 10, "2": 40, "3": 20, "4": 30 };
+
+  test("returns the active tab in the last focused window", () => {
+    expect(findTabToFreeze(windows, 2, tabTimes)).toBe(3);
+  });
+
+  test("falls back to the tab with the most time left when the window is inaccessible", () => {
+    expect(findTabToFreeze(windows, 99, tabTimes)).toBe(2);
+  });
+
+  test("falls back to the tab with the most time left when there is no focused window", () => {
+    expect(findTabToFreeze(windows, undefined, tabTimes)).toBe(2);
+  });
+
+  test("returns undefined when no tabs have times", () => {
+    expect(findTabToFreeze(windows, undefined, {})).toBeUndefined();
   });
 });

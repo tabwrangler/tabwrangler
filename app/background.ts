@@ -2,6 +2,7 @@ import { ASYNC_LOCK, migrateLocal } from "./js/storage";
 import { RuntimeMessage, UnwrangleTabsResponse } from "./js/messages";
 import { SessionTab, TabTimes } from "./js/types";
 import {
+  findTabToFreeze,
   findTabsToCloseCandidates,
   initTabs,
   isTabLocked,
@@ -267,12 +268,8 @@ async function checkToClose() {
       const updatedAt = Date.now();
 
       // Update active tab in last focused window to make sure it does not get closed.
-      const lastFocusedActiveTabId = allWindows
-        .find((window) => window.id === lastFocusedWindow.id)
-        ?.tabs?.find((tab) => tab.active)?.id;
-      if (lastFocusedActiveTabId != null) {
-        tabTimes[String(lastFocusedActiveTabId)] = updatedAt;
-      }
+      const tabIdToFreeze = findTabToFreeze(allWindows, lastFocusedWindow.id, tabTimes);
+      if (tabIdToFreeze != null) tabTimes[String(tabIdToFreeze)] = updatedAt;
 
       // Refresh audible tabs if the setting is enabled to prevent them from being closed.
       if (settings.get("filterAudio") === true) {

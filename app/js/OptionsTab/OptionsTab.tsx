@@ -372,6 +372,7 @@ export default function OptionsTab() {
               {chrome.i18n.getMessage("options_option_showBadgeCount_label")}
             </label>
           </div>
+          <NotificationsOption onSaveSetting={saveSetting} />
           <div className="form-check mb-3">
             <input
               className="form-check-input"
@@ -692,6 +693,62 @@ function InactiveTimeOption({
         {formatInactiveDuration(daysInactive, hoursInactive, minutesInactiveUI, secondsInactive)}
       </div>
     </>
+  );
+}
+
+const NOTIFICATIONS_PERMISSIONS: chrome.permissions.Permissions = {
+  permissions: ["notifications"],
+};
+
+function NotificationsOption({
+  onSaveSetting,
+}: {
+  onSaveSetting: <K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) => void;
+}) {
+  const showNotifications = useSetting("showNotifications");
+  const [hasPermission, setHasPermission] = useState(false);
+
+  useEffect(() => {
+    async function checkPermission() {
+      setHasPermission(await chrome.permissions.contains(NOTIFICATIONS_PERMISSIONS));
+    }
+    checkPermission();
+    chrome.permissions.onAdded.addListener(checkPermission);
+    chrome.permissions.onRemoved.addListener(checkPermission);
+    return () => {
+      chrome.permissions.onAdded.removeListener(checkPermission);
+      chrome.permissions.onRemoved.removeListener(checkPermission);
+    };
+  }, []);
+
+  async function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.checked) {
+      // Firefox requires `permissions.request` to be called synchronously within the user input
+      // handler, so nothing may be awaited before it.
+      const granted = await chrome.permissions.request(NOTIFICATIONS_PERMISSIONS);
+      setHasPermission(granted);
+      if (granted) onSaveSetting("showNotifications", true);
+    } else {
+      onSaveSetting("showNotifications", false);
+      await chrome.permissions.remove(NOTIFICATIONS_PERMISSIONS);
+      setHasPermission(false);
+    }
+  }
+
+  return (
+    <div className="form-check mb-1">
+      <input
+        checked={showNotifications && hasPermission}
+        className="form-check-input"
+        id="showNotifications"
+        name="showNotifications"
+        onChange={handleChange}
+        type="checkbox"
+      />
+      <label className="form-check-label" htmlFor="showNotifications">
+        {chrome.i18n.getMessage("options_option_showNotifications_label")}
+      </label>
+    </div>
   );
 }
 

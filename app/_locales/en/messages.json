@@ -169,6 +169,26 @@
       }
     }
   },
+  "notification_tabWrangled_message": {
+    "description": "Body of the system notification shown when Tab Wrangler automatically closed a single tab",
+    "message": "Closed inactive tab: $title$",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Wikipedia, the free encyclopedia"
+      }
+    }
+  },
+  "notification_tabsWrangled_message": {
+    "description": "Body of the system notification shown when Tab Wrangler automatically closed more than one tab",
+    "message": "Closed $count$ inactive tabs",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "options_dedupe_label": {
     "description": "Label for the de-duplicating option",
     "message": "Prevent duplicate tabs in the Tab Corral:"
@@ -353,6 +373,10 @@
   "options_option_showBadgeCount_label": {
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
     "message": "Show # of closed tabs on the toolbar button"
+  },
+  "options_option_showNotifications_label": {
+    "description": "Label for checkbox to show a system notification when Tab Wrangler automatically closes tabs. Enabling it asks the user to grant the notifications permission.",
+    "message": "Show a notification when tabs are closed automatically"
   },
   "options_option_theme_label": {
     "description": "Label preceding button group for choosing the color theme",

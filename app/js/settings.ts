@@ -32,6 +32,7 @@ export interface SettingsSchema {
   purgeClosedTabs: boolean;
   secondsInactive: number;
   showBadgeCount: boolean;
+  showNotifications: boolean;
   whitelist: string[];
   wrangleOption: SettingsSchemaWrangleOption;
 }
@@ -86,6 +87,10 @@ export const SETTINGS_DEFAULTS: SettingsSchema = {
 
   // When true, shows the number of closed tabs in the list as a badge on the browser icon.
   showBadgeCount: false,
+
+  // When true, shows a system notification when tabs are closed automatically. Requires the
+  // optional "notifications" permission.
+  showNotifications: false,
 
   // An array of patterns to check against. If a URL matches a pattern, it is never locked.
   whitelist: ["about:", "chrome://"],

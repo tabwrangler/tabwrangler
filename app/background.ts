@@ -239,6 +239,61 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
+async function notifyTabsWrangled(tabs: chrome.tabs.Tab[]) {
+  // The "showNotifications" setting is synced across browsers, but the permission is granted per
+  // browser, so both must be checked.
+  if (
+    !settings.get("showNotifications") ||
+    !(await chrome.permissions.contains({ permissions: ["notifications"] }))
+  )
+    return;
+
+  chrome.notifications.create({
+    iconUrl: "img/icon128.png",
+    message:
+      tabs.length === 1
+        ? chrome.i18n.getMessage("notification_tabWrangled_message", [
+            tabs[0].title || tabs[0].url || "",
+          ])
+        : chrome.i18n.getMessage("notification_tabsWrangled_message", [String(tabs.length)]),
+    title: chrome.i18n.getMessage("extName"),
+    type: "basic",
+  });
+}
+
+// Mirrors `chrome.runtime.openOptionsPage`, which cannot open to a specific tab: focuses an
+// existing options page if there is one, otherwise opens a new one.
+async function openOptionsPageToCorral() {
+  const optionsUrl = chrome.runtime.getURL("options.html");
+  const url = `${optionsUrl}#corral`;
+  const tabs = await chrome.tabs.query({});
+  const optionsTab = tabs.find((tab) => tab.url?.startsWith(optionsUrl));
+  if (optionsTab?.id == null) {
+    await chrome.tabs.create({ url });
+  } else {
+    await chrome.tabs.update(optionsTab.id, { active: true, url });
+    await chrome.windows.update(optionsTab.windowId, { focused: true });
+  }
+}
+
+function handleNotificationClicked(notificationId: string) {
+  chrome.notifications.clear(notificationId);
+  openOptionsPageToCorral();
+}
+
+// `chrome.notifications` is only defined once the optional "notifications" permission is granted.
+function addNotificationListeners() {
+  if (
+    chrome.notifications == null ||
+    chrome.notifications.onClicked.hasListener(handleNotificationClicked)
+  )
+    return;
+  chrome.notifications.onClicked.addListener(handleNotificationClicked);
+}
+
+addNotificationListeners();
+chrome.permissions.onAdded.addListener(addNotificationListeners);
+
 let checkToCloseTimeout: NodeJS.Timeout | undefined;
 function scheduleCheckToClose() {
   if (checkToCloseTimeout != null) clearTimeout(checkToCloseTimeout);
@@ -340,6 +395,7 @@ async function checkToClose() {
           "persist:localStorage": storageLocalPersist,
         });
       });
+      await notifyTabsWrangled(tabsToClose);
     }
   } catch (error) {
     console.error("[checkToClose]", error);

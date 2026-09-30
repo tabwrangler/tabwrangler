@@ -46,6 +46,9 @@
       "description": "__MSG_commandWrangleNow__"
     }
   },
+  "optional_permissions": [
+    "notifications"
+  ],
   "options_ui": {
     "open_in_tab": true,
     "page": "options.html"

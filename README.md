@@ -211,7 +211,7 @@ key.
   This prevents having to make a network request to fetch a tab's favicon, improving privacy and
   offline capability.
 - [`"idle"`][11]: (_Optional_) Enables pausing tab timer countdowns when your browser/computer goes
-  idle if time away from your browser should not count against your tabs
+  idle if time away from your browser should not count against your tabs.
 - [`"sessions"`][4]: Allows reading and restoring the full history of tabs including enabling the
   back/forward buttons and your scroll position on those pages.
 - [`"storage"`][5]: Allows syncing your Tab Wrangler settings with your browser account and enables

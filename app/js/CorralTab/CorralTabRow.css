@@ -12,7 +12,7 @@
 }
 
 .ReactVirtualized__Table__row.ClosedTabRow--grouped {
-  padding-left: calc(0.5rem + 3px);
+  padding-left: calc(0.5rem + 2px);
 }
 
 .ClosedTabRow-group-border {

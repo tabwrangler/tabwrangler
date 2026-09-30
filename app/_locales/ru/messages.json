@@ -222,14 +222,6 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Перезапускать таймер вкладки только если она была активна на 1 секунду"
   },
-  "options_option_filterAudio_label": {
-    "description": "Label for checkbox to filter tabs that are playing audio",
-    "message": "Не закрывать вкладки, которые проигрывают звук"
-  },
-  "options_option_filterGroupedTabs_label": {
-    "description": "Label for checkbox to lock tabs that are in a tab group",
-    "message": "Не закрывать вкладки, находящиеся в группе"
-  },
   "options_option_minTabs_label": {
     "description": "Label preceeding input for setting minimum number of tabs",
     "message": "Авто-закрытие неактивных вкладок, если их больше, чем:"

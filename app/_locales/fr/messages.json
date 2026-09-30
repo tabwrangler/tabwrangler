@@ -181,10 +181,6 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Réinitialiser la minuterie de l’onglet qu’après qu'il soit actif pendant 1 seconde"
   },
-  "options_option_filterAudio_label": {
-    "description": "Label for checkbox to filter tabs that are playing audio",
-    "message": "Ne fermez pas les onglets qui sont en lecture audio"
-  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "Doit être un nombre supérieur ou égal à 0"

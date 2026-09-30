@@ -31,7 +31,7 @@ export default function OpenTabRow({
   isInLastFocusedWindow = false,
   tab,
   tabGroup,
-  tabTime = Date.now(),
+  tabTime: tabTimeProp,
   tabsWillAutoClose,
   windowId,
   windowLocked,
@@ -40,6 +40,7 @@ export default function OpenTabRow({
   const tabLockStatus = settings.getTabLockStatus(tab);
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const now = useContext(UseNowContext);
+  const tabTime = tabTimeProp ?? now;
   const paused = syncPersistData?.paused;
   const cutOff = now - settings.stayOpen();
   const timeRemaining = -1 * Math.round((cutOff - tabTime) / 1000);

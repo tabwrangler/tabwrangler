@@ -24,18 +24,14 @@ const COMMON_CONFIG = {
         exclude: /node_modules/,
         test: /\.[mc]?[jt]sx?$/i,
         use: [
+          // Type checking happens in `npm run check-types`; the compiler's output does not type\
+          // check.
+          { loader: "ts-loader", options: { transpileOnly: true } },
           {
             loader: reactCompilerLoader,
             options: defineReactCompilerLoaderOption({}),
           },
         ],
-      },
-      {
-        exclude: /node_modules/,
-        test: /\.[t|j]sx?$/,
-        use: {
-          loader: "ts-loader",
-        },
       },
       {
         test: /\.s?css$/,

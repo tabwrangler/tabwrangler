@@ -181,10 +181,10 @@ file has the following format:
  * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/d693ab3ced5aa2b8d86838f721006b16414bb21e/types/chrome/index.d.ts#L9406
  */
 type TabWranglerExportFormat = {
-  savedTabs: Array<chrome.tabs.Tab>,
-  totalTabsRemoved: number,
-  totalTabsUnwrangled: number,
-  totalTabsWrangled: number
+  savedTabs: Array<chrome.tabs.Tab>;
+  totalTabsRemoved: number;
+  totalTabsUnwrangled: number;
+  totalTabsWrangled: number;
 };
 ```
 
@@ -210,6 +210,8 @@ key.
 - [`"favicons"`][9]: (_Chrome only_) Allows access to local favicon images of current and past tabs.
   This prevents having to make a network request to fetch a tab's favicon, improving privacy and
   offline capability.
+- [`"idle"`][11]: (_Optional_) Enables pausing tab timer countdowns when your browser/computer goes
+  idle if time away from your browser should not count against your tabs
 - [`"sessions"`][4]: Allows reading and restoring the full history of tabs including enabling the
   back/forward buttons and your scroll position on those pages.
 - [`"storage"`][5]: Allows syncing your Tab Wrangler settings with your browser account and enables
@@ -271,3 +273,4 @@ Extension icon and marketing screenshots created by Rob Struble <<https://layers
 [8]: https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria
 [9]: https://developer.chrome.com/docs/extensions/how-to/ui/favicons
 [10]: https://developer.chrome.com/docs/extensions/reference/api/tabGroups
+[11]: https://developer.chrome.com/docs/extensions/reference/api/idle

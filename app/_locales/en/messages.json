@@ -322,6 +322,10 @@
     "description": "Input title for minimum number of tabs",
     "message": "Must be a number greater than or equal to 0"
   },
+  "options_option_pauseWhenIdle_label": {
+    "description": "Label for checkbox to stop tab timers from counting down while the browser reports it is idle (no keyboard or mouse input for 1 minute, or the screen is locked)",
+    "message": "Pause tab timers while the browser is idle"
+  },
   "options_option_rememberTabs_label": {
     "description": "Label preceeding input for number of tabs to remember",
     "message": "Remember up to:"
@@ -579,6 +583,14 @@
   "tabLock_timerFrozen_tooltip": {
     "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
     "message": "Frozen: active tab in last focused window does NOT count down"
+  },
+  "tabLock_timerIdle_tooltip": {
+    "description": "Tooltip shown next to a tab's paused countdown while the browser is idle",
+    "message": "Browser idle: timers do NOT count down"
+  },
+  "tabLock_timerPaused_tooltip": {
+    "description": "Tooltip shown next to a tab's paused countdown while the extension is paused",
+    "message": "Extension paused: timers do NOT count down"
   },
   "tabLock_groupIndicator_unnamed": {
     "description": "Fallback tooltip for a tab group with no title.",

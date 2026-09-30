@@ -7,6 +7,7 @@ import cx from "classnames";
 import settings from "../settings";
 import { shouldFreezeActiveTabTimer } from "../tabUtil";
 import { useContext } from "react";
+import usePauseTimesQuery from "../api/usePauseTimesQuery";
 import { useStorageSyncPersistQuery } from "../storage";
 
 interface OpenTabRowProps {
@@ -39,10 +40,17 @@ export default function OpenTabRow({
 }: OpenTabRowProps) {
   const tabLockStatus = settings.getTabLockStatus(tab);
   const { data: syncPersistData } = useStorageSyncPersistQuery();
+  const { data: pauseTimes } = usePauseTimesQuery();
   const now = useContext(UseNowContext);
   const tabTime = tabTimeProp ?? now;
   const paused = syncPersistData?.paused;
-  const cutOff = now - settings.stayOpen();
+  // Only use `pausedAt` while paused because unpausing from another browser does not remove it here
+  const pausedAt = paused ? pauseTimes?.pausedAt : null;
+  const idleAt = pauseTimes?.idleAt;
+  // Timers do not count down while paused or idle, so show them as they were when that began
+  const timersPausedAt = pausedAt ?? idleAt;
+  const timerNow = timersPausedAt == null ? now : Math.max(timersPausedAt, tabTime);
+  const cutOff = timerNow - settings.stayOpen();
   const timeRemaining = -1 * Math.round((cutOff - tabTime) / 1000);
   const isOverdue = !tabLockStatus.locked && !windowLocked && !paused && timeRemaining < 0;
 
@@ -114,6 +122,8 @@ export default function OpenTabRow({
       >
         <div className="d-flex align-items-center justify-content-end gap-2">
           <TabLockContent
+            hasPausedAt={pausedAt != null}
+            isBrowserIdle={idleAt != null}
             isTabActive={tab.active}
             timerFrozen={
               tab.active && isInLastFocusedWindow && shouldFreezeActiveTabTimer(timeRemaining)
@@ -185,6 +195,8 @@ function TabVolumeControl({ tab }: { tab: chrome.tabs.Tab }) {
 }
 
 function TabLockContent({
+  hasPausedAt,
+  isBrowserIdle,
   isTabActive,
   timerFrozen,
   tabLockStatus,
@@ -192,6 +204,8 @@ function TabLockContent({
   timeRemaining,
   windowLocked,
 }: {
+  hasPausedAt: boolean;
+  isBrowserIdle: boolean;
   isTabActive: boolean;
   timerFrozen: boolean;
   tabLockStatus: TabLockStatus;
@@ -245,8 +259,6 @@ function TabLockContent({
     let timeLeftContent;
     if (windowLocked) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_window");
-    } else if (paused) {
-      timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
     } else if (timerFrozen) {
       timeLeftContent = (
         <OverlayTrigger
@@ -260,6 +272,13 @@ function TabLockContent({
           </span>
         </OverlayTrigger>
       );
+    } else if (hasPausedAt) {
+      timeLeftContent = <PausedTimeRemaining timeRemaining={timeRemaining} />;
+    } else if (paused) {
+      // Paused from another browser, so there is no `pausedAt` here to calculate time remaining
+      timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
+    } else if (isBrowserIdle) {
+      timeLeftContent = <IdleTimeRemaining timeRemaining={timeRemaining} />;
     } else if (timeRemaining <= 0 && tabsWillAutoClose) {
       // Countdown finished and tabs are eligible to close — waiting for the background interval.
       timeLeftContent = <time className="font-monospace">{formatSecondsToDhms(0)}</time>;
@@ -283,6 +302,32 @@ function TabLockContent({
 
     return timeLeftContent;
   }
+}
+
+function PausedTimeRemaining({ timeRemaining }: { timeRemaining: number }) {
+  return (
+    <OverlayTrigger
+      overlay={<Tooltip>{chrome.i18n.getMessage("tabLock_timerPaused_tooltip")}</Tooltip>}
+    >
+      <span>
+        <i className="text-warning opacity-50 fas fa-pause" />{" "}
+        <time className="font-monospace">{formatSecondsToDhms(Math.max(0, timeRemaining))}</time>
+      </span>
+    </OverlayTrigger>
+  );
+}
+
+function IdleTimeRemaining({ timeRemaining }: { timeRemaining: number }) {
+  return (
+    <OverlayTrigger
+      overlay={<Tooltip>{chrome.i18n.getMessage("tabLock_timerIdle_tooltip")}</Tooltip>}
+    >
+      <span>
+        <i className="text-warning opacity-50 fas fa-clock" />{" "}
+        <time className="font-monospace">{formatSecondsToDhms(Math.max(0, timeRemaining))}</time>
+      </span>
+    </OverlayTrigger>
+  );
 }
 
 const SECONDS_PER_HOUR = 3600;

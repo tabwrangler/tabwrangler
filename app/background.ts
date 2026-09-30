@@ -1,4 +1,5 @@
-import { ASYNC_LOCK, migrateLocal } from "./js/storage";
+import { ASYNC_LOCK, migrateLocal, setIdle } from "./js/storage";
+import { CHECK_TO_CLOSE_INTERVAL_MS, IDLE_PERMISSIONS } from "./js/constants";
 import { RuntimeMessage, UnwrangleTabsResponse } from "./js/messages";
 import { SessionTab, TabTimes } from "./js/types";
 import {
@@ -24,7 +25,6 @@ import {
   wrangleTabsToRight,
 } from "./js/commands";
 import { removeAllSavedTabs, unwrangleTabs } from "./js/actions/localStorageActions";
-import { CHECK_TO_CLOSE_INTERVAL_MS } from "./js/constants";
 import Menus from "./js/menus";
 import { debounce } from "lodash-es";
 import settings from "./js/settings";
@@ -239,6 +239,20 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
+// Seconds without input before the browser reports it is idle. Matches Chrome's default for
+// `chrome.idle.onStateChanged`.
+const IDLE_DETECTION_INTERVAL_S = 60;
+
+async function isIdle(): Promise<boolean> {
+  if (!settings.get("pauseWhenIdle")) return false;
+  if (!(await chrome.permissions.contains(IDLE_PERMISSIONS))) return false;
+  // Callback form because `queryState` only returns a Promise in Chrome 116+
+  const state = await new Promise<chrome.idle.IdleState>((resolve) => {
+    chrome.idle.queryState(IDLE_DETECTION_INTERVAL_S, resolve);
+  });
+  return state !== "active";
+}
+
 let checkToCloseTimeout: NodeJS.Timeout | undefined;
 function scheduleCheckToClose() {
   if (checkToCloseTimeout != null) clearTimeout(checkToCloseTimeout);
@@ -252,6 +266,10 @@ async function checkToClose() {
 
     // Extension is paused, no work needs to be done.
     if (storageSyncPersist.paused) return;
+
+    const idle = await isIdle();
+    await setIdle(idle);
+    if (idle) return;
 
     const tabsToClose = await ASYNC_LOCK.acquire("local.tabTimes", async () => {
       const [lastFocusedWindow, allWindows, { tabTimes }] = await Promise.all([

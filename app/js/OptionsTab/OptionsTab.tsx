@@ -5,6 +5,7 @@ import { useStorageSyncPersistQuery, useStorageSyncQuery } from "../storage";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import FileSaver from "file-saver";
+import { IDLE_PERMISSIONS } from "../constants";
 import TabWrangleOption from "./TabWrangleOption";
 import Toast from "react-bootstrap/Toast";
 import { ToastPortal } from "../ToastPortal";
@@ -13,6 +14,7 @@ import { exportFileName } from "../actions/importExportActions";
 import { mutateStorageSyncPersist } from "../storage";
 import { useDebounceCallback } from "@react-hook/debounce";
 import useDraftInput from "../useDraftInput";
+import useIdlePermissionQuery from "../api/useIdlePermissionQuery";
 import { useMutation } from "@tanstack/react-query";
 import useSetting from "../useSetting";
 import { useUndo } from "../UndoContext";
@@ -273,6 +275,7 @@ export default function OptionsTab() {
               {chrome.i18n.getMessage("options_option_debounceOnActivated_label")}
             </label>
           </div>
+          <PauseWhenIdleOption onSaveSetting={saveSetting} />
           <div className="form-check mb-1">
             <input
               className="form-check-input"
@@ -692,6 +695,43 @@ function InactiveTimeOption({
         {formatInactiveDuration(daysInactive, hoursInactive, minutesInactiveUI, secondsInactive)}
       </div>
     </>
+  );
+}
+
+function PauseWhenIdleOption({
+  onSaveSetting,
+}: {
+  onSaveSetting: <K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) => void;
+}) {
+  const pauseWhenIdle = useSetting("pauseWhenIdle");
+  const { data: hasIdlePermission } = useIdlePermissionQuery();
+
+  async function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.checked) {
+      // Must be requested synchronously in the event handler. Firefox rejects permission requests
+      // made outside of a user gesture.
+      const granted = await chrome.permissions.request(IDLE_PERMISSIONS);
+      if (granted) onSaveSetting("pauseWhenIdle", true);
+    } else {
+      onSaveSetting("pauseWhenIdle", false);
+      await chrome.permissions.remove(IDLE_PERMISSIONS);
+    }
+  }
+
+  return (
+    <div className="form-check mb-1">
+      <input
+        checked={pauseWhenIdle && hasIdlePermission === true}
+        className="form-check-input"
+        id="pauseWhenIdle"
+        name="pauseWhenIdle"
+        onChange={handleChange}
+        type="checkbox"
+      />
+      <label className="form-check-label" htmlFor="pauseWhenIdle">
+        {chrome.i18n.getMessage("options_option_pauseWhenIdle_label")}
+      </label>
+    </div>
   );
 }
 

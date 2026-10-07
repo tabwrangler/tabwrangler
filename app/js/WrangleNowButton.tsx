@@ -23,6 +23,8 @@ export default function WrangleNowButton() {
     lockedWindowIds: useSetting("lockedWindowIds"),
     minTabs: useSetting("minTabs"),
     minTabsStrategy: useSetting("minTabsStrategy"),
+    stayOpenMs: useSetting("minutesInactive") * 60_000 + useSetting("secondsInactive") * 1000,
+    tabRules: useSetting("tabRules"),
     whitelist: useSetting("whitelist"),
   };
 

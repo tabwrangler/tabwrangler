@@ -358,6 +358,38 @@
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
     "message": "Show # of closed tabs on the toolbar button"
   },
+  "options_option_tabTimers_add": {
+    "description": "Button label for adding a timer for tabs whose URLs contain the entered text",
+    "message": "Add timer"
+  },
+  "options_option_tabTimers_allOtherTabs": {
+    "description": "Label for the last, undeletable timer that applies to tabs matching no other timer",
+    "message": "All other tabs"
+  },
+  "options_option_tabTimers_description": {
+    "description": "Explains how a tab's inactive timer is chosen from the list of timers",
+    "message": "Each tab uses the first timer whose text appears in its URL. Tabs that match none use \"All other tabs\"."
+  },
+  "options_option_tabTimers_durationHeader": {
+    "description": "Table column header for how long a tab may be inactive, entered as days:hours:minutes:seconds",
+    "message": "Time inactive (dd:hh:mm:ss)"
+  },
+  "options_option_tabTimers_moveDown": {
+    "description": "Tooltip for the button that moves a timer one row down",
+    "message": "Move down"
+  },
+  "options_option_tabTimers_moveUp": {
+    "description": "Tooltip for the button that moves a timer one row up",
+    "message": "Move up"
+  },
+  "options_option_tabTimers_remove": {
+    "description": "Tooltip for the button that removes a timer",
+    "message": "Remove timer"
+  },
+  "options_option_tabTimers_urlContains": {
+    "description": "Label preceding the text a tab's URL must contain for a timer to apply",
+    "message": "URL contains"
+  },
   "options_option_theme_label": {
     "description": "Label preceding button group for choosing the color theme",
     "message": "Theme"
@@ -373,22 +405,6 @@
   "options_option_theme_system": {
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "System"
-  },
-  "options_option_timeInactive_abbr_days": {
-    "description": "Abbreviation for 'days' shown in the inactive time input",
-    "message": "d"
-  },
-  "options_option_timeInactive_abbr_hours": {
-    "description": "Abbreviation for 'hours' shown in the inactive time input",
-    "message": "h"
-  },
-  "options_option_timeInactive_abbr_minutes": {
-    "description": "Abbreviation for 'minutes' shown in the inactive time input",
-    "message": "m"
-  },
-  "options_option_timeInactive_abbr_seconds": {
-    "description": "Abbreviation for 'seconds' shown in the inactive time input",
-    "message": "s"
   },
   "options_option_timeInactive_duration_day": {
     "description": "Singular 'day' unit with count in the inactive time description",
@@ -591,6 +607,16 @@
   "tabLock_timerPaused_tooltip": {
     "description": "Tooltip shown next to a tab's paused countdown while the extension is paused",
     "message": "Extension paused: timers do NOT count down"
+  },
+  "tabLock_timerRule_tooltip": {
+    "description": "Tooltip on a tab's countdown when its time comes from a timer for URLs containing specific text",
+    "message": "Timer for URLs containing '$pattern$'",
+    "placeholders": {
+      "pattern": {
+        "content": "$1",
+        "example": "github.com"
+      }
+    }
   },
   "tabLock_groupIndicator_unnamed": {
     "description": "Fallback tooltip for a tab group with no title.",

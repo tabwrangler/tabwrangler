@@ -6,7 +6,6 @@ import {
   findTabToFreeze,
   findTabsToCloseCandidates,
   findTabsToWrangleNow,
-  getTabIdsOlderThan,
   getTabLockStatus,
   getURLPositionFilterByWrangleOption,
   getWhitelistMatch,
@@ -14,6 +13,7 @@ import {
   shouldFreezeActiveTabTimer,
   wrangleTabsAndPersist,
 } from "./tabUtil";
+import { type TabRule, createTabRule } from "./tabRules";
 import { TextEncoder } from "util";
 import { setSavedTabs } from "./actions/localStorageActions";
 import settings from "./settings";
@@ -367,23 +367,6 @@ describe("getURLPositionFilterByWrangleOption", () => {
   });
 });
 
-describe("getTabIdsOlderThan", () => {
-  test("returns empty set for empty tabTimes", () => {
-    expect(getTabIdsOlderThan({}, 1000)).toEqual(new Set());
-  });
-
-  test("returns all IDs when all tabs are older than time", () => {
-    const now = Date.now();
-    expect(getTabIdsOlderThan({ "1": now - 2000, "2": now - 3000 }, now - 1000)).toEqual(
-      new Set([1, 2]),
-    );
-  });
-  test("returns tab IDs when time is zero", () => {
-    const now = Date.now();
-    expect(getTabIdsOlderThan({ "1": now, "2": now }, 0)).toEqual(new Set([1, 2]));
-  });
-});
-
 describe("shouldFreezeActiveTabTimer", () => {
   test("returns true when timeRemaining is at or beyond twice the check interval", () => {
     expect(shouldFreezeActiveTabTimer(10)).toBe(true);
@@ -397,11 +380,17 @@ describe("shouldFreezeActiveTabTimer", () => {
 describe("findTabsToCloseCandidates", () => {
   const OLD_TIME = 0; // always older than any real cutOff
 
-  function mockSettings({ minTabs = 2, stayOpen = 60_000 } = {}) {
+  function mockSettings({
+    minTabs = 2,
+    stayOpen = 60_000,
+    tabRules = [],
+  }: { minTabs?: number; stayOpen?: number; tabRules?: TabRule[] } = {}) {
     settings.get = jest.fn().mockImplementation((key: string) => {
       switch (key) {
         case "minTabs":
           return minTabs;
+        case "tabRules":
+          return tabRules;
         case "filterAudio":
           return false;
         case "filterGroupedTabs":
@@ -490,18 +479,59 @@ describe("findTabsToCloseCandidates", () => {
     ).toEqual([normalOldTab]);
   });
 
-  test("sorts candidates by lastAccessed ascending (oldest first)", () => {
+  test("sorts candidates by most overdue first", () => {
     mockSettings({ minTabs: 1 });
-    const olderTab = createTab({ id: 1, lastAccessed: 100, groupId: -1 });
-    const newerTab = createTab({ id: 2, lastAccessed: 200, groupId: -1 });
+    const olderTab = createTab({ id: 1, groupId: -1 });
+    const newerTab = createTab({ id: 2, groupId: -1 });
     const freshTab = createTab({ id: 3 });
     // Pass newerTab first to ensure sorting is applied, not array order
-    const result = findTabsToCloseCandidates({ "1": OLD_TIME, "2": OLD_TIME, "3": Date.now() }, [
+    const result = findTabsToCloseCandidates({ "1": 100, "2": 200, "3": Date.now() }, [
       newerTab,
       olderTab,
       freshTab,
     ]);
     expect(result.map((t) => t.id)).toEqual([1, 2]);
+  });
+
+  test("uses the timeout of the first tab rule whose URL pattern the tab contains", () => {
+    const now = Date.now();
+    mockSettings({
+      minTabs: 0,
+      stayOpen: 60 * 60_000,
+      tabRules: [
+        createTabRule("google.com/search", 5 * 60_000),
+        createTabRule("google.com", 24 * 60 * 60_000),
+      ],
+    });
+    const searchTab = createTab({ id: 1, url: "https://www.google.com/search?q=tabs" });
+    const docsTab = createTab({ id: 2, url: "https://docs.google.com/document/d/1" });
+    const otherTab = createTab({ id: 3, url: "https://example.com" });
+    const tenMinutesAgo = now - 10 * 60_000;
+    expect(
+      findTabsToCloseCandidates({ "1": tenMinutesAgo, "2": tenMinutesAgo, "3": tenMinutesAgo }, [
+        searchTab,
+        docsTab,
+        otherTab,
+      ]),
+    ).toEqual([searchTab]);
+  });
+
+  test("uses the 'All other tabs' timeout for tabs matching no rule", () => {
+    const now = Date.now();
+    mockSettings({
+      minTabs: 0,
+      stayOpen: 60_000,
+      tabRules: [createTabRule("github.com", 24 * 60 * 60_000)],
+    });
+    const githubTab = createTab({ id: 1, url: "https://github.com/tabwrangler" });
+    const otherTab = createTab({ id: 2, url: "https://example.com" });
+    const fiveMinutesAgo = now - 5 * 60_000;
+    expect(
+      findTabsToCloseCandidates({ "1": fiveMinutesAgo, "2": fiveMinutesAgo }, [
+        githubTab,
+        otherTab,
+      ]),
+    ).toEqual([otherTab]);
   });
 
   test("active tab counts toward minTabs total and can itself be closed", () => {
@@ -555,10 +585,29 @@ describe("findTabsToWrangleNow", () => {
       lockedWindowIds: [],
       minTabs: 2,
       minTabsStrategy: "givenWindow",
+      stayOpenMs: 60_000,
+      tabRules: [],
       whitelist: [],
       ...overrides,
     };
   }
+
+  test("closes tabs with the least time remaining under their own tab rule timeouts", () => {
+    const now = Date.now();
+    const tabs = [
+      createTab({ id: 1, url: "https://github.com/tabwrangler" }),
+      createTab({ id: 2, url: "https://example.com" }),
+      createTab({ id: 3, url: "https://example.org" }),
+    ];
+    // Tab 1 is the oldest but its rule gives it the most time remaining
+    const result = findTabsToWrangleNow(
+      { "1": now - 3000, "2": now - 2000, "3": now - 1000 },
+      tabs,
+      undefined,
+      makeSettings({ minTabs: 1, tabRules: [createTabRule("github.com", 600_000)] }),
+    );
+    expect(result.map((t) => t.id)).toEqual([2, 3]);
+  });
 
   test("closes tabs with the least time remaining regardless of cutoff", () => {
     const now = Date.now();

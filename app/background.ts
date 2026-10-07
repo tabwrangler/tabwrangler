@@ -212,7 +212,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     }
 
     case "sync": {
-      if (changes.minutesInactive || changes.secondsInactive) {
+      if (changes.minutesInactive || changes.secondsInactive || changes.tabRules) {
         // Reset stored `tabTimes` because setting was changed otherwise old times may exceed new
         // setting value.
         initTabs();

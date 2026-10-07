@@ -1,10 +1,13 @@
 import {
   AVERAGE_TAB_BYTES_SIZE,
   TabLockStatus,
+  TabOutcome,
   getTabLockStatus,
+  getTabOutcome,
   getWhitelistMatch,
 } from "./tabUtil";
 import Menus from "./menus";
+import type { TabRule } from "./tabRules";
 
 export type LockTabSortOrderOption =
   | "alpha"
@@ -33,6 +36,7 @@ export interface SettingsSchema {
   purgeClosedTabs: boolean;
   secondsInactive: number;
   showBadgeCount: boolean;
+  tabRules: TabRule[];
   whitelist: string[];
   wrangleOption: SettingsSchemaWrangleOption;
 }
@@ -90,6 +94,10 @@ export const SETTINGS_DEFAULTS: SettingsSchema = {
 
   // When true, shows the number of closed tabs in the list as a badge on the browser icon.
   showBadgeCount: false,
+
+  // Timers for tabs whose URLs contain a pattern, checked in order. Tabs matching none use
+  // `minutesInactive` + `secondsInactive`.
+  tabRules: [],
 
   // An array of patterns to check against. If a URL matches a pattern, it is never locked.
   whitelist: ["about:", "chrome://"],
@@ -172,6 +180,19 @@ const Settings = {
       filterGroupedTabs: this.get("filterGroupedTabs"),
       lockedIds: this.get("lockedIds"),
       lockedWindowIds: [],
+      whitelist: this.get("whitelist"),
+    });
+  },
+
+  getTabOutcome(tab: chrome.tabs.Tab): TabOutcome {
+    // Excludes `lockedWindowIds` for the same reason as `getTabLockStatus`
+    return getTabOutcome(tab, {
+      filterAudio: this.get("filterAudio"),
+      filterGroupedTabs: this.get("filterGroupedTabs"),
+      lockedIds: this.get("lockedIds"),
+      lockedWindowIds: [],
+      stayOpenMs: this.stayOpen(),
+      tabRules: this.get("tabRules"),
       whitelist: this.get("whitelist"),
     });
   },
@@ -345,6 +366,13 @@ const Settings = {
       Number(this.get("minutesInactive")) * 60000 + // minutes
       Number(this.get("secondsInactive")) * 1000 // seconds
     );
+  },
+
+  /**
+   * Returns the longest timeout any tab can have: the "All other tabs" timeout or a tab rule's.
+   */
+  longestTimeout(): number {
+    return Math.max(this.stayOpen(), ...this.get("tabRules").map((rule) => rule.timeoutMs));
   },
 
   toggleTabs(tabs: chrome.tabs.Tab[]) {

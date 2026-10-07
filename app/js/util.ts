@@ -2,6 +2,10 @@ export function assertUnreachable(_never: never, message: string): never {
   throw new Error(message);
 }
 
+export function isValidPattern(pattern: string): boolean {
+  return pattern != null && pattern.length > 0 && /\S/.test(pattern);
+}
+
 export function extractHostname(url: string): string {
   let hostname;
 

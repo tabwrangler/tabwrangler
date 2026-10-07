@@ -2,6 +2,7 @@ import "./OpenTabRow.css";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import TabFavicon from "../TabFavicon";
 import type { TabLockStatus } from "../tabUtil";
+import type { TabRule } from "../tabRules";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
 import settings from "../settings";
@@ -38,7 +39,10 @@ export default function OpenTabRow({
   windowLocked,
   onToggleTab,
 }: OpenTabRowProps) {
-  const tabLockStatus = settings.getTabLockStatus(tab);
+  const tabOutcome = settings.getTabOutcome(tab);
+  const tabLockStatus: TabLockStatus =
+    tabOutcome.action === "lock" ? tabOutcome.lockStatus : { locked: false };
+  const timeoutMs = tabOutcome.action === "close" ? tabOutcome.timeoutMs : settings.stayOpen();
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const { data: pauseTimes } = usePauseTimesQuery();
   const now = useContext(UseNowContext);
@@ -50,7 +54,7 @@ export default function OpenTabRow({
   // Timers do not count down while paused or idle, so show them as they were when that began
   const timersPausedAt = pausedAt ?? idleAt;
   const timerNow = timersPausedAt == null ? now : Math.max(timersPausedAt, tabTime);
-  const cutOff = timerNow - settings.stayOpen();
+  const cutOff = timerNow - timeoutMs;
   const timeRemaining = -1 * Math.round((cutOff - tabTime) / 1000);
   const isOverdue = !tabLockStatus.locked && !windowLocked && !paused && timeRemaining < 0;
 
@@ -129,7 +133,9 @@ export default function OpenTabRow({
               tab.active && isInLastFocusedWindow && shouldFreezeActiveTabTimer(timeRemaining)
             }
             tabLockStatus={tabLockStatus}
+            tabRule={tabOutcome.action === "close" ? tabOutcome.rule : undefined}
             tabsWillAutoClose={tabsWillAutoClose}
+            timeoutMs={timeoutMs}
             timeRemaining={timeRemaining}
             windowLocked={windowLocked}
           />
@@ -200,7 +206,9 @@ function TabLockContent({
   isTabActive,
   timerFrozen,
   tabLockStatus,
+  tabRule,
   tabsWillAutoClose,
+  timeoutMs,
   timeRemaining,
   windowLocked,
 }: {
@@ -209,7 +217,9 @@ function TabLockContent({
   isTabActive: boolean;
   timerFrozen: boolean;
   tabLockStatus: TabLockStatus;
+  tabRule: TabRule | undefined;
   tabsWillAutoClose: boolean;
+  timeoutMs: number;
   timeRemaining: number;
   windowLocked: boolean;
 }) {
@@ -266,9 +276,7 @@ function TabLockContent({
         >
           <span>
             <i className="text-primary fas fa-snowflake" />{" "}
-            <time className="font-monospace">
-              {formatSecondsToDhms(settings.stayOpen() / 1000)}
-            </time>
+            <time className="font-monospace">{formatSecondsToDhms(timeoutMs / 1000)}</time>
           </span>
         </OverlayTrigger>
       );
@@ -295,9 +303,17 @@ function TabLockContent({
         </OverlayTrigger>
       );
     } else {
-      timeLeftContent = (
+      const countdown = (
         <time className="font-monospace">{formatSecondsToDhms(timeRemaining)}</time>
       );
+      timeLeftContent =
+        tabRule == null ? (
+          countdown
+        ) : (
+          <abbr title={chrome.i18n.getMessage("tabLock_timerRule_tooltip", tabRule.when.url)}>
+            {countdown}
+          </abbr>
+        );
     }
 
     return timeLeftContent;

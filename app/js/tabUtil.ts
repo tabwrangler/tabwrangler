@@ -1,4 +1,5 @@
 import { StorageLocalPersistState, getStorageLocalPersist } from "./queries";
+import { TabRule, findTabRule } from "./tabRules";
 import {
   incrementTotalTabsRemoved,
   removeTabTime,
@@ -219,6 +220,23 @@ export function isTabLocked(
   return getTabLockStatus(tab, options).locked;
 }
 
+export type TabOutcome =
+  | { action: "lock"; lockStatus: Exclude<TabLockStatus, { locked: false }> }
+  | { action: "close"; rule: TabRule | undefined; timeoutMs: number };
+
+export type TabOutcomeSettings = LockSettings &
+  Pick<SettingsSchema, "tabRules"> & { stayOpenMs: number };
+
+export function getTabOutcome(
+  tab: chrome.tabs.Tab,
+  { stayOpenMs, tabRules, ...lockSettings }: TabOutcomeSettings,
+): TabOutcome {
+  const lockStatus = getTabLockStatus(tab, lockSettings);
+  if (lockStatus.locked) return { action: "lock", lockStatus };
+  const rule = findTabRule(tab, tabRules);
+  return { action: "close", rule, timeoutMs: rule?.timeoutMs ?? stayOpenMs };
+}
+
 export function makeTabPersistKey(tab: chrome.tabs.Tab): string | undefined {
   return tab.index == null ? tab.url : `${tab.index}::${tab.url}`;
 }
@@ -229,14 +247,6 @@ export function makeWindowPersistKey(tabs: chrome.tabs.Tab[]): string | undefine
     .filter((k): k is string => k != null)
     .sort();
   return keys.length > 0 ? keys.join("|") : undefined;
-}
-
-export function getTabIdsOlderThan(tabTimes: TabTimes, time: number): Set<number> {
-  const ret: Set<number> = new Set();
-  for (const [tabId, tabTime] of Object.entries(tabTimes)) {
-    if (!time || tabTime < time) ret.add(parseInt(tabId, 10));
-  }
-  return ret;
 }
 
 /**
@@ -278,39 +288,49 @@ type LockSettings = Pick<
   "filterAudio" | "filterGroupedTabs" | "lockedIds" | "lockedWindowIds" | "whitelist"
 >;
 
-export type WrangleNowSettings = LockSettings & Pick<SettingsSchema, "minTabs" | "minTabsStrategy">;
+export type WrangleNowSettings = TabOutcomeSettings &
+  Pick<SettingsSchema, "minTabs" | "minTabsStrategy">;
 
-function filterUnlockedTabs(
+function getClosableTabs(
   tabs: chrome.tabs.Tab[],
-  lockSettings: LockSettings,
-): chrome.tabs.Tab[] {
-  return tabs.filter((tab) => !isTabLocked(tab, lockSettings));
+  outcomeSettings: TabOutcomeSettings,
+): Array<{ tab: chrome.tabs.Tab; timeoutMs: number }> {
+  return tabs.flatMap((tab) => {
+    const outcome = getTabOutcome(tab, outcomeSettings);
+    return outcome.action === "close" ? [{ tab, timeoutMs: outcome.timeoutMs }] : [];
+  });
 }
 
 export function findTabsToCloseCandidates(
   tabTimes: TabTimes,
   tabs: chrome.tabs.Tab[],
 ): chrome.tabs.Tab[] {
-  const cutOff = Date.now() - settings.stayOpen();
-  const minTabs = settings.get("minTabs");
-  const unlockedTabs = filterUnlockedTabs(tabs, {
+  const now = Date.now();
+  const closableTabs = getClosableTabs(tabs, {
     filterAudio: settings.get("filterAudio"),
     filterGroupedTabs: settings.get("filterGroupedTabs"),
     lockedIds: settings.get("lockedIds"),
     lockedWindowIds: settings.get("lockedWindowIds"),
+    stayOpenMs: settings.stayOpen(),
+    tabRules: settings.get("tabRules"),
     whitelist: settings.get("whitelist"),
   });
 
-  if (unlockedTabs.length - minTabs <= 0) return [];
+  const maxToClose = closableTabs.length - settings.get("minTabs");
+  if (maxToClose <= 0) return [];
 
-  const tabIdsToCut = getTabIdsOlderThan(tabTimes, cutOff);
-  const candidates = unlockedTabs.filter((tab) => tab.id != null && tabIdsToCut.has(tab.id));
-  candidates.sort((a, b) => {
-    if (a.lastAccessed == null || b.lastAccessed == null) return 0;
-    return a.lastAccessed - b.lastAccessed;
-  });
+  const overdue: Array<{ closeAt: number; tab: chrome.tabs.Tab }> = [];
+  for (const { tab, timeoutMs } of closableTabs) {
+    const tabTime = tab.id == null ? undefined : tabTimes[tab.id];
+    if (tabTime == null) continue;
+    const closeAt = tabTime + timeoutMs;
+    if (closeAt < now) overdue.push({ closeAt, tab });
+  }
 
-  return candidates.splice(0, unlockedTabs.length - minTabs);
+  return overdue
+    .sort((a, b) => a.closeAt - b.closeAt)
+    .slice(0, maxToClose)
+    .map(({ tab }) => tab);
 }
 
 /**
@@ -322,18 +342,20 @@ export function findTabsToWrangleNow(
   tabTimes: TabTimes,
   tabs: chrome.tabs.Tab[],
   protectedTabId: number | undefined,
-  { minTabs, minTabsStrategy, ...lockSettings }: WrangleNowSettings,
+  { minTabs, minTabsStrategy, ...outcomeSettings }: WrangleNowSettings,
 ): chrome.tabs.Tab[] {
   const now = Date.now();
 
   function findInGroup(groupTabs: chrome.tabs.Tab[]): chrome.tabs.Tab[] {
-    const unlockedTabs = filterUnlockedTabs(groupTabs, lockSettings);
-    const excess = unlockedTabs.length - minTabs;
+    const closableTabs = getClosableTabs(groupTabs, outcomeSettings);
+    const excess = closableTabs.length - minTabs;
     if (excess <= 0) return [];
-    return unlockedTabs
-      .filter((tab) => tab.id != null && tab.id !== protectedTabId)
-      .sort((a, b) => (tabTimes[a.id!] ?? now) - (tabTimes[b.id!] ?? now))
-      .slice(0, excess);
+    return closableTabs
+      .filter(({ tab }) => tab.id != null && tab.id !== protectedTabId)
+      .map(({ tab, timeoutMs }) => ({ closeAt: (tabTimes[tab.id!] ?? now) + timeoutMs, tab }))
+      .sort((a, b) => a.closeAt - b.closeAt)
+      .slice(0, excess)
+      .map(({ tab }) => tab);
   }
 
   switch (minTabsStrategy) {

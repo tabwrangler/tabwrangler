@@ -112,13 +112,13 @@ export function shiftTabTimes(pausedAtMs: number) {
     const now = Date.now();
     const deltaMs = now - pausedAtMs;
     const shifted: TabTimes = {};
-    const minShiftedTimeMs = now - settings.stayOpen();
+    const minShiftedTimeMs = now - settings.longestTimeout();
     for (const [tabId, tabTimeMs] of Object.entries(tabTimes)) {
       // Timers do not count down while paused: a tab resumes with the time it had remaining when
       // paused, and a tab activated during the pause resumes with a full timer.
       const shiftedTimeMs = Math.min(tabTimeMs, pausedAtMs) + deltaMs;
 
-      // Clamp new tabTimes to `stayOpen` setting in case the setting changed while paused
+      // Clamp new tabTimes to the longest timeout in case timeouts changed while paused
       shifted[tabId] = Math.max(shiftedTimeMs, minShiftedTimeMs);
     }
     console.debug(`[shiftTabTimes] Shifted tabTimes by ${deltaMs}ms pause`);

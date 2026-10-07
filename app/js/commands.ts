@@ -32,6 +32,8 @@ export async function wrangleNow(): Promise<chrome.tabs.Tab[]> {
     lockedWindowIds: settings.get("lockedWindowIds"),
     minTabs: settings.get("minTabs"),
     minTabsStrategy: settings.get("minTabsStrategy"),
+    stayOpenMs: settings.stayOpen(),
+    tabRules: settings.get("tabRules"),
     whitelist: settings.get("whitelist"),
   });
   await wrangleTabsAndPersist(tabsToWrangle);

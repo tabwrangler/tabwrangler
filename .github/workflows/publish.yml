@@ -1,0 +1,69 @@
+name: Publish to Chrome Web Store
+
+on:
+  # Allows running this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 24.x
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm ci
+      - run: npm run build
+
+      - name: Upload and publish
+        env:
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+        run: |
+          set -euo pipefail
+
+          # Surfaces the message as an annotation on the run summary, not just in the log
+          fail() {
+            local msg="${2:-no response body}"
+            msg=${msg//'%'/%25}; msg=${msg//$'\r'/%0D}; msg=${msg//$'\n'/%0A}
+            echo "::error title=$1::$msg" >&2
+            return 1
+          }
+
+          api() {
+            local body
+            body=$(curl -sS --fail-with-body "$@") || { fail "Chrome Web Store request failed" "$body"; return 1; }
+            printf '%s' "$body"
+          }
+
+          # `npm run build` writes dist/tabwrangler-chrome-<version>.zip (see webpack.production.config.js)
+          ZIP="dist/tabwrangler-chrome-$(jq -r .version package.json).zip"
+          test -f "$ZIP" || fail "Missing build output" "$ZIP not found"
+
+          ACCESS_TOKEN=$(api https://oauth2.googleapis.com/token \
+            -d client_id="$CLIENT_ID" -d client_secret="$CLIENT_SECRET" \
+            -d refresh_token="$REFRESH_TOKEN" -d grant_type=refresh_token | jq -r .access_token)
+          echo "::add-mask::$ACCESS_TOKEN"
+
+          UPLOAD=$(api -X PUT \
+            -H "Authorization: Bearer $ACCESS_TOKEN" -H "x-goog-api-version: 2" \
+            -T "$ZIP" \
+            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/$EXTENSION_ID")
+          echo "$UPLOAD"
+          jq -e '.uploadState == "SUCCESS" or .uploadState == "IN_PROGRESS"' <<<"$UPLOAD" >/dev/null \
+            || fail "Upload failed" "$UPLOAD"
+
+          PUBLISH=$(api -X POST \
+            -H "Authorization: Bearer $ACCESS_TOKEN" -H "x-goog-api-version: 2" -H "Content-Length: 0" \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/$EXTENSION_ID/publish")
+          echo "$PUBLISH"
+          jq -e '.status | index("OK") or index("ITEM_PENDING_REVIEW")' <<<"$PUBLISH" >/dev/null \
+            || fail "Publish failed" "$PUBLISH"

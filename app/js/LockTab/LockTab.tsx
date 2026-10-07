@@ -6,6 +6,7 @@ import { Dropdown } from "react-bootstrap";
 import MinimumTabsBadge from "./MinimumTabsBadge";
 import WindowCard from "./WindowCard";
 import cx from "classnames";
+import { useGetTabLockStatus } from "../useTabLockStatus";
 import { useStorageSyncQuery } from "../storage";
 import useTabGroupsQuery from "../api/useTabGroupsQuery";
 import useTabTimesQuery from "../api/useTabTimesQuery";
@@ -174,7 +175,9 @@ export default function LockTab() {
     });
   }, [currSorter, currWindow?.id, tabTimesQuery.data, tabsQuery.data]);
 
-  const unlockedTabCount = tabsQuery.data?.filter((tab) => !settings.isTabLocked(tab)).length ?? 0;
+  const getTabLockStatus = useGetTabLockStatus();
+  const unlockedTabCount =
+    tabsQuery.data?.filter((tab) => !getTabLockStatus(tab).locked).length ?? 0;
   const { data: syncData } = useStorageSyncQuery();
   const lockedWindowIds: Set<number> = new Set(syncData?.lockedWindowIds ?? []);
 

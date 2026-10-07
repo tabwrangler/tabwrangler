@@ -9,6 +9,7 @@ import { shouldFreezeActiveTabTimer } from "../tabUtil";
 import { useContext } from "react";
 import usePauseTimesQuery from "../api/usePauseTimesQuery";
 import { useStorageSyncPersistQuery } from "../storage";
+import useTabLockStatus from "../useTabLockStatus";
 
 interface OpenTabRowProps {
   isFirstInGroup?: boolean;
@@ -38,7 +39,7 @@ export default function OpenTabRow({
   windowLocked,
   onToggleTab,
 }: OpenTabRowProps) {
-  const tabLockStatus = settings.getTabLockStatus(tab);
+  const tabLockStatus = useTabLockStatus(tab);
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const { data: pauseTimes } = usePauseTimesQuery();
   const now = useContext(UseNowContext);
@@ -138,7 +139,7 @@ export default function OpenTabRow({
             <Button
               active={tabLockStatus.locked}
               className="rounded-circle"
-              disabled={!settings.isTabManuallyLockable(tab)}
+              disabled={tabLockStatus.locked && tabLockStatus.reason !== "manual"}
               title={
                 tabLockStatus.locked
                   ? chrome.i18n.getMessage("tabLock_unlockTab")

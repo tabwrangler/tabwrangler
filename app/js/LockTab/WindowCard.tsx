@@ -4,6 +4,7 @@ import OpenTabRow from "./OpenTabRow";
 import { TabTimes } from "../types";
 import cx from "classnames";
 import settings from "../settings";
+import { useGetTabLockStatus } from "../useTabLockStatus";
 
 interface WindowCardProps {
   isCurrent: boolean;
@@ -38,7 +39,8 @@ export default function WindowCard({
   const minTabs = settings.get("minTabs");
   const minTabsStrategy = settings.get("minTabsStrategy");
   const segments = groupTabsIntoSegments(tabs);
-  const unlockedTabCount = tabs.filter((tab) => !settings.isTabLocked(tab)).length ?? 0;
+  const getTabLockStatus = useGetTabLockStatus();
+  const unlockedTabCount = tabs.filter((tab) => !getTabLockStatus(tab).locked).length ?? 0;
   const relevantUnlockedCount =
     minTabsStrategy === "allWindows" ? totalUnlockedTabCount : unlockedTabCount;
   const tabsWillAutoClose = relevantUnlockedCount > minTabs;

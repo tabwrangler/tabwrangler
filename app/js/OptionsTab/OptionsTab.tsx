@@ -1,6 +1,6 @@
 import { exportData, importData } from "../actions/importExportActions";
 import settings, { type SettingsSchema } from "../settings";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import FileSaver from "file-saver";
@@ -32,7 +32,6 @@ export default function OptionsTab() {
   const [importExportOperationName, setImportExportOperationName] = useState("");
   const saveAlertTimeoutRef = useRef<number>(null);
   const [saveAlertVisible, setSaveAlertVisible] = useState(false);
-  const [showFilterTabGroupsOption, setShowFilterTabGroupsOption] = useState(false);
 
   const [maxTabs, setMaxTabs] = useState<number | string>(settings.get("maxTabs"));
 
@@ -47,23 +46,6 @@ export default function OptionsTab() {
   const persistSettingMutation = useMutation({
     mutationFn: mutateStorageSyncPersist,
   });
-
-  useEffect(() => {
-    // determine if we should show the filter tab groups setting
-    async function checkForTabGroups() {
-      const tabs = await chrome.tabs.query({});
-
-      // this shouldn't happen but we'll bail if there are zero tabs
-      if (tabs.length < 1) {
-        return;
-      }
-
-      if ("groupId" in tabs[0]) {
-        setShowFilterTabGroupsOption(true);
-      }
-    }
-    checkForTabGroups();
-  }, []);
 
   async function saveSetting<K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) {
     if (saveAlertTimeoutRef.current != null) {
@@ -250,35 +232,6 @@ export default function OptionsTab() {
             </label>
           </div>
           <PauseWhenIdleOption onSaveSetting={saveSetting} />
-          <div className="form-check form-switch mb-1">
-            <input
-              className="form-check-input"
-              defaultChecked={settings.get("filterAudio")}
-              id="filterAudio"
-              name="filterAudio"
-              onChange={handleSettingsChange}
-              role="switch"
-              type="checkbox"
-            />
-            <label className="form-check-label" htmlFor="filterAudio">
-              {chrome.i18n.getMessage("options_option_filterAudio_label")}
-            </label>
-          </div>
-          <div className="form-check form-switch">
-            <input
-              className="form-check-input"
-              defaultChecked={settings.get("filterGroupedTabs")}
-              disabled={!showFilterTabGroupsOption}
-              id="filterGroupedTabs"
-              name="filterGroupedTabs"
-              onChange={handleSettingsChange}
-              role="switch"
-              type="checkbox"
-            />
-            <label className="form-check-label" htmlFor="filterGroupedTabs">
-              {chrome.i18n.getMessage("options_option_filterGroupedTabs_label")}
-            </label>
-          </div>
           <label className="form-label mt-3" htmlFor="maxTabs">
             <strong>{chrome.i18n.getMessage("options_option_rememberTabs_label")}</strong>
           </label>

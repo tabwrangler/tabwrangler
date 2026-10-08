@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import settings, { type SettingsSchema } from "../settings";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
-import { type SettingsSchema } from "../settings";
+import { ButtonGroup } from "react-bootstrap";
 import cx from "classnames";
 import useDraftInput from "../useDraftInput";
 import useSetting from "../useSetting";
@@ -11,14 +12,23 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
   const whitelist = useSetting("whitelist");
   const [isAdding, setIsAdding] = useState(false);
   const [newPattern, setNewPattern] = useState("");
+  // Keeps the form on screen after Save until storage echoes the new whitelist back, so the saved
+  // rule can take the form's place without the table collapsing in between.
+  const [savingFrom, setSavingFrom] = useState<string[] | null>(null);
+  const isFormVisible = isAdding || savingFrom === whitelist;
+  const formRef = useRef<HTMLLIElement | null>(null);
+  const savedRuleRef = useRef<{ formHeight: number; pattern: string } | null>(null);
+
   // While dragging, rows render in `drag.order` so they shift around the ghost of the dragged row.
   const [drag, setDrag] = useState<{ order: string[]; pattern: string } | null>(null);
+
   // Holds the dropped order until storage echoes the saved whitelist back, so rows don't flash
   // back to their old positions in between.
   const [dropped, setDropped] = useState<{ base: string[]; order: string[] } | null>(null);
+  const [supportsTabGroups, setSupportsTabGroups] = useState(false);
   const rowRefs = useRef(new Map<string, HTMLLIElement>());
+  const removingRef = useRef(new Set<string>());
   const flipRef = useRef<{ fade: Set<string>; tops: Map<string, number> } | null>(null);
-
   const rules = drag?.order ?? (dropped?.base === whitelist ? dropped.order : whitelist);
 
   // FLIP animation: rows are measured before a reorder and animated from their old positions once
@@ -27,7 +37,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     const flip = flipRef.current;
     if (flip == null) return;
     flipRef.current = null;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersReducedMotion()) return;
     for (const [pattern, oldTop] of flip.tops) {
       const el = rowRefs.current.get(pattern);
       if (el == null) continue;
@@ -45,19 +55,71 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     }
   }, [JSON.stringify(rules)]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Grows the form open from the top of the table.
+  useLayoutEffect(() => {
+    const el = formRef.current;
+    if (!isAdding || el == null || prefersReducedMotion()) return;
+    const { paddingBottom, paddingTop } = getComputedStyle(el);
+    el.animate(
+      [
+        { height: "0px", opacity: 0, overflow: "hidden", paddingBottom: "0px", paddingTop: "0px" },
+        {
+          height: `${el.offsetHeight}px`,
+          opacity: 1,
+          overflow: "hidden",
+          paddingBottom,
+          paddingTop,
+        },
+      ],
+      { duration: 200, easing: "ease-out" },
+    );
+  }, [isAdding]);
+
+  // Morphs the form into the saved rule: the new row starts at the form's height and primary
+  // background, then settles into a regular row.
+  useLayoutEffect(() => {
+    const saved = savedRuleRef.current;
+    if (saved == null) return;
+    const el = rowRefs.current.get(saved.pattern);
+    if (el == null) return;
+    savedRuleRef.current = null;
+    if (prefersReducedMotion()) return;
+    const primaryBg = getComputedStyle(el).getPropertyValue("--bs-primary-bg-subtle");
+    el.animate(
+      [
+        { backgroundColor: primaryBg, height: `${saved.formHeight}px`, overflow: "hidden" },
+        { height: `${el.offsetHeight}px`, overflow: "hidden" },
+      ],
+      { duration: 400, easing: "ease-out" },
+    );
+  }, [whitelist]);
+
+  useEffect(() => {
+    async function checkForTabGroups() {
+      const tabs = await chrome.tabs.query({});
+      if (tabs.length > 0 && "groupId" in tabs[0]) setSupportsTabGroups(true);
+    }
+    checkForTabGroups();
+  }, []);
+
   function measureRows(fade: string[] = []) {
     const tops = new Map<string, number>();
     for (const [pattern, el] of rowRefs.current) tops.set(pattern, el.getBoundingClientRect().top);
     flipRef.current = { fade: new Set(fade), tops };
   }
 
+  // The new rule form previews where the rule will land: at the top, ahead of the existing rules.
+  const firstRuleIndex = isFormVisible ? 1 : 0;
+
   const isDuplicatePattern = whitelist.includes(newPattern);
 
   function addRule(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
-    if (!isValidPattern(newPattern) || isDuplicatePattern) return;
+    if (!isValidPattern(newPattern) || isDuplicatePattern || savingFrom === whitelist) return;
+    savedRuleRef.current = { formHeight: formRef.current?.offsetHeight ?? 0, pattern: newPattern };
+    setSavingFrom(whitelist);
+    setIsAdding(false);
     onSaveSetting("whitelist", [newPattern, ...whitelist]);
-    cancelAddRule();
   }
 
   function cancelAddRule() {
@@ -65,10 +127,37 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     setNewPattern("");
   }
 
-  function removeRule(index: number) {
+  async function removeRule(pattern: string) {
+    if (removingRef.current.has(pattern)) return;
+    removingRef.current.add(pattern);
+    const el = rowRefs.current.get(pattern);
+    if (el != null && !prefersReducedMotion()) {
+      const { paddingBottom, paddingTop } = getComputedStyle(el);
+      // Holds the collapsed state ("forwards") until storage echoes the change and the row unmounts.
+      await el.animate(
+        [
+          {
+            height: `${el.offsetHeight}px`,
+            opacity: 1,
+            overflow: "hidden",
+            paddingBottom,
+            paddingTop,
+          },
+          {
+            height: "0px",
+            opacity: 0,
+            overflow: "hidden",
+            paddingBottom: "0px",
+            paddingTop: "0px",
+          },
+        ],
+        { duration: 200, easing: "ease-in", fill: "forwards" },
+      ).finished;
+    }
+    removingRef.current.delete(pattern);
     onSaveSetting(
       "whitelist",
-      whitelist.filter((_, i) => i !== index),
+      settings.get("whitelist").filter((p) => p !== pattern),
     );
   }
 
@@ -128,8 +217,9 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
       <div className="d-flex align-items-center justify-content-between mt-3">
         <h5 className="mb-0">{chrome.i18n.getMessage("options_section_tabRules")}</h5>
         <Button
-          disabled={isAdding}
+          disabled={isFormVisible}
           onClick={() => {
+            setNewPattern("");
             setIsAdding(true);
           }}
           size="sm"
@@ -144,61 +234,68 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
       </div>
       <div className="card mt-2">
         <ul className="list-group list-group-flush" onDragOver={handleDragOver} onDrop={handleDrop}>
-          {isAdding && (
+          {isFormVisible && (
             <li
-              className="list-group-item"
-              style={{ boxShadow: "inset 0 0 0 2px var(--bs-primary)" }}
+              className="list-group-item d-flex align-items-center gap-2 bg-primary-subtle"
+              ref={formRef}
             >
+              <span className="invisible">
+                <i className="fas fa-grip-vertical" />
+              </span>
               <form
+                className="flex-grow-1 d-flex align-items-center gap-2"
                 onKeyDown={(event) => {
                   if (event.key === "Escape") cancelAddRule();
                 }}
                 onSubmit={addRule}
               >
-                <RuleClause label={chrome.i18n.getMessage("options_tabRules_if")}>
-                  <label className="text-nowrap" htmlFor="wl-add">
-                    {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
-                  </label>
-                  <input
-                    autoFocus
-                    className={cx("form-control form-control-sm", {
-                      "is-invalid": isDuplicatePattern,
-                    })}
-                    id="wl-add"
-                    onChange={(event) => {
-                      setNewPattern(event.target.value);
-                    }}
-                    type="text"
-                    value={newPattern}
-                  />
-                </RuleClause>
-                {isDuplicatePattern && (
-                  <div className="form-text text-danger mt-0" style={{ marginLeft: "3.5rem" }}>
-                    {chrome.i18n.getMessage("options_tabRules_duplicate")}
-                  </div>
-                )}
-                <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
-                  <span className="flex-grow-1">
-                    <i className="fas fa-lock me-1" />
-                    {chrome.i18n.getMessage("options_tabRules_action_lock")}
-                  </span>
-                  <Button onClick={cancelAddRule} size="sm" variant="outline-secondary">
-                    {chrome.i18n.getMessage("options_tabRules_cancel")}
-                  </Button>
-                  <Button
-                    disabled={!isValidPattern(newPattern) || isDuplicatePattern}
-                    id="addToWL"
-                    size="sm"
-                    type="submit"
-                    variant="primary"
-                  >
-                    {chrome.i18n.getMessage("options_save")}
-                  </Button>
-                </RuleClause>
+                <div className="flex-grow-1">
+                  <RuleClause label={conditionLabel(0)}>
+                    <label className="text-nowrap" htmlFor="wl-add">
+                      {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
+                    </label>
+                    <input
+                      autoFocus
+                      className={cx("form-control form-control-sm", {
+                        "is-invalid": isDuplicatePattern,
+                      })}
+                      id="wl-add"
+                      onChange={(event) => {
+                        setNewPattern(event.target.value);
+                      }}
+                      readOnly={!isAdding}
+                      type="text"
+                      value={newPattern}
+                    />
+                  </RuleClause>
+                  {isDuplicatePattern && isAdding && (
+                    <div className="form-text text-danger mt-0" style={{ marginLeft: "4.5rem" }}>
+                      {chrome.i18n.getMessage("options_tabRules_duplicate")}
+                    </div>
+                  )}
+                  <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
+                    <span>
+                      <i className="fas fa-lock me-1" />
+                      {chrome.i18n.getMessage("options_tabRules_action_lock")}
+                    </span>
+                  </RuleClause>
+                </div>
+                <Button onClick={cancelAddRule} size="sm" variant="outline-secondary">
+                  {chrome.i18n.getMessage("options_tabRules_cancel")}
+                </Button>
+                <Button
+                  disabled={!isAdding || !isValidPattern(newPattern) || isDuplicatePattern}
+                  id="addToWL"
+                  size="sm"
+                  type="submit"
+                  variant="primary"
+                >
+                  {chrome.i18n.getMessage("options_save")}
+                </Button>
               </form>
             </li>
           )}
-          {rules.length === 0 && !isAdding ? (
+          {rules.length === 0 && !isFormVisible ? (
             <li className="list-group-item text-center text-body-secondary">
               {chrome.i18n.getMessage("options_tabRules_empty")}
             </li>
@@ -234,8 +331,8 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                 >
                   <i className="fas fa-grip-vertical" />
                 </span>
-                <div className="flex-grow-1">
-                  <RuleClause label={chrome.i18n.getMessage("options_tabRules_if")}>
+                <div className="d-flex flex-column gap-1 flex-grow-1">
+                  <RuleClause label={conditionLabel(index + firstRuleIndex)}>
                     <span>
                       {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}{" "}
                       <code>{pattern}</code>
@@ -248,10 +345,9 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                     </span>
                   </RuleClause>
                 </div>
-                <div className="btn-group-vertical">
+                <ButtonGroup size="sm">
                   <Button
                     aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                    className="btn-xs"
                     disabled={index === 0}
                     onClick={() => {
                       swapRule(index, index - 1);
@@ -263,7 +359,6 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                   </Button>
                   <Button
                     aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                    className="btn-xs"
                     disabled={index === rules.length - 1}
                     onClick={() => {
                       swapRule(index, index + 1);
@@ -273,11 +368,11 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                   >
                     <i className="fas fa-chevron-down" />
                   </Button>
-                </div>
+                </ButtonGroup>
                 <Button
                   aria-label={chrome.i18n.getMessage("options_tabRules_remove")}
                   onClick={() => {
-                    removeRule(index);
+                    removeRule(pattern);
                   }}
                   size="sm"
                   title={chrome.i18n.getMessage("options_tabRules_remove")}
@@ -288,12 +383,26 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
               </li>
             ))
           )}
+          <FixedRule
+            icon="fa-volume-up"
+            ifLabel={conditionLabel(rules.length + firstRuleIndex)}
+            label={chrome.i18n.getMessage("options_tabRules_condition_audible")}
+            onSaveSetting={onSaveSetting}
+            settingKey="filterAudio"
+          />
+          <FixedRule
+            disabled={!supportsTabGroups}
+            ifLabel={conditionLabel(rules.length + firstRuleIndex + 1)}
+            label={chrome.i18n.getMessage("options_tabRules_condition_grouped")}
+            onSaveSetting={onSaveSetting}
+            settingKey="filterGroupedTabs"
+          />
           <li className="list-group-item d-flex align-items-center gap-2 bg-body-tertiary">
-            <span className="text-body-secondary opacity-30">
+            <span className="text-body-secondary opacity-25">
               <i className="fas fa-grip-vertical" />
             </span>
-            <div className="flex-grow-1">
-              <RuleClause label={chrome.i18n.getMessage("options_tabRules_otherwise")} />
+            <div className="d-flex flex-column gap-1 flex-grow-1">
+              <RuleClause label={chrome.i18n.getMessage("options_tabRules_else")} />
               <InactiveTimeOption onSaveSetting={onSaveSetting} />
             </div>
           </li>
@@ -303,12 +412,80 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
   );
 }
 
+function FixedRule({
+  disabled = false,
+  icon,
+  ifLabel,
+  label,
+  onSaveSetting,
+  settingKey,
+}: {
+  disabled?: boolean;
+  icon?: string;
+  ifLabel: string;
+  label: string;
+  onSaveSetting: SaveSetting;
+  settingKey: "filterAudio" | "filterGroupedTabs";
+}) {
+  const enabled = useSetting(settingKey);
+  return (
+    <li className="list-group-item d-flex align-items-center gap-2 bg-body-tertiary">
+      <span className="text-body-secondary opacity-25">
+        <i className="fas fa-grip-vertical" />
+      </span>
+      <div
+        className={cx("flex-grow-1 d-flex flex-column gap-1 ", {
+          "opacity-50": !enabled || disabled,
+        })}
+      >
+        <RuleClause label={ifLabel}>
+          <span id={`${settingKey}-condition`}>
+            {icon != null && <i className={`fas ${icon} me-1`} />}
+            {label}
+          </span>
+        </RuleClause>
+        <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
+          <span>
+            <i className="fas fa-lock me-1" />
+            {chrome.i18n.getMessage("options_tabRules_action_lock")}
+          </span>
+        </RuleClause>
+      </div>
+      <div className="form-check form-switch form-check-reverse mb-0">
+        <input
+          aria-describedby={`${settingKey}-condition`}
+          checked={enabled}
+          className="form-check-input"
+          disabled={disabled}
+          id={settingKey}
+          onChange={(event) => {
+            onSaveSetting(settingKey, event.target.checked);
+          }}
+          role="switch"
+          type="checkbox"
+        />
+        <label className="form-check-label fs-6" htmlFor={settingKey}>
+          {chrome.i18n.getMessage("options_tabRules_enabled")}
+        </label>
+      </div>
+    </li>
+  );
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function conditionLabel(position: number) {
+  return chrome.i18n.getMessage(position === 0 ? "options_tabRules_if" : "options_tabRules_elseIf");
+}
+
 function RuleClause({ children, label }: { children?: React.ReactNode; label: string }) {
   return (
-    <div className="d-flex align-items-center gap-2 my-1">
+    <div className="d-flex align-items-center gap-2">
       <span
         className="badge text-bg-secondary text-uppercase flex-shrink-0"
-        style={{ minWidth: "3rem" }}
+        style={{ minWidth: "4rem" }}
       >
         {label}
       </span>
@@ -412,11 +589,9 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
   }
 
   return (
-    <div className="d-flex flex-column gap-1">
-      <div className="text-nowrap">
-        {chrome.i18n.getMessage("options_tabRules_action_closeAfter")}
-      </div>
-      <div className="input-group input-group-sm w-75">
+    <div>
+      <div className="mb-1">{chrome.i18n.getMessage("options_tabRules_action_closeAfter")}:</div>
+      <div className="input-group w-75">
         <input className="form-control" min="0" type="number" {...daysDraft} />
         <abbr className="input-group-text">
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_days")}
@@ -434,11 +609,11 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_seconds")}
         </abbr>
       </div>
-      {zeroDurationError ? (
+      {zeroDurationError && (
         <div className="form-text text-danger">
           {chrome.i18n.getMessage("options_option_timeInactive_error_zero")}
         </div>
-      ) : null}
+      )}
       <div className="form-text">
         {formatInactiveDuration(daysInactive, hoursInactive, minutesInactiveUI, secondsInactive)}
       </div>

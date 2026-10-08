@@ -3,14 +3,23 @@ import TabRules from "./TabRules";
 
 const mockSettings: Record<string, unknown> = {};
 jest.mock("../useSetting", () => (key: string) => mockSettings[key]);
+jest.mock("../settings", () => ({
+  __esModule: true,
+  default: { get: (key: string) => mockSettings[key] },
+}));
 
 beforeEach(() => {
   Object.assign(mockSettings, {
+    filterAudio: true,
+    filterGroupedTabs: false,
     minutesInactive: 20,
     secondsInactive: 0,
     whitelist: ["about:", "chrome://", "example"],
   });
   Object.assign(chrome.i18n, { getMessage: (key: string) => key });
+  Object.assign(chrome.tabs, { query: () => Promise.resolve([]) });
+  // jsdom has no Web Animations API; reduced motion skips the animations.
+  window.matchMedia = jest.fn(() => ({ matches: true }) as MediaQueryList);
 });
 
 describe("TabRules", () => {
@@ -64,5 +73,33 @@ describe("TabRules", () => {
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getAllByLabelText("options_tabRules_remove")[1]);
     expect(onSaveSetting).toHaveBeenCalledWith("whitelist", ["about:", "example"]);
+  });
+
+  test("toggles the playing audio rule", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getAllByLabelText("options_tabRules_enabled")[0]);
+    expect(onSaveSetting).toHaveBeenCalledWith("filterAudio", false);
+  });
+
+  test("disables the tab group rule when the browser has no tab groups", () => {
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(
+      (screen.getAllByLabelText("options_tabRules_enabled")[1] as HTMLInputElement).disabled,
+    ).toBe(true);
+  });
+
+  test("labels the first rule If, the rest Else if, and the fallback Else", () => {
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(screen.getAllByText("options_tabRules_if")).toHaveLength(1);
+    expect(screen.getAllByText("options_tabRules_elseIf")).toHaveLength(4);
+    expect(screen.getAllByText("options_tabRules_else")).toHaveLength(1);
+    expect(screen.getAllByText("options_tabRules_if")[0].nextSibling?.textContent).toContain(
+      "about:",
+    );
+
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    expect(screen.getAllByText("options_tabRules_if")).toHaveLength(1);
+    expect(screen.getAllByText("options_tabRules_elseIf")).toHaveLength(5);
   });
 });

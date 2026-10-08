@@ -92,10 +92,10 @@ Wrangler is allowed to close.
 
 The Options tab lets you configure how Tab Wrangler behaves.
 
-- **Inactive time**: How long a tab must be untouched before Tab Wrangler will close it. Set this
-  in days, hours, minutes, and seconds.
+- **Stale time**: How long a tab must be inactive before it becomes stale, meaning Tab Wrangler may
+  close it. Set this in days, hours, minutes, and seconds.
 - **Minimum tabs**: The minimum number of tabs that must be open before Tab Wrangler starts closing
-  anything. Choose whether this minimum applies to each window individually or to all windows
+  stale tabs. Choose whether this minimum applies to each window individually or to all windows
   combined.
 - **Auto-Lock**: Add website addresses or domains that should never be auto-closed. Tabs with
   matching URLs are locked automatically.

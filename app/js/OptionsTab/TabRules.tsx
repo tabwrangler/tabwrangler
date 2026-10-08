@@ -1,22 +1,67 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import { type SettingsSchema } from "../settings";
 import cx from "classnames";
 import useDraftInput from "../useDraftInput";
 import useSetting from "../useSetting";
-import { useState } from "react";
 
 type SaveSetting = <K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) => void;
 
 export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
   const whitelist = useSetting("whitelist");
+  const [isAdding, setIsAdding] = useState(false);
   const [newPattern, setNewPattern] = useState("");
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [dropIndex, setDropIndex] = useState<number | null>(null);
+  // While dragging, rows render in `drag.order` so they shift around the ghost of the dragged row.
+  const [drag, setDrag] = useState<{ order: string[]; pattern: string } | null>(null);
+  // Holds the dropped order until storage echoes the saved whitelist back, so rows don't flash
+  // back to their old positions in between.
+  const [dropped, setDropped] = useState<{ base: string[]; order: string[] } | null>(null);
+  const rowRefs = useRef(new Map<string, HTMLLIElement>());
+  const flipRef = useRef<{ fade: Set<string>; tops: Map<string, number> } | null>(null);
+
+  const rules = drag?.order ?? (dropped?.base === whitelist ? dropped.order : whitelist);
+
+  // FLIP animation: rows are measured before a reorder and animated from their old positions once
+  // the new order renders.
+  useLayoutEffect(() => {
+    const flip = flipRef.current;
+    if (flip == null) return;
+    flipRef.current = null;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    for (const [pattern, oldTop] of flip.tops) {
+      const el = rowRefs.current.get(pattern);
+      if (el == null) continue;
+      el.getAnimations().forEach((animation) => animation.cancel());
+      const dy = oldTop - el.getBoundingClientRect().top;
+      if (dy === 0) continue;
+      const fade = flip.fade.has(pattern) ? 0.5 : 1;
+      el.animate(
+        [
+          { opacity: fade, transform: `translateY(${dy}px)` },
+          { opacity: 1, transform: "none" },
+        ],
+        { duration: flip.fade.size > 0 ? 250 : 150, easing: "ease-in-out" },
+      );
+    }
+  }, [JSON.stringify(rules)]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function measureRows(fade: string[] = []) {
+    const tops = new Map<string, number>();
+    for (const [pattern, el] of rowRefs.current) tops.set(pattern, el.getBoundingClientRect().top);
+    flipRef.current = { fade: new Set(fade), tops };
+  }
+
+  const isDuplicatePattern = whitelist.includes(newPattern);
 
   function addRule(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
-    if (!isValidPattern(newPattern)) return;
-    if (!whitelist.includes(newPattern)) onSaveSetting("whitelist", [newPattern, ...whitelist]);
+    if (!isValidPattern(newPattern) || isDuplicatePattern) return;
+    onSaveSetting("whitelist", [newPattern, ...whitelist]);
+    cancelAddRule();
+  }
+
+  function cancelAddRule() {
+    setIsAdding(false);
     setNewPattern("");
   }
 
@@ -35,85 +80,144 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     onSaveSetting("whitelist", next);
   }
 
-  function endDrag() {
-    setDragIndex(null);
-    setDropIndex(null);
+  function swapRule(from: number, to: number) {
+    measureRows([whitelist[from], whitelist[to]]);
+    moveRule(from, to);
+  }
+
+  function handleDragOver(event: React.DragEvent<HTMLElement>) {
+    if (drag == null) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+
+    // Hit-test against layout positions, which ignore in-flight FLIP transforms, so rows animating
+    // under the cursor can't bounce the ghost back and forth.
+    const rows = drag.order.map((pattern) => rowRefs.current.get(pattern));
+    const parent = rows[0]?.offsetParent;
+    if (parent == null) return;
+    const y = event.clientY - parent.getBoundingClientRect().top - parent.clientTop;
+    let target = rows.findIndex((row) => row != null && y < row.offsetTop + row.offsetHeight);
+    if (target === -1) target = rows.length - 1;
+
+    const from = drag.order.indexOf(drag.pattern);
+    if (target === from) return;
+    const order = drag.order.slice();
+    order.splice(from, 1);
+    order.splice(target, 0, drag.pattern);
+    measureRows();
+    setDrag({ order, pattern: drag.pattern });
+  }
+
+  function handleDrop(event: React.DragEvent<HTMLElement>) {
+    if (drag == null) return;
+    event.preventDefault();
+    if (drag.order.some((pattern, i) => pattern !== whitelist[i])) {
+      setDropped({ base: whitelist, order: drag.order });
+      onSaveSetting("whitelist", drag.order);
+    }
+    setDrag(null);
+  }
+
+  function handleDragEnd() {
+    measureRows();
+    setDrag(null);
   }
 
   return (
     <>
-      <h5 className="mt-3">{chrome.i18n.getMessage("options_section_tabRules")}</h5>
-      <div className="row">
+      <div className="d-flex align-items-center justify-content-between mt-3">
+        <h5 className="mb-0">{chrome.i18n.getMessage("options_section_tabRules")}</h5>
+        <Button
+          disabled={isAdding}
+          onClick={() => {
+            setIsAdding(true);
+          }}
+          size="sm"
+          variant="secondary"
+        >
+          <i className="fas fa-plus me-1" />
+          {chrome.i18n.getMessage("options_tabRules_addRule")}
+        </Button>
+      </div>
+      <div className="row form-text">
         <div className="col-9">{chrome.i18n.getMessage("options_tabRules_description")}</div>
       </div>
       <div className="card mt-2">
-        <ul className="list-group list-group-flush">
-          <li className="list-group-item">
-            <form onSubmit={addRule}>
-              <RuleClause label={chrome.i18n.getMessage("options_tabRules_if")}>
-                <label className="text-nowrap" htmlFor="wl-add">
-                  {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
-                </label>
-                <input
-                  className="form-control form-control-sm"
-                  id="wl-add"
-                  onChange={(event) => {
-                    setNewPattern(event.target.value);
-                  }}
-                  type="text"
-                  value={newPattern}
-                />
-              </RuleClause>
-              <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
-                <span className="flex-grow-1">
-                  <i className="fas fa-lock me-1" />
-                  {chrome.i18n.getMessage("options_tabRules_action_lock")}
-                </span>
-                <Button
-                  disabled={!isValidPattern(newPattern)}
-                  id="addToWL"
-                  size="sm"
-                  type="submit"
-                  variant="secondary"
-                >
-                  <i className="fas fa-plus me-1" />
-                  {chrome.i18n.getMessage("options_tabRules_addRule")}
-                </Button>
-              </RuleClause>
-              <div className="form-text mb-0">
-                {chrome.i18n.getMessage("options_option_autoLock_example")}
-              </div>
-            </form>
-          </li>
-          {whitelist.length === 0 ? (
+        <ul className="list-group list-group-flush" onDragOver={handleDragOver} onDrop={handleDrop}>
+          {isAdding && (
+            <li
+              className="list-group-item"
+              style={{ boxShadow: "inset 0 0 0 2px var(--bs-primary)" }}
+            >
+              <form
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") cancelAddRule();
+                }}
+                onSubmit={addRule}
+              >
+                <RuleClause label={chrome.i18n.getMessage("options_tabRules_if")}>
+                  <label className="text-nowrap" htmlFor="wl-add">
+                    {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
+                  </label>
+                  <input
+                    autoFocus
+                    className={cx("form-control form-control-sm", {
+                      "is-invalid": isDuplicatePattern,
+                    })}
+                    id="wl-add"
+                    onChange={(event) => {
+                      setNewPattern(event.target.value);
+                    }}
+                    type="text"
+                    value={newPattern}
+                  />
+                </RuleClause>
+                {isDuplicatePattern && (
+                  <div className="form-text text-danger mt-0" style={{ marginLeft: "3.5rem" }}>
+                    {chrome.i18n.getMessage("options_tabRules_duplicate")}
+                  </div>
+                )}
+                <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
+                  <span className="flex-grow-1">
+                    <i className="fas fa-lock me-1" />
+                    {chrome.i18n.getMessage("options_tabRules_action_lock")}
+                  </span>
+                  <Button onClick={cancelAddRule} size="sm" variant="outline-secondary">
+                    {chrome.i18n.getMessage("options_tabRules_cancel")}
+                  </Button>
+                  <Button
+                    disabled={!isValidPattern(newPattern) || isDuplicatePattern}
+                    id="addToWL"
+                    size="sm"
+                    type="submit"
+                    variant="primary"
+                  >
+                    {chrome.i18n.getMessage("options_save")}
+                  </Button>
+                </RuleClause>
+              </form>
+            </li>
+          )}
+          {rules.length === 0 && !isAdding ? (
             <li className="list-group-item text-center text-body-secondary">
               {chrome.i18n.getMessage("options_tabRules_empty")}
             </li>
           ) : (
-            whitelist.map((pattern, index) => (
+            rules.map((pattern, index) => (
               <li
                 className={cx("list-group-item d-flex align-items-center gap-2", {
-                  "border-primary border-2": dropIndex === index && dragIndex !== index,
-                  "border-top": dropIndex === index && dragIndex != null && dragIndex > index,
-                  "border-bottom": dropIndex === index && dragIndex != null && dragIndex < index,
-                  "opacity-50": dragIndex === index,
+                  "bg-body-tertiary opacity-50": drag?.pattern === pattern,
                 })}
                 key={pattern}
-                onDragOver={(event) => {
-                  if (dragIndex == null) return;
-                  event.preventDefault();
-                  setDropIndex(index);
-                }}
-                onDrop={(event) => {
-                  event.preventDefault();
-                  if (dragIndex != null) moveRule(dragIndex, index);
-                  endDrag();
+                ref={(el) => {
+                  if (el == null) rowRefs.current.delete(pattern);
+                  else rowRefs.current.set(pattern, el);
                 }}
               >
                 <span
                   className="text-body-secondary"
                   draggable
-                  onDragEnd={endDrag}
+                  onDragEnd={handleDragEnd}
                   onDragStart={(event) => {
                     event.dataTransfer.effectAllowed = "move";
                     event.dataTransfer.setDragImage(
@@ -121,7 +225,10 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                       0,
                       0,
                     );
-                    setDragIndex(index);
+                    // Deferred so the browser snapshots the drag image before the row turns into a ghost.
+                    setTimeout(() => {
+                      setDrag({ order: whitelist, pattern });
+                    });
                   }}
                   style={{ cursor: "grab" }}
                 >
@@ -147,7 +254,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                     className="btn-xs"
                     disabled={index === 0}
                     onClick={() => {
-                      moveRule(index, index - 1);
+                      swapRule(index, index - 1);
                     }}
                     title={chrome.i18n.getMessage("options_tabRules_moveUp")}
                     variant="outline-secondary"
@@ -157,9 +264,9 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                   <Button
                     aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
                     className="btn-xs"
-                    disabled={index === whitelist.length - 1}
+                    disabled={index === rules.length - 1}
                     onClick={() => {
-                      moveRule(index, index + 1);
+                      swapRule(index, index + 1);
                     }}
                     title={chrome.i18n.getMessage("options_tabRules_moveDown")}
                     variant="outline-secondary"
@@ -181,14 +288,14 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
               </li>
             ))
           )}
-          <li className="list-group-item bg-body-tertiary">
-            <RuleClause label={chrome.i18n.getMessage("options_tabRules_otherwise")}>
-              <span className="text-nowrap">
-                <i className="fas fa-times-circle me-1" />
-                {chrome.i18n.getMessage("options_tabRules_action_closeAfter")}
-              </span>
-            </RuleClause>
-            <InactiveTimeOption onSaveSetting={onSaveSetting} />
+          <li className="list-group-item d-flex align-items-center gap-2 bg-body-tertiary">
+            <span className="text-body-secondary opacity-30">
+              <i className="fas fa-grip-vertical" />
+            </span>
+            <div className="flex-grow-1">
+              <RuleClause label={chrome.i18n.getMessage("options_tabRules_otherwise")} />
+              <InactiveTimeOption onSaveSetting={onSaveSetting} />
+            </div>
           </li>
         </ul>
       </div>
@@ -196,7 +303,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
   );
 }
 
-function RuleClause({ children, label }: { children: React.ReactNode; label: string }) {
+function RuleClause({ children, label }: { children?: React.ReactNode; label: string }) {
   return (
     <div className="d-flex align-items-center gap-2 my-1">
       <span
@@ -305,7 +412,10 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
   }
 
   return (
-    <div style={{ marginLeft: "calc(3rem + 0.5rem)" }}>
+    <div className="d-flex flex-column gap-1">
+      <div className="text-nowrap">
+        {chrome.i18n.getMessage("options_tabRules_action_closeAfter")}
+      </div>
       <div className="input-group input-group-sm w-75">
         <input className="form-control" min="0" type="number" {...daysDraft} />
         <abbr className="input-group-text">

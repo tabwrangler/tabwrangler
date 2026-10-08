@@ -17,10 +17,11 @@ describe("TabRules", () => {
   test("adds new rules to the top", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
     fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlContains"), {
       target: { value: "news" },
     });
-    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.click(screen.getByText("options_save"));
     expect(onSaveSetting).toHaveBeenCalledWith("whitelist", [
       "news",
       "about:",
@@ -32,11 +33,21 @@ describe("TabRules", () => {
   test("does not add a duplicate rule", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
     fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlContains"), {
       target: { value: "example" },
     });
-    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    expect(screen.getByText("options_tabRules_duplicate")).toBeTruthy();
+    fireEvent.submit(screen.getByLabelText("options_tabRules_condition_urlContains"));
     expect(onSaveSetting).not.toHaveBeenCalled();
+  });
+
+  test("hides the new rule form until requested and on cancel", () => {
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(screen.queryByLabelText("options_tabRules_condition_urlContains")).toBeNull();
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.click(screen.getByText("options_tabRules_cancel"));
+    expect(screen.queryByLabelText("options_tabRules_condition_urlContains")).toBeNull();
   });
 
   test("moves rules up and down", () => {

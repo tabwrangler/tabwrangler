@@ -814,6 +814,10 @@
     "description": "Button label for adding a new tab rule",
     "message": "Add rule"
   },
+  "options_tabRules_cancel": {
+    "description": "Button label for discarding a new tab rule before it is saved",
+    "message": "Cancel"
+  },
   "options_tabRules_condition_urlContains": {
     "description": "Tab rule condition matching tabs whose URL contains the given text",
     "message": "URL contains"
@@ -822,9 +826,13 @@
     "description": "Description of the tab rules section shown below its header",
     "message": "Rules are checked from top to bottom. Tabs matching a rule are handled by that rule, and all other tabs are closed after being inactive for the given time."
   },
+  "options_tabRules_duplicate": {
+    "description": "Error shown when a new tab rule's URL text matches an existing rule",
+    "message": "A rule for this URL text already exists."
+  },
   "options_tabRules_empty": {
     "description": "Message shown when there are no tab rules yet",
-    "message": "No rules yet. Use the form above to add one."
+    "message": "No rules yet. Use \"Add rule\" to create one."
   },
   "options_tabRules_if": {
     "description": "Label in front of a tab rule's condition, as in \"If URL contains example\"",

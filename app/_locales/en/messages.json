@@ -226,10 +226,6 @@
   "options_unsavedChanges": {
     "message": "Unsaved changes"
   },
-  "options_autoLock_description": {
-    "description": "Description of the auto-lock feature shown below the auto-lock section header",
-    "message": "Tabs with URLs matching any auto-locked pattern will never be auto-closed by the extension."
-  },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension."
@@ -258,29 +254,9 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Options"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "Add pattern"
-  },
-  "options_option_autoLock_empty": {
-    "description": "Message shown when there are no whitelisted URLs",
-    "message": "No auto-locking URLs yet. Use the form above to add some to the whitelist."
-  },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "Example: \"cnn\" would match every page on \"https://www.cnn.com\" and any URL with \"cnn\" anywhere in it."
-  },
-  "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Auto-lock tabs with URLs containing:"
-  },
-  "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
-    "message": "Remove"
-  },
-  "options_option_autoLock_urlHeader": {
-    "description": "Table column header for list of whitelisted URL strings",
-    "message": "URL String"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -474,17 +450,9 @@
     "description": "Error shown when the inactive time duration is set to zero",
     "message": "Duration must be greater than 0 seconds."
   },
-  "options_option_timeInactive_label": {
-    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "Close inactive tabs after:"
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Saving..."
-  },
-  "options_section_autoLock": {
-    "description": "Header for the auto-lock section of the options tab",
-    "message": "Auto-Lock"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -829,5 +797,57 @@
         "example": "3"
       }
     }
+  },
+  "options_section_tabRules": {
+    "description": "Header for the tab rules section of the options tab",
+    "message": "Tab Rules"
+  },
+  "options_tabRules_action_closeAfter": {
+    "description": "Tab rule action for tabs matching no rule, followed by inputs for how long a tab must be inactive",
+    "message": "Close tab after being inactive for"
+  },
+  "options_tabRules_action_lock": {
+    "description": "Tab rule action that locks matching tabs so they are never auto-closed",
+    "message": "Lock tab"
+  },
+  "options_tabRules_addRule": {
+    "description": "Button label for adding a new tab rule",
+    "message": "Add rule"
+  },
+  "options_tabRules_condition_urlContains": {
+    "description": "Tab rule condition matching tabs whose URL contains the given text",
+    "message": "URL contains"
+  },
+  "options_tabRules_description": {
+    "description": "Description of the tab rules section shown below its header",
+    "message": "Rules are checked from top to bottom. Tabs matching a rule are handled by that rule, and all other tabs are closed after being inactive for the given time."
+  },
+  "options_tabRules_empty": {
+    "description": "Message shown when there are no tab rules yet",
+    "message": "No rules yet. Use the form above to add one."
+  },
+  "options_tabRules_if": {
+    "description": "Label in front of a tab rule's condition, as in \"If URL contains example\"",
+    "message": "If"
+  },
+  "options_tabRules_moveDown": {
+    "description": "Accessible label for the button that moves a tab rule down one position",
+    "message": "Move rule down"
+  },
+  "options_tabRules_moveUp": {
+    "description": "Accessible label for the button that moves a tab rule up one position",
+    "message": "Move rule up"
+  },
+  "options_tabRules_otherwise": {
+    "description": "Label in front of the action for tabs that match no rule, as in \"In all other cases: Close tab after being inactive for 20m\"",
+    "message": "In all other cases"
+  },
+  "options_tabRules_remove": {
+    "description": "Accessible label for the button that removes a tab rule",
+    "message": "Remove rule"
+  },
+  "options_tabRules_then": {
+    "description": "Label in front of a tab rule's action, as in \"Then lock tab\"",
+    "message": "Then"
   }
 }

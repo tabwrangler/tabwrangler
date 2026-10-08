@@ -1,5 +1,4 @@
 import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
 import { type SettingsSchema } from "../settings";
 import cx from "classnames";
 import useDraftInput from "../useDraftInput";
@@ -47,159 +46,165 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
       <div className="row">
         <div className="col-9">{chrome.i18n.getMessage("options_tabRules_description")}</div>
       </div>
-      <form className="card mt-2" onSubmit={addRule}>
-        <div className="card-body py-2">
-          <RuleClause label={chrome.i18n.getMessage("options_tabRules_if")}>
-            <label className="text-nowrap" htmlFor="wl-add">
-              {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
-            </label>
-            <input
-              className="form-control form-control-sm"
-              id="wl-add"
-              onChange={(event) => {
-                setNewPattern(event.target.value);
-              }}
-              type="text"
-              value={newPattern}
-            />
-          </RuleClause>
-          <div className="form-text mt-0 mb-1" style={{ marginLeft: LABEL_OFFSET }}>
-            {chrome.i18n.getMessage("options_option_autoLock_example")}
-          </div>
-          <hr className="my-2" style={{ borderTopStyle: "dashed" }} />
-          <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
-            <span className="flex-grow-1">
-              <i className="fas fa-lock me-1" />
-              {chrome.i18n.getMessage("options_tabRules_action_lock")}
-            </span>
-            <Button
-              disabled={!isValidPattern(newPattern)}
-              id="addToWL"
-              size="sm"
-              type="submit"
-              variant="secondary"
-            >
-              <i className="fas fa-plus me-1" />
-              {chrome.i18n.getMessage("options_tabRules_addRule")}
-            </Button>
-          </RuleClause>
-        </div>
-      </form>
-      {whitelist.length === 0 ? (
-        <div className="card card-body mt-2 py-2 text-center text-body-secondary">
-          {chrome.i18n.getMessage("options_tabRules_empty")}
-        </div>
-      ) : (
-        whitelist.map((pattern, index) => (
-          <div
-            className={cx("card mt-2", {
-              "border-primary border-2": dropIndex === index && dragIndex !== index,
-              "opacity-50": dragIndex === index,
-            })}
-            key={pattern}
-            onDragOver={(event) => {
-              if (dragIndex == null) return;
-              event.preventDefault();
-              setDropIndex(index);
-            }}
-            onDrop={(event) => {
-              event.preventDefault();
-              if (dragIndex != null) moveRule(dragIndex, index);
-              endDrag();
-            }}
-          >
-            <div className="card-body py-2 d-flex gap-2">
-              <span
-                className="text-body-secondary align-self-center"
-                draggable
-                onDragEnd={endDrag}
-                onDragStart={(event) => {
-                  event.dataTransfer.effectAllowed = "move";
-                  event.dataTransfer.setDragImage(
-                    event.currentTarget.closest(".card") ?? event.currentTarget,
-                    0,
-                    0,
-                  );
-                  setDragIndex(index);
-                }}
-                style={{ cursor: "grab" }}
-              >
-                <i className="fas fa-grip-vertical" />
-              </span>
-              <div className="flex-grow-1">
-                <RuleClause label={chrome.i18n.getMessage("options_tabRules_if")}>
-                  <span className="text-nowrap">
-                    {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
-                  </span>
-                  <code className="flex-grow-1">{pattern}</code>
-                  <ButtonGroup size="sm">
-                    <Button
-                      aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                      disabled={index === 0}
-                      onClick={() => {
-                        moveRule(index, index - 1);
-                      }}
-                      title={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                      variant="outline-secondary"
-                    >
-                      <i className="fas fa-arrow-up" />
-                    </Button>
-                    <Button
-                      aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                      disabled={index === whitelist.length - 1}
-                      onClick={() => {
-                        moveRule(index, index + 1);
-                      }}
-                      title={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                      variant="outline-secondary"
-                    >
-                      <i className="fas fa-arrow-down" />
-                    </Button>
-                    <Button
-                      aria-label={chrome.i18n.getMessage("options_tabRules_remove")}
-                      onClick={() => {
-                        removeRule(index);
-                      }}
-                      title={chrome.i18n.getMessage("options_tabRules_remove")}
-                      variant="outline-secondary"
-                    >
-                      <i className="fas fa-minus" />
-                    </Button>
-                  </ButtonGroup>
-                </RuleClause>
-                <hr className="my-2" style={{ borderTopStyle: "dashed" }} />
-                <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
-                  <span>
-                    <i className="fas fa-lock me-1" />
-                    {chrome.i18n.getMessage("options_tabRules_action_lock")}
-                  </span>
-                </RuleClause>
-              </div>
-            </div>
-          </div>
-        ))
-      )}
       <div className="card mt-2">
-        <div className="card-body py-2">
-          <div className="d-flex align-items-center flex-wrap gap-2">
-            <strong>{chrome.i18n.getMessage("options_tabRules_otherwise")}</strong>
-            <span>{chrome.i18n.getMessage("options_tabRules_action_closeAfter")}</span>
-          </div>
-          <InactiveTimeOption onSaveSetting={onSaveSetting} />
-        </div>
+        <ul className="list-group list-group-flush">
+          <li className="list-group-item">
+            <form onSubmit={addRule}>
+              <RuleClause label={chrome.i18n.getMessage("options_tabRules_if")}>
+                <label className="text-nowrap" htmlFor="wl-add">
+                  {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
+                </label>
+                <input
+                  className="form-control form-control-sm"
+                  id="wl-add"
+                  onChange={(event) => {
+                    setNewPattern(event.target.value);
+                  }}
+                  type="text"
+                  value={newPattern}
+                />
+              </RuleClause>
+              <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
+                <span className="flex-grow-1">
+                  <i className="fas fa-lock me-1" />
+                  {chrome.i18n.getMessage("options_tabRules_action_lock")}
+                </span>
+                <Button
+                  disabled={!isValidPattern(newPattern)}
+                  id="addToWL"
+                  size="sm"
+                  type="submit"
+                  variant="secondary"
+                >
+                  <i className="fas fa-plus me-1" />
+                  {chrome.i18n.getMessage("options_tabRules_addRule")}
+                </Button>
+              </RuleClause>
+              <div className="form-text mb-0">
+                {chrome.i18n.getMessage("options_option_autoLock_example")}
+              </div>
+            </form>
+          </li>
+          {whitelist.length === 0 ? (
+            <li className="list-group-item text-center text-body-secondary">
+              {chrome.i18n.getMessage("options_tabRules_empty")}
+            </li>
+          ) : (
+            whitelist.map((pattern, index) => (
+              <li
+                className={cx("list-group-item d-flex align-items-center gap-2", {
+                  "border-primary border-2": dropIndex === index && dragIndex !== index,
+                  "border-top": dropIndex === index && dragIndex != null && dragIndex > index,
+                  "border-bottom": dropIndex === index && dragIndex != null && dragIndex < index,
+                  "opacity-50": dragIndex === index,
+                })}
+                key={pattern}
+                onDragOver={(event) => {
+                  if (dragIndex == null) return;
+                  event.preventDefault();
+                  setDropIndex(index);
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  if (dragIndex != null) moveRule(dragIndex, index);
+                  endDrag();
+                }}
+              >
+                <span
+                  className="text-body-secondary"
+                  draggable
+                  onDragEnd={endDrag}
+                  onDragStart={(event) => {
+                    event.dataTransfer.effectAllowed = "move";
+                    event.dataTransfer.setDragImage(
+                      event.currentTarget.parentElement ?? event.currentTarget,
+                      0,
+                      0,
+                    );
+                    setDragIndex(index);
+                  }}
+                  style={{ cursor: "grab" }}
+                >
+                  <i className="fas fa-grip-vertical" />
+                </span>
+                <div className="flex-grow-1">
+                  <RuleClause label={chrome.i18n.getMessage("options_tabRules_if")}>
+                    <span>
+                      {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}{" "}
+                      <code>{pattern}</code>
+                    </span>
+                  </RuleClause>
+                  <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
+                    <span>
+                      <i className="fas fa-lock me-1" />
+                      {chrome.i18n.getMessage("options_tabRules_action_lock")}
+                    </span>
+                  </RuleClause>
+                </div>
+                <div className="btn-group-vertical">
+                  <Button
+                    aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                    className="btn-xs"
+                    disabled={index === 0}
+                    onClick={() => {
+                      moveRule(index, index - 1);
+                    }}
+                    title={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                    variant="outline-secondary"
+                  >
+                    <i className="fas fa-chevron-up" />
+                  </Button>
+                  <Button
+                    aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                    className="btn-xs"
+                    disabled={index === whitelist.length - 1}
+                    onClick={() => {
+                      moveRule(index, index + 1);
+                    }}
+                    title={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                    variant="outline-secondary"
+                  >
+                    <i className="fas fa-chevron-down" />
+                  </Button>
+                </div>
+                <Button
+                  aria-label={chrome.i18n.getMessage("options_tabRules_remove")}
+                  onClick={() => {
+                    removeRule(index);
+                  }}
+                  size="sm"
+                  title={chrome.i18n.getMessage("options_tabRules_remove")}
+                  variant="outline-secondary"
+                >
+                  <i className="fas fa-trash" />
+                </Button>
+              </li>
+            ))
+          )}
+          <li className="list-group-item bg-body-tertiary">
+            <RuleClause label={chrome.i18n.getMessage("options_tabRules_otherwise")}>
+              <span className="text-nowrap">
+                <i className="fas fa-times-circle me-1" />
+                {chrome.i18n.getMessage("options_tabRules_action_closeAfter")}
+              </span>
+            </RuleClause>
+            <InactiveTimeOption onSaveSetting={onSaveSetting} />
+          </li>
+        </ul>
       </div>
     </>
   );
 }
 
-const LABEL_OFFSET = "calc(3rem + 0.5rem)";
-
 function RuleClause({ children, label }: { children: React.ReactNode; label: string }) {
   return (
-    <div className="d-flex align-items-center gap-2">
-      <strong className="flex-shrink-0" style={{ width: "3rem" }}>
+    <div className="d-flex align-items-center gap-2 my-1">
+      <span
+        className="badge text-bg-secondary text-uppercase flex-shrink-0"
+        style={{ minWidth: "3rem" }}
+      >
         {label}
-      </strong>
+      </span>
       {children}
     </div>
   );
@@ -300,7 +305,7 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
   }
 
   return (
-    <div className="mt-2">
+    <div style={{ marginLeft: "calc(3rem + 0.5rem)" }}>
       <div className="input-group input-group-sm w-75">
         <input className="form-control" min="0" type="number" {...daysDraft} />
         <abbr className="input-group-text">

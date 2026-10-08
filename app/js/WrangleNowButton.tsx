@@ -3,6 +3,7 @@ import { type WrangleNowSettings, findTabsToWrangleNow } from "./tabUtil";
 import Button from "react-bootstrap/Button";
 import Toast from "react-bootstrap/Toast";
 import { ToastPortal } from "./ToastPortal";
+import { getStayOpenMs } from "./settings";
 import useSetting from "./useSetting";
 import { useState } from "react";
 import useTabTimesQuery from "./api/useTabTimesQuery";
@@ -23,7 +24,7 @@ export default function WrangleNowButton() {
     lockedWindowIds: useSetting("lockedWindowIds"),
     minTabs: useSetting("minTabs"),
     minTabsStrategy: useSetting("minTabsStrategy"),
-    stayOpenMs: useSetting("minutesInactive") * 60_000 + useSetting("secondsInactive") * 1000,
+    stayOpenMs: getStayOpenMs(useSetting("minutesInactive"), useSetting("secondsInactive")),
     tabRules: useSetting("tabRules"),
     whitelist: useSetting("whitelist"),
   };

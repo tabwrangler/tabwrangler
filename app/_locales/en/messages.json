@@ -371,8 +371,12 @@
     "message": "Each tab uses the first timer whose text appears in its URL. Tabs that match none use \"All other tabs\"."
   },
   "options_option_tabTimers_durationHeader": {
-    "description": "Table column header for how long a tab may be inactive, entered as days:hours:minutes:seconds",
-    "message": "Time inactive (dd:hh:mm:ss)"
+    "description": "Table column header for how long a tab may be inactive before it is closed",
+    "message": "Time inactive"
+  },
+  "options_option_tabTimers_durationTooltip": {
+    "description": "Tooltip on the \"Time inactive\" column header explaining the duration format, where 00d00h00m00s stands for days, hours, minutes, and seconds",
+    "message": "How long a tab can be inactive before being auto-closed, in days, hours, minutes, and seconds (00d00h00m00s)."
   },
   "options_option_tabTimers_moveDown": {
     "description": "Tooltip for the button that moves a timer one row down",
@@ -405,86 +409,6 @@
   "options_option_theme_system": {
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "System"
-  },
-  "options_option_timeInactive_duration_day": {
-    "description": "Singular 'day' unit with count in the inactive time description",
-    "message": "$count$ day",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
-  },
-  "options_option_timeInactive_duration_days": {
-    "description": "Plural 'days' unit with count in the inactive time description",
-    "message": "$count$ days",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "5"
-      }
-    }
-  },
-  "options_option_timeInactive_duration_hour": {
-    "description": "Singular 'hour' unit with count in the inactive time description",
-    "message": "$count$ hour",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
-  },
-  "options_option_timeInactive_duration_hours": {
-    "description": "Plural 'hours' unit with count in the inactive time description",
-    "message": "$count$ hours",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "options_option_timeInactive_duration_minute": {
-    "description": "Singular 'minute' unit with count in the inactive time description",
-    "message": "$count$ minute",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
-  },
-  "options_option_timeInactive_duration_minutes": {
-    "description": "Plural 'minutes' unit with count in the inactive time description",
-    "message": "$count$ minutes",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
-  },
-  "options_option_timeInactive_duration_second": {
-    "description": "Singular 'second' unit with count in the inactive time description",
-    "message": "$count$ second",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
-  },
-  "options_option_timeInactive_duration_seconds": {
-    "description": "Plural 'seconds' unit with count in the inactive time description",
-    "message": "$count$ seconds",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "30"
-      }
-    }
   },
   "options_option_timeInactive_error_zero": {
     "description": "Error shown when the inactive time duration is set to zero",

@@ -1,9 +1,7 @@
 import {
   AVERAGE_TAB_BYTES_SIZE,
   TabLockStatus,
-  TabOutcome,
   getTabLockStatus,
-  getTabOutcome,
   getWhitelistMatch,
 } from "./tabUtil";
 import Menus from "./menus";
@@ -108,6 +106,14 @@ export const SETTINGS_DEFAULTS: SettingsSchema = {
 
 // This is a SINGLETON! It is imported both by backgrounnd.ts and by popup.tsx and used in both
 // environments.
+
+/**
+ * Returns the number of milliseconds that tabs should stay open for without being used.
+ */
+export function getStayOpenMs(minutesInactive: number, secondsInactive: number): number {
+  return minutesInactive * 60_000 + secondsInactive * 1000;
+}
+
 const Settings = {
   _initPromise: undefined as Promise<void> | undefined,
   _listeners: {} as { [K in keyof SettingsSchema]?: Set<() => void> },
@@ -180,19 +186,6 @@ const Settings = {
       filterGroupedTabs: this.get("filterGroupedTabs"),
       lockedIds: this.get("lockedIds"),
       lockedWindowIds: [],
-      whitelist: this.get("whitelist"),
-    });
-  },
-
-  getTabOutcome(tab: chrome.tabs.Tab): TabOutcome {
-    // Excludes `lockedWindowIds` for the same reason as `getTabLockStatus`
-    return getTabOutcome(tab, {
-      filterAudio: this.get("filterAudio"),
-      filterGroupedTabs: this.get("filterGroupedTabs"),
-      lockedIds: this.get("lockedIds"),
-      lockedWindowIds: [],
-      stayOpenMs: this.stayOpen(),
-      tabRules: this.get("tabRules"),
       whitelist: this.get("whitelist"),
     });
   },
@@ -362,10 +355,7 @@ const Settings = {
    * Returns the number of milliseconds that tabs should stay open for without being used.
    */
   stayOpen(): number {
-    return (
-      Number(this.get("minutesInactive")) * 60000 + // minutes
-      Number(this.get("secondsInactive")) * 1000 // seconds
-    );
+    return getStayOpenMs(Number(this.get("minutesInactive")), Number(this.get("secondsInactive")));
   },
 
   /**

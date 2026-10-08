@@ -1,3 +1,4 @@
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { type TabRule, createTabRule } from "../tabRules";
 import Button from "react-bootstrap/Button";
 import type { SettingsSchema } from "../settings";
@@ -8,7 +9,7 @@ import { useState } from "react";
 
 const SECONDS_PER_HOUR = 60 * 60;
 const SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR;
-// "dd:hh:mm:ss" with up to 3 digits of days
+// "00d00h00m00s" with up to 3 digits of days
 const MAX_DURATION_DIGITS = 9;
 
 export default function TabTimersOption({
@@ -74,13 +75,26 @@ export default function TabTimersOption({
       <div className="form-text mt-0 mb-1">
         {chrome.i18n.getMessage("options_option_tabTimers_description")}
       </div>
-      <table className="table table-sm align-middle mb-0">
+      <table className="table table-bordered align-middle mb-0 rounded-md">
         <thead>
           <tr>
             <th style={{ width: "50%" }}>
               {chrome.i18n.getMessage("options_option_tabTimers_urlContains")}
             </th>
-            <th>{chrome.i18n.getMessage("options_option_tabTimers_durationHeader")}</th>
+            <th>
+              <OverlayTrigger
+                overlay={
+                  <Tooltip>
+                    {chrome.i18n.getMessage("options_option_tabTimers_durationTooltip")}
+                  </Tooltip>
+                }
+              >
+                <span>
+                  {chrome.i18n.getMessage("options_option_tabTimers_durationHeader")}{" "}
+                  <i className="fas fa-question-circle text-muted" />
+                </span>
+              </OverlayTrigger>
+            </th>
             <th />
           </tr>
         </thead>
@@ -89,7 +103,7 @@ export default function TabTimersOption({
             <td>
               <input
                 aria-label={chrome.i18n.getMessage("options_option_tabTimers_urlContains")}
-                className="form-control form-control-sm"
+                className="form-control"
                 type="text"
                 value={newPattern}
                 onChange={(event) => {
@@ -200,7 +214,7 @@ function PatternInput({ onCommit, value }: { onCommit: (value: string) => void; 
   return (
     <input
       aria-label={chrome.i18n.getMessage("options_option_tabTimers_urlContains")}
-      className="form-control form-control-sm"
+      className="form-control"
       type="text"
       value={draft ?? value}
       onBlur={commit}
@@ -217,7 +231,7 @@ function PatternInput({ onCommit, value }: { onCommit: (value: string) => void; 
 }
 
 /**
- * Single "dd:hh:mm:ss" input. Typed digits shift in from the right like a timer app, so "130" is
+ * Single "00d00h00m00s" input. Typed digits shift in from the right like a timer app, so "130" is
  * one minute thirty seconds. Commits on blur or Enter.
  */
 function DurationInput({
@@ -240,33 +254,40 @@ function DurationInput({
 
   return (
     <>
-      <div className="d-flex align-items-center gap-2">
-        <input
-          aria-label={chrome.i18n.getMessage("options_option_tabTimers_durationHeader")}
-          className={cx("form-control form-control-sm font-monospace", {
-            "is-invalid": zeroDurationError,
-          })}
-          inputMode="numeric"
-          style={{ width: "8rem" }}
-          type="text"
-          value={formatDurationDigits(draftDigits ?? toDurationDigits(totalSeconds))}
-          onBlur={commit}
-          onChange={(event) => {
-            const digits = event.target.value.replace(/\D/g, "").replace(/^0+/, "");
-            if (digits.length <= MAX_DURATION_DIGITS) setDraftDigits(digits);
-          }}
-          onFocus={(event) => {
-            setDraftDigits(toDurationDigits(totalSeconds));
-            event.target.select();
-          }}
-          onKeyDown={(event) => {
-            if (event.key !== "Enter") return;
+      <input
+        aria-label={chrome.i18n.getMessage("options_option_tabTimers_durationHeader")}
+        className={cx("form-control font-monospace", {
+          "is-invalid": zeroDurationError,
+        })}
+        inputMode="numeric"
+        style={{ width: "9rem" }}
+        type="text"
+        value={formatDurationDigits(draftDigits ?? toDurationDigits(totalSeconds))}
+        onBlur={commit}
+        onChange={(event) => {
+          const digits = event.target.value.replace(/\D/g, "").replace(/^0+/, "");
+          if (digits.length <= MAX_DURATION_DIGITS) setDraftDigits(digits);
+        }}
+        onFocus={(event) => {
+          setDraftDigits(toDurationDigits(totalSeconds));
+          event.target.select();
+        }}
+        onKeyDown={(event) => {
+          const { selectionEnd, selectionStart, value } = event.currentTarget;
+          if (
+            event.key === "Backspace" &&
+            selectionStart === value.length &&
+            selectionEnd === value.length
+          ) {
+            event.preventDefault();
+            const digits = draftDigits ?? toDurationDigits(totalSeconds);
+            setDraftDigits(digits.slice(0, -1).replace(/^0+/, ""));
+          } else if (event.key === "Enter") {
             event.preventDefault();
             event.currentTarget.blur();
-          }}
-        />
-        <small className="text-muted">{formatDuration(totalSeconds)}</small>
-      </div>
+          }
+        }}
+      />
       {zeroDurationError ? (
         <div className="invalid-feedback d-block">
           {chrome.i18n.getMessage("options_option_timeInactive_error_zero")}
@@ -290,43 +311,11 @@ function splitDurationDigits(digits: string): [string, string, string, string] {
 }
 
 function formatDurationDigits(digits: string): string {
-  return splitDurationDigits(digits).join(":");
+  const [days, hours, minutes, seconds] = splitDurationDigits(digits);
+  return `${days}d${hours}h${minutes}m${seconds}s`;
 }
 
 function parseDurationDigits(digits: string): number {
   const [days, hours, minutes, seconds] = splitDurationDigits(digits).map(Number);
   return days * SECONDS_PER_DAY + hours * SECONDS_PER_HOUR + minutes * 60 + seconds;
-}
-
-function formatDuration(totalSeconds: number): string {
-  const units: Array<[number, string, string]> = [
-    [
-      Math.floor(totalSeconds / SECONDS_PER_DAY),
-      "options_option_timeInactive_duration_day",
-      "options_option_timeInactive_duration_days",
-    ],
-    [
-      Math.floor((totalSeconds % SECONDS_PER_DAY) / SECONDS_PER_HOUR),
-      "options_option_timeInactive_duration_hour",
-      "options_option_timeInactive_duration_hours",
-    ],
-    [
-      Math.floor((totalSeconds % SECONDS_PER_HOUR) / 60),
-      "options_option_timeInactive_duration_minute",
-      "options_option_timeInactive_duration_minutes",
-    ],
-    [
-      totalSeconds % 60,
-      "options_option_timeInactive_duration_second",
-      "options_option_timeInactive_duration_seconds",
-    ],
-  ];
-  const parts = units
-    .filter(([count]) => count > 0)
-    .map(([count, singular, plural]) =>
-      chrome.i18n.getMessage(count === 1 ? singular : plural, [String(count)]),
-    );
-  return parts.length > 0
-    ? parts.join(", ")
-    : chrome.i18n.getMessage("options_option_timeInactive_duration_seconds", ["0"]);
 }

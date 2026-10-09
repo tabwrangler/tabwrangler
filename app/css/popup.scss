@@ -53,6 +53,71 @@ body {
 }
 
 /**
+ * A Tab Rules "If" / "Then" line is always as tall as a small form control, whether it shows text or
+ * an input/select, so rows keep one height in view and edit modes. This is Bootstrap's
+ * `$input-height-sm` evaluated at the control's own font size; `.form-select-sm` shares the same
+ * padding, font size, and border, so selects match too.
+ */
+$tab-rule-line-height: add(
+  $input-line-height * $input-font-size-sm,
+  add($input-padding-y-sm * 2, $input-height-border, false)
+);
+
+.tab-rule-clause {
+  min-height: $tab-rule-line-height;
+}
+
+/**
+ * One rule line tall, with its content centered. Rows top-align their items so a validation
+ * message under an input grows the row downward without moving anything else; wrapping the other
+ * items in this keeps them centered on the first line.
+ */
+.tab-rule-line {
+  align-items: center;
+  display: flex;
+  min-height: $tab-rule-line-height;
+}
+
+/**
+ * Minimum widths for the "Then" column and the trailing controls, so every rule row (view, add,
+ * edit, and fixed rules) lines up its columns no matter which controls it shows. They are minimums
+ * so longer translations grow the column instead of overlapping the next one. The "If" clause
+ * keeps a flex basis so a line too narrow for both clauses wraps "Then" onto its own line instead
+ * of squeezing the condition to nothing.
+ */
+/**
+ * Lets a flex item shrink below its content width so text can truncate. Unlike `overflow: hidden`,
+ * this doesn't clip the focus ring (box-shadow) of inputs inside it.
+ */
+.tab-rule-shrink {
+  min-width: 0;
+}
+
+.tab-rule-if {
+  flex: 1 1 10rem;
+
+  .form-control,
+  .form-select {
+    min-width: 8rem;
+  }
+}
+
+.tab-rule-then {
+  flex-shrink: 0;
+  min-width: 9rem;
+}
+
+.tab-rule-controls {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: map-get($spacers, 2);
+  justify-content: flex-end;
+  min-height: $tab-rule-line-height;
+  min-width: 8rem;
+}
+
+/**
  * Override Bootstrap responsive because Tab Wrangler is not a mobile UI.
  */
 

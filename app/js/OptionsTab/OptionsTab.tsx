@@ -1,11 +1,11 @@
 import { exportData, importData } from "../actions/importExportActions";
 import settings, { type SettingsSchema } from "../settings";
-import { useEffect, useRef, useState } from "react";
-import { useStorageSyncPersistQuery, useStorageSyncQuery } from "../storage";
+import { useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import FileSaver from "file-saver";
 import { IDLE_PERMISSIONS } from "../constants";
+import TabRules from "./TabRules";
 import TabWrangleOption from "./TabWrangleOption";
 import Toast from "react-bootstrap/Toast";
 import { ToastPortal } from "../ToastPortal";
@@ -13,29 +13,25 @@ import cx from "classnames";
 import { exportFileName } from "../actions/importExportActions";
 import { mutateStorageSyncPersist } from "../storage";
 import { useDebounceCallback } from "@react-hook/debounce";
-import useDraftInput from "../useDraftInput";
 import useIdlePermissionQuery from "../api/useIdlePermissionQuery";
 import { useMutation } from "@tanstack/react-query";
 import useSetting from "../useSetting";
+import { useStorageSyncPersistQuery } from "../storage";
 import { useUndo } from "../UndoContext";
 
 export default function OptionsTab() {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
-  const { data: syncData } = useStorageSyncQuery();
   const { reset: resetUndo } = useUndo();
 
   const fileSelectorRef = useRef<HTMLInputElement | null>(null);
   const importExportAlertTimeoutRef = useRef<number>(null);
   const theme: string = syncPersistData?.theme ?? "system";
-  const whitelist: string[] = syncData?.whitelist ?? [];
   const [errors, setErrors] = useState<Error[]>([]);
   const [importExportAlertVisible, setImportExportAlertVisible] = useState(false);
   const [importExportErrors, setImportExportErrors] = useState<Error[]>([]);
   const [importExportOperationName, setImportExportOperationName] = useState("");
-  const [newPattern, setNewPattern] = useState("");
   const saveAlertTimeoutRef = useRef<number>(null);
   const [saveAlertVisible, setSaveAlertVisible] = useState(false);
-  const [showFilterTabGroupsOption, setShowFilterTabGroupsOption] = useState(false);
 
   const [maxTabs, setMaxTabs] = useState<number | string>(settings.get("maxTabs"));
 
@@ -50,34 +46,6 @@ export default function OptionsTab() {
   const persistSettingMutation = useMutation({
     mutationFn: mutateStorageSyncPersist,
   });
-
-  const settingMutation = useMutation({
-    mutationFn: ({ key, value }: { key: string; value: unknown }) =>
-      chrome.storage.sync.set({ [key]: value }),
-  });
-
-  function handleClickRemovePattern(pattern: string) {
-    const nextWhitelist = whitelist.slice();
-    nextWhitelist.splice(whitelist.indexOf(pattern), 1);
-    settingMutation.mutate({ key: "whitelist", value: nextWhitelist });
-  }
-
-  useEffect(() => {
-    // determine if we should show the filter tab groups setting
-    async function checkForTabGroups() {
-      const tabs = await chrome.tabs.query({});
-
-      // this shouldn't happen but we'll bail if there are zero tabs
-      if (tabs.length < 1) {
-        return;
-      }
-
-      if ("groupId" in tabs[0]) {
-        setShowFilterTabGroupsOption(true);
-      }
-    }
-    checkForTabGroups();
-  }, []);
 
   async function saveSetting<K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) {
     if (saveAlertTimeoutRef.current != null) {
@@ -108,21 +76,6 @@ export default function OptionsTab() {
     },
     150,
   );
-
-  function addWhitelistPattern(event: React.FormEvent<HTMLElement>) {
-    event.preventDefault();
-
-    if (!isValidPattern(newPattern)) {
-      return;
-    }
-
-    // Only add the pattern again if it's new, not yet in the whitelist.
-    if (whitelist.indexOf(newPattern) === -1) {
-      settingMutation.mutate({ key: "whitelist", value: [...whitelist, newPattern] });
-    }
-
-    setNewPattern("");
-  }
 
   function handleSettingsChange(event: React.ChangeEvent<HTMLInputElement>) {
     event.persist();
@@ -219,7 +172,9 @@ export default function OptionsTab() {
               </Button>
             </ButtonGroup>
           </div>
-          <InactiveTimeOption onSaveSetting={saveSetting} />
+        </form>
+        <TabRules onSaveSetting={saveSetting} />
+        <form>
           <label className="form-label mt-3" htmlFor="minTabs">
             <strong>{chrome.i18n.getMessage("options_option_minTabs_label")}</strong>
           </label>
@@ -277,35 +232,6 @@ export default function OptionsTab() {
             </label>
           </div>
           <PauseWhenIdleOption onSaveSetting={saveSetting} />
-          <div className="form-check form-switch mb-1">
-            <input
-              className="form-check-input"
-              defaultChecked={settings.get("filterAudio")}
-              id="filterAudio"
-              name="filterAudio"
-              onChange={handleSettingsChange}
-              role="switch"
-              type="checkbox"
-            />
-            <label className="form-check-label" htmlFor="filterAudio">
-              {chrome.i18n.getMessage("options_option_filterAudio_label")}
-            </label>
-          </div>
-          <div className="form-check form-switch">
-            <input
-              className="form-check-input"
-              defaultChecked={settings.get("filterGroupedTabs")}
-              disabled={!showFilterTabGroupsOption}
-              id="filterGroupedTabs"
-              name="filterGroupedTabs"
-              onChange={handleSettingsChange}
-              role="switch"
-              type="checkbox"
-            />
-            <label className="form-check-label" htmlFor="filterGroupedTabs">
-              {chrome.i18n.getMessage("options_option_filterGroupedTabs_label")}
-            </label>
-          </div>
           <label className="form-label mt-3" htmlFor="maxTabs">
             <strong>{chrome.i18n.getMessage("options_option_rememberTabs_label")}</strong>
           </label>
@@ -400,81 +326,6 @@ export default function OptionsTab() {
           />
         </form>
 
-        <h5 className="mt-3">{chrome.i18n.getMessage("options_section_autoLock")}</h5>
-        <div className="row">
-          <div className="col-9">{chrome.i18n.getMessage("options_autoLock_description")}</div>
-        </div>
-        <div className="row mt-2">
-          <div className="col-9">
-            <form onSubmit={addWhitelistPattern}>
-              <label className="form-label" htmlFor="wl-add">
-                {chrome.i18n.getMessage("options_option_autoLock_label")}
-              </label>
-              <div className="input-group">
-                <input
-                  className="form-control"
-                  id="wl-add"
-                  onChange={(event) => {
-                    setNewPattern(event.target.value);
-                  }}
-                  type="text"
-                  value={newPattern}
-                />
-                <Button
-                  disabled={!isValidPattern(newPattern)}
-                  id="addToWL"
-                  type="submit"
-                  variant="secondary"
-                >
-                  {chrome.i18n.getMessage("options_option_autoLock_add")}
-                </Button>
-              </div>
-              <p className="form-text">
-                {chrome.i18n.getMessage("options_option_autoLock_example")}
-              </p>
-            </form>
-          </div>
-        </div>
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th style={{ width: "100%" }}>
-                {chrome.i18n.getMessage("options_option_autoLock_urlHeader")}
-              </th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {whitelist.length === 0 ? (
-              <tr>
-                <td className="text-center" colSpan={2}>
-                  {chrome.i18n.getMessage("options_option_autoLock_empty")}
-                </td>
-              </tr>
-            ) : (
-              whitelist.map((pattern) => (
-                <tr className="align-middle" key={pattern}>
-                  <td>
-                    <code>{pattern}</code>
-                  </td>
-                  <td>
-                    <Button
-                      className="my-n1"
-                      size="sm"
-                      variant="outline-secondary"
-                      onClick={() => {
-                        handleClickRemovePattern(pattern);
-                      }}
-                    >
-                      {chrome.i18n.getMessage("options_option_autoLock_remove")}
-                    </Button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-
         <h5 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h5>
         <div className="row">
           <div className="col-9">{chrome.i18n.getMessage("options_importExport_description")}</div>
@@ -567,143 +418,6 @@ export default function OptionsTab() {
   );
 }
 
-function InactiveTimeOption({
-  onSaveSetting,
-}: {
-  onSaveSetting: <K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) => void;
-}) {
-  const minutesInactive = useSetting("minutesInactive");
-  const secondsInactive = useSetting("secondsInactive");
-  const [zeroDurationError, setZeroDurationError] = useState(false);
-
-  const daysInactive = Math.floor(minutesInactive / (24 * 60));
-  const hoursInactive = Math.floor((minutesInactive % (24 * 60)) / 60);
-  const minutesInactiveUI = minutesInactive % 60;
-
-  function handleMinutesInactiveChange(days: number, hours: number, minutes: number): boolean {
-    const total = days * 24 * 60 + hours * 60 + minutes;
-    if (total === 0 && secondsInactive === 0) {
-      setZeroDurationError(true);
-      return false;
-    }
-    setZeroDurationError(false);
-    onSaveSetting("minutesInactive", total);
-    return true;
-  }
-
-  function handleSecondsInactiveChange(seconds: number): boolean {
-    if (seconds === 0 && minutesInactive === 0) {
-      setZeroDurationError(true);
-      return false;
-    }
-    setZeroDurationError(false);
-    onSaveSetting("secondsInactive", seconds);
-    return true;
-  }
-
-  const daysDraft = useDraftInput(daysInactive, (days) =>
-    handleMinutesInactiveChange(days, hoursInactive, minutesInactiveUI),
-  );
-
-  const hoursDraft = useDraftInput(hoursInactive, (hours) =>
-    handleMinutesInactiveChange(daysInactive, hours, minutesInactiveUI),
-  );
-
-  const minutesDraft = useDraftInput(minutesInactiveUI, (minutes) =>
-    handleMinutesInactiveChange(daysInactive, hoursInactive, minutes),
-  );
-
-  const secondsDraft = useDraftInput(secondsInactive, (seconds) =>
-    handleSecondsInactiveChange(Math.min(59, seconds)),
-  );
-
-  function formatInactiveDuration(
-    days: number,
-    hours: number,
-    minutes: number,
-    seconds: number,
-  ): string {
-    const parts: string[] = [];
-    if (days > 0)
-      parts.push(
-        chrome.i18n.getMessage(
-          days === 1
-            ? "options_option_timeInactive_duration_day"
-            : "options_option_timeInactive_duration_days",
-          [String(days)],
-        ),
-      );
-    if (hours > 0)
-      parts.push(
-        chrome.i18n.getMessage(
-          hours === 1
-            ? "options_option_timeInactive_duration_hour"
-            : "options_option_timeInactive_duration_hours",
-          [String(hours)],
-        ),
-      );
-    if (minutes > 0)
-      parts.push(
-        chrome.i18n.getMessage(
-          minutes === 1
-            ? "options_option_timeInactive_duration_minute"
-            : "options_option_timeInactive_duration_minutes",
-          [String(minutes)],
-        ),
-      );
-    if (seconds > 0)
-      parts.push(
-        chrome.i18n.getMessage(
-          seconds === 1
-            ? "options_option_timeInactive_duration_second"
-            : "options_option_timeInactive_duration_seconds",
-          [String(seconds)],
-        ),
-      );
-    return parts.length > 0
-      ? parts.join(", ")
-      : chrome.i18n.getMessage("options_option_timeInactive_duration_seconds", ["0"]);
-  }
-
-  return (
-    <>
-      <label className="form-label mt-3">
-        <strong>{chrome.i18n.getMessage("options_option_timeInactive_label")}</strong>
-      </label>
-      <div className="row">
-        <div className="col-8">
-          <div className="input-group">
-            <input className="form-control" min="0" type="number" {...daysDraft} />
-            <abbr className="input-group-text">
-              {chrome.i18n.getMessage("options_option_timeInactive_abbr_days")}
-            </abbr>
-            <input className="form-control" min="0" type="number" {...hoursDraft} />
-            <abbr className="input-group-text">
-              {chrome.i18n.getMessage("options_option_timeInactive_abbr_hours")}
-            </abbr>
-            <input className="form-control" min="0" type="number" {...minutesDraft} />
-            <abbr className="input-group-text">
-              {chrome.i18n.getMessage("options_option_timeInactive_abbr_minutes")}
-            </abbr>
-            <input className="form-control" min="0" type="number" {...secondsDraft} />
-            <abbr className="input-group-text">
-              {chrome.i18n.getMessage("options_option_timeInactive_abbr_seconds")}
-            </abbr>
-          </div>
-        </div>
-      </div>
-      {zeroDurationError ? (
-        <div className="form-text text-danger">
-          {chrome.i18n.getMessage("options_option_timeInactive_error_zero")}
-        </div>
-      ) : null}
-      <div className="form-text">
-        {formatInactiveDuration(daysInactive, hoursInactive, minutesInactiveUI, secondsInactive)}
-      </div>
-    </>
-  );
-}
-
 function PauseWhenIdleOption({
   onSaveSetting,
 }: {
@@ -740,8 +454,4 @@ function PauseWhenIdleOption({
       </label>
     </div>
   );
-}
-
-function isValidPattern(pattern: string) {
-  return pattern != null && pattern.length > 0 && /\S/.test(pattern);
 }

@@ -141,7 +141,7 @@
   },
   "extension_wrangleNow_title": {
     "description": "Tooltip for the 'Wrangle Now' button when there are tabs it would close",
-    "message": "Close the $count$ oldest unlocked tabs. They go to the Tab Corral.",
+    "message": "Close the $count$ oldest stale tabs. They go to the Tab Corral.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -226,10 +226,6 @@
   "options_unsavedChanges": {
     "message": "Unsaved changes"
   },
-  "options_autoLock_description": {
-    "description": "Description of the auto-lock feature shown below the auto-lock section header",
-    "message": "Tabs with URLs matching any auto-locked pattern will never be auto-closed by the extension."
-  },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
     "message": "Export all information about wrangled tabs. This is a convenient way to restore an old state after reinstalling the extension."
@@ -258,29 +254,9 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Options"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "Add pattern"
-  },
-  "options_option_autoLock_empty": {
-    "description": "Message shown when there are no whitelisted URLs",
-    "message": "No auto-locking URLs yet. Use the form above to add some to the whitelist."
-  },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "Example: \"cnn\" would match every page on \"https://www.cnn.com\" and any URL with \"cnn\" anywhere in it."
-  },
-  "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Auto-lock tabs with URLs containing:"
-  },
-  "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
-    "message": "Remove"
-  },
-  "options_option_autoLock_urlHeader": {
-    "description": "Table column header for list of whitelisted URL strings",
-    "message": "URL String"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -294,17 +270,9 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Reset a tab's timer only after it is active for 1 second"
   },
-  "options_option_filterAudio_label": {
-    "description": "Label for checkbox to filter tabs that are playing audio",
-    "message": "Don't auto-close tabs that are playing audio"
-  },
-  "options_option_filterGroupedTabs_label": {
-    "description": "Label for checkbox to lock tabs that are in a tab group",
-    "message": "Don't auto-close tabs that are in tab groups"
-  },
   "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Auto-close inactive tabs if there are more than:"
+    "description": "Label preceding the minimum number of tabs. Stale tabs are tabs whose timer has run out, making them eligible to be auto-closed",
+    "message": "Auto-close stale tabs if there are more than:"
   },
   "options_option_minTabs_option_givenWindow": {
     "description": "Label for option to count tabs per window",
@@ -471,20 +439,12 @@
     }
   },
   "options_option_timeInactive_error_zero": {
-    "description": "Error shown when the inactive time duration is set to zero",
+    "description": "Error shown when the time before a tab becomes stale is set to zero",
     "message": "Duration must be greater than 0 seconds."
-  },
-  "options_option_timeInactive_label": {
-    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "Close inactive tabs after:"
   },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Saving..."
-  },
-  "options_section_autoLock": {
-    "description": "Header for the auto-lock section of the options tab",
-    "message": "Auto-Lock"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -562,11 +522,11 @@
   },
   "tabLock_minTabsBadge_allWindows_aboveMin": {
     "description": "Min-tabs badge tooltip when total tabs exceed the minimum.",
-    "message": "Minimum exceeded: tabs WILL auto-close"
+    "message": "Minimum exceeded: stale tabs WILL auto-close"
   },
   "tabLock_minTabsBadge_allWindows_belowMin": {
     "description": "Min-tabs badge tooltip when total tabs are at or below the minimum.",
-    "message": "Minimum NOT exceeded: tabs will NOT auto-close"
+    "message": "Minimum NOT exceeded: stale tabs will NOT auto-close"
   },
   "tabLock_minTabsBadge_givenWindow_locked": {
     "description": "Min-tabs badge tooltip when the window is locked.",
@@ -574,11 +534,11 @@
   },
   "tabLock_minTabsBadge_givenWindow_aboveMin": {
     "description": "Min-tabs badge tooltip when this window's tabs exceed the minimum.",
-    "message": "Minimum exceeded: tabs WILL auto-close in this window"
+    "message": "Minimum exceeded: stale tabs WILL auto-close in this window"
   },
   "tabLock_minTabsBadge_givenWindow_belowMin": {
     "description": "Min-tabs badge tooltip when this window's tabs are at or below the minimum.",
-    "message": "Minimum NOT exceeded: tabs will NOT auto-close in this window"
+    "message": "Minimum NOT exceeded: stale tabs will NOT auto-close in this window"
   },
   "tabLock_timerFrozen_tooltip": {
     "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
@@ -597,8 +557,8 @@
     "message": "Unnamed group"
   },
   "tabLock_overdueTooltip": {
-    "description": "Tooltip on the hourglass shown when a tab's countdown has expired.",
-    "message": "Waiting to be auto-closed"
+    "description": "Tooltip on the hourglass shown when a tab's countdown has run out and the tab is stale (eligible to be auto-closed)",
+    "message": "Stale: waiting to be auto-closed"
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
@@ -638,19 +598,19 @@
   },
   "tabLock_sort_timeUntilClose": {
     "description": "Description for sorting tabs by how much time until TW closes them",
-    "message": "Time until close"
+    "message": "Time until stale"
   },
   "tabLock_sort_timeUntilClose_short": {
     "description": "Short version of tabLock_sort_timeUntilClose",
-    "message": "Time until close"
+    "message": "Time until stale"
   },
   "tabLock_sort_timeUntilClose_desc": {
     "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
-    "message": "Time until close (descending)"
+    "message": "Time until stale (descending)"
   },
   "tabLock_sort_timeUntilClose_desc_short": {
     "description": "Short version of tabLock_sort_timeUntilClose_desc",
-    "message": "Time until close (desc.)"
+    "message": "Time until stale (desc.)"
   },
   "tabLock_lockTab": {
     "description": "Button label for locking a tab",
@@ -698,11 +658,11 @@
   },
   "settings_setminutesInactive_error": {
     "description": "Error shown when invalid minutes inactive setting is supplied.",
-    "message": "Minutes Inactive must be greater than or equal to 0"
+    "message": "Minutes until stale must be greater than or equal to 0"
   },
   "settings_setsecondsInactive_error": {
     "description": "Error shown when invalid seconds inactive setting is supplied.",
-    "message": "Seconds Inactive must be greater than or equal to 0 and less than 60"
+    "message": "Seconds until stale must be greater than or equal to 0 and less than 60"
   },
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
@@ -758,7 +718,7 @@
   },
   "extDescription": {
     "description": "Brief description of the extension",
-    "message": "Automatically closes inactive tabs and makes it easy to get them back"
+    "message": "Automatically closes tabs you haven't used in a while and makes it easy to get them back"
   },
   "corral_remove": {
     "description": "Label for button that removes selected tabs",
@@ -829,5 +789,89 @@
         "example": "3"
       }
     }
+  },
+  "options_section_tabRules": {
+    "description": "Header for the tab rules section of the options tab",
+    "message": "Tab Rules"
+  },
+  "options_tabRules_action_closeAfter": {
+    "description": "Tab rule action for tabs matching no rule, followed by inputs for how long a tab must be inactive (not the active tab) before it becomes stale (eligible to be auto-closed)",
+    "message": "Mark tab stale after being inactive for"
+  },
+  "options_tabRules_action_lock": {
+    "description": "Tab rule action that locks matching tabs so they are never auto-closed",
+    "message": "Lock tab"
+  },
+  "options_tabRules_addRule": {
+    "description": "Button label for adding a new tab rule",
+    "message": "Add rule"
+  },
+  "options_tabRules_cancel": {
+    "description": "Button label for discarding a new tab rule before it is saved",
+    "message": "Cancel"
+  },
+  "options_tabRules_condition_audible": {
+    "description": "Tab rule condition matching tabs that are currently playing audio",
+    "message": "Tab is playing audio"
+  },
+  "options_tabRules_condition_grouped": {
+    "description": "Tab rule condition matching tabs that are in a tab group",
+    "message": "Tab is in a tab group"
+  },
+  "options_tabRules_condition_urlContains": {
+    "description": "Tab rule condition matching tabs whose URL contains the given text",
+    "message": "URL contains"
+  },
+  "options_tabRules_description": {
+    "description": "Description of the tab rules section shown below its header",
+    "message": "Rules are checked from top to bottom. Tabs are handled by the first rule they match."
+  },
+  "options_tabRules_duplicate": {
+    "description": "Error shown when a new tab rule's URL text matches an existing rule",
+    "message": "A rule for this URL text already exists."
+  },
+  "options_tabRules_edit": {
+    "description": "Accessible label and tooltip for the button that edits a tab rule",
+    "message": "Edit rule"
+  },
+  "options_tabRules_else": {
+    "description": "Label in front of the action for tabs that match no rule, as in \"Else: Close tab after being inactive for 20m\"",
+    "message": "Else"
+  },
+  "options_tabRules_elseIf": {
+    "description": "Label in front of the condition of every tab rule after the first, as in \"Else if URL contains example\"",
+    "message": "Else if"
+  },
+  "options_tabRules_empty": {
+    "description": "Message shown when there are no tab rules yet",
+    "message": "No rules yet. Use \"Add rule\" to create one."
+  },
+  "options_tabRules_enabled": {
+    "description": "Label next to the switch that turns a built-in tab rule on or off",
+    "message": "Enable"
+  },
+  "options_tabRules_if": {
+    "description": "Label in front of the first tab rule's condition, as in \"If URL contains example\"",
+    "message": "If"
+  },
+  "options_tabRules_moveDown": {
+    "description": "Accessible label for the button that moves a tab rule down one position",
+    "message": "Move rule down"
+  },
+  "options_tabRules_moveUp": {
+    "description": "Accessible label for the button that moves a tab rule up one position",
+    "message": "Move rule up"
+  },
+  "options_tabRules_remove": {
+    "description": "Accessible label for the button that removes a tab rule",
+    "message": "Remove rule"
+  },
+  "options_tabRules_then": {
+    "description": "Label in front of a tab rule's action, as in \"Then lock tab\"",
+    "message": "Then"
+  },
+  "options_tabRules_whitespace": {
+    "description": "Error shown when a tab rule's URL text contains spaces, which never appear in tab URLs",
+    "message": "URL text can't contain spaces."
   }
 }

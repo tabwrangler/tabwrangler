@@ -344,68 +344,62 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                     >
                       <i className="fas fa-grip-vertical" />
                     </span>
-                    <div className="d-flex flex-column gap-1 flex-grow-1">
-                      <RuleClause label={conditionLabel(index + firstRuleIndex)}>
-                        <span>
-                          {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}{" "}
-                          <code>{pattern}</code>
-                        </span>
-                      </RuleClause>
-                      <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
-                        <span>
-                          <i className="fas fa-lock me-1" />
-                          {chrome.i18n.getMessage("options_tabRules_action_lock")}
-                        </span>
-                      </RuleClause>
+                    <RuleLine ifLabel={conditionLabel(index + firstRuleIndex)}>
+                      <span className="text-truncate" title={pattern}>
+                        {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}{" "}
+                        <code>{pattern}</code>
+                      </span>
+                    </RuleLine>
+                    <div className="tab-rule-controls">
+                      <ButtonGroup size="sm">
+                        <Button
+                          aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                          disabled={index === 0}
+                          onClick={() => {
+                            swapRule(index, index - 1);
+                          }}
+                          title={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                          variant="outline-secondary"
+                        >
+                          <i className="fas fa-chevron-up" />
+                        </Button>
+                        <Button
+                          aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                          disabled={index === rules.length - 1}
+                          onClick={() => {
+                            swapRule(index, index + 1);
+                          }}
+                          title={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                          variant="outline-secondary"
+                        >
+                          <i className="fas fa-chevron-down" />
+                        </Button>
+                      </ButtonGroup>
+                      <ButtonGroup>
+                        <Button
+                          aria-label={chrome.i18n.getMessage("options_tabRules_edit")}
+                          onClick={() => {
+                            setEditing({ pattern, savingFrom: null, value: pattern });
+                          }}
+                          size="sm"
+                          title={chrome.i18n.getMessage("options_tabRules_edit")}
+                          variant="outline-secondary"
+                        >
+                          <i className="fas fa-pen" />
+                        </Button>
+                        <Button
+                          aria-label={chrome.i18n.getMessage("options_tabRules_remove")}
+                          onClick={() => {
+                            removeRule(pattern);
+                          }}
+                          size="sm"
+                          title={chrome.i18n.getMessage("options_tabRules_remove")}
+                          variant="outline-secondary"
+                        >
+                          <i className="fas fa-trash" />
+                        </Button>
+                      </ButtonGroup>
                     </div>
-                    <ButtonGroup size="sm">
-                      <Button
-                        aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                        disabled={index === 0}
-                        onClick={() => {
-                          swapRule(index, index - 1);
-                        }}
-                        title={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                        variant="outline-secondary"
-                      >
-                        <i className="fas fa-chevron-up" />
-                      </Button>
-                      <Button
-                        aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                        disabled={index === rules.length - 1}
-                        onClick={() => {
-                          swapRule(index, index + 1);
-                        }}
-                        title={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                        variant="outline-secondary"
-                      >
-                        <i className="fas fa-chevron-down" />
-                      </Button>
-                    </ButtonGroup>
-                    <ButtonGroup>
-                      <Button
-                        aria-label={chrome.i18n.getMessage("options_tabRules_edit")}
-                        onClick={() => {
-                          setEditing({ pattern, savingFrom: null, value: pattern });
-                        }}
-                        size="sm"
-                        title={chrome.i18n.getMessage("options_tabRules_edit")}
-                        variant="outline-secondary"
-                      >
-                        <i className="fas fa-pen" />
-                      </Button>
-                      <Button
-                        aria-label={chrome.i18n.getMessage("options_tabRules_remove")}
-                        onClick={() => {
-                          removeRule(pattern);
-                        }}
-                        size="sm"
-                        title={chrome.i18n.getMessage("options_tabRules_remove")}
-                        variant="outline-secondary"
-                      >
-                        <i className="fas fa-trash" />
-                      </Button>
-                    </ButtonGroup>
                   </>
                 )}
               </li>
@@ -430,7 +424,9 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
               <i className="fas fa-grip-vertical" />
             </span>
             <div className="d-flex flex-column gap-1 flex-grow-1">
-              <RuleClause label={chrome.i18n.getMessage("options_tabRules_else")} />
+              <RuleClause label={chrome.i18n.getMessage("options_tabRules_else")}>
+                <span>{chrome.i18n.getMessage("options_tabRules_action_closeAfter")}:</span>
+              </RuleClause>
               <InactiveTimeOption onSaveSetting={onSaveSetting} />
             </div>
           </li>
@@ -461,40 +457,30 @@ function FixedRule({
       <span className="text-body-secondary opacity-25">
         <i className="fas fa-grip-vertical" />
       </span>
-      <div
-        className={cx("flex-grow-1 d-flex flex-column gap-1 ", {
-          "opacity-50": !enabled || disabled,
-        })}
-      >
-        <RuleClause label={ifLabel}>
-          <span id={`${settingKey}-condition`}>
-            {icon != null && <i className={`fas ${icon} me-1`} />}
-            {label}
-          </span>
-        </RuleClause>
-        <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
-          <span>
-            <i className="fas fa-lock me-1" />
-            {chrome.i18n.getMessage("options_tabRules_action_lock")}
-          </span>
-        </RuleClause>
-      </div>
-      <div className="form-check form-switch form-check-reverse mb-0">
-        <input
-          aria-describedby={`${settingKey}-condition`}
-          checked={enabled}
-          className="form-check-input"
-          disabled={disabled}
-          id={settingKey}
-          onChange={(event) => {
-            onSaveSetting(settingKey, event.target.checked);
-          }}
-          role="switch"
-          type="checkbox"
-        />
-        <label className="form-check-label fs-6" htmlFor={settingKey}>
-          {chrome.i18n.getMessage("options_tabRules_enabled")}
-        </label>
+      <RuleLine className={cx({ "opacity-50": !enabled || disabled })} ifLabel={ifLabel}>
+        <span className="text-truncate" id={`${settingKey}-condition`}>
+          {icon != null && <i className={`fas ${icon} me-1`} />}
+          {label}
+        </span>
+      </RuleLine>
+      <div className="tab-rule-controls">
+        <div className="form-check form-switch form-check-reverse mb-0">
+          <input
+            aria-describedby={`${settingKey}-condition`}
+            checked={enabled}
+            className="form-check-input"
+            disabled={disabled}
+            id={settingKey}
+            onChange={(event) => {
+              onSaveSetting(settingKey, event.target.checked);
+            }}
+            role="switch"
+            type="checkbox"
+          />
+          <label className="form-check-label fs-6" htmlFor={settingKey}>
+            {chrome.i18n.getMessage("options_tabRules_enabled")}
+          </label>
+        </div>
       </div>
     </li>
   );
@@ -542,8 +528,8 @@ function RuleForm({
         }}
         onSubmit={onSubmit}
       >
-        <div className="d-flex flex-column gap-1 flex-grow-1">
-          <RuleClause label={conditionLabel}>
+        <div className="d-flex flex-column gap-1 flex-grow-1 overflow-hidden">
+          <RuleLine ifLabel={conditionLabel} truncate={false}>
             <label className="text-nowrap" htmlFor={id}>
               {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
             </label>
@@ -558,33 +544,72 @@ function RuleForm({
               type="text"
               value={value}
             />
-          </RuleClause>
+          </RuleLine>
           {isDuplicate && (
             <div className="form-text text-danger mt-0" style={{ marginLeft: "4.5rem" }}>
               {chrome.i18n.getMessage("options_tabRules_duplicate")}
             </div>
           )}
-          <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
-            <span>
-              <i className="fas fa-lock me-1" />
-              {chrome.i18n.getMessage("options_tabRules_action_lock")}
-            </span>
-          </RuleClause>
         </div>
-        <Button onClick={onCancel} size="sm" variant="outline-secondary">
-          {chrome.i18n.getMessage("options_tabRules_cancel")}
-        </Button>
-        <Button disabled={!canSave} size="sm" type="submit" variant="primary">
-          {chrome.i18n.getMessage("options_save")}
-        </Button>
+        <div className="tab-rule-controls">
+          <Button onClick={onCancel} size="sm" variant="outline-secondary">
+            {chrome.i18n.getMessage("options_tabRules_cancel")}
+          </Button>
+          <Button disabled={!canSave} size="sm" type="submit" variant="primary">
+            {chrome.i18n.getMessage("options_save")}
+          </Button>
+        </div>
       </form>
     </>
   );
 }
 
-function RuleClause({ children, label }: { children?: React.ReactNode; label: string }) {
+// One rule on a single line: the "If" condition takes the remaining width and "Then" sits in a
+// minimum-width column, so actions line up across rows in English. Longer translations widen the
+// column instead of overlapping, and "Then" wraps under "If" when the line can't fit both.
+function RuleLine({
+  children,
+  className,
+  ifLabel,
+  truncate = true,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  ifLabel: string;
+  // Text conditions truncate; form controls keep their minimum width so a tight line wraps instead.
+  truncate?: boolean;
+}) {
   return (
-    <div className="tab-rule-clause d-flex align-items-center gap-2">
+    <div
+      className={cx(
+        "d-flex flex-wrap align-items-center column-gap-3 row-gap-1 flex-grow-1 overflow-hidden",
+        className,
+      )}
+    >
+      <RuleClause className={cx("tab-rule-if", { "overflow-hidden": truncate })} label={ifLabel}>
+        {children}
+      </RuleClause>
+      <RuleClause className="tab-rule-then" label={chrome.i18n.getMessage("options_tabRules_then")}>
+        <span className="text-nowrap">
+          <i className="fas fa-lock me-1" />
+          {chrome.i18n.getMessage("options_tabRules_action_lock")}
+        </span>
+      </RuleClause>
+    </div>
+  );
+}
+
+function RuleClause({
+  children,
+  className,
+  label,
+}: {
+  children?: React.ReactNode;
+  className?: string;
+  label: string;
+}) {
+  return (
+    <div className={cx("tab-rule-clause d-flex align-items-center gap-2", className)}>
       <span
         className="badge text-bg-secondary text-uppercase flex-shrink-0"
         style={{ minWidth: "4rem" }}
@@ -692,7 +717,6 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
 
   return (
     <div>
-      <div className="mb-1">{chrome.i18n.getMessage("options_tabRules_action_closeAfter")}:</div>
       <div className="input-group w-75">
         <input className="form-control" min="0" type="number" {...daysDraft} />
         <abbr className="input-group-text">

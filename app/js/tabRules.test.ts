@@ -2,7 +2,7 @@ import {
   type LegacyRuleSettings,
   type TabRulesConfig,
   buildTabRulesFromLegacySettings,
-  createUrlContainsRule,
+  createUrlIncludesRule,
   findMatchingRule,
   getElseRule,
   getStaleAfterMs,
@@ -50,18 +50,18 @@ describe("buildTabRulesFromLegacySettings", () => {
       {
         enabled: true,
         then: { action: "lock" },
-        when: [{ type: "url", op: "contains", value: "about:" }],
+        when: [{ type: "url", op: "includes", value: "about:" }],
       },
       {
         enabled: true,
         then: { action: "lock" },
-        when: [{ type: "url", op: "contains", value: "chrome://" }],
+        when: [{ type: "url", op: "includes", value: "chrome://" }],
       },
       { enabled: true, then: { action: "lock" }, when: [{ type: "audible" }] },
       { enabled: true, then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
       { enabled: true, then: { action: "stale", afterSeconds: 3600 }, when: [] },
     ]);
-    expect(config.rules.every((rule) => rule.match === "all")).toBe(true);
+    expect(config.rules.every((rule) => rule.match === "every")).toBe(true);
   });
 
   test("omits audio and tab group rules whose toggles were off, but always locks pinned tabs", () => {
@@ -175,8 +175,8 @@ describe("getTabOutcome", () => {
         {
           id: "a",
           enabled: true,
-          match: "all",
-          when: [{ type: "url", op: "contains", value: "example" }],
+          match: "every",
+          when: [{ type: "url", op: "includes", value: "example" }],
           then: { action: "stale", afterSeconds: 10 },
         },
         ...config.rules,
@@ -195,7 +195,7 @@ describe("getTabOutcome", () => {
         {
           id: "a",
           enabled: true,
-          match: "all",
+          match: "every",
           when: [{ type: "groupId", op: "none" }],
           then: { action: "lock" },
         },
@@ -213,14 +213,14 @@ describe("getStaleAfterMs", () => {
       {
         id: "a",
         enabled: true,
-        match: "all",
-        when: [{ type: "url", op: "contains", value: "news" }],
+        match: "every",
+        when: [{ type: "url", op: "includes", value: "news" }],
         then: { action: "stale", afterSeconds: 7200 },
       },
       {
         id: "b",
         enabled: true,
-        match: "all",
+        match: "every",
         when: [],
         then: { action: "stale", afterSeconds: 60 },
       },
@@ -259,43 +259,43 @@ describe("getStaleTimeoutsKey", () => {
 
   test("does not change when only lock rules change", () => {
     expect(getStaleTimeoutsKey(config)).toBe(
-      getStaleTimeoutsKey({ ...config, rules: [createUrlContainsRule("news"), ...config.rules] }),
+      getStaleTimeoutsKey({ ...config, rules: [createUrlIncludesRule("news"), ...config.rules] }),
     );
   });
 });
 
 describe("match", () => {
-  const rule = (match: "all" | "any"): TabRulesConfig => ({
+  const rule = (match: "every" | "some"): TabRulesConfig => ({
     version: 1,
     rules: [
       {
         id: "a",
         enabled: true,
         match,
-        when: [{ type: "url", op: "contains", value: "youtube.com" }, { type: "audible" }],
+        when: [{ type: "url", op: "includes", value: "youtube.com" }, { type: "audible" }],
         then: { action: "lock" },
       },
     ],
   });
   const youtube = "https://www.youtube.com/watch";
 
-  test("requires every condition with all", () => {
-    expect(getTabOutcome(createTab({ audible: true, url: youtube }), rule("all"))).toEqual({
+  test("requires every condition with every", () => {
+    expect(getTabOutcome(createTab({ audible: true, url: youtube }), rule("every"))).toEqual({
       action: "lock",
     });
-    expect(getTabOutcome(createTab({ url: youtube }), rule("all"))).toBeNull();
+    expect(getTabOutcome(createTab({ url: youtube }), rule("every"))).toBeNull();
   });
 
-  test("requires any one condition with any", () => {
-    expect(getTabOutcome(createTab({ url: youtube }), rule("any"))).toEqual({ action: "lock" });
-    expect(getTabOutcome(createTab({ audible: true }), rule("any"))).toEqual({ action: "lock" });
-    expect(getTabOutcome(createTab(), rule("any"))).toBeNull();
+  test("requires at least one condition with some", () => {
+    expect(getTabOutcome(createTab({ url: youtube }), rule("some"))).toEqual({ action: "lock" });
+    expect(getTabOutcome(createTab({ audible: true }), rule("some"))).toEqual({ action: "lock" });
+    expect(getTabOutcome(createTab(), rule("some"))).toBeNull();
   });
 
   test("matches every tab when a rule has no conditions, whatever its match", () => {
     const config: TabRulesConfig = {
       version: 1,
-      rules: [{ id: "a", enabled: true, match: "any", when: [], then: { action: "lock" } }],
+      rules: [{ id: "a", enabled: true, match: "some", when: [], then: { action: "lock" } }],
     };
     expect(getTabOutcome(createTab(), config)).toEqual({ action: "lock" });
   });

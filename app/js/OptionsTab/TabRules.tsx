@@ -27,7 +27,7 @@ interface ConditionDraft {
 
 interface Draft {
   conditions: ConditionDraft[];
-  match: "all" | "any";
+  match: "every" | "some";
 }
 
 interface DraftErrors {
@@ -477,7 +477,7 @@ const CONDITION_TYPE_MESSAGES: Record<ConditionType, string> = {
   audible: "options_tabRules_condition_audible",
   groupId: "options_tabRules_condition_grouped",
   pinned: "options_tabRules_condition_pinned",
-  url: "options_tabRules_condition_urlContains",
+  url: "options_tabRules_condition_urlIncludes",
 };
 
 function conditionTypeLabel(type: ConditionType) {
@@ -500,7 +500,7 @@ function RuleConditions({ rule }: { rule: TabRule }) {
 function RuleJoin({ match }: { match: TabRule["match"] }) {
   return (
     <span className="badge rounded-pill badge-outline text-secondary-emphasis tab-rule-join-badge">
-      {chrome.i18n.getMessage(match === "any" ? "options_tabRules_or" : "options_tabRules_and")}
+      {chrome.i18n.getMessage(match === "some" ? "options_tabRules_or" : "options_tabRules_and")}
     </span>
   );
 }
@@ -589,8 +589,8 @@ function RuleForm({
                     }}
                     value={draft.match}
                   >
-                    <option value="all">{chrome.i18n.getMessage("options_tabRules_and")}</option>
-                    <option value="any">{chrome.i18n.getMessage("options_tabRules_or")}</option>
+                    <option value="every">{chrome.i18n.getMessage("options_tabRules_and")}</option>
+                    <option value="some">{chrome.i18n.getMessage("options_tabRules_or")}</option>
                   </select>
                 )}
                 <select
@@ -908,7 +908,7 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
 }
 
 const EMPTY_CONDITION: ConditionDraft = { type: "url", value: "" };
-const EMPTY_DRAFT: Draft = { conditions: [EMPTY_CONDITION], match: "all" };
+const EMPTY_DRAFT: Draft = { conditions: [EMPTY_CONDITION], match: "every" };
 
 // Every rule except the final "Else" rule, which shows as its own fixed row.
 function getListedRules(tabRules: TabRulesConfig): TabRule[] {
@@ -916,7 +916,7 @@ function getListedRules(tabRules: TabRulesConfig): TabRule[] {
 }
 
 function conditionToDraft(condition: TabCondition): ConditionDraft | null {
-  if (condition.type === "url" && condition.op === "contains")
+  if (condition.type === "url" && condition.op === "includes")
     return { type: "url", value: condition.value };
   if (condition.type === "audible") return { type: "audible", value: "" };
   if (condition.type === "groupId" && condition.op === "some")
@@ -929,7 +929,7 @@ function draftToCondition(draft: ConditionDraft): TabCondition {
   if (draft.type === "audible") return { type: "audible" };
   if (draft.type === "groupId") return { type: "groupId", op: "some" };
   if (draft.type === "pinned") return { type: "pinned" };
-  return { type: "url", op: "contains", value: draft.value };
+  return { type: "url", op: "includes", value: draft.value };
 }
 
 // The parts of a rule the form edits.
@@ -947,7 +947,7 @@ function ruleToDraft(rule: TabRule): Draft | null {
 // Identifies what a rule matches regardless of condition order, to catch duplicate rules.
 function matchKey({ match, when }: Pick<TabRule, "match" | "when">): string {
   const conditions = when.map((condition) => JSON.stringify(condition)).sort();
-  return JSON.stringify([conditions.length > 1 ? match : "all", conditions]);
+  return JSON.stringify([conditions.length > 1 ? match : "every", conditions]);
 }
 
 // Tab URLs never contain whitespace (spaces are encoded as %20), so a pattern with any can't match.

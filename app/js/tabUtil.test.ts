@@ -289,7 +289,7 @@ describe("getTabLockStatus", () => {
     ).toEqual({ locked: false });
   });
 
-  test("locks a tab whose URL contains a rule's value", () => {
+  test("locks a tab whose URL includes a rule's value", () => {
     expect(
       getTabLockStatus(createTab({ groupId: -1, url: "https://www.github.com" }), {
         ...defaultOptions,
@@ -299,7 +299,7 @@ describe("getTabLockStatus", () => {
       locked: true,
       reason: "rule",
       rule: expect.objectContaining({
-        when: [{ type: "url", op: "contains", value: "github.com" }],
+        when: [{ type: "url", op: "includes", value: "github.com" }],
       }),
     });
   });

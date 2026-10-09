@@ -55,7 +55,7 @@ describe("tabRules migration", () => {
     const tabRules = Settings.get("tabRules");
     expect(tabRules.rules.map(({ then, when }) => ({ then, when }))).toEqual([
       { then: { action: "lock" }, when: [{ type: "pinned" }] },
-      { then: { action: "lock" }, when: [{ type: "url", op: "contains", value: "github.com" }] },
+      { then: { action: "lock" }, when: [{ type: "url", op: "includes", value: "github.com" }] },
       { then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
       { then: { action: "stale", afterSeconds: 330 }, when: [] },
     ]);
@@ -67,8 +67,8 @@ describe("tabRules migration", () => {
     const { rules } = Settings.get("tabRules");
     expect(rules.map(({ when }) => when)).toEqual([
       [{ type: "pinned" }],
-      [{ type: "url", op: "contains", value: "about:" }],
-      [{ type: "url", op: "contains", value: "chrome://" }],
+      [{ type: "url", op: "includes", value: "about:" }],
+      [{ type: "url", op: "includes", value: "chrome://" }],
       [{ type: "audible" }],
       [],
     ]);
@@ -82,7 +82,7 @@ describe("tabRules migration", () => {
         {
           id: "a",
           enabled: true,
-          match: "all",
+          match: "every",
           when: [],
           then: { action: "stale", afterSeconds: 10 },
         },

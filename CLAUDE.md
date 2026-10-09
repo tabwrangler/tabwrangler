@@ -65,8 +65,8 @@ configured `maxTabs` limit.
 ### Tab Rules (`app/js/tabRules.ts`)
 
 The `tabRules` sync setting is an ordered list of rules, and the first enabled matching rule decides
-a tab's outcome: `lock` or `stale` after `afterSeconds`. A rule matches when `all` or `any` of its
-conditions match (`url` contains, `audible`, `groupId`, `pinned`). The last rule has no conditions
+a tab's outcome: `lock` or `stale` after `afterSeconds`. A rule matches when `every` or `some` of its
+conditions match (`url` includes, `audible`, `groupId`, `pinned`). The last rule has no conditions
 and is the "Else" row. `migrateSync()` in `storage.ts` builds it once from the legacy settings
 (`whitelist`, `filterAudio`, `filterGroupedTabs`, `minutesInactive`, `secondsInactive`), which are
 left in place but no longer read.

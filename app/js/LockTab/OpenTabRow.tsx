@@ -289,7 +289,7 @@ function TabLockContent({
 function RuleLockedReason({ rule }: { rule: TabRule }) {
   if (rule.when.length > 1) {
     const join = chrome.i18n
-      .getMessage(rule.match === "any" ? "options_tabRules_or" : "options_tabRules_and")
+      .getMessage(rule.match === "some" ? "options_tabRules_or" : "options_tabRules_and")
       .toLocaleUpperCase();
     return (
       <abbr title={rule.when.map(describeCondition).join(` ${join} `)}>
@@ -329,7 +329,7 @@ function RuleLockedReason({ rule }: { rule: TabRule }) {
 function describeCondition(condition: TabCondition): string {
   switch (condition.type) {
     case "url":
-      return `${chrome.i18n.getMessage("options_tabRules_condition_urlContains")} ${condition.value}`;
+      return `${chrome.i18n.getMessage("options_tabRules_condition_urlIncludes")} ${condition.value}`;
     case "audible":
       return chrome.i18n.getMessage("options_tabRules_condition_audible");
     case "groupId":

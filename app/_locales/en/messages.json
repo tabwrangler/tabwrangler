@@ -811,7 +811,7 @@
     "message": "Cancel"
   },
   "options_tabRules_condition": {
-    "description": "Accessible label for the menu choosing what a tab rule checks, like whether the URL contains some text",
+    "description": "Accessible label for the menu choosing what a tab rule checks, like whether the URL includes some text",
     "message": "Condition"
   },
   "options_tabRules_condition_audible": {
@@ -826,9 +826,9 @@
     "description": "Tab rule condition matching tabs that are pinned",
     "message": "Tab is pinned"
   },
-  "options_tabRules_condition_urlContains": {
-    "description": "Tab rule condition matching tabs whose URL contains the given text",
-    "message": "URL contains"
+  "options_tabRules_condition_urlIncludes": {
+    "description": "Tab rule condition matching tabs whose URL includes the given text",
+    "message": "URL includes"
   },
   "options_tabRules_description": {
     "description": "Description of the tab rules section shown below its header",
@@ -851,7 +851,7 @@
     "message": "Else"
   },
   "options_tabRules_elseIf": {
-    "description": "Label in front of the condition of every tab rule after the first, as in \"Else if URL contains example\"",
+    "description": "Label in front of the condition of every tab rule after the first, as in \"Else if URL includes example\"",
     "message": "Else if"
   },
   "options_tabRules_empty": {
@@ -863,7 +863,7 @@
     "message": "Enable"
   },
   "options_tabRules_if": {
-    "description": "Label in front of the first tab rule's condition, as in \"If URL contains example\"",
+    "description": "Label in front of the first tab rule's condition, as in \"If URL includes example\"",
     "message": "If"
   },
   "options_tabRules_match": {

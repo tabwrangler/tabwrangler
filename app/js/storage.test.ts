@@ -91,7 +91,7 @@ describe("migrateSync", () => {
       tabRules.rules.map(({ then, when }: { then: unknown; when: unknown[] }) => ({ then, when })),
     ).toEqual([
       { then: { action: "lock" }, when: [{ type: "pinned" }] },
-      { then: { action: "lock" }, when: [{ type: "url", op: "contains", value: "github.com" }] },
+      { then: { action: "lock" }, when: [{ type: "url", op: "includes", value: "github.com" }] },
       { then: { action: "lock" }, when: [{ type: "audible" }] },
       { then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
       { then: { action: "stale", afterSeconds: 330 }, when: [] },
@@ -114,7 +114,7 @@ describe("migrateSync", () => {
         {
           id: "a",
           enabled: true,
-          match: "all",
+          match: "every",
           when: [],
           then: { action: "stale", afterSeconds: 10 },
         },

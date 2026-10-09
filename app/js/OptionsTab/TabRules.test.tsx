@@ -94,9 +94,9 @@ describe("TabRules", () => {
     expect(screen.getAllByText("options_tabRules_if")).toHaveLength(1);
     expect(screen.getAllByText("options_tabRules_elseIf")).toHaveLength(4);
     expect(screen.getAllByText("options_tabRules_else")).toHaveLength(1);
-    expect(screen.getAllByText("options_tabRules_if")[0].nextSibling?.textContent).toContain(
-      "about:",
-    );
+    expect(
+      screen.getAllByText("options_tabRules_if")[0].closest(".tab-rule-clause")?.textContent,
+    ).toContain("about:");
 
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
     expect(screen.getAllByText("options_tabRules_if")).toHaveLength(1);
@@ -135,6 +135,28 @@ describe("TabRules", () => {
     fireEvent.change(screen.getByDisplayValue("chrome://"), { target: { value: "changed" } });
     fireEvent.click(screen.getByText("options_tabRules_cancel"));
     expect(screen.queryByDisplayValue("changed")).toBeNull();
+    expect(onSaveSetting).not.toHaveBeenCalled();
+  });
+
+  test("rejects new rules containing spaces", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    const input = screen.getByLabelText("options_tabRules_condition_urlContains");
+    fireEvent.change(input, { target: { value: "news site" } });
+    expect(screen.getByText("options_tabRules_whitespace")).toBeTruthy();
+    fireEvent.submit(input);
+    expect(onSaveSetting).not.toHaveBeenCalled();
+  });
+
+  test("rejects edits containing spaces", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getAllByLabelText("options_tabRules_edit")[1]);
+    const input = screen.getByDisplayValue("chrome://");
+    fireEvent.change(input, { target: { value: " chrome://" } });
+    expect(screen.getByText("options_tabRules_whitespace")).toBeTruthy();
+    fireEvent.submit(input);
     expect(onSaveSetting).not.toHaveBeenCalled();
   });
 });

@@ -58,11 +58,24 @@ body {
  * `$input-height-sm` evaluated at the control's own font size; `.form-select-sm` shares the same
  * padding, font size, and border, so selects match too.
  */
+$tab-rule-line-height: add(
+  $input-line-height * $input-font-size-sm,
+  add($input-padding-y-sm * 2, $input-height-border, false)
+);
+
 .tab-rule-clause {
-  min-height: add(
-    $input-line-height * $input-font-size-sm,
-    add($input-padding-y-sm * 2, $input-height-border, false)
-  );
+  min-height: $tab-rule-line-height;
+}
+
+/**
+ * One rule line tall, with its content centered. Rows top-align their items so a validation
+ * message under an input grows the row downward without moving anything else; wrapping the other
+ * items in this keeps them centered on the first line.
+ */
+.tab-rule-line {
+  align-items: center;
+  display: flex;
+  min-height: $tab-rule-line-height;
 }
 
 /**
@@ -95,10 +108,12 @@ body {
 }
 
 .tab-rule-controls {
+  align-items: center;
   display: flex;
   flex-shrink: 0;
   gap: map-get($spacers, 2);
   justify-content: flex-end;
+  min-height: $tab-rule-line-height;
   min-width: 8rem;
 }
 

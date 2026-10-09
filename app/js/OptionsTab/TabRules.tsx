@@ -119,11 +119,11 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
   // The new rule form previews where the rule will land: at the top, ahead of the existing rules.
   const firstRuleIndex = isFormVisible ? 1 : 0;
 
-  const isDuplicatePattern = whitelist.includes(newPattern);
+  const newPatternError = patternError(newPattern, whitelist);
 
   function addRule(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
-    if (!isValidPattern(newPattern) || isDuplicatePattern || savingFrom === whitelist) return;
+    if (!isValidPattern(newPattern) || newPatternError != null || savingFrom === whitelist) return;
     savedRuleRef.current = { formHeight: formRef.current?.offsetHeight ?? 0, pattern: newPattern };
     setSavingFrom(whitelist);
     setIsAdding(false);
@@ -142,8 +142,10 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     );
   }
 
-  const isDuplicateEdit =
-    editing != null && editing.value !== editing.pattern && whitelist.includes(editing.value);
+  const editError =
+    editing != null && editing.value !== editing.pattern
+      ? patternError(editing.value, whitelist)
+      : null;
 
   function saveEdit(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
@@ -152,7 +154,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
       setEditing(null);
       return;
     }
-    if (!isValidPattern(editing.value) || isDuplicateEdit) return;
+    if (!isValidPattern(editing.value) || editError != null) return;
     setEditing({ ...editing, savingFrom: whitelist });
     onSaveSetting(
       "whitelist",
@@ -269,14 +271,14 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
         <ul className="list-group list-group-flush" onDragOver={handleDragOver} onDrop={handleDrop}>
           {isFormVisible && (
             <li
-              className="list-group-item d-flex align-items-center gap-2 bg-primary-subtle"
+              className="list-group-item d-flex align-items-start gap-2 bg-primary-subtle"
               ref={formRef}
             >
               <RuleForm
-                canSave={isAdding && isValidPattern(newPattern) && !isDuplicatePattern}
+                canSave={isAdding && isValidPattern(newPattern)}
                 conditionLabel={conditionLabel(0)}
+                error={isAdding ? newPatternError : null}
                 id="wl-add"
-                isDuplicate={isDuplicatePattern && isAdding}
                 onCancel={cancelAddRule}
                 onChange={setNewPattern}
                 onSubmit={addRule}
@@ -292,7 +294,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
           ) : (
             rules.map((pattern, index) => (
               <li
-                className={cx("list-group-item d-flex align-items-center gap-2", {
+                className={cx("list-group-item d-flex align-items-start gap-2", {
                   "bg-body-tertiary opacity-50": drag?.pattern === pattern,
                   "bg-primary-subtle": isEditingRule(pattern),
                 })}
@@ -307,11 +309,11 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                     canSave={
                       editing.savingFrom == null &&
                       isValidPattern(editing.value) &&
-                      !isDuplicateEdit
+                      editError == null
                     }
                     conditionLabel={conditionLabel(index + firstRuleIndex)}
+                    error={editing.savingFrom == null ? editError : null}
                     id="wl-edit"
-                    isDuplicate={isDuplicateEdit && editing.savingFrom == null}
                     onCancel={() => {
                       setEditing(null);
                     }}
@@ -325,7 +327,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                 ) : (
                   <>
                     <span
-                      className="text-body-secondary"
+                      className="tab-rule-line text-body-secondary"
                       draggable
                       onDragEnd={handleDragEnd}
                       onDragStart={(event) => {
@@ -453,8 +455,8 @@ function FixedRule({
 }) {
   const enabled = useSetting(settingKey);
   return (
-    <li className="list-group-item d-flex align-items-center gap-2 bg-body-tertiary">
-      <span className="text-body-secondary opacity-25">
+    <li className="list-group-item d-flex align-items-start gap-2 bg-body-tertiary">
+      <span className="tab-rule-line text-body-secondary opacity-25">
         <i className="fas fa-grip-vertical" />
       </span>
       <RuleLine className={cx({ "opacity-50": !enabled || disabled })} ifLabel={ifLabel}>
@@ -498,8 +500,8 @@ function conditionLabel(position: number) {
 function RuleForm({
   canSave,
   conditionLabel,
+  error,
   id,
-  isDuplicate,
   onCancel,
   onChange,
   onSubmit,
@@ -508,8 +510,8 @@ function RuleForm({
 }: {
   canSave: boolean;
   conditionLabel: string;
+  error: string | null;
   id: string;
-  isDuplicate: boolean;
   onCancel: () => void;
   onChange: (value: string) => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
@@ -518,24 +520,26 @@ function RuleForm({
 }) {
   return (
     <>
-      <span className="opacity-25 text-body-secondary">
+      <span className="tab-rule-line opacity-25 text-body-secondary">
         <i className="fas fa-grip-vertical" />
       </span>
       <form
-        className="flex-grow-1 d-flex align-items-center gap-2"
+        className="flex-grow-1 d-flex align-items-start gap-2"
         onKeyDown={(event) => {
           if (event.key === "Escape") onCancel();
         }}
         onSubmit={onSubmit}
       >
-        <div className="d-flex flex-column gap-1 flex-grow-1 tab-rule-shrink">
-          <RuleLine ifLabel={conditionLabel} truncate={false}>
-            <label className="text-nowrap" htmlFor={id}>
-              {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
-            </label>
+        <RuleLine editable ifLabel={conditionLabel}>
+          <label className="tab-rule-line text-nowrap" htmlFor={id}>
+            {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
+          </label>
+          <div className="flex-grow-1">
             <input
+              aria-describedby={error != null ? `${id}-error` : undefined}
+              aria-invalid={error != null}
               autoFocus
-              className={cx("form-control form-control-sm", { "is-invalid": isDuplicate })}
+              className={cx("form-control form-control-sm", { "is-invalid": error != null })}
               id={id}
               onChange={(event) => {
                 onChange(event.target.value);
@@ -544,13 +548,13 @@ function RuleForm({
               type="text"
               value={value}
             />
-          </RuleLine>
-          {isDuplicate && (
-            <div className="form-text text-danger mt-0" style={{ marginLeft: "4.5rem" }}>
-              {chrome.i18n.getMessage("options_tabRules_duplicate")}
-            </div>
-          )}
-        </div>
+            {error != null && (
+              <div className="form-text text-danger mt-1" id={`${id}-error`}>
+                {error}
+              </div>
+            )}
+          </div>
+        </RuleLine>
         <div className="tab-rule-controls">
           <Button onClick={onCancel} size="sm" variant="secondary">
             {chrome.i18n.getMessage("options_tabRules_cancel")}
@@ -570,23 +574,28 @@ function RuleForm({
 function RuleLine({
   children,
   className,
+  editable = false,
   ifLabel,
-  truncate = true,
 }: {
   children: React.ReactNode;
   className?: string;
+  // Forms keep their controls' minimum width, so a tight line wraps instead of truncating, and
+  // top-align their clauses so a validation message under an input doesn't shift the rest.
+  editable?: boolean;
   ifLabel: string;
-  // Text conditions truncate; form controls keep their minimum width so a tight line wraps instead.
-  truncate?: boolean;
 }) {
   return (
     <div
       className={cx(
-        "d-flex flex-wrap align-items-center column-gap-3 row-gap-1 flex-grow-1 tab-rule-shrink",
+        "d-flex flex-wrap align-items-start column-gap-3 row-gap-1 flex-grow-1 tab-rule-shrink",
         className,
       )}
     >
-      <RuleClause className={cx("tab-rule-if", { "tab-rule-shrink": truncate })} label={ifLabel}>
+      <RuleClause
+        alignStart={editable}
+        className={cx("tab-rule-if", { "tab-rule-shrink": !editable })}
+        label={ifLabel}
+      >
         {children}
       </RuleClause>
       <RuleClause className="tab-rule-then" label={chrome.i18n.getMessage("options_tabRules_then")}>
@@ -600,21 +609,28 @@ function RuleLine({
 }
 
 function RuleClause({
+  alignStart = false,
   children,
   className,
   label,
 }: {
+  alignStart?: boolean;
   children?: React.ReactNode;
   className?: string;
   label: string;
 }) {
   return (
-    <div className={cx("tab-rule-clause d-flex align-items-center gap-2", className)}>
-      <span
-        className="badge text-bg-secondary text-uppercase flex-shrink-0"
-        style={{ minWidth: "4rem" }}
-      >
-        {label}
+    <div
+      className={cx(
+        "tab-rule-clause d-flex gap-2",
+        alignStart ? "align-items-start" : "align-items-center",
+        className,
+      )}
+    >
+      <span className="tab-rule-line flex-shrink-0">
+        <span className="badge text-bg-secondary text-uppercase" style={{ minWidth: "4rem" }}>
+          {label}
+        </span>
       </span>
       {children}
     </div>
@@ -747,6 +763,13 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
   );
 }
 
+// Tab URLs never contain whitespace (spaces are encoded as %20), so a pattern with any can't match.
 function isValidPattern(pattern: string) {
-  return pattern != null && pattern.length > 0 && /\S/.test(pattern);
+  return pattern.length > 0 && !/\s/.test(pattern);
+}
+
+function patternError(pattern: string, whitelist: string[]): string | null {
+  if (/\s/.test(pattern)) return chrome.i18n.getMessage("options_tabRules_whitespace");
+  if (whitelist.includes(pattern)) return chrome.i18n.getMessage("options_tabRules_duplicate");
+  return null;
 }

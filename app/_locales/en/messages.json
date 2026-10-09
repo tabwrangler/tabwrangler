@@ -869,5 +869,9 @@
   "options_tabRules_then": {
     "description": "Label in front of a tab rule's action, as in \"Then lock tab\"",
     "message": "Then"
+  },
+  "options_tabRules_whitespace": {
+    "description": "Error shown when a tab rule's URL text contains spaces, which never appear in tab URLs",
+    "message": "URL text can't contain spaces."
   }
 }

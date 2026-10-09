@@ -351,4 +351,44 @@ describe("TabRules", () => {
       screen.getAllByText("options_tabRules_if")[0].closest(".tab-rule-clause")?.textContent,
     ).toContain("options_tabRules_condition_pinned");
   });
+
+  test("adds a rule that marks tabs stale after a set time", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+      target: { value: "news" },
+    });
+    fireEvent.change(screen.getByLabelText("options_tabRules_action"), {
+      target: { value: "stale" },
+    });
+    // The new rule starts at 1 hour; change it to 2 hours.
+    const hours = screen.getAllByDisplayValue("1")[0];
+    fireEvent.change(hours, { target: { value: "2" } });
+    fireEvent.blur(hours);
+    fireEvent.click(screen.getByText("options_save"));
+    expect(lastSavedTabRules(onSaveSetting).rules[0].then).toEqual({
+      action: "stale",
+      afterSeconds: 7200,
+    });
+  });
+
+  test("shows a stale rule's timeout in the list", () => {
+    const tabRules = mockSettings.tabRules as TabRulesConfig;
+    mockSettings.tabRules = {
+      ...tabRules,
+      rules: [
+        {
+          id: "a",
+          enabled: true,
+          match: "every",
+          when: [{ type: "url", op: "includes", value: "news" }],
+          then: { action: "stale", afterSeconds: 600 },
+        },
+        ...tabRules.rules,
+      ],
+    };
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(screen.getByText("options_tabRules_action_staleAfter")).toBeTruthy();
+  });
 });

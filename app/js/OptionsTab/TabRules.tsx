@@ -1,5 +1,6 @@
 import {
   DEFAULT_STALE_AFTER_SECONDS,
+  type RuleOutcome,
   type TabCondition,
   type TabRule,
   type TabRulesConfig,
@@ -28,6 +29,7 @@ interface ConditionDraft {
 interface Draft {
   conditions: ConditionDraft[];
   match: "every" | "some";
+  then: RuleOutcome;
 }
 
 interface DraftErrors {
@@ -159,7 +161,6 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
       enabled: true,
       id: generateRuleId(),
       ...draftToFields(newDraft),
-      then: { action: "lock" },
     };
     savedRuleRef.current = { formHeight: formRef.current?.offsetHeight ?? 0, id: rule.id };
     setSavingFrom(savedRules);
@@ -185,7 +186,8 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     const fields = draftToFields(editing.draft);
     if (
       rule == null ||
-      JSON.stringify({ match: rule.match, when: rule.when }) === JSON.stringify(fields)
+      JSON.stringify({ match: rule.match, then: rule.then, when: rule.when }) ===
+        JSON.stringify(fields)
     ) {
       setEditing(null);
       return;
@@ -194,7 +196,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     setEditing({ ...editing, savingFrom: savedRules });
     saveRules(
       getListedRules(settings.get("tabRules")).map((r) =>
-        r.id === editing.id ? { enabled: r.enabled, id: r.id, ...fields, then: r.then } : r,
+        r.id === editing.id ? { enabled: r.enabled, id: r.id, ...fields } : r,
       ),
     );
   }
@@ -369,6 +371,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                     <RuleLine
                       className={cx({ "opacity-50": !rule.enabled })}
                       ifLabel={conditionLabel(index + firstRuleIndex)}
+                      then={<RuleOutcomeText outcome={rule.then} />}
                     >
                       <RuleConditions rule={rule} />
                     </RuleLine>
@@ -488,7 +491,7 @@ function RuleConditions({ rule }: { rule: TabRule }) {
   return (
     <div className="tab-rule-shrink">
       {rule.when.map((condition, index) => (
-        <div className="tab-rule-line gap-2 tab-rule-shrink" key={index}>
+        <div className="tab-rule-line gap-2" key={index}>
           {index > 0 && <RuleJoin match={rule.match} />}
           <ConditionText condition={condition} />
         </div>
@@ -509,22 +512,22 @@ function ConditionText({ condition }: { condition: TabCondition }) {
   switch (condition.type) {
     case "url":
       return (
-        <span className="text-truncate" title={condition.value}>
-          {conditionTypeLabel("url")} <code>{condition.value}</code>
+        <span className="text-nowrap tab-rule-shrink">
+          {conditionTypeLabel("url")} <code className="tab-rule-value">{condition.value}</code>
         </span>
       );
     case "audible":
       return (
-        <span className="text-truncate">
+        <span className="text-nowrap">
           <i className="fas fa-volume-up me-1" />
           {conditionTypeLabel("audible")}
         </span>
       );
     case "groupId":
-      return <span className="text-truncate">{conditionTypeLabel("groupId")}</span>;
+      return <span className="text-nowrap">{conditionTypeLabel("groupId")}</span>;
     case "pinned":
       return (
-        <span className="text-truncate">
+        <span className="text-nowrap">
           <i className="fas fa-thumbtack me-1" />
           {conditionTypeLabel("pinned")}
         </span>
@@ -572,7 +575,42 @@ function RuleForm({
       }}
       onSubmit={onSubmit}
     >
-      <RuleLine editable ifLabel={conditionLabel}>
+      <RuleLine
+        editable
+        ifLabel={conditionLabel}
+        then={
+          <div className="d-flex flex-column gap-2">
+            <select
+              aria-label={chrome.i18n.getMessage("options_tabRules_action")}
+              className="form-select form-select-sm w-auto align-self-start"
+              disabled={readOnly}
+              onChange={(event) => {
+                onChange({
+                  ...draft,
+                  then:
+                    event.target.value === "stale"
+                      ? { action: "stale", afterSeconds: DEFAULT_STALE_AFTER_SECONDS }
+                      : { action: "lock" },
+                });
+              }}
+              value={draft.then.action}
+            >
+              <option value="lock">{chrome.i18n.getMessage("options_tabRules_action_lock")}</option>
+              <option value="stale">
+                {chrome.i18n.getMessage("options_tabRules_action_stale")}
+              </option>
+            </select>
+            {draft.then.action === "stale" && (
+              <DurationInput
+                onChange={(afterSeconds) => {
+                  onChange({ ...draft, then: { action: "stale", afterSeconds } });
+                }}
+                seconds={draft.then.afterSeconds}
+              />
+            )}
+          </div>
+        }
+      >
         <div className="tab-rule-conditions">
           {draft.conditions.map((condition, index) => {
             const error = errors?.conditions[index] ?? null;
@@ -705,35 +743,59 @@ function RuleLine({
   className,
   editable = false,
   ifLabel,
+  then,
 }: {
   children: React.ReactNode;
   className?: string;
-  // Forms keep their controls' minimum width, so a tight line wraps instead of truncating.
+  // Forms stack "Then" under "If", since either can grow to several lines of controls.
   editable?: boolean;
   ifLabel: string;
+  then: React.ReactNode;
 }) {
   return (
     <div
       className={cx(
-        "d-flex flex-wrap align-items-start column-gap-3 row-gap-1 flex-grow-1 tab-rule-shrink",
+        "d-flex column-gap-3 row-gap-1 flex-grow-1 tab-rule-shrink",
+        // Forms stretch each clause to the full width so their controls stay put as values change.
+        editable ? "flex-column" : "flex-wrap align-items-start",
         className,
       )}
     >
-      <RuleClause
-        alignStart
-        className={cx("tab-rule-if", { "tab-rule-shrink": !editable })}
-        label={ifLabel}
-      >
+      <RuleClause alignStart className="tab-rule-if" label={ifLabel}>
         {children}
       </RuleClause>
-      <RuleClause className="tab-rule-then" label={chrome.i18n.getMessage("options_tabRules_then")}>
+      <RuleClause
+        alignStart={editable}
+        className="tab-rule-then"
+        label={chrome.i18n.getMessage("options_tabRules_then")}
+      >
+        {then}
+      </RuleClause>
+    </div>
+  );
+}
+
+function RuleOutcomeText({ outcome }: { outcome: RuleOutcome }) {
+  switch (outcome.action) {
+    case "lock":
+      return (
         <span className="text-nowrap">
           <i className="fas fa-lock me-1" />
           {chrome.i18n.getMessage("options_tabRules_action_lock")}
         </span>
-      </RuleClause>
-    </div>
-  );
+      );
+    case "stale":
+      return (
+        <span className="text-nowrap">
+          {chrome.i18n.getMessage("options_tabRules_action_staleAfter", [
+            formatDuration(outcome.afterSeconds),
+          ])}
+        </span>
+      );
+    default:
+      outcome satisfies never;
+      return null;
+  }
 }
 
 function RuleClause({
@@ -769,9 +831,6 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
   const elseRule = getElseRule(useSetting("tabRules"));
   const afterSeconds =
     elseRule?.then.action === "stale" ? elseRule.then.afterSeconds : DEFAULT_STALE_AFTER_SECONDS;
-  const minutesInactive = Math.floor(afterSeconds / 60);
-  const secondsInactive = afterSeconds % 60;
-  const [zeroDurationError, setZeroDurationError] = useState(false);
 
   function saveAfterSeconds(nextAfterSeconds: number) {
     const current = settings.get("tabRules");
@@ -786,94 +845,43 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
     });
   }
 
-  const daysInactive = Math.floor(minutesInactive / (24 * 60));
-  const hoursInactive = Math.floor((minutesInactive % (24 * 60)) / 60);
-  const minutesInactiveUI = minutesInactive % 60;
+  return <DurationInput onChange={saveAfterSeconds} seconds={afterSeconds} />;
+}
 
-  function handleMinutesInactiveChange(days: number, hours: number, minutes: number): boolean {
-    const total = days * 24 * 60 + hours * 60 + minutes;
-    if (total === 0 && secondsInactive === 0) {
+// Days, hours, minutes and seconds inputs for a duration greater than zero.
+function DurationInput({
+  onChange,
+  seconds: totalSeconds,
+}: {
+  onChange: (seconds: number) => void;
+  seconds: number;
+}) {
+  const [zeroDurationError, setZeroDurationError] = useState(false);
+  const { days, hours, minutes, seconds } = splitDuration(totalSeconds);
+
+  function commit(next: { days: number; hours: number; minutes: number; seconds: number }) {
+    const nextSeconds = ((next.days * 24 + next.hours) * 60 + next.minutes) * 60 + next.seconds;
+    if (nextSeconds === 0) {
       setZeroDurationError(true);
       return false;
     }
     setZeroDurationError(false);
-    saveAfterSeconds(total * 60 + secondsInactive);
+    onChange(nextSeconds);
     return true;
   }
 
-  function handleSecondsInactiveChange(seconds: number): boolean {
-    if (seconds === 0 && minutesInactive === 0) {
-      setZeroDurationError(true);
-      return false;
-    }
-    setZeroDurationError(false);
-    saveAfterSeconds(minutesInactive * 60 + seconds);
-    return true;
-  }
-
-  const daysDraft = useDraftInput(daysInactive, (days) =>
-    handleMinutesInactiveChange(days, hoursInactive, minutesInactiveUI),
+  const daysDraft = useDraftInput(days, (value) =>
+    commit({ days: value, hours, minutes, seconds }),
   );
-
-  const hoursDraft = useDraftInput(hoursInactive, (hours) =>
-    handleMinutesInactiveChange(daysInactive, hours, minutesInactiveUI),
+  const hoursDraft = useDraftInput(hours, (value) =>
+    commit({ days, hours: value, minutes, seconds }),
   );
-
-  const minutesDraft = useDraftInput(minutesInactiveUI, (minutes) =>
-    handleMinutesInactiveChange(daysInactive, hoursInactive, minutes),
+  const minutesDraft = useDraftInput(minutes, (value) =>
+    commit({ days, hours, minutes: value, seconds }),
   );
-
-  const secondsDraft = useDraftInput(secondsInactive, (seconds) =>
-    handleSecondsInactiveChange(Math.min(59, seconds)),
+  const secondsDraft = useDraftInput(seconds, (value) =>
+    commit({ days, hours, minutes, seconds: Math.min(59, value) }),
   );
-
-  function formatInactiveDuration(
-    days: number,
-    hours: number,
-    minutes: number,
-    seconds: number,
-  ): string {
-    const parts: string[] = [];
-    if (days > 0)
-      parts.push(
-        chrome.i18n.getMessage(
-          days === 1
-            ? "options_option_timeInactive_duration_day"
-            : "options_option_timeInactive_duration_days",
-          [String(days)],
-        ),
-      );
-    if (hours > 0)
-      parts.push(
-        chrome.i18n.getMessage(
-          hours === 1
-            ? "options_option_timeInactive_duration_hour"
-            : "options_option_timeInactive_duration_hours",
-          [String(hours)],
-        ),
-      );
-    if (minutes > 0)
-      parts.push(
-        chrome.i18n.getMessage(
-          minutes === 1
-            ? "options_option_timeInactive_duration_minute"
-            : "options_option_timeInactive_duration_minutes",
-          [String(minutes)],
-        ),
-      );
-    if (seconds > 0)
-      parts.push(
-        chrome.i18n.getMessage(
-          seconds === 1
-            ? "options_option_timeInactive_duration_second"
-            : "options_option_timeInactive_duration_seconds",
-          [String(seconds)],
-        ),
-      );
-    return parts.length > 0
-      ? parts.join(", ")
-      : chrome.i18n.getMessage("options_option_timeInactive_duration_seconds", ["0"]);
-  }
 
   return (
     <div>
@@ -900,15 +908,71 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
           {chrome.i18n.getMessage("options_option_timeInactive_error_zero")}
         </div>
       )}
-      <div className="form-text">
-        {formatInactiveDuration(daysInactive, hoursInactive, minutesInactiveUI, secondsInactive)}
-      </div>
+      <div className="form-text">{formatDuration(totalSeconds)}</div>
     </div>
   );
 }
 
+function splitDuration(totalSeconds: number) {
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  return {
+    days: Math.floor(totalMinutes / (24 * 60)),
+    hours: Math.floor((totalMinutes % (24 * 60)) / 60),
+    minutes: totalMinutes % 60,
+    seconds: totalSeconds % 60,
+  };
+}
+
+function formatDuration(totalSeconds: number): string {
+  const { days, hours, minutes, seconds } = splitDuration(totalSeconds);
+  const parts: string[] = [];
+  if (days > 0)
+    parts.push(
+      chrome.i18n.getMessage(
+        days === 1
+          ? "options_option_timeInactive_duration_day"
+          : "options_option_timeInactive_duration_days",
+        [String(days)],
+      ),
+    );
+  if (hours > 0)
+    parts.push(
+      chrome.i18n.getMessage(
+        hours === 1
+          ? "options_option_timeInactive_duration_hour"
+          : "options_option_timeInactive_duration_hours",
+        [String(hours)],
+      ),
+    );
+  if (minutes > 0)
+    parts.push(
+      chrome.i18n.getMessage(
+        minutes === 1
+          ? "options_option_timeInactive_duration_minute"
+          : "options_option_timeInactive_duration_minutes",
+        [String(minutes)],
+      ),
+    );
+  if (seconds > 0)
+    parts.push(
+      chrome.i18n.getMessage(
+        seconds === 1
+          ? "options_option_timeInactive_duration_second"
+          : "options_option_timeInactive_duration_seconds",
+        [String(seconds)],
+      ),
+    );
+  return parts.length > 0
+    ? parts.join(", ")
+    : chrome.i18n.getMessage("options_option_timeInactive_duration_seconds", ["0"]);
+}
+
 const EMPTY_CONDITION: ConditionDraft = { type: "url", value: "" };
-const EMPTY_DRAFT: Draft = { conditions: [EMPTY_CONDITION], match: "every" };
+const EMPTY_DRAFT: Draft = {
+  conditions: [EMPTY_CONDITION],
+  match: "every",
+  then: { action: "lock" },
+};
 
 // Every rule except the final "Else" rule, which shows as its own fixed row.
 function getListedRules(tabRules: TabRulesConfig): TabRule[] {
@@ -933,15 +997,15 @@ function draftToCondition(draft: ConditionDraft): TabCondition {
 }
 
 // The parts of a rule the form edits.
-function draftToFields(draft: Draft): Pick<TabRule, "match" | "when"> {
-  return { match: draft.match, when: draft.conditions.map(draftToCondition) };
+function draftToFields(draft: Draft): Pick<TabRule, "match" | "then" | "when"> {
+  return { match: draft.match, then: draft.then, when: draft.conditions.map(draftToCondition) };
 }
 
 // Only rules whose conditions the form can express are editable.
 function ruleToDraft(rule: TabRule): Draft | null {
   const conditions = rule.when.flatMap((condition) => conditionToDraft(condition) ?? []);
   if (conditions.length === 0 || conditions.length !== rule.when.length) return null;
-  return { conditions, match: rule.match };
+  return { conditions, match: rule.match, then: rule.then };
 }
 
 // Identifies what a rule matches regardless of condition order, to catch duplicate rules.

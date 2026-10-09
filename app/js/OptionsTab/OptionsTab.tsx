@@ -178,7 +178,7 @@ export default function OptionsTab() {
           <label className="form-label mt-3" htmlFor="minTabs">
             <strong>{chrome.i18n.getMessage("options_option_minTabs_label")}</strong>
           </label>
-          <div className="row align-items-center">
+          <div className="row align-items-center mb-1">
             <div className="col-8">
               <div className="input-group">
                 <input
@@ -191,7 +191,9 @@ export default function OptionsTab() {
                   title={chrome.i18n.getMessage("options_option_minTabs_tabs")}
                   type="number"
                 />
-                <div className="input-group-text">open tabs</div>
+                <div className="input-group-text">
+                  {chrome.i18n.getMessage("options_option_minTabs_midLabel")}
+                </div>
                 <select
                   className="form-select"
                   id="minTabsStrategy"
@@ -213,9 +215,6 @@ export default function OptionsTab() {
                 </select>
               </div>
             </div>
-          </div>
-          <div className="form-text mb-1">
-            {chrome.i18n.getMessage("options_option_minTabs_postLabel")}
           </div>
           <div className="form-check form-switch mb-1">
             <input

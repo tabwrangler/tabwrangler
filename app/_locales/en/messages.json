@@ -282,9 +282,9 @@
     "description": "Label for option to count tabs across all windows",
     "message": "total (across all windows)"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "(does not include locked tabs)."
+  "options_option_minTabs_midLabel": {
+    "description": "Label describing which tabs can be auto-closed when the minimum is exceeded",
+    "message": "unlocked tabs"
   },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",

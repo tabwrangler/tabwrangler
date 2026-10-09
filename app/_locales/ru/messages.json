@@ -186,29 +186,9 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Опции"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "Добавить правило"
-  },
-  "options_option_autoLock_empty": {
-    "description": "Message shown when there are no whitelisted URLs",
-    "message": "Автоматически блокируемые ссылки отсутствуют. Используйте форму выше, чтобы добавить их в белый список."
-  },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "Например: \"cnn\" будет относится к каждой странице с адресом \"https://www.cnn.com\" и каждой ссылке, в которой присутствует \"cnn\"."
-  },
-  "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Не закрывать вкладки с адресами, содержащими:"
-  },
-  "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
-    "message": "Удалить"
-  },
-  "options_option_autoLock_urlHeader": {
-    "description": "Table column header for list of whitelisted URL strings",
-    "message": "Добавленные адреса"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -221,10 +201,6 @@
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Перезапускать таймер вкладки только если она была активна на 1 секунду"
-  },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Авто-закрытие неактивных вкладок, если их больше, чем:"
   },
   "options_option_minTabs_option_givenWindow": {
     "description": "Label for option to count tabs per window",
@@ -387,20 +363,12 @@
     }
   },
   "options_option_timeInactive_error_zero": {
-    "description": "Error shown when the inactive time duration is set to zero",
+    "description": "Error shown when the time before a tab becomes stale is set to zero",
     "message": "Длительность должна быть больше 0 секунд."
-  },
-  "options_option_timeInactive_label": {
-    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "Закрывать неактивные вкладки через:"
   },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Сохраняем..."
-  },
-  "options_section_autoLock": {
-    "description": "Header for the auto-lock section of the options tab",
-    "message": "Зафиксированные вкладки"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -476,25 +444,9 @@
     "description": "Min-tabs badge tooltip when the extension is paused.",
     "message": "Работа расширения приостановлена: вкладки НЕ будут закрываться автоматически"
   },
-  "tabLock_minTabsBadge_allWindows_aboveMin": {
-    "description": "Min-tabs badge tooltip when total tabs exceed the minimum.",
-    "message": "Превышено минимальное значение: вкладки БУДУТ закрываться автоматически"
-  },
-  "tabLock_minTabsBadge_allWindows_belowMin": {
-    "description": "Min-tabs badge tooltip when total tabs are at or below the minimum.",
-    "message": "Минимальное значение НЕ превышено: вкладки НЕ будут закрываться автоматически"
-  },
   "tabLock_minTabsBadge_givenWindow_locked": {
     "description": "Min-tabs badge tooltip when the window is locked.",
     "message": "Окно закреплено: вкладки НЕ будут закрываться автоматически"
-  },
-  "tabLock_minTabsBadge_givenWindow_aboveMin": {
-    "description": "Min-tabs badge tooltip when this window's tabs exceed the minimum.",
-    "message": "Превышено минимальное значение: вкладки БУДУТ закрываться автоматически в этом окне"
-  },
-  "tabLock_minTabsBadge_givenWindow_belowMin": {
-    "description": "Min-tabs badge tooltip when this window's tabs are at or below the minimum.",
-    "message": "Минимальное значение НЕ превышено: вкладки НЕ будут закрываться автоматически в этом окне"
   },
   "tabLock_timerFrozen_tooltip": {
     "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
@@ -503,10 +455,6 @@
   "tabLock_groupIndicator_unnamed": {
     "description": "Fallback tooltip for a tab group with no title.",
     "message": "Безымянная группа"
-  },
-  "tabLock_overdueTooltip": {
-    "description": "Tooltip on the hourglass shown when a tab's countdown has expired.",
-    "message": "Ожидает автозакрытия"
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
@@ -543,22 +491,6 @@
   "tabLock_sort_tabOrder_desc_short": {
     "description": "Short version of tabLock_sort_tabOrder_desc",
     "message": "Порядку вкладок (убыв.)"
-  },
-  "tabLock_sort_timeUntilClose": {
-    "description": "Description for sorting tabs by how much time until TW closes them",
-    "message": "Времени до закрытия"
-  },
-  "tabLock_sort_timeUntilClose_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose",
-    "message": "Времени до закрытия"
-  },
-  "tabLock_sort_timeUntilClose_desc": {
-    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
-    "message": "Времени до закрытия (убывание)"
-  },
-  "tabLock_sort_timeUntilClose_desc_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose_desc",
-    "message": "Времени до закрытия (убыв.)"
   },
   "tabLock_lockTab": {
     "description": "Button label for locking a tab",
@@ -603,14 +535,6 @@
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "Минимальное число вкладок должно быть больше или равно 0"
-  },
-  "settings_setminutesInactive_error": {
-    "description": "Error shown when invalid minutes inactive setting is supplied.",
-    "message": "Неактивность в минутах должна быть больше или равна 0"
-  },
-  "settings_setsecondsInactive_error": {
-    "description": "Error shown when invalid seconds inactive setting is supplied.",
-    "message": "Неактивность в минутах должна быть больше или равна 0 и меньше чем 60"
   },
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
@@ -663,10 +587,6 @@
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "Домену (убыв.)"
-  },
-  "extDescription": {
-    "description": "Brief description of the extension",
-    "message": "Автоматически закрывает неактивные вкладки и упрощает их возврат"
   },
   "corral_remove": {
     "description": "Label for button that removes selected tabs",

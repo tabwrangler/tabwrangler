@@ -178,29 +178,9 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "설정"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "패턴 추가"
-  },
-  "options_option_autoLock_empty": {
-    "description": "Message shown when there are no whitelisted URLs",
-    "message": "아직 자동 잠금 URL이 없습니다. 위의 양식을 사용하여 허용 목록에 일부를 추가하십시오."
-  },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "예: \"cnn\"은 \"https://www.cnn.com\"의 모든 페이지와 \"cnn\"이 있는 모든 URL과 일치합니다."
-  },
-  "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "다음을 포함하는 URL이 있는 탭을 자동으로 잠급니다:"
-  },
-  "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
-    "message": "삭제"
-  },
-  "options_option_autoLock_urlHeader": {
-    "description": "Table column header for list of whitelisted URL strings",
-    "message": "URL 주소"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -213,10 +193,6 @@
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "탭의 타이머가 1초 동안 활성화된 후에만 재설정"
-  },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "비활성화된 탭이 이보다 많은 경우에 자동으로 닫음:"
   },
   "options_option_minTabs_option_givenWindow": {
     "description": "Label for option to count tabs per window",
@@ -282,17 +258,9 @@
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "시스템"
   },
-  "options_option_timeInactive_label": {
-    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "다음시간 후 탭 비활성화:"
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "저장중..."
-  },
-  "options_section_autoLock": {
-    "description": "Header for the auto-lock section of the options tab",
-    "message": "자동잠금"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -360,22 +328,6 @@
     "description": "Short version of tabLock_sort_tabOrder_desc",
     "message": "탭 순서 (역순)"
   },
-  "tabLock_sort_timeUntilClose": {
-    "description": "Description for sorting tabs by how much time until TW closes them",
-    "message": "잔여 시간"
-  },
-  "tabLock_sort_timeUntilClose_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose",
-    "message": "잔여 시간"
-  },
-  "tabLock_sort_timeUntilClose_desc": {
-    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
-    "message": "잔여 시간 (많은 순)"
-  },
-  "tabLock_sort_timeUntilClose_desc_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose_desc",
-    "message": "잔여 시간 (많은 순)"
-  },
   "corral_tabsWrangledFull": {
     "description": "Description of number of tabs wrangled by this extension",
     "message": "탭 $count$개 보관됨 ($percent$%)",
@@ -411,14 +363,6 @@
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "최소 탭은 0보다 크거나 같은 숫자여야 합니다."
-  },
-  "settings_setminutesInactive_error": {
-    "description": "Error shown when invalid minutes inactive setting is supplied.",
-    "message": "분 비활성화는 0보다 크거나 같아야 합니다."
-  },
-  "settings_setsecondsInactive_error": {
-    "description": "Error shown when invalid seconds inactive setting is supplied.",
-    "message": "초 비활성화는 0보다 크거나 같고 60보다 작아야합니다."
   },
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
@@ -471,10 +415,6 @@
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "도메인 (역순)"
-  },
-  "extDescription": {
-    "description": "Brief description of the extension",
-    "message": "사용하지 않는 탭들을 알아서 닫고 다시 손쉽게 열 수 있게 해줍니다"
   },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",

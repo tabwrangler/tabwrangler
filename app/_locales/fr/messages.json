@@ -153,25 +153,9 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Paramètres"
   },
-  "options_option_autoLock_empty": {
-    "description": "Message shown when there are no whitelisted URLs",
-    "message": "Il n'y a pas encore de verrouillage automatique. Utilisez le formulaire ci-dessus pour ajouter à la liste de souhaits."
-  },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "Exemple : « cnn » correspondrait à toutes les pages « https://www.cnn.com » et n’importe quelle URL contenant « cnn » n'importe où."
-  },
-  "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Verrouillage automatique des onglets avec des URLs contenant :"
-  },
-  "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
-    "message": "Supprimer"
-  },
-  "options_option_autoLock_urlHeader": {
-    "description": "Table column header for list of whitelisted URL strings",
-    "message": "Texte d'URL"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -201,17 +185,9 @@
     "description": "Label for checkbox to show a badge on the extension icon with number of tabs closed",
     "message": "Afficher nombre d'onglets fermés sur le bouton de la barre d'outils"
   },
-  "options_option_timeInactive_label": {
-    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "Fermer les onglets inactifs après :"
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Enregistrement en cours..."
-  },
-  "options_section_autoLock": {
-    "description": "Header for the auto-lock section of the options tab",
-    "message": "Vérouillage automatique"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -277,14 +253,6 @@
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "Onglets minimum doit être un nombre supérieur ou égal à 0"
   },
-  "settings_setminutesInactive_error": {
-    "description": "Error shown when invalid minutes inactive setting is supplied.",
-    "message": "Minutes inactif doit être supérieur ou égal à 0"
-  },
-  "settings_setsecondsInactive_error": {
-    "description": "Error shown when invalid seconds inactive setting is supplied.",
-    "message": "Secondes inactif doit être supérieur ou égal à 0 et inférieur à 60"
-  },
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
     "message": "Trié par :"
@@ -336,10 +304,6 @@
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "Domaine (déc.)"
-  },
-  "extDescription": {
-    "description": "Brief description of the extension",
-    "message": "Enlève les onglets inactifs automatiquement, pour les récupérer facilement plus tard"
   },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",

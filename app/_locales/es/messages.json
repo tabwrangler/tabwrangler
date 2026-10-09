@@ -186,29 +186,9 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Opciones"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "Añadir patrón"
-  },
-  "options_option_autoLock_empty": {
-    "description": "Message shown when there are no whitelisted URLs",
-    "message": "No hay URLs auto-bloqueadas todavía. Utilice el formulario superior para añadir alguna a la lista blanca."
-  },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "Ejemplo: \"cnn\" detectaría todas las páginas en el dominio \"https://www.cnn.com\" y cualquier URL que contenga \"cnn\"."
-  },
-  "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Auto-bloquear las pestañas que contengan:"
-  },
-  "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
-    "message": "Eliminar"
-  },
-  "options_option_autoLock_urlHeader": {
-    "description": "Table column header for list of whitelisted URL strings",
-    "message": "Cadena URL"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -221,10 +201,6 @@
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Restablecer el temporizador de una pestaña solo cuando este activa durante 1 segundo"
-  },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Cerrar pestañas inactivas automáticamente si son más de:"
   },
   "options_option_minTabs_option_givenWindow": {
     "description": "Label for option to count tabs per window",
@@ -387,20 +363,12 @@
     }
   },
   "options_option_timeInactive_error_zero": {
-    "description": "Error shown when the inactive time duration is set to zero",
+    "description": "Error shown when the time before a tab becomes stale is set to zero",
     "message": "La duración debe ser mayor que 0 segundos."
-  },
-  "options_option_timeInactive_label": {
-    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "Cerrar pestañas inactivas después de:"
   },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Guardando..."
-  },
-  "options_section_autoLock": {
-    "description": "Header for the auto-lock section of the options tab",
-    "message": "Auto-bloquear"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -476,25 +444,9 @@
     "description": "Min-tabs badge tooltip when the extension is paused.",
     "message": "Extensión pausada: las pestañas NO se cerrarán automáticamente"
   },
-  "tabLock_minTabsBadge_allWindows_aboveMin": {
-    "description": "Min-tabs badge tooltip when total tabs exceed the minimum.",
-    "message": "Mínimo superado: las pestañas SE CERRARÁN AUTOMÁTICAMENTE"
-  },
-  "tabLock_minTabsBadge_allWindows_belowMin": {
-    "description": "Min-tabs badge tooltip when total tabs are at or below the minimum.",
-    "message": "Mínimo NO superado: las pestañas NO se cerrarán automáticamente"
-  },
   "tabLock_minTabsBadge_givenWindow_locked": {
     "description": "Min-tabs badge tooltip when the window is locked.",
     "message": "Ventana bloqueada: las pestañas NO se cerrarán automáticamente"
-  },
-  "tabLock_minTabsBadge_givenWindow_aboveMin": {
-    "description": "Min-tabs badge tooltip when this window's tabs exceed the minimum.",
-    "message": "Mínimo superado: las pestañas SE CERRARÁN AUTOMÁTICAMENTE en esta ventana"
-  },
-  "tabLock_minTabsBadge_givenWindow_belowMin": {
-    "description": "Min-tabs badge tooltip when this window's tabs are at or below the minimum.",
-    "message": "Mínimo NO superado: las pestañas NO se cerrarán automáticamente en esta ventana"
   },
   "tabLock_timerFrozen_tooltip": {
     "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
@@ -503,10 +455,6 @@
   "tabLock_groupIndicator_unnamed": {
     "description": "Fallback tooltip for a tab group with no title.",
     "message": "Grupo sin nombre"
-  },
-  "tabLock_overdueTooltip": {
-    "description": "Tooltip on the hourglass shown when a tab's countdown has expired.",
-    "message": "A la espera del cierre automático"
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
@@ -543,22 +491,6 @@
   "tabLock_sort_tabOrder_desc_short": {
     "description": "Short version of tabLock_sort_tabOrder_desc",
     "message": "Orden de pestañas (inv.)"
-  },
-  "tabLock_sort_timeUntilClose": {
-    "description": "Description for sorting tabs by how much time until TW closes them",
-    "message": "Tiempo hasta el cierre"
-  },
-  "tabLock_sort_timeUntilClose_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose",
-    "message": "Tiempo hasta el cierre"
-  },
-  "tabLock_sort_timeUntilClose_desc": {
-    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
-    "message": "Tiempo hasta el cierre (descendente)"
-  },
-  "tabLock_sort_timeUntilClose_desc_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose_desc",
-    "message": "Tiempo hasta el cierre (desc.)"
   },
   "tabLock_lockTab": {
     "description": "Button label for locking a tab",
@@ -603,14 +535,6 @@
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "El número mínimo de pestañas deber ser mayor o igual a 0"
-  },
-  "settings_setminutesInactive_error": {
-    "description": "Error shown when invalid minutes inactive setting is supplied.",
-    "message": "El número de minutos inactivos deber ser mayor o igual que 0"
-  },
-  "settings_setsecondsInactive_error": {
-    "description": "Error shown when invalid seconds inactive setting is supplied.",
-    "message": "El número de segundos inactivos deber ser mayor o igual que 0 y menor de 60"
   },
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
@@ -663,10 +587,6 @@
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "Dominio (desc.)"
-  },
-  "extDescription": {
-    "description": "Brief description of the extension",
-    "message": "Cierra las pestañas inactivas automáticamente y facilita recuperarlas"
   },
   "corral_remove": {
     "description": "Label for button that removes selected tabs",

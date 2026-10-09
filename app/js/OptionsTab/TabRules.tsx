@@ -528,7 +528,7 @@ function RuleForm({
         }}
         onSubmit={onSubmit}
       >
-        <div className="d-flex flex-column gap-1 flex-grow-1 overflow-hidden">
+        <div className="d-flex flex-column gap-1 flex-grow-1 tab-rule-shrink">
           <RuleLine ifLabel={conditionLabel} truncate={false}>
             <label className="text-nowrap" htmlFor={id}>
               {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
@@ -552,7 +552,7 @@ function RuleForm({
           )}
         </div>
         <div className="tab-rule-controls">
-          <Button onClick={onCancel} size="sm" variant="outline-secondary">
+          <Button onClick={onCancel} size="sm" variant="secondary">
             {chrome.i18n.getMessage("options_tabRules_cancel")}
           </Button>
           <Button disabled={!canSave} size="sm" type="submit" variant="primary">
@@ -582,11 +582,11 @@ function RuleLine({
   return (
     <div
       className={cx(
-        "d-flex flex-wrap align-items-center column-gap-3 row-gap-1 flex-grow-1 overflow-hidden",
+        "d-flex flex-wrap align-items-center column-gap-3 row-gap-1 flex-grow-1 tab-rule-shrink",
         className,
       )}
     >
-      <RuleClause className={cx("tab-rule-if", { "overflow-hidden": truncate })} label={ifLabel}>
+      <RuleClause className={cx("tab-rule-if", { "tab-rule-shrink": truncate })} label={ifLabel}>
         {children}
       </RuleClause>
       <RuleClause className="tab-rule-then" label={chrome.i18n.getMessage("options_tabRules_then")}>

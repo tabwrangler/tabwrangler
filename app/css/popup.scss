@@ -72,6 +72,14 @@ body {
  * keeps a flex basis so a line too narrow for both clauses wraps "Then" onto its own line instead
  * of squeezing the condition to nothing.
  */
+/**
+ * Lets a flex item shrink below its content width so text can truncate. Unlike `overflow: hidden`,
+ * this doesn't clip the focus ring (box-shadow) of inputs inside it.
+ */
+.tab-rule-shrink {
+  min-width: 0;
+}
+
 .tab-rule-if {
   flex: 1 1 10rem;
 

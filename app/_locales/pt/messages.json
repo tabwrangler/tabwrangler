@@ -202,10 +202,6 @@
     "description": "Label for option to count tabs across all windows",
     "message": "total (em todas as janelas)"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "(não inclui abas fixadas ou bloqueadas)."
-  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "Deve ser um número maior ou igual a 0"

@@ -79,6 +79,39 @@ $tab-rule-line-height: add(
 }
 
 /**
+ * Up/down buttons straddling the left border of a rule row, shown while the row is hovered or has
+ * keyboard focus. They sit outside the layout so they take no horizontal space from the row.
+ */
+.tab-rule-move {
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  left: 0;
+  min-height: $tab-rule-line-height;
+  opacity: 0;
+  position: absolute;
+  top: var(--bs-list-group-item-padding-y);
+  transform: translateX(-50%);
+  transition: opacity 0.15s;
+  z-index: 3;
+
+  .list-group-item:hover > &,
+  .list-group-item:focus-within > & {
+    opacity: 1;
+  }
+
+  .btn {
+    border: 0;
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 0 0.125rem;
+  }
+}
+
+/**
  * Minimum widths for the "Then" column and the trailing controls, so every rule row (view, add,
  * edit, and fixed rules) lines up its columns no matter which controls it shows. They are minimums
  * so longer translations grow the column instead of overlapping the next one. The "If" clause
@@ -96,10 +129,18 @@ $tab-rule-line-height: add(
 .tab-rule-if {
   flex: 1 1 10rem;
 
-  .form-control,
   .form-select {
     min-width: 8rem;
   }
+}
+
+/**
+ * Holds the condition's value input. Conditions without a value keep the empty slot so switching
+ * the condition type never changes where "Then" wraps.
+ */
+.tab-rule-input {
+  flex-grow: 1;
+  min-width: 6rem;
 }
 
 .tab-rule-then {

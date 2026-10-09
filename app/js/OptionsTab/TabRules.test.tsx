@@ -1,3 +1,4 @@
+import { type TabRulesConfig, buildTabRulesFromLegacySettings } from "../tabRules";
 import { fireEvent, render, screen } from "@testing-library/react";
 import TabRules from "./TabRules";
 
@@ -10,17 +11,33 @@ jest.mock("../settings", () => ({
 
 beforeEach(() => {
   Object.assign(mockSettings, {
-    filterAudio: true,
-    filterGroupedTabs: false,
-    minutesInactive: 20,
-    secondsInactive: 0,
-    whitelist: ["about:", "chrome://", "example"],
+    tabRules: buildTabRulesFromLegacySettings({
+      filterAudio: true,
+      filterGroupedTabs: false,
+      minutesInactive: 20,
+      secondsInactive: 0,
+      whitelist: ["about:", "chrome://", "example"],
+    }),
   });
   Object.assign(chrome.i18n, { getMessage: (key: string) => key });
   Object.assign(chrome.tabs, { query: () => Promise.resolve([]) });
   // jsdom has no Web Animations API; reduced motion skips the animations.
   window.matchMedia = jest.fn(() => ({ matches: true }) as MediaQueryList);
 });
+
+function lastSavedTabRules(onSaveSetting: jest.Mock): TabRulesConfig {
+  const [key, value] = onSaveSetting.mock.lastCall;
+  expect(key).toBe("tabRules");
+  return value;
+}
+
+// Summarizes each saved rule above the final "Else" rule as its URL text, or its condition type
+// when it has no text
+function lastSavedRules(onSaveSetting: jest.Mock): string[] {
+  return lastSavedTabRules(onSaveSetting)
+    .rules.slice(0, -1)
+    .map(({ when: [condition] }) => (condition.type === "url" ? condition.value : condition.type));
+}
 
 describe("TabRules", () => {
   test("adds new rules to the top", () => {
@@ -31,11 +48,12 @@ describe("TabRules", () => {
       target: { value: "news" },
     });
     fireEvent.click(screen.getByText("options_save"));
-    expect(onSaveSetting).toHaveBeenCalledWith("whitelist", [
+    expect(lastSavedRules(onSaveSetting)).toEqual([
       "news",
       "about:",
       "chrome://",
       "example",
+      "audible",
     ]);
   });
 
@@ -63,36 +81,22 @@ describe("TabRules", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getAllByLabelText("options_tabRules_moveUp")[2]);
-    expect(onSaveSetting).toHaveBeenLastCalledWith("whitelist", ["about:", "example", "chrome://"]);
+    expect(lastSavedRules(onSaveSetting)).toEqual(["about:", "example", "chrome://", "audible"]);
     fireEvent.click(screen.getAllByLabelText("options_tabRules_moveDown")[0]);
-    expect(onSaveSetting).toHaveBeenLastCalledWith("whitelist", ["chrome://", "about:", "example"]);
+    expect(lastSavedRules(onSaveSetting)).toEqual(["chrome://", "about:", "example", "audible"]);
   });
 
   test("removes a rule", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getAllByLabelText("options_tabRules_remove")[1]);
-    expect(onSaveSetting).toHaveBeenCalledWith("whitelist", ["about:", "example"]);
-  });
-
-  test("toggles the playing audio rule", () => {
-    const onSaveSetting = jest.fn();
-    render(<TabRules onSaveSetting={onSaveSetting} />);
-    fireEvent.click(screen.getAllByLabelText("options_tabRules_enabled")[0]);
-    expect(onSaveSetting).toHaveBeenCalledWith("filterAudio", false);
-  });
-
-  test("disables the tab group rule when the browser has no tab groups", () => {
-    render(<TabRules onSaveSetting={jest.fn()} />);
-    expect(
-      (screen.getAllByLabelText("options_tabRules_enabled")[1] as HTMLInputElement).disabled,
-    ).toBe(true);
+    expect(lastSavedRules(onSaveSetting)).toEqual(["about:", "example", "audible"]);
   });
 
   test("labels the first rule If, the rest Else if, and the fallback Else", () => {
     render(<TabRules onSaveSetting={jest.fn()} />);
     expect(screen.getAllByText("options_tabRules_if")).toHaveLength(1);
-    expect(screen.getAllByText("options_tabRules_elseIf")).toHaveLength(4);
+    expect(screen.getAllByText("options_tabRules_elseIf")).toHaveLength(3);
     expect(screen.getAllByText("options_tabRules_else")).toHaveLength(1);
     expect(
       screen.getAllByText("options_tabRules_if")[0].closest(".tab-rule-clause")?.textContent,
@@ -100,7 +104,7 @@ describe("TabRules", () => {
 
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
     expect(screen.getAllByText("options_tabRules_if")).toHaveLength(1);
-    expect(screen.getAllByText("options_tabRules_elseIf")).toHaveLength(5);
+    expect(screen.getAllByText("options_tabRules_elseIf")).toHaveLength(4);
   });
 
   test("edits a rule in place", () => {
@@ -110,10 +114,11 @@ describe("TabRules", () => {
     const input = screen.getByDisplayValue("chrome://");
     fireEvent.change(input, { target: { value: "chrome://settings" } });
     fireEvent.submit(input);
-    expect(onSaveSetting).toHaveBeenCalledWith("whitelist", [
+    expect(lastSavedRules(onSaveSetting)).toEqual([
       "about:",
       "chrome://settings",
       "example",
+      "audible",
     ]);
   });
 
@@ -158,5 +163,70 @@ describe("TabRules", () => {
     expect(screen.getByText("options_tabRules_whitespace")).toBeTruthy();
     fireEvent.submit(input);
     expect(onSaveSetting).not.toHaveBeenCalled();
+  });
+
+  test("saves the else timeout in seconds", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    const minutesInput = screen.getByDisplayValue("20");
+    fireEvent.change(minutesInput, { target: { value: "5" } });
+    fireEvent.blur(minutesInput);
+    const { rules } = lastSavedTabRules(onSaveSetting);
+    expect(lastSavedRules(onSaveSetting)).toEqual(["about:", "chrome://", "example", "audible"]);
+    expect(rules[rules.length - 1].then).toEqual({ action: "stale", afterSeconds: 300 });
+  });
+
+  test("shows audio and tab group rules alongside URL rules", () => {
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(screen.getByText("options_tabRules_condition_audible")).toBeTruthy();
+  });
+
+  test("adds a rule for another condition chosen from the select", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition"), {
+      target: { value: "groupId" },
+    });
+    expect(screen.queryByLabelText("options_tabRules_condition_urlContains")).toBeNull();
+    fireEvent.click(screen.getByText("options_save"));
+    expect(lastSavedTabRules(onSaveSetting).rules[0]).toEqual(
+      expect.objectContaining({
+        enabled: true,
+        then: { action: "lock" },
+        when: [{ type: "groupId", op: "some" }],
+      }),
+    );
+  });
+
+  test("disables conditions that already have a rule", () => {
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    const option = (value: string) =>
+      screen.getByRole("option", {
+        name: `options_tabRules_condition_${value}`,
+      }) as HTMLOptionElement;
+    expect(option("audible").disabled).toBe(true);
+    expect(option("grouped").disabled).toBe(false);
+    expect(option("urlContains").disabled).toBe(false);
+  });
+
+  test("changes a rule's condition when editing", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getAllByLabelText("options_tabRules_edit")[1]);
+    const select = screen.getByLabelText("options_tabRules_condition");
+    fireEvent.change(select, { target: { value: "groupId" } });
+    fireEvent.submit(select);
+    expect(lastSavedRules(onSaveSetting)).toEqual(["about:", "groupId", "example", "audible"]);
+  });
+
+  test("edits an audio rule with the select showing its condition", () => {
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    fireEvent.click(screen.getAllByLabelText("options_tabRules_edit")[3]);
+    expect((screen.getByLabelText("options_tabRules_condition") as HTMLSelectElement).value).toBe(
+      "audible",
+    );
+    expect(screen.queryByLabelText("options_tabRules_condition_urlContains")).toBeNull();
   });
 });

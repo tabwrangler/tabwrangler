@@ -1,5 +1,13 @@
+import {
+  DEFAULT_STALE_AFTER_SECONDS,
+  type TabCondition,
+  type TabRule,
+  type TabRulesConfig,
+  createLockRule,
+  getElseRule,
+} from "../tabRules";
 import settings, { type SettingsSchema } from "../settings";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import { ButtonGroup } from "react-bootstrap";
 import cx from "classnames";
@@ -8,36 +16,48 @@ import useSetting from "../useSetting";
 
 type SaveSetting = <K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]) => void;
 
-export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
-  const whitelist = useSetting("whitelist");
-  const [isAdding, setIsAdding] = useState(false);
-  const [newPattern, setNewPattern] = useState("");
+type ConditionType = TabCondition["type"];
 
-  // `savingFrom` keeps the row in edit mode after Save until storage echoes the new whitelist back.
+const CONDITION_TYPES: ConditionType[] = ["url", "audible", "groupId"];
+
+interface Draft {
+  type: ConditionType;
+  value: string;
+}
+
+export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
+  const tabRules = useSetting("tabRules");
+  const savedRules = useMemo(() => getListedRules(tabRules), [tabRules]);
+  const ruleIds = useMemo(() => savedRules.map((rule) => rule.id), [savedRules]);
+  const [isAdding, setIsAdding] = useState(false);
+  const [newDraft, setNewDraft] = useState<Draft>(EMPTY_DRAFT);
+
+  // `savingFrom` keeps the row in edit mode after Save until storage echoes the new rules back.
   const [editing, setEditing] = useState<{
-    pattern: string;
-    savingFrom: string[] | null;
-    value: string;
+    draft: Draft;
+    id: string;
+    savingFrom: TabRule[] | null;
   } | null>(null);
 
-  // Keeps the form on screen after Save until storage echoes the new whitelist back, so the saved
+  // Keeps the form on screen after Save until storage echoes the new rules back, so the saved
   // rule can take the form's place without the table collapsing in between.
-  const [savingFrom, setSavingFrom] = useState<string[] | null>(null);
-  const isFormVisible = isAdding || savingFrom === whitelist;
+  const [savingFrom, setSavingFrom] = useState<TabRule[] | null>(null);
+  const isFormVisible = isAdding || savingFrom === savedRules;
   const formRef = useRef<HTMLLIElement | null>(null);
-  const savedRuleRef = useRef<{ formHeight: number; pattern: string } | null>(null);
+  const savedRuleRef = useRef<{ formHeight: number; id: string } | null>(null);
 
   // While dragging, rows render in `drag.order` so they shift around the ghost of the dragged row.
-  const [drag, setDrag] = useState<{ order: string[]; pattern: string } | null>(null);
+  const [drag, setDrag] = useState<{ id: string; order: string[] } | null>(null);
 
-  // Holds the dropped order until storage echoes the saved whitelist back, so rows don't flash
-  // back to their old positions in between.
-  const [dropped, setDropped] = useState<{ base: string[]; order: string[] } | null>(null);
-  const [supportsTabGroups, setSupportsTabGroups] = useState(false);
+  // Holds the dropped order until storage echoes the saved rules back, so rows don't flash back to
+  // their old positions in between.
+  const [dropped, setDropped] = useState<{ base: TabRule[]; order: string[] } | null>(null);
   const rowRefs = useRef(new Map<string, HTMLLIElement>());
   const removingRef = useRef(new Set<string>());
   const flipRef = useRef<{ fade: Set<string>; tops: Map<string, number> } | null>(null);
-  const rules = drag?.order ?? (dropped?.base === whitelist ? dropped.order : whitelist);
+  const order = drag?.order ?? (dropped?.base === savedRules ? dropped.order : ruleIds);
+  const rulesById = new Map(savedRules.map((rule) => [rule.id, rule]));
+  const rules = order.flatMap((id) => rulesById.get(id) ?? []);
 
   // FLIP animation: rows are measured before a reorder and animated from their old positions once
   // the new order renders.
@@ -46,13 +66,13 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     if (flip == null) return;
     flipRef.current = null;
     if (prefersReducedMotion()) return;
-    for (const [pattern, oldTop] of flip.tops) {
-      const el = rowRefs.current.get(pattern);
+    for (const [id, oldTop] of flip.tops) {
+      const el = rowRefs.current.get(id);
       if (el == null) continue;
       el.getAnimations().forEach((animation) => animation.cancel());
       const dy = oldTop - el.getBoundingClientRect().top;
       if (dy === 0) continue;
-      const fade = flip.fade.has(pattern) ? 0.5 : 1;
+      const fade = flip.fade.has(id) ? 0.5 : 1;
       el.animate(
         [
           { opacity: fade, transform: `translateY(${dy}px)` },
@@ -61,7 +81,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
         { duration: flip.fade.size > 0 ? 250 : 150, easing: "ease-in-out" },
       );
     }
-  }, [JSON.stringify(rules)]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(order)]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Grows the form open from the top of the table.
   useLayoutEffect(() => {
@@ -88,7 +108,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
   useLayoutEffect(() => {
     const saved = savedRuleRef.current;
     if (saved == null) return;
-    const el = rowRefs.current.get(saved.pattern);
+    const el = rowRefs.current.get(saved.id);
     if (el == null) return;
     savedRuleRef.current = null;
     if (prefersReducedMotion()) return;
@@ -100,72 +120,71 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
       ],
       { duration: 400, easing: "ease-out" },
     );
-  }, [whitelist]);
-
-  useEffect(() => {
-    async function checkForTabGroups() {
-      const tabs = await chrome.tabs.query({});
-      if (tabs.length > 0 && "groupId" in tabs[0]) setSupportsTabGroups(true);
-    }
-    checkForTabGroups();
-  }, []);
+  }, [savedRules]);
 
   function measureRows(fade: string[] = []) {
     const tops = new Map<string, number>();
-    for (const [pattern, el] of rowRefs.current) tops.set(pattern, el.getBoundingClientRect().top);
+    for (const [id, el] of rowRefs.current) tops.set(id, el.getBoundingClientRect().top);
     flipRef.current = { fade: new Set(fade), tops };
+  }
+
+  function saveRules(nextRules: TabRule[]) {
+    const current = settings.get("tabRules");
+    const elseRule = getElseRule(current);
+    onSaveSetting("tabRules", {
+      ...current,
+      rules: elseRule == null ? nextRules : [...nextRules, elseRule],
+    });
   }
 
   // The new rule form previews where the rule will land: at the top, ahead of the existing rules.
   const firstRuleIndex = isFormVisible ? 1 : 0;
 
-  const newPatternError = patternError(newPattern, whitelist);
+  const newDraftError = draftError(newDraft, savedRules, null);
 
   function addRule(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
-    if (!isValidPattern(newPattern) || newPatternError != null || savingFrom === whitelist) return;
-    savedRuleRef.current = { formHeight: formRef.current?.offsetHeight ?? 0, pattern: newPattern };
-    setSavingFrom(whitelist);
+    if (!isValidDraft(newDraft) || newDraftError != null || savingFrom === savedRules) return;
+    const rule = createLockRule(draftToCondition(newDraft));
+    savedRuleRef.current = { formHeight: formRef.current?.offsetHeight ?? 0, id: rule.id };
+    setSavingFrom(savedRules);
     setIsAdding(false);
-    onSaveSetting("whitelist", [newPattern, ...whitelist]);
+    saveRules([rule, ...getListedRules(settings.get("tabRules"))]);
   }
 
   function cancelAddRule() {
     setIsAdding(false);
-    setNewPattern("");
+    setNewDraft(EMPTY_DRAFT);
   }
 
-  function isEditingRule(pattern: string) {
-    return (
-      editing?.pattern === pattern &&
-      (editing.savingFrom == null || editing.savingFrom === whitelist)
-    );
+  function isEditingRule(id: string) {
+    return editing?.id === id && (editing.savingFrom == null || editing.savingFrom === savedRules);
   }
 
-  const editError =
-    editing != null && editing.value !== editing.pattern
-      ? patternError(editing.value, whitelist)
-      : null;
+  const editError = editing != null ? draftError(editing.draft, savedRules, editing.id) : null;
 
   function saveEdit(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
     if (editing == null || editing.savingFrom != null) return;
-    if (editing.value === editing.pattern) {
+    const rule = rulesById.get(editing.id);
+    const condition = draftToCondition(editing.draft);
+    if (rule == null || JSON.stringify(rule.when) === JSON.stringify([condition])) {
       setEditing(null);
       return;
     }
-    if (!isValidPattern(editing.value) || editError != null) return;
-    setEditing({ ...editing, savingFrom: whitelist });
-    onSaveSetting(
-      "whitelist",
-      settings.get("whitelist").map((p) => (p === editing.pattern ? editing.value : p)),
+    if (!isValidDraft(editing.draft) || editError != null) return;
+    setEditing({ ...editing, savingFrom: savedRules });
+    saveRules(
+      getListedRules(settings.get("tabRules")).map((r) =>
+        r.id === editing.id ? { ...r, when: [condition] } : r,
+      ),
     );
   }
 
-  async function removeRule(pattern: string) {
-    if (removingRef.current.has(pattern)) return;
-    removingRef.current.add(pattern);
-    const el = rowRefs.current.get(pattern);
+  async function removeRule(id: string) {
+    if (removingRef.current.has(id)) return;
+    removingRef.current.add(id);
+    const el = rowRefs.current.get(id);
     if (el != null && !prefersReducedMotion()) {
       const { paddingBottom, paddingTop } = getComputedStyle(el);
       // Holds the collapsed state ("forwards") until storage echoes the change and the row unmounts.
@@ -189,23 +208,25 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
         { duration: 200, easing: "ease-in", fill: "forwards" },
       ).finished;
     }
-    removingRef.current.delete(pattern);
-    onSaveSetting(
-      "whitelist",
-      settings.get("whitelist").filter((p) => p !== pattern),
-    );
+    removingRef.current.delete(id);
+    saveRules(getListedRules(settings.get("tabRules")).filter((rule) => rule.id !== id));
+  }
+
+  function saveOrder(nextOrder: string[]) {
+    const byId = new Map(getListedRules(settings.get("tabRules")).map((rule) => [rule.id, rule]));
+    saveRules(nextOrder.flatMap((id) => byId.get(id) ?? []));
   }
 
   function moveRule(from: number, to: number) {
-    if (from === to || to < 0 || to >= whitelist.length) return;
-    const next = whitelist.slice();
-    const [pattern] = next.splice(from, 1);
-    next.splice(to, 0, pattern);
-    onSaveSetting("whitelist", next);
+    if (from === to || to < 0 || to >= ruleIds.length) return;
+    const next = ruleIds.slice();
+    const [id] = next.splice(from, 1);
+    next.splice(to, 0, id);
+    saveOrder(next);
   }
 
   function swapRule(from: number, to: number) {
-    measureRows([whitelist[from], whitelist[to]]);
+    measureRows([ruleIds[from], ruleIds[to]]);
     moveRule(from, to);
   }
 
@@ -216,28 +237,28 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
 
     // Hit-test against layout positions, which ignore in-flight FLIP transforms, so rows animating
     // under the cursor can't bounce the ghost back and forth.
-    const rows = drag.order.map((pattern) => rowRefs.current.get(pattern));
+    const rows = drag.order.map((id) => rowRefs.current.get(id));
     const parent = rows[0]?.offsetParent;
     if (parent == null) return;
     const y = event.clientY - parent.getBoundingClientRect().top - parent.clientTop;
     let target = rows.findIndex((row) => row != null && y < row.offsetTop + row.offsetHeight);
     if (target === -1) target = rows.length - 1;
 
-    const from = drag.order.indexOf(drag.pattern);
+    const from = drag.order.indexOf(drag.id);
     if (target === from) return;
-    const order = drag.order.slice();
-    order.splice(from, 1);
-    order.splice(target, 0, drag.pattern);
+    const nextOrder = drag.order.slice();
+    nextOrder.splice(from, 1);
+    nextOrder.splice(target, 0, drag.id);
     measureRows();
-    setDrag({ order, pattern: drag.pattern });
+    setDrag({ id: drag.id, order: nextOrder });
   }
 
   function handleDrop(event: React.DragEvent<HTMLElement>) {
     if (drag == null) return;
     event.preventDefault();
-    if (drag.order.some((pattern, i) => pattern !== whitelist[i])) {
-      setDropped({ base: whitelist, order: drag.order });
-      onSaveSetting("whitelist", drag.order);
+    if (drag.order.some((id, i) => id !== ruleIds[i])) {
+      setDropped({ base: savedRules, order: drag.order });
+      saveOrder(drag.order);
     }
     setDrag(null);
   }
@@ -254,7 +275,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
         <Button
           disabled={isFormVisible}
           onClick={() => {
-            setNewPattern("");
+            setNewDraft(EMPTY_DRAFT);
             setIsAdding(true);
           }}
           size="sm"
@@ -275,15 +296,16 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
               ref={formRef}
             >
               <RuleForm
-                canSave={isAdding && isValidPattern(newPattern)}
+                canSave={isAdding && isValidDraft(newDraft) && newDraftError == null}
                 conditionLabel={conditionLabel(0)}
-                error={isAdding ? newPatternError : null}
-                id="wl-add"
+                draft={newDraft}
+                error={isAdding ? newDraftError : null}
+                id="rule-add"
+                isTypeTaken={(type) => isConditionTypeTaken(type, savedRules, null)}
                 onCancel={cancelAddRule}
-                onChange={setNewPattern}
+                onChange={setNewDraft}
                 onSubmit={addRule}
                 readOnly={!isAdding}
-                value={newPattern}
               />
             </li>
           )}
@@ -292,40 +314,65 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
               {chrome.i18n.getMessage("options_tabRules_empty")}
             </li>
           ) : (
-            rules.map((pattern, index) => (
+            rules.map((rule, index) => (
               <li
                 className={cx("list-group-item d-flex align-items-start gap-2", {
-                  "bg-body-tertiary opacity-50": drag?.pattern === pattern,
-                  "bg-primary-subtle": isEditingRule(pattern),
+                  "bg-body-tertiary opacity-50": drag?.id === rule.id,
+                  "bg-primary-subtle": isEditingRule(rule.id),
                 })}
-                key={pattern}
+                key={rule.id}
                 ref={(el) => {
-                  if (el == null) rowRefs.current.delete(pattern);
-                  else rowRefs.current.set(pattern, el);
+                  if (el == null) rowRefs.current.delete(rule.id);
+                  else rowRefs.current.set(rule.id, el);
                 }}
               >
-                {isEditingRule(pattern) && editing != null ? (
+                {isEditingRule(rule.id) && editing != null ? (
                   <RuleForm
                     canSave={
-                      editing.savingFrom == null &&
-                      isValidPattern(editing.value) &&
-                      editError == null
+                      editing.savingFrom == null && isValidDraft(editing.draft) && editError == null
                     }
                     conditionLabel={conditionLabel(index + firstRuleIndex)}
+                    draft={editing.draft}
                     error={editing.savingFrom == null ? editError : null}
-                    id="wl-edit"
+                    id="rule-edit"
+                    isTypeTaken={(type) => isConditionTypeTaken(type, savedRules, editing.id)}
                     onCancel={() => {
                       setEditing(null);
                     }}
-                    onChange={(value) => {
-                      setEditing({ ...editing, value });
+                    onChange={(draft) => {
+                      setEditing({ ...editing, draft });
                     }}
                     onSubmit={saveEdit}
                     readOnly={editing.savingFrom != null}
-                    value={editing.value}
                   />
                 ) : (
                   <>
+                    <div className="tab-rule-move">
+                      <Button
+                        aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                        className="text-body-secondary"
+                        disabled={index === 0}
+                        onClick={() => {
+                          swapRule(index, index - 1);
+                        }}
+                        title={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                        variant="link"
+                      >
+                        <i className="fas fa-chevron-up" />
+                      </Button>
+                      <Button
+                        aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                        className="text-body-secondary"
+                        disabled={index === rules.length - 1}
+                        onClick={() => {
+                          swapRule(index, index + 1);
+                        }}
+                        title={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                        variant="link"
+                      >
+                        <i className="fas fa-chevron-down" />
+                      </Button>
+                    </div>
                     <span
                       className="tab-rule-line text-body-secondary"
                       draggable
@@ -339,49 +386,27 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                         );
                         // Deferred so the browser snapshots the drag image before the row turns into a ghost.
                         setTimeout(() => {
-                          setDrag({ order: whitelist, pattern });
+                          setDrag({ id: rule.id, order: ruleIds });
                         });
                       }}
                       style={{ cursor: "grab" }}
                     >
                       <i className="fas fa-grip-vertical" />
                     </span>
-                    <RuleLine ifLabel={conditionLabel(index + firstRuleIndex)}>
-                      <span className="text-truncate" title={pattern}>
-                        {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}{" "}
-                        <code>{pattern}</code>
-                      </span>
+                    <RuleLine
+                      className={cx({ "opacity-50": !rule.enabled })}
+                      ifLabel={conditionLabel(index + firstRuleIndex)}
+                    >
+                      <RuleConditions rule={rule} />
                     </RuleLine>
                     <div className="tab-rule-controls">
-                      <ButtonGroup size="sm">
-                        <Button
-                          aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                          disabled={index === 0}
-                          onClick={() => {
-                            swapRule(index, index - 1);
-                          }}
-                          title={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                          variant="outline-secondary"
-                        >
-                          <i className="fas fa-chevron-up" />
-                        </Button>
-                        <Button
-                          aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                          disabled={index === rules.length - 1}
-                          onClick={() => {
-                            swapRule(index, index + 1);
-                          }}
-                          title={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                          variant="outline-secondary"
-                        >
-                          <i className="fas fa-chevron-down" />
-                        </Button>
-                      </ButtonGroup>
                       <ButtonGroup>
                         <Button
                           aria-label={chrome.i18n.getMessage("options_tabRules_edit")}
+                          disabled={ruleToDraft(rule) == null}
                           onClick={() => {
-                            setEditing({ pattern, savingFrom: null, value: pattern });
+                            const draft = ruleToDraft(rule);
+                            if (draft != null) setEditing({ draft, id: rule.id, savingFrom: null });
                           }}
                           size="sm"
                           title={chrome.i18n.getMessage("options_tabRules_edit")}
@@ -392,7 +417,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                         <Button
                           aria-label={chrome.i18n.getMessage("options_tabRules_remove")}
                           onClick={() => {
-                            removeRule(pattern);
+                            removeRule(rule.id);
                           }}
                           size="sm"
                           title={chrome.i18n.getMessage("options_tabRules_remove")}
@@ -407,20 +432,6 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
               </li>
             ))
           )}
-          <FixedRule
-            icon="fa-volume-up"
-            ifLabel={conditionLabel(rules.length + firstRuleIndex)}
-            label={chrome.i18n.getMessage("options_tabRules_condition_audible")}
-            onSaveSetting={onSaveSetting}
-            settingKey="filterAudio"
-          />
-          <FixedRule
-            disabled={!supportsTabGroups}
-            ifLabel={conditionLabel(rules.length + firstRuleIndex + 1)}
-            label={chrome.i18n.getMessage("options_tabRules_condition_grouped")}
-            onSaveSetting={onSaveSetting}
-            settingKey="filterGroupedTabs"
-          />
           <li className="list-group-item d-flex align-items-center gap-2 bg-body-tertiary">
             <span className="text-body-secondary opacity-25">
               <i className="fas fa-grip-vertical" />
@@ -438,56 +449,6 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
   );
 }
 
-function FixedRule({
-  disabled = false,
-  icon,
-  ifLabel,
-  label,
-  onSaveSetting,
-  settingKey,
-}: {
-  disabled?: boolean;
-  icon?: string;
-  ifLabel: string;
-  label: string;
-  onSaveSetting: SaveSetting;
-  settingKey: "filterAudio" | "filterGroupedTabs";
-}) {
-  const enabled = useSetting(settingKey);
-  return (
-    <li className="list-group-item d-flex align-items-start gap-2 bg-body-tertiary">
-      <span className="tab-rule-line text-body-secondary opacity-25">
-        <i className="fas fa-grip-vertical" />
-      </span>
-      <RuleLine className={cx({ "opacity-50": !enabled || disabled })} ifLabel={ifLabel}>
-        <span className="text-truncate" id={`${settingKey}-condition`}>
-          {icon != null && <i className={`fas ${icon} me-1`} />}
-          {label}
-        </span>
-      </RuleLine>
-      <div className="tab-rule-controls">
-        <div className="form-check form-switch form-check-reverse mb-0">
-          <input
-            aria-describedby={`${settingKey}-condition`}
-            checked={enabled}
-            className="form-check-input"
-            disabled={disabled}
-            id={settingKey}
-            onChange={(event) => {
-              onSaveSetting(settingKey, event.target.checked);
-            }}
-            role="switch"
-            type="checkbox"
-          />
-          <label className="form-check-label fs-6" htmlFor={settingKey}>
-            {chrome.i18n.getMessage("options_tabRules_enabled")}
-          </label>
-        </div>
-      </div>
-    </li>
-  );
-}
-
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -496,27 +457,63 @@ function conditionLabel(position: number) {
   return chrome.i18n.getMessage(position === 0 ? "options_tabRules_if" : "options_tabRules_elseIf");
 }
 
+const CONDITION_TYPE_MESSAGES: Record<ConditionType, string> = {
+  audible: "options_tabRules_condition_audible",
+  groupId: "options_tabRules_condition_grouped",
+  url: "options_tabRules_condition_urlContains",
+};
+
+function conditionTypeLabel(type: ConditionType) {
+  return chrome.i18n.getMessage(CONDITION_TYPE_MESSAGES[type]);
+}
+
+function RuleConditions({ rule }: { rule: TabRule }) {
+  const [condition] = rule.when;
+  if (rule.when.length !== 1) return null;
+  switch (condition.type) {
+    case "url":
+      return (
+        <span className="text-truncate" title={condition.value}>
+          {conditionTypeLabel("url")} <code>{condition.value}</code>
+        </span>
+      );
+    case "audible":
+      return (
+        <span className="text-truncate">
+          <i className="fas fa-volume-up me-1" />
+          {conditionTypeLabel("audible")}
+        </span>
+      );
+    case "groupId":
+      return <span className="text-truncate">{conditionTypeLabel("groupId")}</span>;
+    default:
+      return null;
+  }
+}
+
 // Shared by the new rule form and inline editing so both match a rule row's layout exactly.
 function RuleForm({
   canSave,
   conditionLabel,
+  draft,
   error,
   id,
+  isTypeTaken,
   onCancel,
   onChange,
   onSubmit,
   readOnly,
-  value,
 }: {
   canSave: boolean;
   conditionLabel: string;
+  draft: Draft;
   error: string | null;
   id: string;
+  isTypeTaken: (type: ConditionType) => boolean;
   onCancel: () => void;
-  onChange: (value: string) => void;
+  onChange: (draft: Draft) => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   readOnly: boolean;
-  value: string;
 }) {
   return (
     <>
@@ -531,27 +528,46 @@ function RuleForm({
         onSubmit={onSubmit}
       >
         <RuleLine editable ifLabel={conditionLabel}>
-          <label className="tab-rule-line text-nowrap" htmlFor={id}>
-            {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
-          </label>
-          <div className="flex-grow-1">
-            <input
-              aria-describedby={error != null ? `${id}-error` : undefined}
-              aria-invalid={error != null}
-              autoFocus
-              className={cx("form-control form-control-sm", { "is-invalid": error != null })}
-              id={id}
-              onChange={(event) => {
-                onChange(event.target.value);
-              }}
-              readOnly={readOnly}
-              type="text"
-              value={value}
-            />
-            {error != null && (
-              <div className="form-text text-danger mt-1" id={`${id}-error`}>
-                {error}
-              </div>
+          <select
+            aria-label={chrome.i18n.getMessage("options_tabRules_condition")}
+            autoFocus={draft.type !== "url"}
+            className="form-select form-select-sm w-auto"
+            disabled={readOnly}
+            id={`${id}-type`}
+            onChange={(event) => {
+              onChange({ ...draft, type: event.target.value as ConditionType });
+            }}
+            value={draft.type}
+          >
+            {CONDITION_TYPES.map((type) => (
+              <option disabled={isTypeTaken(type)} key={type} value={type}>
+                {conditionTypeLabel(type)}
+              </option>
+            ))}
+          </select>
+          <div className="tab-rule-input">
+            {draft.type === "url" && (
+              <>
+                <input
+                  aria-describedby={error != null ? `${id}-error` : undefined}
+                  aria-invalid={error != null}
+                  aria-label={conditionTypeLabel("url")}
+                  autoFocus
+                  className={cx("form-control form-control-sm", { "is-invalid": error != null })}
+                  id={id}
+                  onChange={(event) => {
+                    onChange({ ...draft, value: event.target.value });
+                  }}
+                  readOnly={readOnly}
+                  type="text"
+                  value={draft.value}
+                />
+                {error != null && (
+                  <div className="form-text text-danger mt-1" id={`${id}-error`}>
+                    {error}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </RuleLine>
@@ -568,9 +584,6 @@ function RuleForm({
   );
 }
 
-// One rule on a single line: the "If" condition takes the remaining width and "Then" sits in a
-// minimum-width column, so actions line up across rows in English. Longer translations widen the
-// column instead of overlapping, and "Then" wraps under "If" when the line can't fit both.
 function RuleLine({
   children,
   className,
@@ -638,9 +651,25 @@ function RuleClause({
 }
 
 function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
-  const minutesInactive = useSetting("minutesInactive");
-  const secondsInactive = useSetting("secondsInactive");
+  const elseRule = getElseRule(useSetting("tabRules"));
+  const afterSeconds =
+    elseRule?.then.action === "stale" ? elseRule.then.afterSeconds : DEFAULT_STALE_AFTER_SECONDS;
+  const minutesInactive = Math.floor(afterSeconds / 60);
+  const secondsInactive = afterSeconds % 60;
   const [zeroDurationError, setZeroDurationError] = useState(false);
+
+  function saveAfterSeconds(nextAfterSeconds: number) {
+    const current = settings.get("tabRules");
+    const currentElseRule = getElseRule(current);
+    onSaveSetting("tabRules", {
+      ...current,
+      rules: current.rules.map((rule) =>
+        rule === currentElseRule
+          ? { ...rule, then: { action: "stale", afterSeconds: nextAfterSeconds } }
+          : rule,
+      ),
+    });
+  }
 
   const daysInactive = Math.floor(minutesInactive / (24 * 60));
   const hoursInactive = Math.floor((minutesInactive % (24 * 60)) / 60);
@@ -653,7 +682,7 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
       return false;
     }
     setZeroDurationError(false);
-    onSaveSetting("minutesInactive", total);
+    saveAfterSeconds(total * 60 + secondsInactive);
     return true;
   }
 
@@ -663,7 +692,7 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
       return false;
     }
     setZeroDurationError(false);
-    onSaveSetting("secondsInactive", seconds);
+    saveAfterSeconds(minutesInactive * 60 + seconds);
     return true;
   }
 
@@ -763,13 +792,50 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
   );
 }
 
-// Tab URLs never contain whitespace (spaces are encoded as %20), so a pattern with any can't match.
-function isValidPattern(pattern: string) {
-  return pattern.length > 0 && !/\s/.test(pattern);
+const EMPTY_DRAFT: Draft = { type: "url", value: "" };
+
+// Every rule except the final "Else" rule, which shows as its own fixed row.
+function getListedRules(tabRules: TabRulesConfig): TabRule[] {
+  return getElseRule(tabRules) == null ? tabRules.rules : tabRules.rules.slice(0, -1);
 }
 
-function patternError(pattern: string, whitelist: string[]): string | null {
-  if (/\s/.test(pattern)) return chrome.i18n.getMessage("options_tabRules_whitespace");
-  if (whitelist.includes(pattern)) return chrome.i18n.getMessage("options_tabRules_duplicate");
+function draftToCondition(draft: Draft): TabCondition {
+  if (draft.type === "audible") return { type: "audible" };
+  if (draft.type === "groupId") return { type: "groupId", op: "some" };
+  return { type: "url", op: "contains", value: draft.value };
+}
+
+// Only single-condition rules the form can express are editable.
+function ruleToDraft(rule: TabRule): Draft | null {
+  if (rule.when.length !== 1) return null;
+  const [condition] = rule.when;
+  if (condition.type === "url" && condition.op === "contains")
+    return { type: "url", value: condition.value };
+  if (condition.type === "audible") return { type: "audible", value: "" };
+  if (condition.type === "groupId" && condition.op === "some")
+    return { type: "groupId", value: "" };
+  return null;
+}
+
+// Audio and tab group rules have nothing to configure, so a second one could never match.
+function isConditionTypeTaken(type: ConditionType, rules: TabRule[], exceptId: string | null) {
+  return (
+    type !== "url" && rules.some((rule) => rule.id !== exceptId && ruleToDraft(rule)?.type === type)
+  );
+}
+
+// Tab URLs never contain whitespace (spaces are encoded as %20), so a pattern with any can't match.
+function isValidDraft(draft: Draft) {
+  return draft.type !== "url" || (draft.value.length > 0 && !/\s/.test(draft.value));
+}
+
+function draftError(draft: Draft, rules: TabRule[], exceptId: string | null): string | null {
+  if (draft.type !== "url") return null;
+  if (/\s/.test(draft.value)) return chrome.i18n.getMessage("options_tabRules_whitespace");
+  const duplicate = rules.some((rule) => {
+    const other = rule.id === exceptId ? null : ruleToDraft(rule);
+    return other?.type === "url" && other.value === draft.value;
+  });
+  if (duplicate) return chrome.i18n.getMessage("options_tabRules_duplicate");
   return null;
 }

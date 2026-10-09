@@ -1,9 +1,5 @@
-import {
-  AVERAGE_TAB_BYTES_SIZE,
-  TabLockStatus,
-  getTabLockStatus,
-  getWhitelistMatch,
-} from "./tabUtil";
+import { AVERAGE_TAB_BYTES_SIZE, TabLockStatus, getTabLockStatus } from "./tabUtil";
+import { type TabRulesConfig, buildTabRulesFromLegacySettings, getStaleAfterMs } from "./tabRules";
 import Menus from "./menus";
 
 export type LockTabSortOrderOption =
@@ -33,6 +29,7 @@ export interface SettingsSchema {
   purgeClosedTabs: boolean;
   secondsInactive: number;
   showBadgeCount: boolean;
+  tabRules: TabRulesConfig;
   whitelist: string[];
   wrangleOption: SettingsSchemaWrangleOption;
 }
@@ -40,7 +37,7 @@ export interface SettingsSchema {
 const defaultLockedIds: Array<number> = [];
 const defaultLockedWindowIds: Array<number> = [];
 
-export const SETTINGS_DEFAULTS: SettingsSchema = {
+const SETTINGS_DEFAULTS_WITHOUT_TAB_RULES: Omit<SettingsSchema, "tabRules"> = {
   // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
   corralTabSortOrder: null,
 
@@ -50,10 +47,10 @@ export const SETTINGS_DEFAULTS: SettingsSchema = {
   // wait 1 second before updating an active tab
   debounceOnActivated: true,
 
-  // Don't close tabs that are playing audio.
+  // Superseded by `tabRules`; read only to migrate.
   filterAudio: true,
 
-  // Don't close tabs that are a member of a group.
+  // Superseded by `tabRules`; read only to migrate.
   filterGroupedTabs: false,
 
   // An array of tabids which have been explicitly locked by the user.
@@ -76,7 +73,7 @@ export const SETTINGS_DEFAULTS: SettingsSchema = {
   // * "givenWindow" (default) - count tabs within any given window
   minTabsStrategy: "givenWindow",
 
-  // How many minutes (+ secondsInactive) before we consider a tab "stale" and ready to close.
+  // Superseded by `tabRules`; read only to migrate.
   minutesInactive: 60,
 
   // Stop tab timers from counting down while the browser is idle. Requires the "idle" permission.
@@ -85,17 +82,23 @@ export const SETTINGS_DEFAULTS: SettingsSchema = {
   // Save closed tabs in between browser sessions.
   purgeClosedTabs: false,
 
-  // How many seconds (+ minutesInactive) before a tab is "stale" and ready to close.
+  // Superseded by `tabRules`; read only to migrate.
   secondsInactive: 0,
 
   // When true, shows the number of closed tabs in the list as a badge on the browser icon.
   showBadgeCount: false,
 
-  // An array of patterns to check against. If a URL matches a pattern, it is never locked.
+  // Superseded by `tabRules`; read only to migrate.
   whitelist: ["about:", "chrome://"],
 
   // Allow duplicate entries in the closed/wrangled tabs list
   wrangleOption: "withDupes",
+};
+
+export const SETTINGS_DEFAULTS: SettingsSchema = {
+  ...SETTINGS_DEFAULTS_WITHOUT_TAB_RULES,
+  // Rules deciding which tabs are locked and when the rest become stale.
+  tabRules: buildTabRulesFromLegacySettings(SETTINGS_DEFAULTS_WITHOUT_TAB_RULES),
 };
 
 // This is a SINGLETON! It is imported both by backgrounnd.ts and by popup.tsx and used in both
@@ -133,6 +136,10 @@ const Settings = {
     this._initPromise = new Promise((resolve) => {
       chrome.storage.sync.get(keys, (items) => {
         Object.assign(this.cache, items);
+        // Settings from before Tab Rules have no `tabRules`, so derive equivalent rules from the
+        // legacy settings until `migrateSync` persists them.
+        if (items.tabRules == null)
+          this.cache.tabRules = buildTabRulesFromLegacySettings(this.cache);
         resolve();
       });
     });
@@ -160,19 +167,13 @@ const Settings = {
     return this.cache[key];
   },
 
-  getWhitelistMatch(url: string | undefined): string | null {
-    return getWhitelistMatch(url, { whitelist: this.get("whitelist") });
-  },
-
   getTabLockStatus(tab: chrome.tabs.Tab): TabLockStatus {
     // Intentionally excludes `lockedWindowIds` so the UI checkbox reflects individual tab lock
     // state only. Window lock state is passed separately as a prop in the UI.
     return getTabLockStatus(tab, {
-      filterAudio: this.get("filterAudio"),
-      filterGroupedTabs: this.get("filterGroupedTabs"),
       lockedIds: this.get("lockedIds"),
       lockedWindowIds: [],
-      whitelist: this.get("whitelist"),
+      tabRules: this.get("tabRules"),
     });
   },
 
@@ -183,10 +184,6 @@ const Settings = {
   isTabManuallyLockable(tab: chrome.tabs.Tab): boolean {
     const status = this.getTabLockStatus(tab);
     return !status.locked || status.reason === "manual";
-  },
-
-  isWhitelisted(url: string): boolean {
-    return this.getWhitelistMatch(url) !== null;
   },
 
   lockTab(tab: chrome.tabs.Tab): Promise<void> {
@@ -275,26 +272,6 @@ const Settings = {
       }
       return Settings.setValue("minTabs", minTabs);
     },
-
-    minutesInactive(minutesInactive: number): Promise<void> {
-      if (isNaN(minutesInactive) || minutesInactive < 0) {
-        throw Error(
-          chrome.i18n.getMessage("settings_setminutesInactive_error") ||
-            "Error: settings.setminutesInactive",
-        );
-      }
-      return Settings.setValue("minutesInactive", minutesInactive);
-    },
-
-    secondsInactive(secondsInactive: number): Promise<void> {
-      if (isNaN(secondsInactive) || secondsInactive < 0 || secondsInactive > 59) {
-        throw Error(
-          chrome.i18n.getMessage("settings_setsecondsInactive_error") ||
-            "Error: setsecondsInactive",
-        );
-      }
-      return Settings.setValue("secondsInactive", secondsInactive);
-    },
   } as Partial<{ [K in keyof SettingsSchema]: (value: SettingsSchema[K]) => Promise<void> }>,
 
   set<K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]): Promise<void> {
@@ -338,13 +315,11 @@ const Settings = {
   },
 
   /**
-   * Returns the number of milliseconds that tabs should stay open for without being used.
+   * Returns the number of milliseconds a tab may stay inactive before it is stale. Without a tab,
+   * returns the longest such duration of any rule.
    */
-  stayOpen(): number {
-    return (
-      Number(this.get("minutesInactive")) * 60000 + // minutes
-      Number(this.get("secondsInactive")) * 1000 // seconds
-    );
+  stayOpen(tab?: chrome.tabs.Tab): number {
+    return getStaleAfterMs(this.get("tabRules"), tab);
   },
 
   toggleTabs(tabs: chrome.tabs.Tab[]) {

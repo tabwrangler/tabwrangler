@@ -90,6 +90,7 @@ describe("migrateSync", () => {
     expect(
       tabRules.rules.map(({ then, when }: { then: unknown; when: unknown[] }) => ({ then, when })),
     ).toEqual([
+      { then: { action: "lock" }, when: [{ type: "pinned" }] },
       { then: { action: "lock" }, when: [{ type: "url", op: "contains", value: "github.com" }] },
       { then: { action: "lock" }, when: [{ type: "audible" }] },
       { then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
@@ -101,14 +102,23 @@ describe("migrateSync", () => {
   test("migrates the legacy defaults when no settings were changed", async () => {
     await migrateSync();
     const { tabRules } = await chrome.storage.sync.get("tabRules");
-    expect(tabRules.rules).toHaveLength(4);
-    expect(tabRules.rules[3].then).toEqual({ action: "stale", afterSeconds: 3600 });
+    expect(tabRules.rules).toHaveLength(5);
+    expect(tabRules.rules[0].when).toEqual([{ type: "pinned" }]);
+    expect(tabRules.rules[4].then).toEqual({ action: "stale", afterSeconds: 3600 });
   });
 
   test("leaves tabRules that were already migrated, even by another device", async () => {
     const stored = {
       version: 1,
-      rules: [{ id: "a", enabled: true, when: [], then: { action: "stale", afterSeconds: 10 } }],
+      rules: [
+        {
+          id: "a",
+          enabled: true,
+          match: "all",
+          when: [],
+          then: { action: "stale", afterSeconds: 10 },
+        },
+      ],
     };
     await chrome.storage.sync.set({ tabRules: stored, whitelist: ["github.com"] });
     await migrateSync();

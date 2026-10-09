@@ -130,7 +130,7 @@ usages are described in the following table:
 | `paused`              | `false`                   |                                                                  | Whether TabWrangler is paused (shouldn't count down)                                                   |
 | `purgeClosedTabs`     | `false`                   |                                                                  | Whether to empty the closed tab list when the browser closes                                           |
 | `showBadgeCount`      | `false`                   |                                                                  | Whether to show the length of the closed tab list as a badge on the URL bar icon                       |
-| `tabRules`            | Lock `about:` and `chrome://`, lock tabs playing audio, otherwise stale after 60 minutes | | Ordered rules deciding which tabs are locked and when the rest become stale |
+| `tabRules`            | Lock pinned tabs, `about:`, `chrome://`, and tabs playing audio, otherwise stale after 60 minutes | | Ordered rules deciding which tabs are locked and when the rest become stale |
 | `theme`               | `'system'`                | `'dark'`, `'light'`, `'system'`                                  | The color theme to use for Tab Wrangler's popup                                                        |
 | `wrangleOption`       | `'withDupes'`             | `'exactURLMatch'`, `'hostnameAndTitleMatch'`, `'withDupes'`      | How to handle duplicate entries in the closed tabs list                                                |
 <!-- prettier-ignore-end -->

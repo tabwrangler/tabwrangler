@@ -1,8 +1,8 @@
 import "./OpenTabRow.css";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
+import type { TabCondition, TabRule } from "../tabRules";
 import TabFavicon from "../TabFavicon";
 import type { TabLockStatus } from "../tabUtil";
-import type { TabRule } from "../tabRules";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
 import settings from "../settings";
@@ -228,9 +228,6 @@ function TabLockContent({
       case "manual":
         reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
         break;
-      case "pinned":
-        reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
-        break;
       case "rule":
         reason = <RuleLockedReason rule={tabLockStatus.rule} />;
         break;
@@ -290,6 +287,17 @@ function TabLockContent({
 }
 
 function RuleLockedReason({ rule }: { rule: TabRule }) {
+  if (rule.when.length > 1) {
+    const join = chrome.i18n
+      .getMessage(rule.match === "any" ? "options_tabRules_or" : "options_tabRules_and")
+      .toLocaleUpperCase();
+    return (
+      <abbr title={rule.when.map(describeCondition).join(` ${join} `)}>
+        {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
+      </abbr>
+    );
+  }
+
   const [condition] = rule.when;
   switch (rule.when.length === 1 ? condition.type : null) {
     case "audible":
@@ -300,6 +308,8 @@ function RuleLockedReason({ rule }: { rule: TabRule }) {
       );
     case "groupId":
       return chrome.i18n.getMessage("tabLock_lockedReason_group");
+    case "pinned":
+      return chrome.i18n.getMessage("tabLock_lockedReason_pinned");
     case "url":
       return (
         <abbr
@@ -313,6 +323,22 @@ function RuleLockedReason({ rule }: { rule: TabRule }) {
       );
     default:
       return chrome.i18n.getMessage("tabLock_lockedStatus_autolocked");
+  }
+}
+
+function describeCondition(condition: TabCondition): string {
+  switch (condition.type) {
+    case "url":
+      return `${chrome.i18n.getMessage("options_tabRules_condition_urlContains")} ${condition.value}`;
+    case "audible":
+      return chrome.i18n.getMessage("options_tabRules_condition_audible");
+    case "groupId":
+      return chrome.i18n.getMessage("options_tabRules_condition_grouped");
+    case "pinned":
+      return chrome.i18n.getMessage("options_tabRules_condition_pinned");
+    default:
+      condition satisfies never;
+      return "";
   }
 }
 

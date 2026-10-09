@@ -10,15 +10,16 @@ jest.mock("../settings", () => ({
 }));
 
 beforeEach(() => {
-  Object.assign(mockSettings, {
-    tabRules: buildTabRulesFromLegacySettings({
-      filterAudio: true,
-      filterGroupedTabs: false,
-      minutesInactive: 20,
-      secondsInactive: 0,
-      whitelist: ["about:", "chrome://", "example"],
-    }),
+  const tabRules = buildTabRulesFromLegacySettings({
+    filterAudio: true,
+    filterGroupedTabs: false,
+    minutesInactive: 20,
+    secondsInactive: 0,
+    whitelist: ["about:", "chrome://", "example"],
   });
+  // Most tests work with the URL and audio rules; the pinned rule has its own tests.
+  tabRules.rules = tabRules.rules.filter((rule) => rule.when[0]?.type !== "pinned");
+  Object.assign(mockSettings, { tabRules });
   Object.assign(chrome.i18n, { getMessage: (key: string) => key });
   Object.assign(chrome.tabs, { query: () => Promise.resolve([]) });
   // jsdom has no Web Animations API; reduced motion skips the animations.
@@ -64,7 +65,7 @@ describe("TabRules", () => {
     fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlContains"), {
       target: { value: "example" },
     });
-    expect(screen.getByText("options_tabRules_duplicate")).toBeTruthy();
+    expect(screen.getByText("options_tabRules_duplicateRule")).toBeTruthy();
     fireEvent.submit(screen.getByLabelText("options_tabRules_condition_urlContains"));
     expect(onSaveSetting).not.toHaveBeenCalled();
   });
@@ -128,7 +129,7 @@ describe("TabRules", () => {
     fireEvent.click(screen.getAllByLabelText("options_tabRules_edit")[1]);
     const input = screen.getByDisplayValue("chrome://");
     fireEvent.change(input, { target: { value: "about:" } });
-    expect(screen.getByText("options_tabRules_duplicate")).toBeTruthy();
+    expect(screen.getByText("options_tabRules_duplicateRule")).toBeTruthy();
     fireEvent.submit(input);
     expect(onSaveSetting).not.toHaveBeenCalled();
   });
@@ -199,16 +200,112 @@ describe("TabRules", () => {
     );
   });
 
-  test("disables conditions that already have a rule", () => {
+  test("does not add a rule identical to another one", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition"), {
+      target: { value: "audible" },
+    });
+    expect(screen.getByText("options_tabRules_duplicateRule")).toBeTruthy();
+    fireEvent.click(screen.getByText("options_save"));
+    expect(onSaveSetting).not.toHaveBeenCalled();
+  });
+
+  test("adds a rule matching all of several conditions", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlContains"), {
+      target: { value: "youtube.com" },
+    });
+    fireEvent.click(screen.getByText("options_tabRules_addCondition"));
+    fireEvent.change(screen.getAllByLabelText("options_tabRules_condition")[1], {
+      target: { value: "audible" },
+    });
+    fireEvent.click(screen.getByText("options_save"));
+    const [rule] = lastSavedTabRules(onSaveSetting).rules;
+    expect(rule.match).toBe("all");
+    expect(rule.when).toEqual([
+      { type: "url", op: "contains", value: "youtube.com" },
+      { type: "audible" },
+    ]);
+  });
+
+  test("adds a rule matching any of several conditions", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.click(screen.getByText("options_tabRules_addCondition"));
+    const [first, second] = screen.getAllByLabelText("options_tabRules_condition_urlContains");
+    fireEvent.change(first, { target: { value: "github.com" } });
+    fireEvent.change(second, { target: { value: "linear.app" } });
+    fireEvent.change(screen.getByLabelText("options_tabRules_match"), {
+      target: { value: "any" },
+    });
+    fireEvent.click(screen.getByText("options_save"));
+    expect(lastSavedTabRules(onSaveSetting).rules[0]).toEqual(
+      expect.objectContaining({
+        match: "any",
+        when: [
+          { type: "url", op: "contains", value: "github.com" },
+          { type: "url", op: "contains", value: "linear.app" },
+        ],
+      }),
+    );
+  });
+
+  test("removes a condition from the form", () => {
     render(<TabRules onSaveSetting={jest.fn()} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
-    const option = (value: string) =>
-      screen.getByRole("option", {
-        name: `options_tabRules_condition_${value}`,
-      }) as HTMLOptionElement;
-    expect(option("audible").disabled).toBe(true);
-    expect(option("grouped").disabled).toBe(false);
-    expect(option("urlContains").disabled).toBe(false);
+    expect(screen.queryByLabelText("options_tabRules_removeCondition")).toBeNull();
+    fireEvent.click(screen.getByText("options_tabRules_addCondition"));
+    expect(screen.getAllByLabelText("options_tabRules_condition")).toHaveLength(2);
+    fireEvent.click(screen.getAllByLabelText("options_tabRules_removeCondition")[1]);
+    expect(screen.getAllByLabelText("options_tabRules_condition")).toHaveLength(1);
+  });
+
+  test("disables audio and tab group conditions already in the rule", () => {
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition"), {
+      target: { value: "groupId" },
+    });
+    fireEvent.click(screen.getByText("options_tabRules_addCondition"));
+    const options = screen.getAllByRole("option", {
+      name: "options_tabRules_condition_grouped",
+    }) as HTMLOptionElement[];
+    expect(options.map((option) => option.disabled)).toEqual([false, true]);
+  });
+
+  test("flags the same URL text twice in one rule", () => {
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.click(screen.getByText("options_tabRules_addCondition"));
+    const [first, second] = screen.getAllByLabelText("options_tabRules_condition_urlContains");
+    fireEvent.change(first, { target: { value: "news" } });
+    fireEvent.change(second, { target: { value: "news" } });
+    expect(screen.getByText("options_tabRules_duplicateCondition")).toBeTruthy();
+  });
+
+  test("shows each condition after the first with its connector", () => {
+    const tabRules = mockSettings.tabRules as TabRulesConfig;
+    mockSettings.tabRules = {
+      ...tabRules,
+      rules: [
+        {
+          id: "a",
+          enabled: true,
+          match: "any",
+          when: [{ type: "url", op: "contains", value: "github.com" }, { type: "audible" }],
+          then: { action: "lock" },
+        },
+        ...tabRules.rules,
+      ],
+    };
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(screen.getAllByText("options_tabRules_or")).toHaveLength(1);
+    expect(screen.queryByText("options_tabRules_and")).toBeNull();
   });
 
   test("changes a rule's condition when editing", () => {
@@ -228,5 +325,30 @@ describe("TabRules", () => {
       "audible",
     );
     expect(screen.queryByLabelText("options_tabRules_condition_urlContains")).toBeNull();
+  });
+
+  test("adds a rule for pinned tabs", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition"), {
+      target: { value: "pinned" },
+    });
+    fireEvent.click(screen.getByText("options_save"));
+    expect(lastSavedTabRules(onSaveSetting).rules[0].when).toEqual([{ type: "pinned" }]);
+  });
+
+  test("shows the migrated pinned rule", () => {
+    mockSettings.tabRules = buildTabRulesFromLegacySettings({
+      filterAudio: false,
+      filterGroupedTabs: false,
+      minutesInactive: 20,
+      secondsInactive: 0,
+      whitelist: [],
+    });
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(
+      screen.getAllByText("options_tabRules_if")[0].closest(".tab-rule-clause")?.textContent,
+    ).toContain("options_tabRules_condition_pinned");
   });
 });

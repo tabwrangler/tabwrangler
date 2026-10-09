@@ -159,7 +159,6 @@ export async function updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number): 
 export type TabLockStatus =
   | { locked: false }
   | { locked: true; reason: "manual" }
-  | { locked: true; reason: "pinned" }
   | { locked: true; reason: "rule"; rule: TabRule }
   | { locked: true; reason: "window" };
 
@@ -167,8 +166,6 @@ export function getTabLockStatus(
   tab: chrome.tabs.Tab,
   { lockedIds, lockedWindowIds, tabRules }: LockSettings,
 ): TabLockStatus {
-  if (tab.pinned) return { locked: true, reason: "pinned" };
-
   const rule = findMatchingRule(tab, tabRules);
   if (rule?.then.action === "lock") return { locked: true, reason: "rule", rule };
   if (tab.id != null && lockedIds.indexOf(tab.id) !== -1) return { locked: true, reason: "manual" };

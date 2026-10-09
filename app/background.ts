@@ -15,7 +15,7 @@ import {
   updateLastAccessed,
   wrangleTabs,
 } from "./js/tabUtil";
-import { getStaleTimeoutsKey, locksAudibleTabs } from "./js/tabRules";
+import { getStaleTimeoutsKey, getTabOutcome } from "./js/tabRules";
 import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
 import {
   lockUnlockActiveTab,
@@ -293,12 +293,12 @@ async function checkToClose() {
       const tabIdToFreeze = findTabToFreeze(allWindows, lastFocusedWindow.id, tabTimes);
       if (tabIdToFreeze != null) tabTimes[String(tabIdToFreeze)] = updatedAt;
 
-      // Refresh audible tabs if they are locked to prevent them from being closed.
-      if (locksAudibleTabs(settings.get("tabRules"))) {
-        allTabs.forEach((tab) => {
-          if (tab.audible) tabTimes[String(tab.id)] = updatedAt;
-        });
-      }
+      // Refresh tabs locked by a rule so they get a full timer once the rule stops matching, like
+      // when audio stops or a tab is unpinned.
+      const tabRules = settings.get("tabRules");
+      allTabs.forEach((tab) => {
+        if (getTabOutcome(tab, tabRules)?.action === "lock") tabTimes[String(tab.id)] = updatedAt;
+      });
 
       let candidateTabs: chrome.tabs.Tab[] = [];
       const minTabsStrategy = settings.get("minTabsStrategy");

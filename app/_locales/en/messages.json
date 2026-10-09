@@ -284,7 +284,7 @@
   },
   "options_option_minTabs_postLabel": {
     "description": "Label following input for setting minimum number of tabs",
-    "message": "(does not include pinned or locked tabs)."
+    "message": "(does not include locked tabs)."
   },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
@@ -794,9 +794,17 @@
     "description": "Tab rule action that locks matching tabs so they are never auto-closed",
     "message": "Lock tab"
   },
+  "options_tabRules_addCondition": {
+    "description": "Button in the tab rule form that adds another condition to the rule",
+    "message": "Add condition"
+  },
   "options_tabRules_addRule": {
     "description": "Button label for adding a new tab rule",
     "message": "Add rule"
+  },
+  "options_tabRules_and": {
+    "description": "Connector shown between a tab rule's conditions when all of them must match. Shown in uppercase",
+    "message": "AND"
   },
   "options_tabRules_cancel": {
     "description": "Button label for discarding a new tab rule before it is saved",
@@ -814,6 +822,10 @@
     "description": "Tab rule condition matching tabs that are in a tab group",
     "message": "Tab is in a tab group"
   },
+  "options_tabRules_condition_pinned": {
+    "description": "Tab rule condition matching tabs that are pinned",
+    "message": "Tab is pinned"
+  },
   "options_tabRules_condition_urlContains": {
     "description": "Tab rule condition matching tabs whose URL contains the given text",
     "message": "URL contains"
@@ -822,9 +834,13 @@
     "description": "Description of the tab rules section shown below its header",
     "message": "Rules are checked from top to bottom. Tabs are handled by the first rule they match."
   },
-  "options_tabRules_duplicate": {
-    "description": "Error shown when a new tab rule's URL text matches an existing rule",
-    "message": "A rule for this URL text already exists."
+  "options_tabRules_duplicateCondition": {
+    "description": "Error shown when a tab rule lists the same URL text twice",
+    "message": "This condition is already in the rule."
+  },
+  "options_tabRules_duplicateRule": {
+    "description": "Error shown when a tab rule has the same conditions as an existing rule",
+    "message": "A rule with these conditions already exists."
   },
   "options_tabRules_edit": {
     "description": "Accessible label and tooltip for the button that edits a tab rule",
@@ -850,6 +866,10 @@
     "description": "Label in front of the first tab rule's condition, as in \"If URL contains example\"",
     "message": "If"
   },
+  "options_tabRules_match": {
+    "description": "Accessible label for the menu choosing whether all or any of a tab rule's conditions must match",
+    "message": "Combine conditions with"
+  },
   "options_tabRules_moveDown": {
     "description": "Accessible label for the button that moves a tab rule down one position",
     "message": "Move rule down"
@@ -858,9 +878,17 @@
     "description": "Accessible label for the button that moves a tab rule up one position",
     "message": "Move rule up"
   },
+  "options_tabRules_or": {
+    "description": "Connector shown between a tab rule's conditions when any one of them can match. Shown in uppercase",
+    "message": "OR"
+  },
   "options_tabRules_remove": {
     "description": "Accessible label for the button that removes a tab rule",
     "message": "Remove rule"
+  },
+  "options_tabRules_removeCondition": {
+    "description": "Accessible label for the button that removes one condition from a tab rule",
+    "message": "Remove condition"
   },
   "options_tabRules_then": {
     "description": "Label in front of a tab rule's action, as in \"Then lock tab\"",

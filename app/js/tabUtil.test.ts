@@ -236,10 +236,11 @@ describe("getTabLockStatus", () => {
     });
   });
 
-  test("locks a pinned tab", () => {
+  test("locks a pinned tab with the migrated pinned rule", () => {
     expect(getTabLockStatus(createTab({ pinned: true }), defaultOptions)).toEqual({
       locked: true,
-      reason: "pinned",
+      reason: "rule",
+      rule: expect.objectContaining({ when: [{ type: "pinned" }] }),
     });
   });
 
@@ -315,7 +316,7 @@ describe("getTabLockStatus", () => {
 
   test("manual locks override a rule that makes the tab stale", () => {
     const tabRules = createTabRules({ whitelist: ["github.com"] });
-    tabRules.rules[0].then = { action: "stale", afterSeconds: 60 };
+    tabRules.rules[1].then = { action: "stale", afterSeconds: 60 };
     expect(
       getTabLockStatus(createTab({ groupId: -1, id: 42, url: "https://github.com" }), {
         ...defaultOptions,
@@ -341,15 +342,6 @@ describe("getTabLockStatus", () => {
         lockedWindowIds: [7],
       }),
     ).toEqual({ locked: true, reason: "window" });
-  });
-
-  test("pinned takes priority over audible", () => {
-    expect(
-      getTabLockStatus(createTab({ pinned: true, audible: true }), {
-        ...defaultOptions,
-        tabRules: createTabRules({ filterAudio: true }),
-      }),
-    ).toEqual({ locked: true, reason: "pinned" });
   });
 });
 

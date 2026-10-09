@@ -8,7 +8,6 @@ import {
   getStaleAfterMs,
   getStaleTimeoutsKey,
   getTabOutcome,
-  locksAudibleTabs,
 } from "./tabRules";
 
 const LEGACY_DEFAULTS: LegacyRuleSettings = {
@@ -47,6 +46,7 @@ describe("buildTabRulesFromLegacySettings", () => {
     const config = buildTabRulesFromLegacySettings({ ...LEGACY_DEFAULTS, filterGroupedTabs: true });
     expect(config.version).toBe(1);
     expect(config.rules.map(({ enabled, then, when }) => ({ enabled, then, when }))).toEqual([
+      { enabled: true, then: { action: "lock" }, when: [{ type: "pinned" }] },
       {
         enabled: true,
         then: { action: "lock" },
@@ -61,16 +61,17 @@ describe("buildTabRulesFromLegacySettings", () => {
       { enabled: true, then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
       { enabled: true, then: { action: "stale", afterSeconds: 3600 }, when: [] },
     ]);
+    expect(config.rules.every((rule) => rule.match === "all")).toBe(true);
   });
 
-  test("omits audio and tab group rules whose toggles were off", () => {
+  test("omits audio and tab group rules whose toggles were off, but always locks pinned tabs", () => {
     const config = buildTabRulesFromLegacySettings({
       ...LEGACY_DEFAULTS,
       filterAudio: false,
       filterGroupedTabs: false,
       whitelist: [],
     });
-    expect(config.rules.map((rule) => rule.when)).toEqual([[]]);
+    expect(config.rules.map((rule) => rule.when)).toEqual([[{ type: "pinned" }], []]);
   });
 
   test("gives every rule a unique ID", () => {
@@ -111,10 +112,10 @@ describe("buildTabRulesFromLegacySettings", () => {
   test("ignores a whitelist that is not an array of strings", () => {
     expect(
       buildTabRulesFromLegacySettings({ ...LEGACY_DEFAULTS, whitelist: undefined }).rules,
-    ).toHaveLength(2);
+    ).toHaveLength(3);
     expect(
       buildTabRulesFromLegacySettings({ ...LEGACY_DEFAULTS, whitelist: ["a", 1, null] }).rules,
-    ).toHaveLength(3);
+    ).toHaveLength(4);
   });
 
   test("matches whitelist entries by substring of the raw URL, like the legacy whitelist", () => {
@@ -124,7 +125,7 @@ describe("buildTabRulesFromLegacySettings", () => {
       whitelist: ["Example.com?q=a*b", "Example.com/x?q"],
     });
     expect(findMatchingRule(createTab({ url: "https://Example.com?q=a*b" }), config)).toBe(
-      config.rules[0],
+      config.rules[1],
     );
     expect(findMatchingRule(createTab({ url: "https://Example.com?q=aXb" }), config)).toBe(
       getElseRule(config),
@@ -174,6 +175,7 @@ describe("getTabOutcome", () => {
         {
           id: "a",
           enabled: true,
+          match: "all",
           when: [{ type: "url", op: "contains", value: "example" }],
           then: { action: "stale", afterSeconds: 10 },
         },
@@ -193,6 +195,7 @@ describe("getTabOutcome", () => {
         {
           id: "a",
           enabled: true,
+          match: "all",
           when: [{ type: "groupId", op: "none" }],
           then: { action: "lock" },
         },
@@ -210,10 +213,17 @@ describe("getStaleAfterMs", () => {
       {
         id: "a",
         enabled: true,
+        match: "all",
         when: [{ type: "url", op: "contains", value: "news" }],
         then: { action: "stale", afterSeconds: 7200 },
       },
-      { id: "b", enabled: true, when: [], then: { action: "stale", afterSeconds: 60 } },
+      {
+        id: "b",
+        enabled: true,
+        match: "all",
+        when: [],
+        then: { action: "stale", afterSeconds: 60 },
+      },
     ],
   };
 
@@ -254,11 +264,39 @@ describe("getStaleTimeoutsKey", () => {
   });
 });
 
-describe("locksAudibleTabs", () => {
-  test("follows the audio rule's enabled state", () => {
-    expect(locksAudibleTabs(buildTabRulesFromLegacySettings(LEGACY_DEFAULTS))).toBe(true);
-    expect(
-      locksAudibleTabs(buildTabRulesFromLegacySettings({ ...LEGACY_DEFAULTS, filterAudio: false })),
-    ).toBe(false);
+describe("match", () => {
+  const rule = (match: "all" | "any"): TabRulesConfig => ({
+    version: 1,
+    rules: [
+      {
+        id: "a",
+        enabled: true,
+        match,
+        when: [{ type: "url", op: "contains", value: "youtube.com" }, { type: "audible" }],
+        then: { action: "lock" },
+      },
+    ],
+  });
+  const youtube = "https://www.youtube.com/watch";
+
+  test("requires every condition with all", () => {
+    expect(getTabOutcome(createTab({ audible: true, url: youtube }), rule("all"))).toEqual({
+      action: "lock",
+    });
+    expect(getTabOutcome(createTab({ url: youtube }), rule("all"))).toBeNull();
+  });
+
+  test("requires any one condition with any", () => {
+    expect(getTabOutcome(createTab({ url: youtube }), rule("any"))).toEqual({ action: "lock" });
+    expect(getTabOutcome(createTab({ audible: true }), rule("any"))).toEqual({ action: "lock" });
+    expect(getTabOutcome(createTab(), rule("any"))).toBeNull();
+  });
+
+  test("matches every tab when a rule has no conditions, whatever its match", () => {
+    const config: TabRulesConfig = {
+      version: 1,
+      rules: [{ id: "a", enabled: true, match: "any", when: [], then: { action: "lock" } }],
+    };
+    expect(getTabOutcome(createTab(), config)).toEqual({ action: "lock" });
   });
 });

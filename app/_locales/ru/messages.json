@@ -210,10 +210,6 @@
     "description": "Label for option to count tabs across all windows",
     "message": "всего (по всем окнам)"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "вкладок открыто (не включая закрепленные и заблокированные вкладки)."
-  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "Здесь должно быть число, которое больше или равно 0"

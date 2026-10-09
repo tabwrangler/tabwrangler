@@ -210,10 +210,6 @@
     "description": "Label for option to count tabs across all windows",
     "message": "总计（所有窗口）"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "（不包括固定或锁定标签页）。"
-  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "必须是一个大于或等于 0 的数字"

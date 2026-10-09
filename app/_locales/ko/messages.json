@@ -202,10 +202,6 @@
     "description": "Label for option to count tabs across all windows",
     "message": "총합 (모든 창을 합해서)"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "(고정되거나 잠긴 탭은 포함되지 않음)."
-  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "숫자는 0보다 크거나 같아야 합니다."

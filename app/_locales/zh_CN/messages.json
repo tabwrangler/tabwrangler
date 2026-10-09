@@ -186,29 +186,9 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "选项"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "添加模式"
-  },
-  "options_option_autoLock_empty": {
-    "description": "Message shown when there are no whitelisted URLs",
-    "message": "尚无自动锁定的网址。使用上面的表单可以添加一些到白名单。"
-  },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "例子：\"cnn\" 可以匹配 \"https://www.cnn.com\" 的每个页面，或者任何网址（URL）含有 \"cnn\" 的页面。"
-  },
-  "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "自动锁定网址（URL）包含如下字符串的标签页："
-  },
-  "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
-    "message": "移除"
-  },
-  "options_option_autoLock_urlHeader": {
-    "description": "Table column header for list of whitelisted URL strings",
-    "message": "URL 字符串"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -221,10 +201,6 @@
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "仅在标签页活动超过 1 秒后重置该标签页的计时器"
-  },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "当不活动标签页数量超过以下值时自动关闭："
   },
   "options_option_minTabs_option_givenWindow": {
     "description": "Label for option to count tabs per window",
@@ -387,20 +363,12 @@
     }
   },
   "options_option_timeInactive_error_zero": {
-    "description": "Error shown when the inactive time duration is set to zero",
+    "description": "Error shown when the time before a tab becomes stale is set to zero",
     "message": "时长必须大于 0 秒。"
-  },
-  "options_option_timeInactive_label": {
-    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "关闭不活动的标签页，如果超过："
   },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "保存中..."
-  },
-  "options_section_autoLock": {
-    "description": "Header for the auto-lock section of the options tab",
-    "message": "自动锁定"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -476,25 +444,9 @@
     "description": "Min-tabs badge tooltip when the extension is paused.",
     "message": "扩展已暂停：标签页将不会自动关闭"
   },
-  "tabLock_minTabsBadge_allWindows_aboveMin": {
-    "description": "Min-tabs badge tooltip when total tabs exceed the minimum.",
-    "message": "已超过最小值：标签页将自动关闭"
-  },
-  "tabLock_minTabsBadge_allWindows_belowMin": {
-    "description": "Min-tabs badge tooltip when total tabs are at or below the minimum.",
-    "message": "未超过最小值：标签页不会自动关闭"
-  },
   "tabLock_minTabsBadge_givenWindow_locked": {
     "description": "Min-tabs badge tooltip when the window is locked.",
     "message": "窗口已锁定：标签页不会自动关闭"
-  },
-  "tabLock_minTabsBadge_givenWindow_aboveMin": {
-    "description": "Min-tabs badge tooltip when this window's tabs exceed the minimum.",
-    "message": "已超过最小值：此窗口中的标签页将自动关闭"
-  },
-  "tabLock_minTabsBadge_givenWindow_belowMin": {
-    "description": "Min-tabs badge tooltip when this window's tabs are at or below the minimum.",
-    "message": "未超过最小值：此窗口中的标签页不会自动关闭"
   },
   "tabLock_timerFrozen_tooltip": {
     "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
@@ -503,10 +455,6 @@
   "tabLock_groupIndicator_unnamed": {
     "description": "Fallback tooltip for a tab group with no title.",
     "message": "未命名群组"
-  },
-  "tabLock_overdueTooltip": {
-    "description": "Tooltip on the hourglass shown when a tab's countdown has expired.",
-    "message": "正在等待自动关闭"
   },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
@@ -543,22 +491,6 @@
   "tabLock_sort_tabOrder_desc_short": {
     "description": "Short version of tabLock_sort_tabOrder_desc",
     "message": "标签页顺序 (反向)"
-  },
-  "tabLock_sort_timeUntilClose": {
-    "description": "Description for sorting tabs by how much time until TW closes them",
-    "message": "关闭前时间"
-  },
-  "tabLock_sort_timeUntilClose_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose",
-    "message": "关闭前时间"
-  },
-  "tabLock_sort_timeUntilClose_desc": {
-    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
-    "message": "关闭前时间 (降序)"
-  },
-  "tabLock_sort_timeUntilClose_desc_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose_desc",
-    "message": "关闭前时间 (降序)"
   },
   "tabLock_lockTab": {
     "description": "Button label for locking a tab",
@@ -603,14 +535,6 @@
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "最小标签页数量需大于或等于 0"
-  },
-  "settings_setminutesInactive_error": {
-    "description": "Error shown when invalid minutes inactive setting is supplied.",
-    "message": "分钟无效，必须大于或等于 0"
-  },
-  "settings_setsecondsInactive_error": {
-    "description": "Error shown when invalid seconds inactive setting is supplied.",
-    "message": "秒数无效，必须大于或等于 0 且小于 60"
   },
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
@@ -663,10 +587,6 @@
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "域名（降序）"
-  },
-  "extDescription": {
-    "description": "Brief description of the extension",
-    "message": "自动关闭不常用的标签页，并允许您轻松还原找回它们"
   },
   "corral_remove": {
     "description": "Label for button that removes selected tabs",

@@ -153,25 +153,9 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Optionen"
   },
-  "options_option_autoLock_empty": {
-    "description": "Message shown when there are no whitelisted URLs",
-    "message": "Kein automatisch geschützten URLs vorhanden. Im oben angegeben Formular können ULs zur Whitelist hinzugefügt werden."
-  },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "Beispiel: \"cnn\" entspricht jeder Seite auf \"https://www.cnn.com\" und jeder URL mit \"cnn\" im Namen."
-  },
-  "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Automatisch geschützte Tabs deren URLs folgende Zeichenkette enthält:"
-  },
-  "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
-    "message": "Entfernen"
-  },
-  "options_option_autoLock_urlHeader": {
-    "description": "Table column header for list of whitelisted URL strings",
-    "message": "URL"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -217,17 +201,9 @@
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "System"
   },
-  "options_option_timeInactive_label": {
-    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "Schließen von inaktiven Tabs nach:"
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Speichern..."
-  },
-  "options_section_autoLock": {
-    "description": "Header for the auto-lock section of the options tab",
-    "message": "Automatischer Schutz"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -295,29 +271,9 @@
     "description": "Short version of tabLock_sort_tabOrder_desc",
     "message": "Tab Reihenfolge (umgek.)"
   },
-  "tabLock_sort_timeUntilClose": {
-    "description": "Description for sorting tabs by how much time until TW closes them",
-    "message": "Zeit bis zum schließen"
-  },
-  "tabLock_sort_timeUntilClose_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose",
-    "message": "Zeit bis zum schließen"
-  },
-  "tabLock_sort_timeUntilClose_desc_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose_desc",
-    "message": "Zeit bis zum schließen (absteigend)"
-  },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "Minimale Anzahl von Tabs muss größer oder gleich 0 sein"
-  },
-  "settings_setminutesInactive_error": {
-    "description": "Error shown when invalid minutes inactive setting is supplied.",
-    "message": "Inaktive Minuten muss größer oder gleich 0 sein"
-  },
-  "settings_setsecondsInactive_error": {
-    "description": "Error shown when invalid seconds inactive setting is supplied.",
-    "message": "Inaktive Minuten muss zwischen 0 und 60 liegen"
   },
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
@@ -366,10 +322,6 @@
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "Domain (absteigend)"
-  },
-  "extDescription": {
-    "description": "Brief description of the extension",
-    "message": "Automatisches schliessen von inaktiven Tabs und eine einfache Möglichkeit sie wieder zu öffnen"
   },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",

@@ -178,29 +178,9 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Opções"
   },
-  "options_option_autoLock_add": {
-    "description": "Button label for adding to whitelist",
-    "message": "Adicionar padrão"
-  },
-  "options_option_autoLock_empty": {
-    "description": "Message shown when there are no whitelisted URLs",
-    "message": "Ainda não há URLs com bloqueio automático. Use o formulário acima para adicionar algumas à lista de permissões."
-  },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "Exemplo: \"cnn\" corresponderia a todas as páginas em \"https://www.cnn.com\" e qualquer URL que contenha \"cnn\" em qualquer parte."
-  },
-  "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Bloquear automaticamente abas com URLs que contenham:"
-  },
-  "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
-    "message": "Remover"
-  },
-  "options_option_autoLock_urlHeader": {
-    "description": "Table column header for list of whitelisted URL strings",
-    "message": "Trecho da URL"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -213,10 +193,6 @@
   "options_option_debounceOnActivated_label": {
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Reiniciar o cronômetro da aba somente após ela estar ativa por 1 segundo"
-  },
-  "options_option_minTabs_label": {
-    "description": "Label preceeding input for setting minimum number of tabs",
-    "message": "Fechar automaticamente abas inativas se houver mais de:"
   },
   "options_option_minTabs_option_givenWindow": {
     "description": "Label for option to count tabs per window",
@@ -282,17 +258,9 @@
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "Sistema"
   },
-  "options_option_timeInactive_label": {
-    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "remover abas inativas após:"
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Salvando..."
-  },
-  "options_section_autoLock": {
-    "description": "Header for the auto-lock section of the options tab",
-    "message": "Bloqueio automático"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -360,22 +328,6 @@
     "description": "Short version of tabLock_sort_tabOrder_desc",
     "message": "Ordem das Abas (reversa)"
   },
-  "tabLock_sort_timeUntilClose": {
-    "description": "Description for sorting tabs by how much time until TW closes them",
-    "message": "Tempo até o fechamento"
-  },
-  "tabLock_sort_timeUntilClose_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose",
-    "message": "Tempo até o fechamento"
-  },
-  "tabLock_sort_timeUntilClose_desc": {
-    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
-    "message": "Tempo até o fechamento (decrescente)"
-  },
-  "tabLock_sort_timeUntilClose_desc_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose_desc",
-    "message": "Tempo até o fechamento (decrescente)"
-  },
   "corral_tabsWrangledFull": {
     "description": "Description of number of tabs wrangled by this extension",
     "message": "Abas organizadas: $count$ ($percent$%)",
@@ -411,14 +363,6 @@
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "O número mínimo de abas deve ser maior ou igual a 0"
-  },
-  "settings_setminutesInactive_error": {
-    "description": "Error shown when invalid minutes inactive setting is supplied.",
-    "message": "Minutos inativa deve ser maior ou igual a 0"
-  },
-  "settings_setsecondsInactive_error": {
-    "description": "Error shown when invalid seconds inactive setting is supplied.",
-    "message": "Segundos inativa deve ser maior ou igual a 0 e menor que 60"
   },
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
@@ -471,10 +415,6 @@
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "Domínio (decrescente)"
-  },
-  "extDescription": {
-    "description": "Brief description of the extension",
-    "message": "Fecha automaticamente, abas inativas e facilita recuperá-las"
   },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",

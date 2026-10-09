@@ -153,25 +153,9 @@
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Iestatījumi"
   },
-  "options_option_autoLock_empty": {
-    "description": "Message shown when there are no whitelisted URLs",
-    "message": "Vēl nav nevienas automātiski bloķētas vietņu URL. Izmantojiet augstāk esošo veidlapu, lai pievienotu dažas baltajam sarakstam."
-  },
   "options_option_autoLock_example": {
     "description": "Example describing how the whitelist works",
     "message": "Piemērs: \"cnn\" atbilstu katrai lapai vietnē \"https://www.cnn.com\" un jebkuram vietnes URL, kurā ir \"cnn\"."
-  },
-  "options_option_autoLock_label": {
-    "description": "Label preceeding input for adding URL to whitelist",
-    "message": "Automātiski bloķēt cilnes, kuru vietnes URL satur:"
-  },
-  "options_option_autoLock_remove": {
-    "description": "Button label for removing a URL from the whitelist",
-    "message": "Dzēst"
-  },
-  "options_option_autoLock_urlHeader": {
-    "description": "Table column header for list of whitelisted URL strings",
-    "message": "Vietnes URL virkne"
   },
   "options_option_clearOnQuit_label": {
     "description": "Label for checkbox to clear the tab list after quitting the Browser",
@@ -221,17 +205,9 @@
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "Sistēmas"
   },
-  "options_option_timeInactive_label": {
-    "description": "Label preceeding inputs for setting inactive time before tabs are closed",
-    "message": "Aizvērt neaktīvās cilnes pēc:"
-  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Saglabā..."
-  },
-  "options_section_autoLock": {
-    "description": "Header for the auto-lock section of the options tab",
-    "message": "Automātiskā bloķēšana"
   },
   "options_section_importExport": {
     "description": "Header for the import/export feature section of the options tab",
@@ -299,33 +275,9 @@
     "description": "Short version of tabLock_sort_tabOrder_desc",
     "message": "Cilņu secības (apgrieztā)"
   },
-  "tabLock_sort_timeUntilClose": {
-    "description": "Description for sorting tabs by how much time until TW closes them",
-    "message": "Laika līdz aizvēršanai"
-  },
-  "tabLock_sort_timeUntilClose_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose",
-    "message": "Laika līdz aizvēršanai"
-  },
-  "tabLock_sort_timeUntilClose_desc": {
-    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
-    "message": "Laika līdz aizvēršanai (dilstošā secībā)"
-  },
-  "tabLock_sort_timeUntilClose_desc_short": {
-    "description": "Short version of tabLock_sort_timeUntilClose_desc",
-    "message": "Laika līdz aizvēršanai (dilstošā)"
-  },
   "settings_setminTabs_error": {
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "Minimālajam ciļņu skaitam ir jābūt lielākam par 0 vai vienādam ar to"
-  },
-  "settings_setminutesInactive_error": {
-    "description": "Error shown when invalid minutes inactive setting is supplied.",
-    "message": "Neaktīvo minūšu vērtībai ir jābūt lielākai vai vienādai ar 0"
-  },
-  "settings_setsecondsInactive_error": {
-    "description": "Error shown when invalid seconds inactive setting is supplied.",
-    "message": "Neaktīvo sekunžu vērtībai ir jābūt lielākai vai vienādai ar 0 un mazākai par 60"
   },
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
@@ -378,10 +330,6 @@
   "corral_sortDomain_descending_short": {
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "Domēna (dilstošā)"
-  },
-  "extDescription": {
-    "description": "Brief description of the extension",
-    "message": "Automātiski aizver neaktīvās cilnes un ļauj viegli tās atgūt"
   },
   "corral_tabSessionFresh": {
     "description": "Tooltip describing why certain tabs will have their full session restored",

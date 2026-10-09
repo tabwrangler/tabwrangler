@@ -22,10 +22,10 @@ export interface TabRule {
 }
 
 export type TabCondition =
-  | { type: "url"; op: "contains"; value: string }
   | { type: "audible" }
   | { type: "groupId"; op: "none" | "some" }
-  | { type: "pinned" };
+  | { type: "pinned" }
+  | { type: "url"; op: "contains"; value: string };
 
 export type RuleOutcome = { action: "lock" } | { action: "stale"; afterSeconds: number };
 

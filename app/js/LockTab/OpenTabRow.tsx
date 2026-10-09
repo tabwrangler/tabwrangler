@@ -2,6 +2,7 @@ import "./OpenTabRow.css";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import TabFavicon from "../TabFavicon";
 import type { TabLockStatus } from "../tabUtil";
+import type { TabRule } from "../tabRules";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
 import settings from "../settings";
@@ -51,7 +52,8 @@ export default function OpenTabRow({
   // Timers do not count down while paused or idle, so show them as they were when that began
   const timersPausedAt = pausedAt ?? idleAt;
   const timerNow = timersPausedAt == null ? now : Math.max(timersPausedAt, tabTime);
-  const cutOff = timerNow - settings.stayOpen();
+  const staleAfterMs = settings.stayOpen(tab);
+  const cutOff = timerNow - staleAfterMs;
   const timeRemaining = -1 * Math.round((cutOff - tabTime) / 1000);
   const isOverdue = !tabLockStatus.locked && !windowLocked && !paused && timeRemaining < 0;
 
@@ -126,6 +128,7 @@ export default function OpenTabRow({
             hasPausedAt={pausedAt != null}
             isBrowserIdle={idleAt != null}
             isTabActive={tab.active}
+            staleAfterMs={staleAfterMs}
             timerFrozen={
               tab.active && isInLastFocusedWindow && shouldFreezeActiveTabTimer(timeRemaining)
             }
@@ -199,6 +202,7 @@ function TabLockContent({
   hasPausedAt,
   isBrowserIdle,
   isTabActive,
+  staleAfterMs,
   timerFrozen,
   tabLockStatus,
   tabsWillAutoClose,
@@ -208,6 +212,7 @@ function TabLockContent({
   hasPausedAt: boolean;
   isBrowserIdle: boolean;
   isTabActive: boolean;
+  staleAfterMs: number;
   timerFrozen: boolean;
   tabLockStatus: TabLockStatus;
   tabsWillAutoClose: boolean;
@@ -220,33 +225,14 @@ function TabLockContent({
   if (tabLockStatus.locked) {
     let reason: React.ReactNode;
     switch (tabLockStatus.reason) {
-      case "audible":
-        reason = (
-          <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>
-            {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
-          </abbr>
-        );
-        break;
-      case "grouped":
-        reason = chrome.i18n.getMessage("tabLock_lockedReason_group");
-        break;
       case "manual":
         reason = chrome.i18n.getMessage("tabLock_lockedReason_locked");
         break;
       case "pinned":
         reason = chrome.i18n.getMessage("tabLock_lockedReason_pinned");
         break;
-      case "whitelist":
-        reason = (
-          <abbr
-            title={chrome.i18n.getMessage(
-              "tabLock_lockedReason_matches",
-              tabLockStatus.whitelistMatch,
-            )}
-          >
-            {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
-          </abbr>
-        );
+      case "rule":
+        reason = <RuleLockedReason rule={tabLockStatus.rule} />;
         break;
       case "window":
         reason = chrome.i18n.getMessage("tabLock_lockedReason_window");
@@ -267,9 +253,7 @@ function TabLockContent({
         >
           <span>
             <i className="text-primary fas fa-snowflake" />{" "}
-            <time className="font-monospace">
-              {formatSecondsToDhms(settings.stayOpen() / 1000)}
-            </time>
+            <time className="font-monospace">{formatSecondsToDhms(staleAfterMs / 1000)}</time>
           </span>
         </OverlayTrigger>
       );
@@ -302,6 +286,33 @@ function TabLockContent({
     }
 
     return timeLeftContent;
+  }
+}
+
+function RuleLockedReason({ rule }: { rule: TabRule }) {
+  const [condition] = rule.when;
+  switch (rule.when.length === 1 ? condition.type : null) {
+    case "audible":
+      return (
+        <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_audible")}>
+          {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
+        </abbr>
+      );
+    case "groupId":
+      return chrome.i18n.getMessage("tabLock_lockedReason_group");
+    case "url":
+      return (
+        <abbr
+          title={chrome.i18n.getMessage(
+            "tabLock_lockedReason_matches",
+            condition.type === "url" ? condition.value : "",
+          )}
+        >
+          {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
+        </abbr>
+      );
+    default:
+      return chrome.i18n.getMessage("tabLock_lockedStatus_autolocked");
   }
 }
 

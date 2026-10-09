@@ -26,3 +26,55 @@ describe("settings", () => {
     expect(() => Settings.set("maxTabs", 10000)).toThrowError();
   });
 });
+
+describe("tabRules migration", () => {
+  function mockSyncStorage(items: Record<string, unknown>) {
+    (chrome.storage.sync.get as jest.Mock).mockImplementation(
+      (_keys: unknown, callback?: (items: Record<string, unknown>) => void) => {
+        callback?.(items);
+        return Promise.resolve(items);
+      },
+    );
+    (chrome.storage.sync.set as jest.Mock).mockResolvedValue(undefined);
+  }
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+    Settings._initPromise = undefined;
+  });
+
+  test("derives tabRules from legacy settings when none are stored", async () => {
+    mockSyncStorage({
+      filterAudio: false,
+      filterGroupedTabs: true,
+      minutesInactive: 5,
+      secondsInactive: 30,
+      whitelist: ["github.com"],
+    });
+    await Settings.init();
+    const tabRules = Settings.get("tabRules");
+    expect(tabRules.rules.map(({ then, when }) => ({ then, when }))).toEqual([
+      { then: { action: "lock" }, when: [{ type: "url", op: "contains", value: "github.com" }] },
+      { then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
+      { then: { action: "stale", afterSeconds: 330 }, when: [] },
+    ]);
+  });
+
+  test("uses legacy defaults for settings that were never changed", async () => {
+    mockSyncStorage({});
+    await Settings.init();
+    const { rules } = Settings.get("tabRules");
+    expect(rules).toHaveLength(4);
+    expect(rules[3].then).toEqual({ action: "stale", afterSeconds: 3600 });
+  });
+
+  test("prefers stored tabRules", async () => {
+    const stored = {
+      version: 1,
+      rules: [{ id: "a", enabled: true, when: [], then: { action: "stale", afterSeconds: 10 } }],
+    };
+    mockSyncStorage({ tabRules: stored, whitelist: ["github.com"] });
+    await Settings.init();
+    expect(Settings.get("tabRules")).toEqual(stored);
+  });
+});

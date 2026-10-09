@@ -1,3 +1,4 @@
+import { type TabRule, createUrlContainsRule, isUrlContainsRule } from "./tabRules";
 import settings from "./settings";
 import { wrangleTabsAndPersist } from "./tabUtil";
 
@@ -71,15 +72,13 @@ export default class Menus {
     const domain = getDomain(tab.url);
     if (domain == null) return;
 
-    const whitelist = settings.get("whitelist");
-    if (wasChecked) {
-      settings.set(
-        "whitelist",
-        whitelist.filter((d) => d !== domain),
-      );
-    } else {
-      settings.set("whitelist", [domain, ...whitelist]);
-    }
+    const tabRules = settings.get("tabRules");
+    settings.set("tabRules", {
+      ...tabRules,
+      rules: wasChecked
+        ? tabRules.rules.filter((rule) => !isDomainLockRule(rule, domain))
+        : [createUrlContainsRule(domain), ...tabRules.rules],
+    });
   }
 
   onClicked(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab | undefined) {
@@ -108,9 +107,10 @@ export default class Menus {
       if (currentDomain == null) return;
 
       console.debug("[menus] Updating context menu for tab ID ", tabId);
-      const whitelist = settings.get("whitelist");
       chrome.contextMenus.update("lockDomain", {
-        checked: whitelist.includes(currentDomain),
+        checked: settings
+          .get("tabRules")
+          .rules.some((rule) => isDomainLockRule(rule, currentDomain)),
         title: chrome.i18n.getMessage("contextMenu_lockSpecificDomain", currentDomain) || "",
       });
 
@@ -119,6 +119,10 @@ export default class Menus {
       });
     });
   }
+}
+
+function isDomainLockRule(rule: TabRule, domain: string): boolean {
+  return isUrlContainsRule(rule) && rule.when[0].value === domain;
 }
 
 function getDomain(url: string): string | null {

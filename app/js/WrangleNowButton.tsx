@@ -17,13 +17,11 @@ export default function WrangleNowButton() {
   const [isWrangling, setIsWrangling] = useState(false);
 
   const wrangleNowSettings: WrangleNowSettings = {
-    filterAudio: useSetting("filterAudio"),
-    filterGroupedTabs: useSetting("filterGroupedTabs"),
     lockedIds: useSetting("lockedIds"),
     lockedWindowIds: useSetting("lockedWindowIds"),
     minTabs: useSetting("minTabs"),
     minTabsStrategy: useSetting("minTabsStrategy"),
-    whitelist: useSetting("whitelist"),
+    tabRules: useSetting("tabRules"),
   };
 
   const lastFocusedWindowId = useWindowsGetLastFocused().data?.id;

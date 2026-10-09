@@ -656,14 +656,6 @@
     "description": "Error shown when invalid min tabs setting is supplied.",
     "message": "Minimum tabs must be a number greater than or equal to 0"
   },
-  "settings_setminutesInactive_error": {
-    "description": "Error shown when invalid minutes inactive setting is supplied.",
-    "message": "Minutes until stale must be greater than or equal to 0"
-  },
-  "settings_setsecondsInactive_error": {
-    "description": "Error shown when invalid seconds inactive setting is supplied.",
-    "message": "Seconds until stale must be greater than or equal to 0 and less than 60"
-  },
   "corral_sortBy": {
     "description": "Label prefixing sort order of the tab corral",
     "message": "Sort by:"
@@ -809,6 +801,10 @@
   "options_tabRules_cancel": {
     "description": "Button label for discarding a new tab rule before it is saved",
     "message": "Cancel"
+  },
+  "options_tabRules_condition": {
+    "description": "Accessible label for the menu choosing what a tab rule checks, like whether the URL contains some text",
+    "message": "Condition"
   },
   "options_tabRules_condition_audible": {
     "description": "Tab rule condition matching tabs that are currently playing audio",

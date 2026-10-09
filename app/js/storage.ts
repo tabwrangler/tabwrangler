@@ -1,3 +1,4 @@
+import { type LegacyRuleSettings, buildTabRulesFromLegacySettings } from "./tabRules";
 import { setTabTime, shiftTabTimes } from "./actions/localStorageActions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AsyncLock from "async-lock";
@@ -37,6 +38,39 @@ export async function migrateLocal() {
 
     console.debug("[migrateLocal]: Migrated to version 1");
   }
+}
+
+/**
+ * Migrates settings in sync storage. Each step detects whether it already ran from the synced data
+ * itself rather than a version marker in local storage, so a second device updating later cannot
+ * overwrite what the first device migrated and the user has since edited.
+ */
+export async function migrateSync() {
+  // Replaces `filterAudio`, `filterGroupedTabs`, `minutesInactive`, `secondsInactive`, and
+  // `whitelist` with `tabRules`. The legacy settings are left in place so downgrading keeps working.
+  const { tabRules, ...legacy } = await chrome.storage.sync.get<
+    LegacyRuleSettings & { tabRules: unknown }
+  >({
+    filterAudio: SETTINGS_DEFAULTS.filterAudio,
+    filterGroupedTabs: SETTINGS_DEFAULTS.filterGroupedTabs,
+    minutesInactive: SETTINGS_DEFAULTS.minutesInactive,
+    secondsInactive: SETTINGS_DEFAULTS.secondsInactive,
+    tabRules: null,
+    whitelist: SETTINGS_DEFAULTS.whitelist,
+  });
+  if (tabRules != null) return;
+
+  // A long whitelist can produce rules over the sync quota for one item. Writing them would
+  // reject, so leave `settings` deriving them from the legacy settings instead.
+  const nextTabRules = buildTabRulesFromLegacySettings(legacy);
+  const bytes = new TextEncoder().encode(`tabRules${JSON.stringify(nextTabRules)}`).length;
+  if (bytes > (chrome.storage.sync.QUOTA_BYTES_PER_ITEM ?? 8192)) {
+    console.warn(`[migrateSync]: Tab Rules (${bytes} bytes) exceed the sync quota; not migrating`);
+    return;
+  }
+
+  await chrome.storage.sync.set({ tabRules: nextTabRules });
+  console.debug("[migrateSync]: Migrated legacy settings to Tab Rules");
 }
 
 export function mutateStorageSyncPersist({

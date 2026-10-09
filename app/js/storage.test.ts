@@ -1,5 +1,8 @@
-import { pauseExtension, setIdle } from "./storage";
+import { migrateSync, pauseExtension, setIdle } from "./storage";
+import { TextEncoder } from "util";
 import settings from "./settings";
+
+Object.assign(global, { TextEncoder });
 
 beforeEach(async () => {
   await chrome.storage.local.clear();
@@ -66,5 +69,57 @@ describe("pauseExtension", () => {
     expect(idleAt).toBeUndefined();
     expect(pausedAt).toBe(46_000);
     expect(tabTimes["1"]).toBe(45_500);
+  });
+});
+
+describe("migrateSync", () => {
+  beforeEach(async () => {
+    await chrome.storage.sync.clear();
+  });
+
+  test("migrates legacy settings to tabRules and keeps the legacy settings", async () => {
+    await chrome.storage.sync.set({
+      filterAudio: true,
+      filterGroupedTabs: true,
+      minutesInactive: 5,
+      secondsInactive: 30,
+      whitelist: ["github.com"],
+    });
+    await migrateSync();
+    const { tabRules, whitelist } = await chrome.storage.sync.get(["tabRules", "whitelist"]);
+    expect(
+      tabRules.rules.map(({ then, when }: { then: unknown; when: unknown[] }) => ({ then, when })),
+    ).toEqual([
+      { then: { action: "lock" }, when: [{ type: "url", op: "contains", value: "github.com" }] },
+      { then: { action: "lock" }, when: [{ type: "audible" }] },
+      { then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
+      { then: { action: "stale", afterSeconds: 330 }, when: [] },
+    ]);
+    expect(whitelist).toEqual(["github.com"]);
+  });
+
+  test("migrates the legacy defaults when no settings were changed", async () => {
+    await migrateSync();
+    const { tabRules } = await chrome.storage.sync.get("tabRules");
+    expect(tabRules.rules).toHaveLength(4);
+    expect(tabRules.rules[3].then).toEqual({ action: "stale", afterSeconds: 3600 });
+  });
+
+  test("leaves tabRules that were already migrated, even by another device", async () => {
+    const stored = {
+      version: 1,
+      rules: [{ id: "a", enabled: true, when: [], then: { action: "stale", afterSeconds: 10 } }],
+    };
+    await chrome.storage.sync.set({ tabRules: stored, whitelist: ["github.com"] });
+    await migrateSync();
+    expect((await chrome.storage.sync.get("tabRules")).tabRules).toEqual(stored);
+  });
+
+  test("does not write tabRules that exceed the sync quota for one item", async () => {
+    await chrome.storage.sync.set({
+      whitelist: Array.from({ length: 100 }, (_, i) => `example${i}.com/path`),
+    });
+    await migrateSync();
+    expect((await chrome.storage.sync.get("tabRules")).tabRules).toBeUndefined();
   });
 });

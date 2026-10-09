@@ -6,17 +6,30 @@ import {
   findTabToFreeze,
   findTabsToCloseCandidates,
   findTabsToWrangleNow,
-  getTabIdsOlderThan,
   getTabLockStatus,
   getURLPositionFilterByWrangleOption,
-  getWhitelistMatch,
   makeTabPersistKey,
   shouldFreezeActiveTabTimer,
   wrangleTabsAndPersist,
 } from "./tabUtil";
 import { TextEncoder } from "util";
+import { buildTabRulesFromLegacySettings } from "./tabRules";
 import { setSavedTabs } from "./actions/localStorageActions";
 import settings from "./settings";
+
+function createTabRules({
+  filterAudio = false,
+  filterGroupedTabs = false,
+  whitelist = [] as string[],
+} = {}) {
+  return buildTabRulesFromLegacySettings({
+    filterAudio,
+    filterGroupedTabs,
+    minutesInactive: 60,
+    secondsInactive: 0,
+    whitelist,
+  });
+}
 
 function createTab(overrides: Partial<chrome.tabs.Tab>): chrome.tabs.Tab {
   return {
@@ -210,39 +223,11 @@ describe("filter", () => {
   });
 });
 
-describe("getWhitelistMatch", () => {
-  test("returns the matching pattern when the URL contains it", () => {
-    expect(getWhitelistMatch("https://www.github.com/foo", { whitelist: ["github.com"] })).toBe(
-      "github.com",
-    );
-  });
-
-  test("returns the first matching pattern when multiple match", () => {
-    expect(
-      getWhitelistMatch("https://www.github.com/foo", { whitelist: ["github.com", "github"] }),
-    ).toBe("github.com");
-  });
-
-  test("returns null when no pattern matches", () => {
-    expect(getWhitelistMatch("https://www.github.com", { whitelist: ["google.com"] })).toBeNull();
-  });
-
-  test("returns null when the whitelist is empty", () => {
-    expect(getWhitelistMatch("https://www.github.com", { whitelist: [] })).toBeNull();
-  });
-
-  test("returns null when url is undefined", () => {
-    expect(getWhitelistMatch(undefined, { whitelist: ["github.com"] })).toBeNull();
-  });
-});
-
 describe("getTabLockStatus", () => {
   const defaultOptions = {
-    filterAudio: false,
-    filterGroupedTabs: false,
     lockedIds: [],
     lockedWindowIds: [],
-    whitelist: [],
+    tabRules: createTabRules(),
   };
 
   test("returns not locked for a normal tab", () => {
@@ -258,47 +243,86 @@ describe("getTabLockStatus", () => {
     });
   });
 
-  test("locks an audible tab when filterAudio is enabled", () => {
+  test("locks an audible tab when the audio rule is enabled", () => {
     expect(
-      getTabLockStatus(createTab({ audible: true }), { ...defaultOptions, filterAudio: true }),
-    ).toEqual({ locked: true, reason: "audible" });
+      getTabLockStatus(createTab({ audible: true }), {
+        ...defaultOptions,
+        tabRules: createTabRules({ filterAudio: true }),
+      }),
+    ).toEqual({
+      locked: true,
+      reason: "rule",
+      rule: expect.objectContaining({ when: [{ type: "audible" }] }),
+    });
   });
 
-  test("does not lock an audible tab when filterAudio is disabled", () => {
+  test("does not lock an audible tab when the audio rule is disabled", () => {
     expect(
       getTabLockStatus(createTab({ audible: true, groupId: -1 }), {
         ...defaultOptions,
-        filterAudio: false,
+        tabRules: createTabRules({ filterAudio: false }),
       }),
     ).toEqual({ locked: false });
   });
 
-  test("locks a grouped tab when filterGroupedTabs is enabled", () => {
+  test("locks a grouped tab when the tab group rule is enabled", () => {
     // groupId > 0 means the tab is in a group
     expect(
       getTabLockStatus(createTab({ groupId: 2 }), {
         ...defaultOptions,
-        filterGroupedTabs: true,
+        tabRules: createTabRules({ filterGroupedTabs: true }),
       }),
-    ).toEqual({ locked: true, reason: "grouped" });
+    ).toEqual({
+      locked: true,
+      reason: "rule",
+      rule: expect.objectContaining({ when: [{ type: "groupId", op: "some" }] }),
+    });
   });
 
-  test("does not lock a grouped tab when filterGroupedTabs is disabled", () => {
+  test("does not lock a grouped tab when the tab group rule is disabled", () => {
     expect(
       getTabLockStatus(createTab({ groupId: 2 }), {
         ...defaultOptions,
-        filterGroupedTabs: false,
+        tabRules: createTabRules({ filterGroupedTabs: false }),
       }),
     ).toEqual({ locked: false });
   });
 
-  test("locks a tab whose URL matches the whitelist", () => {
+  test("locks a tab whose URL contains a rule's value", () => {
     expect(
       getTabLockStatus(createTab({ groupId: -1, url: "https://www.github.com" }), {
         ...defaultOptions,
-        whitelist: ["github.com"],
+        tabRules: createTabRules({ whitelist: ["github.com"] }),
       }),
-    ).toEqual({ locked: true, reason: "whitelist", whitelistMatch: "github.com" });
+    ).toEqual({
+      locked: true,
+      reason: "rule",
+      rule: expect.objectContaining({
+        when: [{ type: "url", op: "contains", value: "github.com" }],
+      }),
+    });
+  });
+
+  test("locks tabs matched by a final rule that locks", () => {
+    const tabRules = createTabRules();
+    tabRules.rules[tabRules.rules.length - 1].then = { action: "lock" };
+    expect(getTabLockStatus(createTab({ groupId: -1 }), { ...defaultOptions, tabRules })).toEqual({
+      locked: true,
+      reason: "rule",
+      rule: expect.objectContaining({ when: [] }),
+    });
+  });
+
+  test("manual locks override a rule that makes the tab stale", () => {
+    const tabRules = createTabRules({ whitelist: ["github.com"] });
+    tabRules.rules[0].then = { action: "stale", afterSeconds: 60 };
+    expect(
+      getTabLockStatus(createTab({ groupId: -1, id: 42, url: "https://github.com" }), {
+        ...defaultOptions,
+        lockedIds: [42],
+        tabRules,
+      }),
+    ).toEqual({ locked: true, reason: "manual" });
   });
 
   test("locks a tab whose ID is in lockedIds", () => {
@@ -323,7 +347,7 @@ describe("getTabLockStatus", () => {
     expect(
       getTabLockStatus(createTab({ pinned: true, audible: true }), {
         ...defaultOptions,
-        filterAudio: true,
+        tabRules: createTabRules({ filterAudio: true }),
       }),
     ).toEqual({ locked: true, reason: "pinned" });
   });
@@ -367,23 +391,6 @@ describe("getURLPositionFilterByWrangleOption", () => {
   });
 });
 
-describe("getTabIdsOlderThan", () => {
-  test("returns empty set for empty tabTimes", () => {
-    expect(getTabIdsOlderThan({}, 1000)).toEqual(new Set());
-  });
-
-  test("returns all IDs when all tabs are older than time", () => {
-    const now = Date.now();
-    expect(getTabIdsOlderThan({ "1": now - 2000, "2": now - 3000 }, now - 1000)).toEqual(
-      new Set([1, 2]),
-    );
-  });
-  test("returns tab IDs when time is zero", () => {
-    const now = Date.now();
-    expect(getTabIdsOlderThan({ "1": now, "2": now }, 0)).toEqual(new Set([1, 2]));
-  });
-});
-
 describe("shouldFreezeActiveTabTimer", () => {
   test("returns true when timeRemaining is at or beyond twice the check interval", () => {
     expect(shouldFreezeActiveTabTimer(10)).toBe(true);
@@ -402,16 +409,12 @@ describe("findTabsToCloseCandidates", () => {
       switch (key) {
         case "minTabs":
           return minTabs;
-        case "filterAudio":
-          return false;
-        case "filterGroupedTabs":
-          return false;
         case "lockedIds":
           return [];
         case "lockedWindowIds":
           return [];
-        case "whitelist":
-          return [];
+        case "tabRules":
+          return createTabRules();
         default:
           return undefined;
       }
@@ -549,13 +552,11 @@ describe("findTabsToCloseCandidates", () => {
 describe("findTabsToWrangleNow", () => {
   function makeSettings(overrides: Partial<WrangleNowSettings> = {}): WrangleNowSettings {
     return {
-      filterAudio: false,
-      filterGroupedTabs: false,
       lockedIds: [],
       lockedWindowIds: [],
       minTabs: 2,
       minTabsStrategy: "givenWindow",
-      whitelist: [],
+      tabRules: createTabRules(),
       ...overrides,
     };
   }

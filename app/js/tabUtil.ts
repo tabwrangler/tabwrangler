@@ -1,4 +1,5 @@
 import { StorageLocalPersistState, getStorageLocalPersist } from "./queries";
+import { type TabRule, findMatchingRule } from "./tabRules";
 import {
   incrementTotalTabsRemoved,
   removeTabTime,
@@ -155,67 +156,28 @@ export async function updateLastAccessed(tabOrTabId: chrome.tabs.Tab | number): 
   }
 }
 
-export function getWhitelistMatch(
-  url: string | undefined,
-  { whitelist }: { whitelist: string[] },
-): string | null {
-  if (url == null) return null;
-  for (let i = 0; i < whitelist.length; i++) {
-    if (url.indexOf(whitelist[i]) !== -1) {
-      return whitelist[i];
-    }
-  }
-  return null;
-}
-
 export type TabLockStatus =
   | { locked: false }
-  | { locked: true; reason: "audible" }
-  | { locked: true; reason: "grouped" }
   | { locked: true; reason: "manual" }
   | { locked: true; reason: "pinned" }
-  | { locked: true; reason: "whitelist"; whitelistMatch: string }
+  | { locked: true; reason: "rule"; rule: TabRule }
   | { locked: true; reason: "window" };
 
 export function getTabLockStatus(
   tab: chrome.tabs.Tab,
-  {
-    filterAudio,
-    filterGroupedTabs,
-    lockedIds,
-    lockedWindowIds,
-    whitelist,
-  }: {
-    filterAudio: boolean;
-    filterGroupedTabs: boolean;
-    lockedIds: number[];
-    lockedWindowIds: number[];
-    whitelist: string[];
-  },
+  { lockedIds, lockedWindowIds, tabRules }: LockSettings,
 ): TabLockStatus {
   if (tab.pinned) return { locked: true, reason: "pinned" };
-  if (filterAudio && tab.audible) return { locked: true, reason: "audible" };
-  if (filterGroupedTabs && "groupId" in tab && tab.groupId > 0)
-    return { locked: true, reason: "grouped" };
 
-  const whitelistMatch = getWhitelistMatch(tab.url, { whitelist });
-  if (whitelistMatch != null) return { locked: true, reason: "whitelist", whitelistMatch };
+  const rule = findMatchingRule(tab, tabRules);
+  if (rule?.then.action === "lock") return { locked: true, reason: "rule", rule };
   if (tab.id != null && lockedIds.indexOf(tab.id) !== -1) return { locked: true, reason: "manual" };
   if (lockedWindowIds.indexOf(tab.windowId) !== -1) return { locked: true, reason: "window" };
 
   return { locked: false };
 }
 
-export function isTabLocked(
-  tab: chrome.tabs.Tab,
-  options: {
-    filterAudio: boolean;
-    filterGroupedTabs: boolean;
-    lockedIds: number[];
-    lockedWindowIds: number[];
-    whitelist: string[];
-  },
-): boolean {
+export function isTabLocked(tab: chrome.tabs.Tab, options: LockSettings): boolean {
   return getTabLockStatus(tab, options).locked;
 }
 
@@ -229,14 +191,6 @@ export function makeWindowPersistKey(tabs: chrome.tabs.Tab[]): string | undefine
     .filter((k): k is string => k != null)
     .sort();
   return keys.length > 0 ? keys.join("|") : undefined;
-}
-
-export function getTabIdsOlderThan(tabTimes: TabTimes, time: number): Set<number> {
-  const ret: Set<number> = new Set();
-  for (const [tabId, tabTime] of Object.entries(tabTimes)) {
-    if (!time || tabTime < time) ret.add(parseInt(tabId, 10));
-  }
-  return ret;
 }
 
 /**
@@ -273,10 +227,7 @@ export function shouldFreezeActiveTabTimer(timeRemainingSeconds: number): boolea
   return timeRemainingSeconds >= ACTIVE_TAB_TIMER_FREEZE_WINDOW_MS / 1000;
 }
 
-type LockSettings = Pick<
-  SettingsSchema,
-  "filterAudio" | "filterGroupedTabs" | "lockedIds" | "lockedWindowIds" | "whitelist"
->;
+type LockSettings = Pick<SettingsSchema, "lockedIds" | "lockedWindowIds" | "tabRules">;
 
 export type WrangleNowSettings = LockSettings & Pick<SettingsSchema, "minTabs" | "minTabsStrategy">;
 
@@ -291,20 +242,20 @@ export function findTabsToCloseCandidates(
   tabTimes: TabTimes,
   tabs: chrome.tabs.Tab[],
 ): chrome.tabs.Tab[] {
-  const cutOff = Date.now() - settings.stayOpen();
+  const now = Date.now();
   const minTabs = settings.get("minTabs");
   const unlockedTabs = filterUnlockedTabs(tabs, {
-    filterAudio: settings.get("filterAudio"),
-    filterGroupedTabs: settings.get("filterGroupedTabs"),
     lockedIds: settings.get("lockedIds"),
     lockedWindowIds: settings.get("lockedWindowIds"),
-    whitelist: settings.get("whitelist"),
+    tabRules: settings.get("tabRules"),
   });
 
   if (unlockedTabs.length - minTabs <= 0) return [];
 
-  const tabIdsToCut = getTabIdsOlderThan(tabTimes, cutOff);
-  const candidates = unlockedTabs.filter((tab) => tab.id != null && tabIdsToCut.has(tab.id));
+  const candidates = unlockedTabs.filter((tab) => {
+    const tabTime = tab.id == null ? undefined : tabTimes[tab.id];
+    return tabTime != null && tabTime < now - settings.stayOpen(tab);
+  });
   candidates.sort((a, b) => {
     if (a.lastAccessed == null || b.lastAccessed == null) return 0;
     return a.lastAccessed - b.lastAccessed;

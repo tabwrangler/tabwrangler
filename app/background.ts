@@ -1,4 +1,4 @@
-import { ASYNC_LOCK, migrateLocal, setIdle } from "./js/storage";
+import { ASYNC_LOCK, migrateLocal, migrateSync, setIdle } from "./js/storage";
 import { CHECK_TO_CLOSE_INTERVAL_MS, IDLE_PERMISSIONS } from "./js/constants";
 import { RuntimeMessage, UnwrangleTabsResponse } from "./js/messages";
 import { SessionTab, TabTimes } from "./js/types";
@@ -15,6 +15,7 @@ import {
   updateLastAccessed,
   wrangleTabs,
 } from "./js/tabUtil";
+import { getStaleTimeoutsKey, locksAudibleTabs } from "./js/tabRules";
 import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
 import {
   lockUnlockActiveTab,
@@ -78,11 +79,9 @@ async function updateIcon(tab?: chrome.tabs.Tab): Promise<void> {
   }
 
   const lockOptions = {
-    filterAudio: settings.get("filterAudio"),
-    filterGroupedTabs: settings.get("filterGroupedTabs"),
     lockedIds: settings.get("lockedIds"),
     lockedWindowIds: settings.get("lockedWindowIds"),
-    whitelist: settings.get("whitelist"),
+    tabRules: settings.get("tabRules"),
   };
 
   await chrome.action.setIcon({
@@ -98,6 +97,7 @@ chrome.runtime.onInstalled.addListener(async () => {
   await settings.init();
   if (settings.get("createContextMenu")) Menus.create();
   migrateLocal();
+  migrateSync();
 });
 
 chrome.runtime.onStartup.addListener(async () => {
@@ -212,9 +212,13 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     }
 
     case "sync": {
-      if (changes.minutesInactive || changes.secondsInactive) {
-        // Reset stored `tabTimes` because setting was changed otherwise old times may exceed new
-        // setting value.
+      // The first write of `tabRules` is the migration, which changes no timeouts.
+      if (
+        changes.tabRules?.oldValue != null &&
+        getStaleTimeoutsKey(changes.tabRules.oldValue) !==
+          getStaleTimeoutsKey(changes.tabRules.newValue)
+      ) {
+        // Reset stored `tabTimes` because a timeout changed, otherwise old times may exceed it.
         initTabs();
       }
 
@@ -227,7 +231,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
         }
       }
 
-      if (changes.lockedIds || changes.lockedWindowIds) {
+      if (changes.lockedIds || changes.lockedWindowIds || changes.tabRules) {
         updateIcon();
       }
 
@@ -289,8 +293,8 @@ async function checkToClose() {
       const tabIdToFreeze = findTabToFreeze(allWindows, lastFocusedWindow.id, tabTimes);
       if (tabIdToFreeze != null) tabTimes[String(tabIdToFreeze)] = updatedAt;
 
-      // Refresh audible tabs if the setting is enabled to prevent them from being closed.
-      if (settings.get("filterAudio") === true) {
+      // Refresh audible tabs if they are locked to prevent them from being closed.
+      if (locksAudibleTabs(settings.get("tabRules"))) {
         allTabs.forEach((tab) => {
           if (tab.audible) tabTimes[String(tab.id)] = updatedAt;
         });

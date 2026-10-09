@@ -102,4 +102,39 @@ describe("TabRules", () => {
     expect(screen.getAllByText("options_tabRules_if")).toHaveLength(1);
     expect(screen.getAllByText("options_tabRules_elseIf")).toHaveLength(5);
   });
+
+  test("edits a rule in place", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getAllByLabelText("options_tabRules_edit")[1]);
+    const input = screen.getByDisplayValue("chrome://");
+    fireEvent.change(input, { target: { value: "chrome://settings" } });
+    fireEvent.submit(input);
+    expect(onSaveSetting).toHaveBeenCalledWith("whitelist", [
+      "about:",
+      "chrome://settings",
+      "example",
+    ]);
+  });
+
+  test("does not save an edit that duplicates another rule", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getAllByLabelText("options_tabRules_edit")[1]);
+    const input = screen.getByDisplayValue("chrome://");
+    fireEvent.change(input, { target: { value: "about:" } });
+    expect(screen.getByText("options_tabRules_duplicate")).toBeTruthy();
+    fireEvent.submit(input);
+    expect(onSaveSetting).not.toHaveBeenCalled();
+  });
+
+  test("cancels an edit", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getAllByLabelText("options_tabRules_edit")[1]);
+    fireEvent.change(screen.getByDisplayValue("chrome://"), { target: { value: "changed" } });
+    fireEvent.click(screen.getByText("options_tabRules_cancel"));
+    expect(screen.queryByDisplayValue("changed")).toBeNull();
+    expect(onSaveSetting).not.toHaveBeenCalled();
+  });
 });

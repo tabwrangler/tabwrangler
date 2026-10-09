@@ -12,6 +12,14 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
   const whitelist = useSetting("whitelist");
   const [isAdding, setIsAdding] = useState(false);
   const [newPattern, setNewPattern] = useState("");
+
+  // `savingFrom` keeps the row in edit mode after Save until storage echoes the new whitelist back.
+  const [editing, setEditing] = useState<{
+    pattern: string;
+    savingFrom: string[] | null;
+    value: string;
+  } | null>(null);
+
   // Keeps the form on screen after Save until storage echoes the new whitelist back, so the saved
   // rule can take the form's place without the table collapsing in between.
   const [savingFrom, setSavingFrom] = useState<string[] | null>(null);
@@ -127,6 +135,31 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     setNewPattern("");
   }
 
+  function isEditingRule(pattern: string) {
+    return (
+      editing?.pattern === pattern &&
+      (editing.savingFrom == null || editing.savingFrom === whitelist)
+    );
+  }
+
+  const isDuplicateEdit =
+    editing != null && editing.value !== editing.pattern && whitelist.includes(editing.value);
+
+  function saveEdit(event: React.FormEvent<HTMLElement>) {
+    event.preventDefault();
+    if (editing == null || editing.savingFrom != null) return;
+    if (editing.value === editing.pattern) {
+      setEditing(null);
+      return;
+    }
+    if (!isValidPattern(editing.value) || isDuplicateEdit) return;
+    setEditing({ ...editing, savingFrom: whitelist });
+    onSaveSetting(
+      "whitelist",
+      settings.get("whitelist").map((p) => (p === editing.pattern ? editing.value : p)),
+    );
+  }
+
   async function removeRule(pattern: string) {
     if (removingRef.current.has(pattern)) return;
     removingRef.current.add(pattern);
@@ -239,60 +272,17 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
               className="list-group-item d-flex align-items-center gap-2 bg-primary-subtle"
               ref={formRef}
             >
-              <span className="invisible">
-                <i className="fas fa-grip-vertical" />
-              </span>
-              <form
-                className="flex-grow-1 d-flex align-items-center gap-2"
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") cancelAddRule();
-                }}
+              <RuleForm
+                canSave={isAdding && isValidPattern(newPattern) && !isDuplicatePattern}
+                conditionLabel={conditionLabel(0)}
+                id="wl-add"
+                isDuplicate={isDuplicatePattern && isAdding}
+                onCancel={cancelAddRule}
+                onChange={setNewPattern}
                 onSubmit={addRule}
-              >
-                <div className="flex-grow-1">
-                  <RuleClause label={conditionLabel(0)}>
-                    <label className="text-nowrap" htmlFor="wl-add">
-                      {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
-                    </label>
-                    <input
-                      autoFocus
-                      className={cx("form-control form-control-sm", {
-                        "is-invalid": isDuplicatePattern,
-                      })}
-                      id="wl-add"
-                      onChange={(event) => {
-                        setNewPattern(event.target.value);
-                      }}
-                      readOnly={!isAdding}
-                      type="text"
-                      value={newPattern}
-                    />
-                  </RuleClause>
-                  {isDuplicatePattern && isAdding && (
-                    <div className="form-text text-danger mt-0" style={{ marginLeft: "4.5rem" }}>
-                      {chrome.i18n.getMessage("options_tabRules_duplicate")}
-                    </div>
-                  )}
-                  <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
-                    <span>
-                      <i className="fas fa-lock me-1" />
-                      {chrome.i18n.getMessage("options_tabRules_action_lock")}
-                    </span>
-                  </RuleClause>
-                </div>
-                <Button onClick={cancelAddRule} size="sm" variant="outline-secondary">
-                  {chrome.i18n.getMessage("options_tabRules_cancel")}
-                </Button>
-                <Button
-                  disabled={!isAdding || !isValidPattern(newPattern) || isDuplicatePattern}
-                  id="addToWL"
-                  size="sm"
-                  type="submit"
-                  variant="primary"
-                >
-                  {chrome.i18n.getMessage("options_save")}
-                </Button>
-              </form>
+                readOnly={!isAdding}
+                value={newPattern}
+              />
             </li>
           )}
           {rules.length === 0 && !isFormVisible ? (
@@ -304,6 +294,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
               <li
                 className={cx("list-group-item d-flex align-items-center gap-2", {
                   "bg-body-tertiary opacity-50": drag?.pattern === pattern,
+                  "bg-primary-subtle": isEditingRule(pattern),
                 })}
                 key={pattern}
                 ref={(el) => {
@@ -311,75 +302,112 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                   else rowRefs.current.set(pattern, el);
                 }}
               >
-                <span
-                  className="text-body-secondary"
-                  draggable
-                  onDragEnd={handleDragEnd}
-                  onDragStart={(event) => {
-                    event.dataTransfer.effectAllowed = "move";
-                    event.dataTransfer.setDragImage(
-                      event.currentTarget.parentElement ?? event.currentTarget,
-                      0,
-                      0,
-                    );
-                    // Deferred so the browser snapshots the drag image before the row turns into a ghost.
-                    setTimeout(() => {
-                      setDrag({ order: whitelist, pattern });
-                    });
-                  }}
-                  style={{ cursor: "grab" }}
-                >
-                  <i className="fas fa-grip-vertical" />
-                </span>
-                <div className="d-flex flex-column gap-1 flex-grow-1">
-                  <RuleClause label={conditionLabel(index + firstRuleIndex)}>
-                    <span>
-                      {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}{" "}
-                      <code>{pattern}</code>
-                    </span>
-                  </RuleClause>
-                  <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
-                    <span>
-                      <i className="fas fa-lock me-1" />
-                      {chrome.i18n.getMessage("options_tabRules_action_lock")}
-                    </span>
-                  </RuleClause>
-                </div>
-                <ButtonGroup size="sm">
-                  <Button
-                    aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                    disabled={index === 0}
-                    onClick={() => {
-                      swapRule(index, index - 1);
+                {isEditingRule(pattern) && editing != null ? (
+                  <RuleForm
+                    canSave={
+                      editing.savingFrom == null &&
+                      isValidPattern(editing.value) &&
+                      !isDuplicateEdit
+                    }
+                    conditionLabel={conditionLabel(index + firstRuleIndex)}
+                    id="wl-edit"
+                    isDuplicate={isDuplicateEdit && editing.savingFrom == null}
+                    onCancel={() => {
+                      setEditing(null);
                     }}
-                    title={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                    variant="outline-secondary"
-                  >
-                    <i className="fas fa-chevron-up" />
-                  </Button>
-                  <Button
-                    aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                    disabled={index === rules.length - 1}
-                    onClick={() => {
-                      swapRule(index, index + 1);
+                    onChange={(value) => {
+                      setEditing({ ...editing, value });
                     }}
-                    title={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                    variant="outline-secondary"
-                  >
-                    <i className="fas fa-chevron-down" />
-                  </Button>
-                </ButtonGroup>
-                <Button
-                  aria-label={chrome.i18n.getMessage("options_tabRules_remove")}
-                  onClick={() => {
-                    removeRule(pattern);
-                  }}
-                  size="sm"
-                  title={chrome.i18n.getMessage("options_tabRules_remove")}
-                  variant="outline-secondary"
-                >
-                  <i className="fas fa-trash" />
-                </Button>
+                    onSubmit={saveEdit}
+                    readOnly={editing.savingFrom != null}
+                    value={editing.value}
+                  />
+                ) : (
+                  <>
+                    <span
+                      className="text-body-secondary"
+                      draggable
+                      onDragEnd={handleDragEnd}
+                      onDragStart={(event) => {
+                        event.dataTransfer.effectAllowed = "move";
+                        event.dataTransfer.setDragImage(
+                          event.currentTarget.parentElement ?? event.currentTarget,
+                          0,
+                          0,
+                        );
+                        // Deferred so the browser snapshots the drag image before the row turns into a ghost.
+                        setTimeout(() => {
+                          setDrag({ order: whitelist, pattern });
+                        });
+                      }}
+                      style={{ cursor: "grab" }}
+                    >
+                      <i className="fas fa-grip-vertical" />
+                    </span>
+                    <div className="d-flex flex-column gap-1 flex-grow-1">
+                      <RuleClause label={conditionLabel(index + firstRuleIndex)}>
+                        <span>
+                          {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}{" "}
+                          <code>{pattern}</code>
+                        </span>
+                      </RuleClause>
+                      <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
+                        <span>
+                          <i className="fas fa-lock me-1" />
+                          {chrome.i18n.getMessage("options_tabRules_action_lock")}
+                        </span>
+                      </RuleClause>
+                    </div>
+                    <ButtonGroup size="sm">
+                      <Button
+                        aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                        disabled={index === 0}
+                        onClick={() => {
+                          swapRule(index, index - 1);
+                        }}
+                        title={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                        variant="outline-secondary"
+                      >
+                        <i className="fas fa-chevron-up" />
+                      </Button>
+                      <Button
+                        aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                        disabled={index === rules.length - 1}
+                        onClick={() => {
+                          swapRule(index, index + 1);
+                        }}
+                        title={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                        variant="outline-secondary"
+                      >
+                        <i className="fas fa-chevron-down" />
+                      </Button>
+                    </ButtonGroup>
+                    <ButtonGroup>
+                      <Button
+                        aria-label={chrome.i18n.getMessage("options_tabRules_edit")}
+                        onClick={() => {
+                          setEditing({ pattern, savingFrom: null, value: pattern });
+                        }}
+                        size="sm"
+                        title={chrome.i18n.getMessage("options_tabRules_edit")}
+                        variant="outline-secondary"
+                      >
+                        <i className="fas fa-pen" />
+                      </Button>
+                      <Button
+                        aria-label={chrome.i18n.getMessage("options_tabRules_remove")}
+                        onClick={() => {
+                          removeRule(pattern);
+                        }}
+                        size="sm"
+                        title={chrome.i18n.getMessage("options_tabRules_remove")}
+                        variant="outline-secondary"
+                      >
+                        <i className="fas fa-trash" />
+                      </Button>
+                    </ButtonGroup>
+                  </>
+                )}
               </li>
             ))
           )}
@@ -480,9 +508,83 @@ function conditionLabel(position: number) {
   return chrome.i18n.getMessage(position === 0 ? "options_tabRules_if" : "options_tabRules_elseIf");
 }
 
+// Shared by the new rule form and inline editing so both match a rule row's layout exactly.
+function RuleForm({
+  canSave,
+  conditionLabel,
+  id,
+  isDuplicate,
+  onCancel,
+  onChange,
+  onSubmit,
+  readOnly,
+  value,
+}: {
+  canSave: boolean;
+  conditionLabel: string;
+  id: string;
+  isDuplicate: boolean;
+  onCancel: () => void;
+  onChange: (value: string) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  readOnly: boolean;
+  value: string;
+}) {
+  return (
+    <>
+      <span className="opacity-25 text-body-secondary">
+        <i className="fas fa-grip-vertical" />
+      </span>
+      <form
+        className="flex-grow-1 d-flex align-items-center gap-2"
+        onKeyDown={(event) => {
+          if (event.key === "Escape") onCancel();
+        }}
+        onSubmit={onSubmit}
+      >
+        <div className="d-flex flex-column gap-1 flex-grow-1">
+          <RuleClause label={conditionLabel}>
+            <label className="text-nowrap" htmlFor={id}>
+              {chrome.i18n.getMessage("options_tabRules_condition_urlContains")}
+            </label>
+            <input
+              autoFocus
+              className={cx("form-control form-control-sm", { "is-invalid": isDuplicate })}
+              id={id}
+              onChange={(event) => {
+                onChange(event.target.value);
+              }}
+              readOnly={readOnly}
+              type="text"
+              value={value}
+            />
+          </RuleClause>
+          {isDuplicate && (
+            <div className="form-text text-danger mt-0" style={{ marginLeft: "4.5rem" }}>
+              {chrome.i18n.getMessage("options_tabRules_duplicate")}
+            </div>
+          )}
+          <RuleClause label={chrome.i18n.getMessage("options_tabRules_then")}>
+            <span>
+              <i className="fas fa-lock me-1" />
+              {chrome.i18n.getMessage("options_tabRules_action_lock")}
+            </span>
+          </RuleClause>
+        </div>
+        <Button onClick={onCancel} size="sm" variant="outline-secondary">
+          {chrome.i18n.getMessage("options_tabRules_cancel")}
+        </Button>
+        <Button disabled={!canSave} size="sm" type="submit" variant="primary">
+          {chrome.i18n.getMessage("options_save")}
+        </Button>
+      </form>
+    </>
+  );
+}
+
 function RuleClause({ children, label }: { children?: React.ReactNode; label: string }) {
   return (
-    <div className="d-flex align-items-center gap-2">
+    <div className="tab-rule-clause d-flex align-items-center gap-2">
       <span
         className="badge text-bg-secondary text-uppercase flex-shrink-0"
         style={{ minWidth: "4rem" }}

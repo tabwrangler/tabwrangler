@@ -53,6 +53,19 @@ body {
 }
 
 /**
+ * A Tab Rules "If" / "Then" line is always as tall as a small form control, whether it shows text or
+ * an input/select, so rows keep one height in view and edit modes. This is Bootstrap's
+ * `$input-height-sm` evaluated at the control's own font size; `.form-select-sm` shares the same
+ * padding, font size, and border, so selects match too.
+ */
+.tab-rule-clause {
+  min-height: add(
+    $input-line-height * $input-font-size-sm,
+    add($input-padding-y-sm * 2, $input-height-border, false)
+  );
+}
+
+/**
  * Override Bootstrap responsive because Tab Wrangler is not a mobile UI.
  */
 

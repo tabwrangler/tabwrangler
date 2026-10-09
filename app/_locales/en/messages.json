@@ -141,7 +141,7 @@
   },
   "extension_wrangleNow_title": {
     "description": "Tooltip for the 'Wrangle Now' button when there are tabs it would close",
-    "message": "Close the $count$ oldest unlocked tabs. They go to the Tab Corral.",
+    "message": "Close the $count$ oldest stale tabs. They go to the Tab Corral.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -829,6 +829,10 @@
   "options_tabRules_duplicate": {
     "description": "Error shown when a new tab rule's URL text matches an existing rule",
     "message": "A rule for this URL text already exists."
+  },
+  "options_tabRules_edit": {
+    "description": "Accessible label and tooltip for the button that edits a tab rule",
+    "message": "Edit rule"
   },
   "options_tabRules_else": {
     "description": "Label in front of the action for tabs that match no rule, as in \"Else: Close tab after being inactive for 20m\"",

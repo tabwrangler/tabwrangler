@@ -347,52 +347,6 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                   />
                 ) : (
                   <>
-                    <div className="tab-rule-move">
-                      <Button
-                        aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                        className="text-body-secondary"
-                        disabled={index === 0}
-                        onClick={() => {
-                          swapRule(index, index - 1);
-                        }}
-                        title={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                        variant="link"
-                      >
-                        <i className="fas fa-chevron-up" />
-                      </Button>
-                      <Button
-                        aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                        className="text-body-secondary"
-                        disabled={index === rules.length - 1}
-                        onClick={() => {
-                          swapRule(index, index + 1);
-                        }}
-                        title={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                        variant="link"
-                      >
-                        <i className="fas fa-chevron-down" />
-                      </Button>
-                    </div>
-                    <span
-                      className="tab-rule-line text-body-secondary"
-                      draggable
-                      onDragEnd={handleDragEnd}
-                      onDragStart={(event) => {
-                        event.dataTransfer.effectAllowed = "move";
-                        event.dataTransfer.setDragImage(
-                          event.currentTarget.parentElement ?? event.currentTarget,
-                          0,
-                          0,
-                        );
-                        // Deferred so the browser snapshots the drag image before the row turns into a ghost.
-                        setTimeout(() => {
-                          setDrag({ id: rule.id, order: ruleIds });
-                        });
-                      }}
-                      style={{ cursor: "grab" }}
-                    >
-                      <i className="fas fa-grip-vertical" />
-                    </span>
                     <RuleLine
                       className={cx({ "opacity-50": !rule.enabled })}
                       ifLabel={conditionLabel(index + firstRuleIndex)}
@@ -427,15 +381,58 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                         </Button>
                       </ButtonGroup>
                     </div>
+                    <div className="tab-rule-reorder">
+                      <Button
+                        aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                        className="text-body-secondary"
+                        disabled={index === 0}
+                        onClick={() => {
+                          swapRule(index, index - 1);
+                        }}
+                        title={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                        variant="link"
+                      >
+                        <i className="fas fa-chevron-up" />
+                      </Button>
+                      <span
+                        className="text-body-secondary"
+                        draggable
+                        onDragEnd={handleDragEnd}
+                        onDragStart={(event) => {
+                          event.dataTransfer.effectAllowed = "move";
+                          event.dataTransfer.setDragImage(
+                            event.currentTarget.closest("li") ?? event.currentTarget,
+                            0,
+                            0,
+                          );
+                          // Deferred so the browser snapshots the drag image before the row turns into a ghost.
+                          setTimeout(() => {
+                            setDrag({ id: rule.id, order: ruleIds });
+                          });
+                        }}
+                        style={{ cursor: "grab" }}
+                      >
+                        <i className="fas fa-grip-vertical" />
+                      </span>
+                      <Button
+                        aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                        className="text-body-secondary"
+                        disabled={index === rules.length - 1}
+                        onClick={() => {
+                          swapRule(index, index + 1);
+                        }}
+                        title={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                        variant="link"
+                      >
+                        <i className="fas fa-chevron-down" />
+                      </Button>
+                    </div>
                   </>
                 )}
               </li>
             ))
           )}
           <li className="list-group-item d-flex align-items-center gap-2 bg-body-tertiary">
-            <span className="text-body-secondary opacity-25">
-              <i className="fas fa-grip-vertical" />
-            </span>
             <div className="d-flex flex-column gap-1 flex-grow-1">
               <RuleClause label={chrome.i18n.getMessage("options_tabRules_else")}>
                 <span>{chrome.i18n.getMessage("options_tabRules_action_closeAfter")}:</span>
@@ -517,9 +514,6 @@ function RuleForm({
 }) {
   return (
     <>
-      <span className="tab-rule-line opacity-25 text-body-secondary">
-        <i className="fas fa-grip-vertical" />
-      </span>
       <form
         className="flex-grow-1 d-flex align-items-start gap-2"
         onKeyDown={(event) => {

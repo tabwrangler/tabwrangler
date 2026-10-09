@@ -79,22 +79,25 @@ $tab-rule-line-height: add(
 }
 
 /**
- * Up/down buttons straddling the left border of a rule row, shown while the row is hovered or has
- * keyboard focus. They sit outside the layout so they take no horizontal space from the row.
+ * Reordering controls (move up, drag handle, move down) straddling the right border of a rule row,
+ * shown while the row is hovered or has keyboard focus. They sit outside the layout so they take no
+ * horizontal space from the row.
  */
-.tab-rule-move {
+.tab-rule-reorder {
+  align-items: center;
   background-color: var(--bs-body-bg);
   border: var(--bs-border-width) solid var(--bs-border-color);
   border-radius: var(--bs-border-radius-sm);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  font-size: 0.75rem;
   left: 0;
-  min-height: $tab-rule-line-height;
+  line-height: 1;
   opacity: 0;
+  padding: 0.125rem 0;
   position: absolute;
-  top: var(--bs-list-group-item-padding-y);
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   transition: opacity 0.15s;
   z-index: 3;
 
@@ -105,9 +108,9 @@ $tab-rule-line-height: add(
 
   .btn {
     border: 0;
-    font-size: 0.75rem;
-    line-height: 1;
-    padding: 0 0.125rem;
+    font-size: inherit;
+    line-height: inherit;
+    padding: 0.0625rem 0.125rem;
   }
 }
 

@@ -1,6 +1,8 @@
 /*
- * Tab Rules are evaluated top-to-bottom and the first enabled rule whose conditions all match a
- * tab decides its outcome. A tab that matches no rule is never locked or made stale.
+ * Tab Rules are evaluated top-to-bottom and the first enabled rule that matches a tab decides its
+ * outcome. A rule matches when all of its conditions match, or any of them with `match: "some"`. A
+ * rule with no conditions matches every tab. A tab that matches no rule is never locked or made
+ * stale.
  */
 
 export const TAB_RULES_VERSION = 1;
@@ -14,14 +16,16 @@ export interface TabRulesConfig {
 export interface TabRule {
   id: string;
   enabled: boolean;
+  match: "every" | "some";
   when: TabCondition[];
   then: RuleOutcome;
 }
 
 export type TabCondition =
-  | { type: "url"; op: "contains"; value: string }
   | { type: "audible" }
-  | { type: "groupId"; op: "none" | "some" };
+  | { type: "groupId"; op: "none" | "some" }
+  | { type: "pinned" }
+  | { type: "url"; op: "includes"; value: string };
 
 export type RuleOutcome = { action: "lock" } | { action: "stale"; afterSeconds: number };
 
@@ -32,25 +36,30 @@ export function generateRuleId(): string {
 function matchesCondition(condition: TabCondition, tab: chrome.tabs.Tab): boolean {
   switch (condition.type) {
     case "url":
-      return condition.op === "contains" && tab.url != null && tab.url.includes(condition.value);
+      return condition.op === "includes" && tab.url != null && tab.url.includes(condition.value);
     case "audible":
       return tab.audible === true;
     case "groupId": {
       const grouped = "groupId" in tab && tab.groupId > 0;
       return condition.op === "some" ? grouped : !grouped;
     }
+    case "pinned":
+      return tab.pinned;
     default:
       condition satisfies never;
       return false;
   }
 }
 
+function matchesRule(rule: TabRule, tab: chrome.tabs.Tab): boolean {
+  if (rule.when.length === 0) return true;
+  return rule.match === "some"
+    ? rule.when.some((condition) => matchesCondition(condition, tab))
+    : rule.when.every((condition) => matchesCondition(condition, tab));
+}
+
 export function findMatchingRule(tab: chrome.tabs.Tab, config: TabRulesConfig): TabRule | null {
-  return (
-    config.rules.find(
-      (rule) => rule.enabled && rule.when.every((condition) => matchesCondition(condition, tab)),
-    ) ?? null
-  );
+  return config.rules.find((rule) => rule.enabled && matchesRule(rule, tab)) ?? null;
 }
 
 export function getTabOutcome(tab: chrome.tabs.Tab, config: TabRulesConfig): RuleOutcome | null {
@@ -84,34 +93,29 @@ export function getStaleTimeoutsKey(config: TabRulesConfig): string {
   return JSON.stringify(config.rules.filter((rule) => rule.then.action === "stale"));
 }
 
-// Mirrors the legacy `filterAudio` behavior of refreshing audible tabs' times on every tick.
-export function locksAudibleTabs(config: TabRulesConfig): boolean {
-  return config.rules.some(
-    (rule) =>
-      rule.enabled &&
-      rule.then.action === "lock" &&
-      rule.when.length > 0 &&
-      rule.when.every((condition) => condition.type === "audible"),
-  );
-}
-
-export function isUrlContainsRule(
+export function isUrlIncludesRule(
   rule: TabRule,
-): rule is TabRule & { when: [{ type: "url"; op: "contains"; value: string }] } {
+): rule is TabRule & { when: [{ type: "url"; op: "includes"; value: string }] } {
   return (
     rule.when.length === 1 &&
     rule.when[0].type === "url" &&
-    rule.when[0].op === "contains" &&
+    rule.when[0].op === "includes" &&
     rule.then.action === "lock"
   );
 }
 
 export function createLockRule(condition: TabCondition): TabRule {
-  return { id: generateRuleId(), enabled: true, when: [condition], then: { action: "lock" } };
+  return {
+    id: generateRuleId(),
+    enabled: true,
+    match: "every",
+    when: [condition],
+    then: { action: "lock" },
+  };
 }
 
-export function createUrlContainsRule(value: string): TabRule {
-  return createLockRule({ type: "url", op: "contains", value });
+export function createUrlIncludesRule(value: string): TabRule {
+  return createLockRule({ type: "url", op: "includes", value });
 }
 
 export interface LegacyRuleSettings {
@@ -123,9 +127,10 @@ export interface LegacyRuleSettings {
 }
 
 /**
- * Builds Tab Rules equivalent to the settings that preceded them: each whitelist entry, then audio,
- * then tab groups, then a final rule making every other tab stale after the inactive timeout. Audio
- * and tab group toggles that were off become no rule at all.
+ * Builds Tab Rules equivalent to the settings that preceded them: pinned tabs, then each whitelist
+ * entry, then audio, then tab groups, then a final rule making every other tab stale after the
+ * inactive timeout. Audio and tab group toggles that were off become no rule at all. New installs
+ * get the rules built from the default settings.
  */
 export function buildTabRulesFromLegacySettings(legacy: LegacyRuleSettings): TabRulesConfig {
   const whitelist = Array.isArray(legacy.whitelist)
@@ -140,12 +145,14 @@ export function buildTabRulesFromLegacySettings(legacy: LegacyRuleSettings): Tab
   return {
     version: TAB_RULES_VERSION,
     rules: [
-      ...whitelist.map(createUrlContainsRule),
+      createLockRule({ type: "pinned" }),
+      ...whitelist.map(createUrlIncludesRule),
       ...(legacy.filterAudio ? [createLockRule({ type: "audible" })] : []),
       ...(legacy.filterGroupedTabs ? [createLockRule({ type: "groupId", op: "some" })] : []),
       {
         id: generateRuleId(),
         enabled: true,
+        match: "every",
         when: [],
         then: {
           action: "stale",

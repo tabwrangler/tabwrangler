@@ -54,7 +54,8 @@ describe("tabRules migration", () => {
     await Settings.init();
     const tabRules = Settings.get("tabRules");
     expect(tabRules.rules.map(({ then, when }) => ({ then, when }))).toEqual([
-      { then: { action: "lock" }, when: [{ type: "url", op: "contains", value: "github.com" }] },
+      { then: { action: "lock" }, when: [{ type: "pinned" }] },
+      { then: { action: "lock" }, when: [{ type: "url", op: "includes", value: "github.com" }] },
       { then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
       { then: { action: "stale", afterSeconds: 330 }, when: [] },
     ]);
@@ -64,14 +65,28 @@ describe("tabRules migration", () => {
     mockSyncStorage({});
     await Settings.init();
     const { rules } = Settings.get("tabRules");
-    expect(rules).toHaveLength(4);
-    expect(rules[3].then).toEqual({ action: "stale", afterSeconds: 3600 });
+    expect(rules.map(({ when }) => when)).toEqual([
+      [{ type: "pinned" }],
+      [{ type: "url", op: "includes", value: "about:" }],
+      [{ type: "url", op: "includes", value: "chrome://" }],
+      [{ type: "audible" }],
+      [],
+    ]);
+    expect(rules[4].then).toEqual({ action: "stale", afterSeconds: 3600 });
   });
 
   test("prefers stored tabRules", async () => {
     const stored = {
       version: 1,
-      rules: [{ id: "a", enabled: true, when: [], then: { action: "stale", afterSeconds: 10 } }],
+      rules: [
+        {
+          id: "a",
+          enabled: true,
+          match: "every",
+          when: [],
+          then: { action: "stale", afterSeconds: 10 },
+        },
+      ],
     };
     mockSyncStorage({ tabRules: stored, whitelist: ["github.com"] });
     await Settings.init();

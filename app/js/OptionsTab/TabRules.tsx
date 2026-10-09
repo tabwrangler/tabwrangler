@@ -3,7 +3,7 @@ import {
   type TabCondition,
   type TabRule,
   type TabRulesConfig,
-  createLockRule,
+  generateRuleId,
   getElseRule,
 } from "../tabRules";
 import settings, { type SettingsSchema } from "../settings";
@@ -18,11 +18,21 @@ type SaveSetting = <K extends keyof SettingsSchema>(key: K, value: SettingsSchem
 
 type ConditionType = TabCondition["type"];
 
-const CONDITION_TYPES: ConditionType[] = ["url", "audible", "groupId"];
+const CONDITION_TYPES: ConditionType[] = ["url", "pinned", "audible", "groupId"];
 
-interface Draft {
+interface ConditionDraft {
   type: ConditionType;
   value: string;
+}
+
+interface Draft {
+  conditions: ConditionDraft[];
+  match: "every" | "some";
+}
+
+interface DraftErrors {
+  conditions: (string | null)[];
+  rule: string | null;
 }
 
 export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
@@ -140,12 +150,17 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
   // The new rule form previews where the rule will land: at the top, ahead of the existing rules.
   const firstRuleIndex = isFormVisible ? 1 : 0;
 
-  const newDraftError = draftError(newDraft, savedRules, null);
+  const newDraftErrors = draftErrors(newDraft, savedRules, null);
 
   function addRule(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
-    if (!isValidDraft(newDraft) || newDraftError != null || savingFrom === savedRules) return;
-    const rule = createLockRule(draftToCondition(newDraft));
+    if (!isValidDraft(newDraft) || hasErrors(newDraftErrors) || savingFrom === savedRules) return;
+    const rule: TabRule = {
+      enabled: true,
+      id: generateRuleId(),
+      ...draftToFields(newDraft),
+      then: { action: "lock" },
+    };
     savedRuleRef.current = { formHeight: formRef.current?.offsetHeight ?? 0, id: rule.id };
     setSavingFrom(savedRules);
     setIsAdding(false);
@@ -161,22 +176,25 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     return editing?.id === id && (editing.savingFrom == null || editing.savingFrom === savedRules);
   }
 
-  const editError = editing != null ? draftError(editing.draft, savedRules, editing.id) : null;
+  const editErrors = editing != null ? draftErrors(editing.draft, savedRules, editing.id) : null;
 
   function saveEdit(event: React.FormEvent<HTMLElement>) {
     event.preventDefault();
     if (editing == null || editing.savingFrom != null) return;
     const rule = rulesById.get(editing.id);
-    const condition = draftToCondition(editing.draft);
-    if (rule == null || JSON.stringify(rule.when) === JSON.stringify([condition])) {
+    const fields = draftToFields(editing.draft);
+    if (
+      rule == null ||
+      JSON.stringify({ match: rule.match, when: rule.when }) === JSON.stringify(fields)
+    ) {
       setEditing(null);
       return;
     }
-    if (!isValidDraft(editing.draft) || editError != null) return;
+    if (!isValidDraft(editing.draft) || (editErrors != null && hasErrors(editErrors))) return;
     setEditing({ ...editing, savingFrom: savedRules });
     saveRules(
       getListedRules(settings.get("tabRules")).map((r) =>
-        r.id === editing.id ? { ...r, when: [condition] } : r,
+        r.id === editing.id ? { enabled: r.enabled, id: r.id, ...fields, then: r.then } : r,
       ),
     );
   }
@@ -296,12 +314,11 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
               ref={formRef}
             >
               <RuleForm
-                canSave={isAdding && isValidDraft(newDraft) && newDraftError == null}
+                canSave={isAdding && isValidDraft(newDraft) && !hasErrors(newDraftErrors)}
                 conditionLabel={conditionLabel(0)}
                 draft={newDraft}
-                error={isAdding ? newDraftError : null}
+                errors={isAdding ? newDraftErrors : null}
                 id="rule-add"
-                isTypeTaken={(type) => isConditionTypeTaken(type, savedRules, null)}
                 onCancel={cancelAddRule}
                 onChange={setNewDraft}
                 onSubmit={addRule}
@@ -329,13 +346,15 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                 {isEditingRule(rule.id) && editing != null ? (
                   <RuleForm
                     canSave={
-                      editing.savingFrom == null && isValidDraft(editing.draft) && editError == null
+                      editing.savingFrom == null &&
+                      isValidDraft(editing.draft) &&
+                      editErrors != null &&
+                      !hasErrors(editErrors)
                     }
                     conditionLabel={conditionLabel(index + firstRuleIndex)}
                     draft={editing.draft}
-                    error={editing.savingFrom == null ? editError : null}
+                    errors={editing.savingFrom == null ? editErrors : null}
                     id="rule-edit"
-                    isTypeTaken={(type) => isConditionTypeTaken(type, savedRules, editing.id)}
                     onCancel={() => {
                       setEditing(null);
                     }}
@@ -347,52 +366,6 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                   />
                 ) : (
                   <>
-                    <div className="tab-rule-move">
-                      <Button
-                        aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                        className="text-body-secondary"
-                        disabled={index === 0}
-                        onClick={() => {
-                          swapRule(index, index - 1);
-                        }}
-                        title={chrome.i18n.getMessage("options_tabRules_moveUp")}
-                        variant="link"
-                      >
-                        <i className="fas fa-chevron-up" />
-                      </Button>
-                      <Button
-                        aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                        className="text-body-secondary"
-                        disabled={index === rules.length - 1}
-                        onClick={() => {
-                          swapRule(index, index + 1);
-                        }}
-                        title={chrome.i18n.getMessage("options_tabRules_moveDown")}
-                        variant="link"
-                      >
-                        <i className="fas fa-chevron-down" />
-                      </Button>
-                    </div>
-                    <span
-                      className="tab-rule-line text-body-secondary"
-                      draggable
-                      onDragEnd={handleDragEnd}
-                      onDragStart={(event) => {
-                        event.dataTransfer.effectAllowed = "move";
-                        event.dataTransfer.setDragImage(
-                          event.currentTarget.parentElement ?? event.currentTarget,
-                          0,
-                          0,
-                        );
-                        // Deferred so the browser snapshots the drag image before the row turns into a ghost.
-                        setTimeout(() => {
-                          setDrag({ id: rule.id, order: ruleIds });
-                        });
-                      }}
-                      style={{ cursor: "grab" }}
-                    >
-                      <i className="fas fa-grip-vertical" />
-                    </span>
                     <RuleLine
                       className={cx({ "opacity-50": !rule.enabled })}
                       ifLabel={conditionLabel(index + firstRuleIndex)}
@@ -427,15 +400,58 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                         </Button>
                       </ButtonGroup>
                     </div>
+                    <div className="tab-rule-reorder">
+                      <Button
+                        aria-label={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                        className="text-body-secondary"
+                        disabled={index === 0}
+                        onClick={() => {
+                          swapRule(index, index - 1);
+                        }}
+                        title={chrome.i18n.getMessage("options_tabRules_moveUp")}
+                        variant="link"
+                      >
+                        <i className="fas fa-chevron-up" />
+                      </Button>
+                      <span
+                        className="text-body-secondary"
+                        draggable
+                        onDragEnd={handleDragEnd}
+                        onDragStart={(event) => {
+                          event.dataTransfer.effectAllowed = "move";
+                          event.dataTransfer.setDragImage(
+                            event.currentTarget.closest("li") ?? event.currentTarget,
+                            0,
+                            0,
+                          );
+                          // Deferred so the browser snapshots the drag image before the row turns into a ghost.
+                          setTimeout(() => {
+                            setDrag({ id: rule.id, order: ruleIds });
+                          });
+                        }}
+                        style={{ cursor: "grab" }}
+                      >
+                        <i className="fas fa-grip-vertical" />
+                      </span>
+                      <Button
+                        aria-label={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                        className="text-body-secondary"
+                        disabled={index === rules.length - 1}
+                        onClick={() => {
+                          swapRule(index, index + 1);
+                        }}
+                        title={chrome.i18n.getMessage("options_tabRules_moveDown")}
+                        variant="link"
+                      >
+                        <i className="fas fa-chevron-down" />
+                      </Button>
+                    </div>
                   </>
                 )}
               </li>
             ))
           )}
           <li className="list-group-item d-flex align-items-center gap-2 bg-body-tertiary">
-            <span className="text-body-secondary opacity-25">
-              <i className="fas fa-grip-vertical" />
-            </span>
             <div className="d-flex flex-column gap-1 flex-grow-1">
               <RuleClause label={chrome.i18n.getMessage("options_tabRules_else")}>
                 <span>{chrome.i18n.getMessage("options_tabRules_action_closeAfter")}:</span>
@@ -460,7 +476,8 @@ function conditionLabel(position: number) {
 const CONDITION_TYPE_MESSAGES: Record<ConditionType, string> = {
   audible: "options_tabRules_condition_audible",
   groupId: "options_tabRules_condition_grouped",
-  url: "options_tabRules_condition_urlContains",
+  pinned: "options_tabRules_condition_pinned",
+  url: "options_tabRules_condition_urlIncludes",
 };
 
 function conditionTypeLabel(type: ConditionType) {
@@ -468,8 +485,27 @@ function conditionTypeLabel(type: ConditionType) {
 }
 
 function RuleConditions({ rule }: { rule: TabRule }) {
-  const [condition] = rule.when;
-  if (rule.when.length !== 1) return null;
+  return (
+    <div className="tab-rule-shrink">
+      {rule.when.map((condition, index) => (
+        <div className="tab-rule-line gap-2 tab-rule-shrink" key={index}>
+          {index > 0 && <RuleJoin match={rule.match} />}
+          <ConditionText condition={condition} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RuleJoin({ match }: { match: TabRule["match"] }) {
+  return (
+    <span className="badge rounded-pill badge-outline text-secondary-emphasis tab-rule-join-badge">
+      {chrome.i18n.getMessage(match === "some" ? "options_tabRules_or" : "options_tabRules_and")}
+    </span>
+  );
+}
+
+function ConditionText({ condition }: { condition: TabCondition }) {
   switch (condition.type) {
     case "url":
       return (
@@ -486,7 +522,15 @@ function RuleConditions({ rule }: { rule: TabRule }) {
       );
     case "groupId":
       return <span className="text-truncate">{conditionTypeLabel("groupId")}</span>;
+    case "pinned":
+      return (
+        <span className="text-truncate">
+          <i className="fas fa-thumbtack me-1" />
+          {conditionTypeLabel("pinned")}
+        </span>
+      );
     default:
+      condition satisfies never;
       return null;
   }
 }
@@ -496,9 +540,8 @@ function RuleForm({
   canSave,
   conditionLabel,
   draft,
-  error,
+  errors,
   id,
-  isTypeTaken,
   onCancel,
   onChange,
   onSubmit,
@@ -507,80 +550,153 @@ function RuleForm({
   canSave: boolean;
   conditionLabel: string;
   draft: Draft;
-  error: string | null;
+  errors: DraftErrors | null;
   id: string;
-  isTypeTaken: (type: ConditionType) => boolean;
   onCancel: () => void;
   onChange: (draft: Draft) => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   readOnly: boolean;
 }) {
+  function updateCondition(index: number, condition: ConditionDraft) {
+    onChange({
+      ...draft,
+      conditions: draft.conditions.map((c, i) => (i === index ? condition : c)),
+    });
+  }
+
   return (
-    <>
-      <span className="tab-rule-line opacity-25 text-body-secondary">
-        <i className="fas fa-grip-vertical" />
-      </span>
-      <form
-        className="flex-grow-1 d-flex align-items-start gap-2"
-        onKeyDown={(event) => {
-          if (event.key === "Escape") onCancel();
-        }}
-        onSubmit={onSubmit}
-      >
-        <RuleLine editable ifLabel={conditionLabel}>
-          <select
-            aria-label={chrome.i18n.getMessage("options_tabRules_condition")}
-            autoFocus={draft.type !== "url"}
-            className="form-select form-select-sm w-auto"
-            disabled={readOnly}
-            id={`${id}-type`}
-            onChange={(event) => {
-              onChange({ ...draft, type: event.target.value as ConditionType });
-            }}
-            value={draft.type}
-          >
-            {CONDITION_TYPES.map((type) => (
-              <option disabled={isTypeTaken(type)} key={type} value={type}>
-                {conditionTypeLabel(type)}
-              </option>
-            ))}
-          </select>
-          <div className="tab-rule-input">
-            {draft.type === "url" && (
-              <>
-                <input
-                  aria-describedby={error != null ? `${id}-error` : undefined}
-                  aria-invalid={error != null}
-                  aria-label={conditionTypeLabel("url")}
-                  autoFocus
-                  className={cx("form-control form-control-sm", { "is-invalid": error != null })}
-                  id={id}
-                  onChange={(event) => {
-                    onChange({ ...draft, value: event.target.value });
-                  }}
-                  readOnly={readOnly}
-                  type="text"
-                  value={draft.value}
-                />
-                {error != null && (
-                  <div className="form-text text-danger mt-1" id={`${id}-error`}>
-                    {error}
-                  </div>
+    <form
+      className="flex-grow-1 d-flex align-items-start gap-2"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") onCancel();
+      }}
+      onSubmit={onSubmit}
+    >
+      <RuleLine editable ifLabel={conditionLabel}>
+        <div className="tab-rule-conditions">
+          {draft.conditions.map((condition, index) => {
+            const error = errors?.conditions[index] ?? null;
+            const inputId = `${id}-${index}`;
+            return (
+              <div className="d-flex align-items-start gap-2" key={index}>
+                {index > 0 && (
+                  <select
+                    aria-label={chrome.i18n.getMessage("options_tabRules_match")}
+                    className="form-select form-select-sm w-auto tab-rule-join"
+                    disabled={readOnly}
+                    onChange={(event) => {
+                      onChange({ ...draft, match: event.target.value as Draft["match"] });
+                    }}
+                    value={draft.match}
+                  >
+                    <option value="every">{chrome.i18n.getMessage("options_tabRules_and")}</option>
+                    <option value="some">{chrome.i18n.getMessage("options_tabRules_or")}</option>
+                  </select>
                 )}
-              </>
-            )}
+                <select
+                  aria-label={chrome.i18n.getMessage("options_tabRules_condition")}
+                  autoFocus={index === 0 && condition.type !== "url"}
+                  className="form-select form-select-sm w-auto"
+                  disabled={readOnly}
+                  onChange={(event) => {
+                    updateCondition(index, {
+                      ...condition,
+                      type: event.target.value as ConditionType,
+                    });
+                  }}
+                  value={condition.type}
+                >
+                  {CONDITION_TYPES.map((type) => (
+                    <option
+                      // Audio and tab group conditions have nothing to configure, so repeating one
+                      // in a rule changes nothing.
+                      disabled={
+                        type !== "url" &&
+                        type !== condition.type &&
+                        draft.conditions.some((other) => other.type === type)
+                      }
+                      key={type}
+                      value={type}
+                    >
+                      {conditionTypeLabel(type)}
+                    </option>
+                  ))}
+                </select>
+                <div className="tab-rule-input">
+                  {condition.type === "url" && (
+                    <>
+                      <input
+                        aria-describedby={error != null ? `${inputId}-error` : undefined}
+                        aria-invalid={error != null}
+                        aria-label={conditionTypeLabel("url")}
+                        autoFocus
+                        className={cx("form-control form-control-sm", {
+                          "is-invalid": error != null,
+                        })}
+                        id={inputId}
+                        onChange={(event) => {
+                          updateCondition(index, { ...condition, value: event.target.value });
+                        }}
+                        readOnly={readOnly}
+                        type="text"
+                        value={condition.value}
+                      />
+                      {error != null && (
+                        <div className="form-text text-danger mt-1" id={`${inputId}-error`}>
+                          {error}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                {draft.conditions.length > 1 && (
+                  <Button
+                    aria-label={chrome.i18n.getMessage("options_tabRules_removeCondition")}
+                    className="text-body-secondary"
+                    disabled={readOnly}
+                    onClick={() => {
+                      onChange({
+                        ...draft,
+                        conditions: draft.conditions.filter((_, i) => i !== index),
+                      });
+                    }}
+                    size="sm"
+                    title={chrome.i18n.getMessage("options_tabRules_removeCondition")}
+                    type="button"
+                    variant="outline-secondary"
+                  >
+                    <i className="fas fa-times" />
+                  </Button>
+                )}
+              </div>
+            );
+          })}
+          <div>
+            <Button
+              disabled={readOnly}
+              onClick={() => {
+                onChange({ ...draft, conditions: [...draft.conditions, EMPTY_CONDITION] });
+              }}
+              size="sm"
+              type="button"
+              variant="link"
+            >
+              <i className="fas fa-plus me-1" />
+              {chrome.i18n.getMessage("options_tabRules_addCondition")}
+            </Button>
           </div>
-        </RuleLine>
-        <div className="tab-rule-controls">
-          <Button onClick={onCancel} size="sm" variant="secondary">
-            {chrome.i18n.getMessage("options_tabRules_cancel")}
-          </Button>
-          <Button disabled={!canSave} size="sm" type="submit" variant="primary">
-            {chrome.i18n.getMessage("options_save")}
-          </Button>
+          {errors?.rule != null && <div className="form-text text-danger mt-0">{errors.rule}</div>}
         </div>
-      </form>
-    </>
+      </RuleLine>
+      <div className="tab-rule-controls">
+        <Button onClick={onCancel} size="sm" type="button" variant="secondary">
+          {chrome.i18n.getMessage("options_tabRules_cancel")}
+        </Button>
+        <Button disabled={!canSave} size="sm" type="submit" variant="primary">
+          {chrome.i18n.getMessage("options_save")}
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -592,8 +708,7 @@ function RuleLine({
 }: {
   children: React.ReactNode;
   className?: string;
-  // Forms keep their controls' minimum width, so a tight line wraps instead of truncating, and
-  // top-align their clauses so a validation message under an input doesn't shift the rest.
+  // Forms keep their controls' minimum width, so a tight line wraps instead of truncating.
   editable?: boolean;
   ifLabel: string;
 }) {
@@ -605,7 +720,7 @@ function RuleLine({
       )}
     >
       <RuleClause
-        alignStart={editable}
+        alignStart
         className={cx("tab-rule-if", { "tab-rule-shrink": !editable })}
         label={ifLabel}
       >
@@ -641,7 +756,7 @@ function RuleClause({
       )}
     >
       <span className="tab-rule-line flex-shrink-0">
-        <span className="badge text-bg-secondary text-uppercase" style={{ minWidth: "4rem" }}>
+        <span className="badge rounded-pill text-bg-secondary text-uppercase tab-rule-badge">
           {label}
         </span>
       </span>
@@ -792,50 +907,76 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
   );
 }
 
-const EMPTY_DRAFT: Draft = { type: "url", value: "" };
+const EMPTY_CONDITION: ConditionDraft = { type: "url", value: "" };
+const EMPTY_DRAFT: Draft = { conditions: [EMPTY_CONDITION], match: "every" };
 
 // Every rule except the final "Else" rule, which shows as its own fixed row.
 function getListedRules(tabRules: TabRulesConfig): TabRule[] {
   return getElseRule(tabRules) == null ? tabRules.rules : tabRules.rules.slice(0, -1);
 }
 
-function draftToCondition(draft: Draft): TabCondition {
-  if (draft.type === "audible") return { type: "audible" };
-  if (draft.type === "groupId") return { type: "groupId", op: "some" };
-  return { type: "url", op: "contains", value: draft.value };
-}
-
-// Only single-condition rules the form can express are editable.
-function ruleToDraft(rule: TabRule): Draft | null {
-  if (rule.when.length !== 1) return null;
-  const [condition] = rule.when;
-  if (condition.type === "url" && condition.op === "contains")
+function conditionToDraft(condition: TabCondition): ConditionDraft | null {
+  if (condition.type === "url" && condition.op === "includes")
     return { type: "url", value: condition.value };
   if (condition.type === "audible") return { type: "audible", value: "" };
   if (condition.type === "groupId" && condition.op === "some")
     return { type: "groupId", value: "" };
+  if (condition.type === "pinned") return { type: "pinned", value: "" };
   return null;
 }
 
-// Audio and tab group rules have nothing to configure, so a second one could never match.
-function isConditionTypeTaken(type: ConditionType, rules: TabRule[], exceptId: string | null) {
-  return (
-    type !== "url" && rules.some((rule) => rule.id !== exceptId && ruleToDraft(rule)?.type === type)
-  );
+function draftToCondition(draft: ConditionDraft): TabCondition {
+  if (draft.type === "audible") return { type: "audible" };
+  if (draft.type === "groupId") return { type: "groupId", op: "some" };
+  if (draft.type === "pinned") return { type: "pinned" };
+  return { type: "url", op: "includes", value: draft.value };
+}
+
+// The parts of a rule the form edits.
+function draftToFields(draft: Draft): Pick<TabRule, "match" | "when"> {
+  return { match: draft.match, when: draft.conditions.map(draftToCondition) };
+}
+
+// Only rules whose conditions the form can express are editable.
+function ruleToDraft(rule: TabRule): Draft | null {
+  const conditions = rule.when.flatMap((condition) => conditionToDraft(condition) ?? []);
+  if (conditions.length === 0 || conditions.length !== rule.when.length) return null;
+  return { conditions, match: rule.match };
+}
+
+// Identifies what a rule matches regardless of condition order, to catch duplicate rules.
+function matchKey({ match, when }: Pick<TabRule, "match" | "when">): string {
+  const conditions = when.map((condition) => JSON.stringify(condition)).sort();
+  return JSON.stringify([conditions.length > 1 ? match : "every", conditions]);
 }
 
 // Tab URLs never contain whitespace (spaces are encoded as %20), so a pattern with any can't match.
 function isValidDraft(draft: Draft) {
-  return draft.type !== "url" || (draft.value.length > 0 && !/\s/.test(draft.value));
+  return draft.conditions.every(
+    (condition) =>
+      condition.type !== "url" || (condition.value.length > 0 && !/\s/.test(condition.value)),
+  );
 }
 
-function draftError(draft: Draft, rules: TabRule[], exceptId: string | null): string | null {
-  if (draft.type !== "url") return null;
-  if (/\s/.test(draft.value)) return chrome.i18n.getMessage("options_tabRules_whitespace");
-  const duplicate = rules.some((rule) => {
-    const other = rule.id === exceptId ? null : ruleToDraft(rule);
-    return other?.type === "url" && other.value === draft.value;
+function draftErrors(draft: Draft, rules: TabRule[], exceptId: string | null): DraftErrors {
+  const conditions = draft.conditions.map((condition, index) => {
+    if (condition.type !== "url") return null;
+    if (/\s/.test(condition.value)) return chrome.i18n.getMessage("options_tabRules_whitespace");
+    const repeated = draft.conditions
+      .slice(0, index)
+      .some((other) => other.type === "url" && other.value === condition.value);
+    if (repeated && condition.value !== "")
+      return chrome.i18n.getMessage("options_tabRules_duplicateCondition");
+    return null;
   });
-  if (duplicate) return chrome.i18n.getMessage("options_tabRules_duplicate");
-  return null;
+  const key = matchKey(draftToFields(draft));
+  const duplicate = rules.some((rule) => rule.id !== exceptId && matchKey(rule) === key);
+  return {
+    conditions,
+    rule: duplicate ? chrome.i18n.getMessage("options_tabRules_duplicateRule") : null,
+  };
+}
+
+function hasErrors(errors: DraftErrors) {
+  return errors.rule != null || errors.conditions.some((error) => error != null);
 }

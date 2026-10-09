@@ -6,3 +6,14 @@
   background-color: var(--bs-btn-active-bg);
   color: var(--bs-btn-active-color);
 }
+
+// `.form-select-sm` shrinks every padding except the right one, which holds the dropdown arrow, so
+// small selects keep the default size's wide arrow gap. Scale the arrow and its padding down by the
+// same ratio as the rest of the padding.
+$form-select-sm-scale: divide($form-select-padding-x-sm, $form-select-padding-x);
+
+.form-select-sm {
+  background-position: right $form-select-padding-x-sm center;
+  background-size: 16px * $form-select-sm-scale 12px * $form-select-sm-scale;
+  padding-right: $form-select-indicator-padding * $form-select-sm-scale;
+}

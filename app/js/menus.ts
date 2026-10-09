@@ -1,4 +1,4 @@
-import { type TabRule, createUrlContainsRule, isUrlContainsRule } from "./tabRules";
+import { type TabRule, createUrlIncludesRule, isUrlIncludesRule } from "./tabRules";
 import settings from "./settings";
 import { wrangleTabsAndPersist } from "./tabUtil";
 
@@ -77,7 +77,7 @@ export default class Menus {
       ...tabRules,
       rules: wasChecked
         ? tabRules.rules.filter((rule) => !isDomainLockRule(rule, domain))
-        : [createUrlContainsRule(domain), ...tabRules.rules],
+        : [createUrlIncludesRule(domain), ...tabRules.rules],
     });
   }
 
@@ -122,7 +122,7 @@ export default class Menus {
 }
 
 function isDomainLockRule(rule: TabRule, domain: string): boolean {
-  return isUrlContainsRule(rule) && rule.when[0].value === domain;
+  return isUrlIncludesRule(rule) && rule.when[0].value === domain;
 }
 
 function getDomain(url: string): string | null {

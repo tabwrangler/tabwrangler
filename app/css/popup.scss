@@ -45,6 +45,18 @@ body {
   @include button-size(0.1rem, 0.3rem, 0.75rem, var(--#{$prefix}border-radius-sm));
 }
 
+/**
+ * Outline badge, like Bootstrap v6's `.badge-outline`. Pair it with a text color utility, which
+ * colors the border too. The padding gives up the border's width so it's the same size as a solid
+ * badge.
+ */
+.badge-outline {
+  background-color: transparent;
+  border: var(--#{$prefix}border-width) solid currentcolor;
+  padding: calc(var(--#{$prefix}badge-padding-y) - var(--#{$prefix}border-width))
+    calc(var(--#{$prefix}badge-padding-x) - var(--#{$prefix}border-width));
+}
+
 .alert-sticky {
   position: fixed;
   left: 10px;
@@ -79,22 +91,25 @@ $tab-rule-line-height: add(
 }
 
 /**
- * Up/down buttons straddling the left border of a rule row, shown while the row is hovered or has
- * keyboard focus. They sit outside the layout so they take no horizontal space from the row.
+ * Reordering controls (move up, drag handle, move down) straddling the right border of a rule row,
+ * shown while the row is hovered or has keyboard focus. They sit outside the layout so they take no
+ * horizontal space from the row.
  */
-.tab-rule-move {
+.tab-rule-reorder {
+  align-items: center;
   background-color: var(--bs-body-bg);
   border: var(--bs-border-width) solid var(--bs-border-color);
   border-radius: var(--bs-border-radius-sm);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  font-size: 0.75rem;
   left: 0;
-  min-height: $tab-rule-line-height;
+  line-height: 1;
   opacity: 0;
+  padding: 0.125rem 0;
   position: absolute;
-  top: var(--bs-list-group-item-padding-y);
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   transition: opacity 0.15s;
   z-index: 3;
 
@@ -105,19 +120,12 @@ $tab-rule-line-height: add(
 
   .btn {
     border: 0;
-    font-size: 0.75rem;
-    line-height: 1;
-    padding: 0 0.125rem;
+    font-size: inherit;
+    line-height: inherit;
+    padding: 0.0625rem 0.125rem;
   }
 }
 
-/**
- * Minimum widths for the "Then" column and the trailing controls, so every rule row (view, add,
- * edit, and fixed rules) lines up its columns no matter which controls it shows. They are minimums
- * so longer translations grow the column instead of overlapping the next one. The "If" clause
- * keeps a flex basis so a line too narrow for both clauses wraps "Then" onto its own line instead
- * of squeezing the condition to nothing.
- */
 /**
  * Lets a flex item shrink below its content width so text can truncate. Unlike `overflow: hidden`,
  * this doesn't clip the focus ring (box-shadow) of inputs inside it.
@@ -128,10 +136,26 @@ $tab-rule-line-height: add(
 
 .tab-rule-if {
   flex: 1 1 10rem;
+}
 
-  .form-select {
-    min-width: 8rem;
-  }
+/**
+ * A rule's conditions, one per line. Lines after the first start with the "and" / "or" connector.
+ */
+.tab-rule-conditions {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: map-get($spacers, 2);
+}
+
+// The If / Else if / Then / Else badges share a minimum width so the content after them lines up.
+.tab-rule-badge {
+  min-width: 3.5rem;
+}
+
+// AND and OR share one width so the conditions after them line up.
+.tab-rule-join-badge {
+  min-width: 3rem;
 }
 
 /**
@@ -152,10 +176,10 @@ $tab-rule-line-height: add(
   align-items: center;
   display: flex;
   flex-shrink: 0;
-  gap: map-get($spacers, 2);
+  gap: map-get($spacers, 1);
   justify-content: flex-end;
   min-height: $tab-rule-line-height;
-  min-width: 8rem;
+  min-width: 7rem;
 }
 
 /**

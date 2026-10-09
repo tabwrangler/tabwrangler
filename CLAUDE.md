@@ -36,7 +36,7 @@ All coordination goes through storage events:
 
 | Area    | Key                    | Contents                                                                 |
 | ------- | ---------------------- | ------------------------------------------------------------------------ |
-| `sync`  | `persist:settings`     | All user settings (pause state, thresholds, whitelist, locked IDs, …)    |
+| `sync`  | `persist:settings`     | All user settings (pause state, thresholds, Tab Rules, locked IDs, …)    |
 | `local` | `persist:localStorage` | Saved/closed tabs, statistics, install date                              |
 | `local` | `tabTimes`             | `{ [tabId]: lastAccessedTimestamp }` — written frequently, kept separate |
 | `local` | `pausedAt`             | Timestamp when paused; absent when running                               |
@@ -57,10 +57,19 @@ change.
 ### Tab-closing logic (`app/js/tabUtil.ts`)
 
 `findTabsToCloseCandidates(tabTimes, tabs)` is the core function. It filters out locked tabs
-(pinned, grouped if `filterGroupedTabs`, audible if `filterAudio`, whitelisted, manually locked,
-window-locked), respects `minTabs` / `minTabsStrategy` (`"givenWindow"` counts per window;
-`"allWindows"` counts across all windows), and returns the oldest eligible tabs up to the configured
-`maxTabs` limit.
+(locked by a Tab Rule, manually locked, or window-locked), keeps tabs that aren't stale yet under
+their matching rule's timeout, respects `minTabs` / `minTabsStrategy` (`"givenWindow"` counts per
+window; `"allWindows"` counts across all windows), and returns the oldest eligible tabs up to the
+configured `maxTabs` limit.
+
+### Tab Rules (`app/js/tabRules.ts`)
+
+The `tabRules` sync setting is an ordered list of rules, and the first enabled matching rule decides
+a tab's outcome: `lock` or `stale` after `afterSeconds`. A rule matches when `every` or `some` of its
+conditions match (`url` includes, `audible`, `groupId`, `pinned`). The last rule has no conditions
+and is the "Else" row. `migrateSync()` in `storage.ts` builds it once from the legacy settings
+(`whitelist`, `filterAudio`, `filterGroupedTabs`, `minutesInactive`, `secondsInactive`), which are
+left in place but no longer read.
 
 ### UI layer
 

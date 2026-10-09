@@ -6,8 +6,8 @@ import {
   findMatchingRule,
   getElseRule,
   getStaleAfterMs,
-  getStaleTimeoutsKey,
   getTabOutcome,
+  staleTimeoutsChanged,
 } from "./tabRules";
 
 const LEGACY_DEFAULTS: LegacyRuleSettings = {
@@ -243,24 +243,27 @@ describe("getStaleAfterMs", () => {
   });
 });
 
-describe("getStaleTimeoutsKey", () => {
+describe("staleTimeoutsChanged", () => {
   const config = buildTabRulesFromLegacySettings(LEGACY_DEFAULTS);
 
-  test("changes when the else timeout changes", () => {
-    expect(getStaleTimeoutsKey(config)).not.toBe(
-      getStaleTimeoutsKey({
+  test("is true when the else timeout changes", () => {
+    expect(
+      staleTimeoutsChanged(config, {
         ...config,
         rules: config.rules.map((rule) =>
           rule.when.length === 0 ? { ...rule, then: { action: "stale", afterSeconds: 5 } } : rule,
         ),
       }),
-    );
+    ).toBe(true);
   });
 
-  test("does not change when only lock rules change", () => {
-    expect(getStaleTimeoutsKey(config)).toBe(
-      getStaleTimeoutsKey({ ...config, rules: [createUrlIncludesRule("news"), ...config.rules] }),
-    );
+  test("is false when only lock rules change", () => {
+    expect(
+      staleTimeoutsChanged(config, {
+        ...config,
+        rules: [createUrlIncludesRule("news"), ...config.rules],
+      }),
+    ).toBe(false);
   });
 });
 

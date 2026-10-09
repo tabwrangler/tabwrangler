@@ -7,6 +7,7 @@ import {
   generateRuleId,
   getElseRule,
 } from "../tabRules";
+import { isEqual, xorWith } from "lodash-es";
 import settings, { type SettingsSchema } from "../settings";
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
@@ -93,7 +94,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
         { duration: flip.fade.size > 0 ? 250 : 150, easing: "ease-in-out" },
       );
     }
-  }, [JSON.stringify(order)]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [order]);
 
   // Grows the form open from the top of the table.
   useLayoutEffect(() => {
@@ -184,11 +185,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     if (editing == null || editing.savingFrom != null) return;
     const rule = rulesById.get(editing.id);
     const fields = draftToFields(editing.draft);
-    if (
-      rule == null ||
-      JSON.stringify({ match: rule.match, then: rule.then, when: rule.when }) ===
-        JSON.stringify(fields)
-    ) {
+    if (rule == null || isEqual({ match: rule.match, then: rule.then, when: rule.when }, fields)) {
       setEditing(null);
       return;
     }
@@ -1008,10 +1005,14 @@ function ruleToDraft(rule: TabRule): Draft | null {
   return { conditions, match: rule.match, then: rule.then };
 }
 
-// Identifies what a rule matches regardless of condition order, to catch duplicate rules.
-function matchKey({ match, when }: Pick<TabRule, "match" | "when">): string {
-  const conditions = when.map((condition) => JSON.stringify(condition)).sort();
-  return JSON.stringify([conditions.length > 1 ? match : "every", conditions]);
+// Rules with the same conditions in any order are duplicates, since the later one could never match.
+// `match` only matters once a rule has more than one condition.
+function hasSameConditions(a: Pick<TabRule, "match" | "when">, b: Pick<TabRule, "match" | "when">) {
+  return (
+    a.when.length === b.when.length &&
+    xorWith(a.when, b.when, isEqual).length === 0 &&
+    (a.when.length <= 1 || a.match === b.match)
+  );
 }
 
 // Tab URLs never contain whitespace (spaces are encoded as %20), so a pattern with any can't match.
@@ -1033,8 +1034,8 @@ function draftErrors(draft: Draft, rules: TabRule[], exceptId: string | null): D
       return chrome.i18n.getMessage("options_tabRules_duplicateCondition");
     return null;
   });
-  const key = matchKey(draftToFields(draft));
-  const duplicate = rules.some((rule) => rule.id !== exceptId && matchKey(rule) === key);
+  const fields = draftToFields(draft);
+  const duplicate = rules.some((rule) => rule.id !== exceptId && hasSameConditions(rule, fields));
   return {
     conditions,
     rule: duplicate ? chrome.i18n.getMessage("options_tabRules_duplicateRule") : null,

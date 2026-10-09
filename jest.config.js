@@ -18,6 +18,8 @@ module.exports = {
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
     "\\.(s?css)$": "identity-obj-proxy",
+    // Jest can't load lodash-es's ES modules, so tests use the CommonJS build of the same API.
+    "^lodash-es$": "lodash",
   },
 
   // A preset that is used as a base for Jest's configuration

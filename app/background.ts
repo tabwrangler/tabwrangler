@@ -15,8 +15,8 @@ import {
   updateLastAccessed,
   wrangleTabs,
 } from "./js/tabUtil";
-import { getStaleTimeoutsKey, getTabOutcome } from "./js/tabRules";
 import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
+import { getTabOutcome, staleTimeoutsChanged } from "./js/tabRules";
 import {
   lockUnlockActiveTab,
   lockUnlockCurrentWindow,
@@ -215,8 +215,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
       // The first write of `tabRules` is the migration, which changes no timeouts.
       if (
         changes.tabRules?.oldValue != null &&
-        getStaleTimeoutsKey(changes.tabRules.oldValue) !==
-          getStaleTimeoutsKey(changes.tabRules.newValue)
+        staleTimeoutsChanged(changes.tabRules.oldValue, changes.tabRules.newValue)
       ) {
         // Reset stored `tabTimes` because a timeout changed, otherwise old times may exceed it.
         initTabs();

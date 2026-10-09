@@ -1,3 +1,5 @@
+import { isEqual } from "lodash-es";
+
 /*
  * Tab Rules are evaluated top-to-bottom and the first enabled rule that matches a tab decides its
  * outcome. A rule matches when all of its conditions match, or any of them with `match: "some"`. A
@@ -88,9 +90,11 @@ export function getStaleAfterMs(config: TabRulesConfig, tab?: chrome.tabs.Tab): 
   return staleSeconds.length > 0 ? Math.max(...staleSeconds) * 1000 : Infinity;
 }
 
-// Changes when anything that decides a tab's stale timeout changes; lock-only edits leave it alone.
-export function getStaleTimeoutsKey(config: TabRulesConfig): string {
-  return JSON.stringify(config.rules.filter((rule) => rule.then.action === "stale"));
+// Whether anything that decides a tab's stale timeout changed; lock-only edits don't count.
+export function staleTimeoutsChanged(prev: TabRulesConfig, next: TabRulesConfig): boolean {
+  const staleRules = (config: TabRulesConfig) =>
+    config.rules.filter((rule) => rule.then.action === "stale");
+  return !isEqual(staleRules(prev), staleRules(next));
 }
 
 export function isUrlIncludesRule(

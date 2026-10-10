@@ -3,9 +3,10 @@ import {
   type TabRulesConfig,
   buildTabRulesFromLegacySettings,
   findMatchingRule,
-  getElseRule,
+  findElseRule,
   getStaleAfterMs,
   getTabOutcome,
+  withElseRule,
 } from "./tabRules";
 
 const LEGACY_DEFAULTS: LegacyRuleSettings = {
@@ -17,7 +18,7 @@ const LEGACY_DEFAULTS: LegacyRuleSettings = {
 };
 
 function elseOf(config: TabRulesConfig) {
-  return getElseRule(config)?.then;
+  return findElseRule(config)?.then;
 }
 
 function createTab(overrides: Partial<chrome.tabs.Tab> = {}): chrome.tabs.Tab {
@@ -126,10 +127,10 @@ describe("buildTabRulesFromLegacySettings", () => {
       config.rules[1],
     );
     expect(findMatchingRule(createTab({ url: "https://Example.com?q=aXb" }), config)).toBe(
-      getElseRule(config),
+      findElseRule(config),
     );
     expect(findMatchingRule(createTab({ url: "https://example.com/x?q" }), config)).toBe(
-      getElseRule(config),
+      findElseRule(config),
     );
   });
 });
@@ -275,5 +276,25 @@ describe("match", () => {
       rules: [{ id: "a", enabled: true, match: "some", when: [], then: { action: "lock" } }],
     };
     expect(getTabOutcome(createTab(), config)).toEqual({ action: "lock" });
+  });
+});
+
+describe("withElseRule", () => {
+  test("adds an Else rule that locks tabs to an empty list", () => {
+    const config = withElseRule({ version: 1, rules: [] });
+    expect(config.rules).toHaveLength(1);
+    expect(elseOf(config)).toEqual({ action: "lock" });
+  });
+
+  test("adds an Else rule after a last rule that has conditions", () => {
+    const urlRule = buildTabRulesFromLegacySettings(LEGACY_DEFAULTS).rules[1];
+    const config = withElseRule({ version: 1, rules: [urlRule] });
+    expect(config.rules[0]).toBe(urlRule);
+    expect(elseOf(config)).toEqual({ action: "lock" });
+  });
+
+  test("keeps rules that already end with an Else rule", () => {
+    const config = buildTabRulesFromLegacySettings(LEGACY_DEFAULTS);
+    expect(withElseRule(config)).toBe(config);
   });
 });

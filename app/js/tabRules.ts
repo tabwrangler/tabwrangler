@@ -67,9 +67,25 @@ export function getTabOutcome(tab: chrome.tabs.Tab, config: TabRulesConfig): Rul
 }
 
 // The final "Else" rule: the last rule, when it matches every tab.
-export function getElseRule(config: TabRulesConfig): TabRule | null {
+export function findElseRule(config: TabRulesConfig): TabRule | null {
   const rule = config.rules[config.rules.length - 1];
   return rule != null && rule.when.length === 0 ? rule : null;
+}
+
+/**
+ * Ensures the rules end with an "Else" rule so every tab has an outcome. Rules without one, like
+ * an empty list from an import or a manual edit, leave unmatched tabs open forever, so the added
+ * rule locks them: behavior stays the same and the UI can show and edit it.
+ */
+export function withElseRule(config: TabRulesConfig): TabRulesConfig {
+  if (findElseRule(config) != null) return config;
+  return {
+    ...config,
+    rules: [
+      ...config.rules,
+      { id: generateRuleId(), enabled: true, match: "every", when: [], then: { action: "lock" } },
+    ],
+  };
 }
 
 /**

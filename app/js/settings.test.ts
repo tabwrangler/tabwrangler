@@ -92,4 +92,12 @@ describe("tabRules migration", () => {
     await Settings.init();
     expect(Settings.get("tabRules")).toEqual(stored);
   });
+
+  test("adds a locking Else rule to stored tabRules without one", async () => {
+    mockSyncStorage({ tabRules: { version: 1, rules: [] } });
+    await Settings.init();
+    expect(Settings.get("tabRules").rules).toEqual([
+      expect.objectContaining({ then: { action: "lock" }, when: [] }),
+    ]);
+  });
 });

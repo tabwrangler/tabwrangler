@@ -1,5 +1,10 @@
 import { AVERAGE_TAB_BYTES_SIZE, TabLockStatus, getTabLockStatus } from "./tabUtil";
-import { type TabRulesConfig, buildTabRulesFromLegacySettings, getStaleAfterMs } from "./tabRules";
+import {
+  type TabRulesConfig,
+  buildTabRulesFromLegacySettings,
+  getStaleAfterMs,
+  withElseRule,
+} from "./tabRules";
 import Menus from "./menus";
 
 export type LockTabSortOrderOption =
@@ -126,7 +131,9 @@ const Settings = {
         if (areaName !== "sync") return;
         for (const [key, value] of Object.entries(changes)) {
           if (key in SETTINGS_DEFAULTS) {
-            Object.assign(this.cache, { [key]: value.newValue });
+            Object.assign(this.cache, {
+              [key]: key === "tabRules" ? withElseRule(value.newValue) : value.newValue,
+            });
             this._listeners[key as keyof SettingsSchema]?.forEach((l) => l());
           }
         }
@@ -138,8 +145,10 @@ const Settings = {
         Object.assign(this.cache, items);
         // Settings from before Tab Rules have no `tabRules`, so derive equivalent rules from the
         // legacy settings until `migrateSync` persists them.
-        if (items.tabRules == null)
-          this.cache.tabRules = buildTabRulesFromLegacySettings(this.cache);
+        this.cache.tabRules =
+          items.tabRules == null
+            ? buildTabRulesFromLegacySettings(this.cache)
+            : withElseRule(items.tabRules);
         resolve();
       });
     });
@@ -309,7 +318,8 @@ const Settings = {
   },
 
   setValue<K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]): Promise<void> {
-    this.cache[key] = value;
+    this.cache[key] =
+      key === "tabRules" ? (withElseRule(value as TabRulesConfig) as typeof value) : value;
     this._listeners[key]?.forEach((l) => l());
     return chrome.storage.sync.set({ [key]: value });
   },

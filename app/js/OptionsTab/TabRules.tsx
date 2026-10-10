@@ -701,6 +701,7 @@ function RuleForm({
                     aria-label={chrome.i18n.getMessage("options_tabRules_match")}
                     className="form-select form-select-sm w-auto tab-rule-join"
                     disabled={readOnly}
+                    name={`${inputId}-match`}
                     onChange={(event) => {
                       onChange({ ...draft, match: event.target.value as Draft["match"] });
                     }}
@@ -715,6 +716,7 @@ function RuleForm({
                   autoFocus={index === 0 && !hasTextValue(condition.type)}
                   className="form-select form-select-sm w-auto"
                   disabled={readOnly}
+                  name={`${inputId}-conditionType`}
                   onChange={(event) => {
                     updateCondition(index, {
                       ...condition,
@@ -929,6 +931,7 @@ function OutcomeFields({
         autoFocus={autoFocus}
         className="form-select form-select-sm w-auto align-self-start"
         disabled={readOnly}
+        name="action"
         onChange={(event) => {
           onChange(
             event.target.value === "stale"
@@ -1006,7 +1009,7 @@ function DurationInput({
 
   return (
     <div>
-      <div className="input-group w-75">
+      <div className="input-group">
         <input className="form-control" min="0" readOnly={readOnly} type="number" {...daysDraft} />
         <abbr className="input-group-text">
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_days")}

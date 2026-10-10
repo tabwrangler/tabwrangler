@@ -473,10 +473,10 @@
     "message": "Locked"
   },
   "tabLock_lockedReason_matches": {
-    "description": "Label for a tab that is locked because it matches the whitelist",
-    "message": "Matches '$pattern$'",
+    "description": "Tooltip for a tab that is locked by a Tab Rule because its URL includes the given text",
+    "message": "URL includes \"$text$\"",
     "placeholders": {
-      "pattern": {
+      "text": {
         "content": "$1",
         "example": "chrome://"
       }
@@ -833,16 +833,30 @@
     "message": "Condition"
   },
   "options_tabRules_condition_audible": {
-    "description": "Tab rule condition matching tabs that are currently playing audio",
-    "message": "Tab is playing audio"
+    "description": "Tab rule condition matching tabs that are currently playing audio. The tab is the implied subject, as in \"If playing audio, then lock tab\"",
+    "message": "Playing audio"
   },
   "options_tabRules_condition_grouped": {
-    "description": "Tab rule condition matching tabs that are in a tab group",
-    "message": "Tab is in a tab group"
+    "description": "Tab rule condition matching tabs that are in a tab group. The tab is the implied subject, as in \"If in a tab group, then lock tab\"",
+    "message": "In a tab group"
   },
   "options_tabRules_condition_pinned": {
-    "description": "Tab rule condition matching tabs that are pinned",
-    "message": "Tab is pinned"
+    "description": "Tab rule condition matching tabs that are pinned. The tab is the implied subject, as in \"If pinned, then lock tab\"",
+    "message": "Pinned"
+  },
+  "options_tabRules_condition_title": {
+    "description": "Tab rule condition in the condition menu and the list of rules, matching tabs whose title includes the text that follows it",
+    "message": "Title includes"
+  },
+  "options_tabRules_condition_titleIncludes": {
+    "description": "Tooltip describing a tab rule condition that matches tabs whose title includes the given text, as in: Title includes \"Wikipedia\"",
+    "message": "Title includes \"$text$\"",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "Wikipedia"
+      }
+    }
   },
   "options_tabRules_condition_urlIncludes": {
     "description": "Tab rule condition matching tabs whose URL includes the given text",
@@ -853,7 +867,7 @@
     "message": "Rules are checked top to bottom. Tabs are only handled by the first rule they match."
   },
   "options_tabRules_duplicateCondition": {
-    "description": "Error shown when a tab rule lists the same URL text twice",
+    "description": "Error shown when a tab rule lists the same URL or title text twice",
     "message": "This condition is already in the rule."
   },
   "options_tabRules_duplicateRule": {

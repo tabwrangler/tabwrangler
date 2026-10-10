@@ -599,9 +599,11 @@ function RuleForm({
             </select>
             {draft.then.action === "stale" && (
               <DurationInput
+                error={draft.then.afterSeconds === 0}
                 onChange={(afterSeconds) => {
                   onChange({ ...draft, then: { action: "stale", afterSeconds } });
                 }}
+                readOnly={readOnly}
                 seconds={draft.then.afterSeconds}
               />
             )}
@@ -783,7 +785,7 @@ function RuleOutcomeText({ outcome }: { outcome: RuleOutcome }) {
       );
     case "stale":
       return (
-        <span className="text-nowrap">
+        <span>
           {chrome.i18n.getMessage("options_tabRules_action_staleAfter", [
             formatDuration(outcome.afterSeconds),
           ])}
@@ -828,8 +830,14 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
   const elseRule = getElseRule(useSetting("tabRules"));
   const afterSeconds =
     elseRule?.then.action === "stale" ? elseRule.then.afterSeconds : DEFAULT_STALE_AFTER_SECONDS;
+  const [zeroDurationError, setZeroDurationError] = useState(false);
 
   function saveAfterSeconds(nextAfterSeconds: number) {
+    if (nextAfterSeconds === 0) {
+      setZeroDurationError(true);
+      return false;
+    }
+    setZeroDurationError(false);
     const current = settings.get("tabRules");
     const currentElseRule = getElseRule(current);
     onSaveSetting("tabRules", {
@@ -840,31 +848,31 @@ function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
           : rule,
       ),
     });
+    return true;
   }
 
-  return <DurationInput onChange={saveAfterSeconds} seconds={afterSeconds} />;
+  return (
+    <DurationInput error={zeroDurationError} onChange={saveAfterSeconds} seconds={afterSeconds} />
+  );
 }
 
-// Days, hours, minutes and seconds inputs for a duration greater than zero.
+// Days, hours, minutes and seconds inputs for a duration. A value `onChange` rejects by returning
+// false stays in the inputs for the user to fix.
 function DurationInput({
+  error,
   onChange,
+  readOnly = false,
   seconds: totalSeconds,
 }: {
-  onChange: (seconds: number) => void;
+  error: boolean;
+  onChange: (seconds: number) => boolean | void;
+  readOnly?: boolean;
   seconds: number;
 }) {
-  const [zeroDurationError, setZeroDurationError] = useState(false);
   const { days, hours, minutes, seconds } = splitDuration(totalSeconds);
 
   function commit(next: { days: number; hours: number; minutes: number; seconds: number }) {
-    const nextSeconds = ((next.days * 24 + next.hours) * 60 + next.minutes) * 60 + next.seconds;
-    if (nextSeconds === 0) {
-      setZeroDurationError(true);
-      return false;
-    }
-    setZeroDurationError(false);
-    onChange(nextSeconds);
-    return true;
+    return onChange(((next.days * 24 + next.hours) * 60 + next.minutes) * 60 + next.seconds);
   }
 
   const daysDraft = useDraftInput(days, (value) =>
@@ -883,24 +891,36 @@ function DurationInput({
   return (
     <div>
       <div className="input-group w-75">
-        <input className="form-control" min="0" type="number" {...daysDraft} />
+        <input className="form-control" min="0" readOnly={readOnly} type="number" {...daysDraft} />
         <abbr className="input-group-text">
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_days")}
         </abbr>
-        <input className="form-control" min="0" type="number" {...hoursDraft} />
+        <input className="form-control" min="0" readOnly={readOnly} type="number" {...hoursDraft} />
         <abbr className="input-group-text">
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_hours")}
         </abbr>
-        <input className="form-control" min="0" type="number" {...minutesDraft} />
+        <input
+          className="form-control"
+          min="0"
+          readOnly={readOnly}
+          type="number"
+          {...minutesDraft}
+        />
         <abbr className="input-group-text">
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_minutes")}
         </abbr>
-        <input className="form-control" min="0" type="number" {...secondsDraft} />
+        <input
+          className="form-control"
+          min="0"
+          readOnly={readOnly}
+          type="number"
+          {...secondsDraft}
+        />
         <abbr className="input-group-text">
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_seconds")}
         </abbr>
       </div>
-      {zeroDurationError && (
+      {error && (
         <div className="form-text text-danger">
           {chrome.i18n.getMessage("options_option_timeInactive_error_zero")}
         </div>
@@ -1015,8 +1035,9 @@ function hasSameConditions(a: Pick<TabRule, "match" | "when">, b: Pick<TabRule, 
   );
 }
 
-// Tab URLs never contain whitespace (spaces are encoded as %20), so a pattern with any can't match.
 function isValidDraft(draft: Draft) {
+  if (draft.then.action === "stale" && draft.then.afterSeconds === 0) return false;
+  // Tab URLs never contain whitespace (spaces are encoded as %20), so a pattern with any can't match.
   return draft.conditions.every(
     (condition) =>
       condition.type !== "url" || (condition.value.length > 0 && !/\s/.test(condition.value)),

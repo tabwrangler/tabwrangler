@@ -1,5 +1,5 @@
 import { StorageLocalPersistState, getStorageLocalPersist } from "./queries";
-import { type TabRule, findMatchingRule } from "./tabRules";
+import { type TabRule, type TabRulesConfig, findMatchingRule, getStaleAfterMs } from "./tabRules";
 import {
   incrementTotalTabsRemoved,
   removeTabTime,
@@ -108,12 +108,26 @@ export async function wrangleTabsAndPersist(tabs: Array<chrome.tabs.Tab>) {
   });
 }
 
-export async function initTabs() {
-  const tabs = await chrome.tabs.query({ windowType: "normal" });
-  await setTabTimes(
-    tabs.map((tab) => String(tab.id)),
-    Date.now(),
-  );
+/**
+ * Restarts the timer of each tab whose stale timeout got shorter than the time it has already been
+ * inactive, so a Tab Rules change doesn't close it right away. Other tabs keep their progress.
+ */
+export async function resetTabTimesPastTimeout(prev: TabRulesConfig, next: TabRulesConfig) {
+  const [tabs, { tabTimes }] = await Promise.all([
+    chrome.tabs.query({ windowType: "normal" }),
+    chrome.storage.local.get<{ tabTimes: TabTimes }>({ tabTimes: {} }),
+  ]);
+  const now = Date.now();
+  const tabIds = tabs.flatMap((tab) => {
+    const tabTime = tabTimes[String(tab.id)];
+    const staleAfterMs = getStaleAfterMs(next, tab);
+    return tabTime != null &&
+      now - tabTime > staleAfterMs &&
+      staleAfterMs < getStaleAfterMs(prev, tab)
+      ? [String(tab.id)]
+      : [];
+  });
+  if (tabIds.length > 0) await setTabTimes(tabIds, now);
 }
 
 export function onNewTab(tab: chrome.tabs.Tab) {

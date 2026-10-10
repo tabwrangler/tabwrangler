@@ -9,11 +9,17 @@ import {
   getTabLockStatus,
   getURLPositionFilterByWrangleOption,
   makeTabPersistKey,
+  resetTabTimesPastTimeout,
   shouldFreezeActiveTabTimer,
   wrangleTabsAndPersist,
 } from "./tabUtil";
+import {
+  type TabRulesConfig,
+  buildTabRulesFromLegacySettings,
+  createUrlIncludesRule,
+} from "./tabRules";
+import { TabTimes } from "./types";
 import { TextEncoder } from "util";
-import { buildTabRulesFromLegacySettings } from "./tabRules";
 import { setSavedTabs } from "./actions/localStorageActions";
 import settings from "./settings";
 
@@ -657,5 +663,57 @@ describe("findTabToFreeze", () => {
 
   test("returns undefined when no tabs have times", () => {
     expect(findTabToFreeze(windows, undefined, {})).toBeUndefined();
+  });
+});
+
+describe("resetTabTimesPastTimeout", () => {
+  const MINUTE_MS = 60_000;
+  // Every tab is stale after 60 minutes.
+  const prev = createTabRules();
+
+  async function getTabTimesAfterReset(
+    next: TabRulesConfig,
+    tabTimes: TabTimes,
+    tabs: chrome.tabs.Tab[],
+  ): Promise<TabTimes> {
+    Object.assign(chrome.tabs, { query: () => Promise.resolve(tabs) });
+    await chrome.storage.local.set({ tabTimes });
+    await resetTabTimesPastTimeout(prev, next);
+    return (await chrome.storage.local.get<{ tabTimes: TabTimes }>("tabTimes")).tabTimes;
+  }
+
+  test("restarts tabs inactive longer than their shortened timeout", async () => {
+    const now = Date.now();
+    const next: TabRulesConfig = {
+      ...prev,
+      rules: prev.rules.map((rule) =>
+        rule.when.length === 0 ? { ...rule, then: { action: "stale", afterSeconds: 600 } } : rule,
+      ),
+    };
+    const tabTimes = await getTabTimesAfterReset(
+      next,
+      { "1": now - 30 * MINUTE_MS, "2": now - 5 * MINUTE_MS },
+      [createTab({ id: 1 }), createTab({ id: 2 })],
+    );
+    expect(tabTimes["1"]).toBeGreaterThanOrEqual(now);
+    expect(tabTimes["2"]).toBe(now - 5 * MINUTE_MS);
+  });
+
+  test("leaves tabs whose timeout did not get shorter", async () => {
+    const now = Date.now();
+    const next: TabRulesConfig = {
+      ...prev,
+      rules: [
+        { ...createUrlIncludesRule("news"), then: { action: "stale", afterSeconds: 600 } },
+        ...prev.rules,
+      ],
+    };
+    const tabTimes = await getTabTimesAfterReset(
+      next,
+      { "1": now - 30 * MINUTE_MS, "2": now - 90 * MINUTE_MS },
+      [createTab({ id: 1, url: "https://news.example.com/" }), createTab({ id: 2 })],
+    );
+    expect(tabTimes["1"]).toBeGreaterThanOrEqual(now);
+    expect(tabTimes["2"]).toBe(now - 90 * MINUTE_MS);
   });
 });

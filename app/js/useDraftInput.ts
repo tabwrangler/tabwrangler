@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 /**
  * Manages a number input's editing lifecycle so the user can freely edit the raw text (including
  * clearing the field) without the reactive value clobbering the input mid-edit. The committed value
- * is written on blur or after the user stops typing for `commitDelay` ms.
+ * is written on blur, on Enter, or after the user stops typing for `commitDelay` ms.
  */
 export default function useDraftInput(
   value: number,
@@ -45,6 +45,10 @@ export default function useDraftInput(
     onFocus(e: React.FocusEvent<HTMLInputElement>) {
       setDraft(String(value));
       e.target.select();
+    },
+    // Commit before Enter submits the input's form, which would otherwise see the old value.
+    onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+      if (e.key === "Enter") commit(draft);
     },
     value: draft ?? String(value),
   };

@@ -790,10 +790,6 @@
     "description": "Accessible label for the menu choosing what a tab rule does to matching tabs",
     "message": "Action"
   },
-  "options_tabRules_action_closeAfter": {
-    "description": "Tab rule action for tabs matching no rule, followed by inputs for how long a tab must be inactive (not the active tab) before it becomes stale (eligible to be auto-closed)",
-    "message": "Mark tab stale after inactive for"
-  },
   "options_tabRules_action_lock": {
     "description": "Tab rule action that locks matching tabs so they are never auto-closed",
     "message": "Lock tab"
@@ -819,6 +815,10 @@
   "options_tabRules_addRule": {
     "description": "Button label for adding a new tab rule",
     "message": "Add rule"
+  },
+  "options_tabRules_always": {
+    "description": "Label in front of the final tab rule's action when there are no other rules, so it applies to every tab, as in \"Always: Lock tab\"",
+    "message": "Always"
   },
   "options_tabRules_and": {
     "description": "Connector shown between a tab rule's conditions when all of them must match. Shown in uppercase",
@@ -863,6 +863,10 @@
   "options_tabRules_edit": {
     "description": "Accessible label and tooltip for the button that edits a tab rule",
     "message": "Edit rule"
+  },
+  "options_tabRules_editElse": {
+    "description": "Accessible label and tooltip for the button that edits the final \"Else\" tab rule, which applies to tabs matching no other rule",
+    "message": "Edit 'ELSE' rule"
   },
   "options_tabRules_else": {
     "description": "Label in front of the action for tabs that match no rule, as in \"Else: Close tab after being inactive for 20m\"",
@@ -915,5 +919,9 @@
   "options_tabRules_whitespace": {
     "description": "Error shown when a tab rule's URL text contains spaces, which never appear in tab URLs",
     "message": "URL text can't contain spaces."
+  },
+  "tabLock_lockedReason_else": {
+    "description": "Tooltip for a tab that is locked because it matches no other Tab Rule and the final \"Else\" rule locks tabs",
+    "message": "Matches 'ELSE' rule"
   }
 }

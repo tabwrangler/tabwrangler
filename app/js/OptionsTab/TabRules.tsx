@@ -4,8 +4,8 @@ import {
   type TabCondition,
   type TabRule,
   type TabRulesConfig,
+  findElseRule,
   generateRuleId,
-  getElseRule,
 } from "../tabRules";
 import { isEqual, xorWith } from "lodash-es";
 import settings, { type SettingsSchema } from "../settings";
@@ -51,6 +51,18 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     id: string;
     savingFrom: TabRule[] | null;
   } | null>(null);
+
+  const elseRule = findElseRule(tabRules);
+  const elseOutcome: RuleOutcome = elseRule?.then ?? {
+    action: "stale",
+    afterSeconds: DEFAULT_STALE_AFTER_SECONDS,
+  };
+  const [elseEditing, setElseEditing] = useState<{
+    savingFrom: TabRulesConfig | null;
+    then: RuleOutcome;
+  } | null>(null);
+  const isEditingElse =
+    elseEditing != null && (elseEditing.savingFrom == null || elseEditing.savingFrom === tabRules);
 
   // Keeps the form on screen after Save until storage echoes the new rules back, so the saved
   // rule can take the form's place without the table collapsing in between.
@@ -143,7 +155,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
 
   function saveRules(nextRules: TabRule[]) {
     const current = settings.get("tabRules");
-    const elseRule = getElseRule(current);
+    const elseRule = findElseRule(current);
     onSaveSetting("tabRules", {
       ...current,
       rules: elseRule == null ? nextRules : [...nextRules, elseRule],
@@ -152,6 +164,9 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
 
   // The new rule form previews where the rule will land: at the top, ahead of the existing rules.
   const firstRuleIndex = isFormVisible ? 1 : 0;
+  const elseLabel = chrome.i18n.getMessage(
+    rules.length === 0 && !isFormVisible ? "options_tabRules_always" : "options_tabRules_else",
+  );
 
   const newDraftErrors = draftErrors(newDraft, savedRules, null);
 
@@ -196,6 +211,30 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
         r.id === editing.id ? { enabled: r.enabled, id: r.id, ...fields } : r,
       ),
     );
+  }
+
+  function saveElse(event: React.FormEvent<HTMLElement>) {
+    event.preventDefault();
+    if (elseEditing == null || elseEditing.savingFrom != null) return;
+    if (isEqual(elseEditing.then, elseOutcome)) {
+      setElseEditing(null);
+      return;
+    }
+    if (!isValidOutcome(elseEditing.then)) return;
+    setElseEditing({ ...elseEditing, savingFrom: tabRules });
+    const current = settings.get("tabRules");
+    const currentElseRule = findElseRule(current);
+    const then = elseEditing.then;
+    onSaveSetting("tabRules", {
+      ...current,
+      rules:
+        currentElseRule == null
+          ? [
+              ...current.rules,
+              { enabled: true, id: generateRuleId(), match: "every", then, when: [] },
+            ]
+          : current.rules.map((rule) => (rule === currentElseRule ? { ...rule, then } : rule)),
+    });
   }
 
   async function removeRule(id: string) {
@@ -451,14 +490,67 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
               </li>
             ))
           )}
-          <li className="list-group-item d-flex align-items-center gap-2 bg-body-tertiary">
-            <div className="d-flex flex-column gap-1 flex-grow-1">
-              <RuleClause label={chrome.i18n.getMessage("options_tabRules_else")}>
-                <span>{chrome.i18n.getMessage("options_tabRules_action_closeAfter")}:</span>
+          {isEditingElse && elseEditing != null ? (
+            <li className="list-group-item d-flex align-items-start gap-2 bg-primary-subtle">
+              <form
+                className="flex-grow-1 d-flex align-items-start gap-2"
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") setElseEditing(null);
+                }}
+                onSubmit={saveElse}
+              >
+                <RuleClause alignStart className="flex-grow-1" label={elseLabel}>
+                  <OutcomeFields
+                    autoFocus
+                    onChange={(then) => {
+                      setElseEditing({ ...elseEditing, then });
+                    }}
+                    outcome={elseEditing.then}
+                    readOnly={elseEditing.savingFrom != null}
+                  />
+                </RuleClause>
+                <div className="tab-rule-controls">
+                  <Button
+                    onClick={() => {
+                      setElseEditing(null);
+                    }}
+                    size="sm"
+                    type="button"
+                    variant="secondary"
+                  >
+                    {chrome.i18n.getMessage("options_tabRules_cancel")}
+                  </Button>
+                  <Button
+                    disabled={elseEditing.savingFrom != null || !isValidOutcome(elseEditing.then)}
+                    size="sm"
+                    type="submit"
+                    variant="primary"
+                  >
+                    {chrome.i18n.getMessage("options_save")}
+                  </Button>
+                </div>
+              </form>
+            </li>
+          ) : (
+            <li className="list-group-item d-flex align-items-start gap-2 bg-body-tertiary">
+              <RuleClause className="flex-grow-1" label={elseLabel}>
+                <RuleOutcomeText outcome={elseOutcome} />
               </RuleClause>
-              <InactiveTimeOption onSaveSetting={onSaveSetting} />
-            </div>
-          </li>
+              <div className="tab-rule-controls">
+                <Button
+                  aria-label={chrome.i18n.getMessage("options_tabRules_editElse")}
+                  onClick={() => {
+                    setElseEditing({ savingFrom: null, then: elseOutcome });
+                  }}
+                  size="sm"
+                  title={chrome.i18n.getMessage("options_tabRules_editElse")}
+                  variant="outline-secondary"
+                >
+                  <i className="fas fa-pen" />
+                </Button>
+              </div>
+            </li>
+          )}
         </ul>
       </div>
     </>
@@ -576,38 +668,13 @@ function RuleForm({
         editable
         ifLabel={conditionLabel}
         then={
-          <div className="d-flex flex-column gap-2">
-            <select
-              aria-label={chrome.i18n.getMessage("options_tabRules_action")}
-              className="form-select form-select-sm w-auto align-self-start"
-              disabled={readOnly}
-              onChange={(event) => {
-                onChange({
-                  ...draft,
-                  then:
-                    event.target.value === "stale"
-                      ? { action: "stale", afterSeconds: DEFAULT_STALE_AFTER_SECONDS }
-                      : { action: "lock" },
-                });
-              }}
-              value={draft.then.action}
-            >
-              <option value="lock">{chrome.i18n.getMessage("options_tabRules_action_lock")}</option>
-              <option value="stale">
-                {chrome.i18n.getMessage("options_tabRules_action_stale")}
-              </option>
-            </select>
-            {draft.then.action === "stale" && (
-              <DurationInput
-                error={draft.then.afterSeconds === 0}
-                onChange={(afterSeconds) => {
-                  onChange({ ...draft, then: { action: "stale", afterSeconds } });
-                }}
-                readOnly={readOnly}
-                seconds={draft.then.afterSeconds}
-              />
-            )}
-          </div>
+          <OutcomeFields
+            onChange={(then) => {
+              onChange({ ...draft, then });
+            }}
+            outcome={draft.then}
+            readOnly={readOnly}
+          />
         }
       >
         <div className="tab-rule-conditions">
@@ -826,33 +893,49 @@ function RuleClause({
   );
 }
 
-function InactiveTimeOption({ onSaveSetting }: { onSaveSetting: SaveSetting }) {
-  const elseRule = getElseRule(useSetting("tabRules"));
-  const afterSeconds =
-    elseRule?.then.action === "stale" ? elseRule.then.afterSeconds : DEFAULT_STALE_AFTER_SECONDS;
-  const [zeroDurationError, setZeroDurationError] = useState(false);
-
-  function saveAfterSeconds(nextAfterSeconds: number) {
-    if (nextAfterSeconds === 0) {
-      setZeroDurationError(true);
-      return false;
-    }
-    setZeroDurationError(false);
-    const current = settings.get("tabRules");
-    const currentElseRule = getElseRule(current);
-    onSaveSetting("tabRules", {
-      ...current,
-      rules: current.rules.map((rule) =>
-        rule === currentElseRule
-          ? { ...rule, then: { action: "stale", afterSeconds: nextAfterSeconds } }
-          : rule,
-      ),
-    });
-    return true;
-  }
-
+// The "Then" action select, plus the duration when the action marks tabs stale. Switching to stale
+// starts from the default duration rather than one entered before.
+function OutcomeFields({
+  autoFocus = false,
+  onChange,
+  outcome,
+  readOnly,
+}: {
+  autoFocus?: boolean;
+  onChange: (outcome: RuleOutcome) => void;
+  outcome: RuleOutcome;
+  readOnly: boolean;
+}) {
   return (
-    <DurationInput error={zeroDurationError} onChange={saveAfterSeconds} seconds={afterSeconds} />
+    <div className="d-flex flex-column gap-2">
+      <select
+        aria-label={chrome.i18n.getMessage("options_tabRules_action")}
+        autoFocus={autoFocus}
+        className="form-select form-select-sm w-auto align-self-start"
+        disabled={readOnly}
+        onChange={(event) => {
+          onChange(
+            event.target.value === "stale"
+              ? { action: "stale", afterSeconds: DEFAULT_STALE_AFTER_SECONDS }
+              : { action: "lock" },
+          );
+        }}
+        value={outcome.action}
+      >
+        <option value="lock">{chrome.i18n.getMessage("options_tabRules_action_lock")}</option>
+        <option value="stale">{chrome.i18n.getMessage("options_tabRules_action_stale")}</option>
+      </select>
+      {outcome.action === "stale" && (
+        <DurationInput
+          error={outcome.afterSeconds === 0}
+          onChange={(afterSeconds) => {
+            onChange({ action: "stale", afterSeconds });
+          }}
+          readOnly={readOnly}
+          seconds={outcome.afterSeconds}
+        />
+      )}
+    </div>
   );
 }
 
@@ -993,7 +1076,7 @@ const EMPTY_DRAFT: Draft = {
 
 // Every rule except the final "Else" rule, which shows as its own fixed row.
 function getListedRules(tabRules: TabRulesConfig): TabRule[] {
-  return getElseRule(tabRules) == null ? tabRules.rules : tabRules.rules.slice(0, -1);
+  return findElseRule(tabRules) == null ? tabRules.rules : tabRules.rules.slice(0, -1);
 }
 
 function conditionToDraft(condition: TabCondition): ConditionDraft | null {
@@ -1035,8 +1118,12 @@ function hasSameConditions(a: Pick<TabRule, "match" | "when">, b: Pick<TabRule, 
   );
 }
 
+function isValidOutcome(outcome: RuleOutcome) {
+  return outcome.action !== "stale" || outcome.afterSeconds > 0;
+}
+
 function isValidDraft(draft: Draft) {
-  if (draft.then.action === "stale" && draft.then.afterSeconds === 0) return false;
+  if (!isValidOutcome(draft.then)) return false;
   // Tab URLs never contain whitespace (spaces are encoded as %20), so a pattern with any can't match.
   return draft.conditions.every(
     (condition) =>

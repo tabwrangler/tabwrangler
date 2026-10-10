@@ -1,4 +1,8 @@
-import { type TabRulesConfig, buildTabRulesFromLegacySettings } from "../tabRules";
+import {
+  DEFAULT_STALE_AFTER_SECONDS,
+  type TabRulesConfig,
+  buildTabRulesFromLegacySettings,
+} from "../tabRules";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import TabRules from "./TabRules";
 
@@ -169,12 +173,62 @@ describe("TabRules", () => {
   test("saves the else timeout in seconds", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByLabelText("options_tabRules_editElse"));
     const minutesInput = screen.getByDisplayValue("20");
     fireEvent.change(minutesInput, { target: { value: "5" } });
     fireEvent.blur(minutesInput);
+    expect(onSaveSetting).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByText("options_save"));
     const { rules } = lastSavedTabRules(onSaveSetting);
     expect(lastSavedRules(onSaveSetting)).toEqual(["about:", "chrome://", "example", "audible"]);
     expect(rules[rules.length - 1].then).toEqual({ action: "stale", afterSeconds: 300 });
+  });
+
+  test("makes the else rule lock tabs", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByLabelText("options_tabRules_editElse"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_action"), {
+      target: { value: "lock" },
+    });
+    expect(screen.queryByDisplayValue("20")).toBeNull();
+    fireEvent.click(screen.getByText("options_save"));
+    const { rules } = lastSavedTabRules(onSaveSetting);
+    expect(rules[rules.length - 1]).toMatchObject({ then: { action: "lock" }, when: [] });
+  });
+
+  test("resets the else timeout to the default when switching back to stale", () => {
+    const tabRules = mockSettings.tabRules as TabRulesConfig;
+    mockSettings.tabRules = {
+      ...tabRules,
+      rules: tabRules.rules.map((rule) =>
+        rule.when.length === 0 ? { ...rule, then: { action: "lock" } } : rule,
+      ),
+    };
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByLabelText("options_tabRules_editElse"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_action"), {
+      target: { value: "stale" },
+    });
+    fireEvent.click(screen.getByText("options_save"));
+    const { rules } = lastSavedTabRules(onSaveSetting);
+    expect(rules[rules.length - 1].then).toEqual({
+      action: "stale",
+      afterSeconds: DEFAULT_STALE_AFTER_SECONDS,
+    });
+  });
+
+  test("cancels editing the else rule without saving", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByLabelText("options_tabRules_editElse"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_action"), {
+      target: { value: "lock" },
+    });
+    fireEvent.click(screen.getByText("options_tabRules_cancel"));
+    expect(screen.queryByLabelText("options_tabRules_action")).toBeNull();
+    expect(onSaveSetting).not.toHaveBeenCalled();
   });
 
   test("shows audio and tab group rules alongside URL rules", () => {
@@ -389,7 +443,8 @@ describe("TabRules", () => {
       ],
     };
     render(<TabRules onSaveSetting={jest.fn()} />);
-    expect(screen.getByText("options_tabRules_action_staleAfter")).toBeTruthy();
+    // The new rule's timeout and the Else rule's.
+    expect(screen.getAllByText("options_tabRules_action_staleAfter")).toHaveLength(2);
   });
 
   test("saves a duration typed just before pressing Enter", () => {
@@ -457,5 +512,15 @@ describe("TabRules", () => {
     expect((screen.getByText("options_save") as HTMLButtonElement).disabled).toBe(true);
     fireEvent.submit(hours);
     expect(onSaveSetting).not.toHaveBeenCalled();
+  });
+
+  test("labels the else rule Always when it is the only rule", () => {
+    const tabRules = mockSettings.tabRules as TabRulesConfig;
+    mockSettings.tabRules = { ...tabRules, rules: tabRules.rules.slice(-1) };
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(screen.getByText("options_tabRules_always")).toBeTruthy();
+    expect(screen.queryByText("options_tabRules_else")).toBeNull();
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    expect(screen.getByText("options_tabRules_else")).toBeTruthy();
   });
 });

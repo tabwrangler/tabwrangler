@@ -243,6 +243,9 @@ function TabLockContent({
     let timeLeftContent;
     if (windowLocked) {
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_window");
+    } else if (!Number.isFinite(timeRemaining)) {
+      // No rule makes this tab stale, so it has no countdown.
+      timeLeftContent = null;
     } else if (timerFrozen) {
       timeLeftContent = (
         <OverlayTrigger
@@ -293,6 +296,14 @@ function RuleLockedReason({ rule }: { rule: TabRule }) {
       .toLocaleUpperCase();
     return (
       <abbr title={rule.when.map(describeCondition).join(` ${join} `)}>
+        {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
+      </abbr>
+    );
+  }
+
+  if (rule.when.length === 0) {
+    return (
+      <abbr title={chrome.i18n.getMessage("tabLock_lockedReason_else")}>
         {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
       </abbr>
     );

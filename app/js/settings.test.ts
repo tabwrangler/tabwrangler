@@ -57,7 +57,7 @@ describe("tabRules migration", () => {
       { then: { action: "lock" }, when: [{ type: "pinned" }] },
       { then: { action: "lock" }, when: [{ type: "url", op: "includes", value: "github.com" }] },
       { then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
-      { then: { action: "stale", afterSeconds: 330 }, when: [] },
+      { then: { action: "stale", afterSeconds: 330, save: "corral" }, when: [] },
     ]);
   });
 
@@ -72,7 +72,7 @@ describe("tabRules migration", () => {
       [{ type: "audible" }],
       [],
     ]);
-    expect(rules[4].then).toEqual({ action: "stale", afterSeconds: 3600 });
+    expect(rules[4].then).toEqual({ action: "stale", afterSeconds: 3600, save: "corral" });
   });
 
   test("prefers stored tabRules", async () => {
@@ -84,7 +84,7 @@ describe("tabRules migration", () => {
           enabled: true,
           match: "every",
           when: [],
-          then: { action: "stale", afterSeconds: 10 },
+          then: { action: "stale", afterSeconds: 10, save: "corral" },
         },
       ],
     };

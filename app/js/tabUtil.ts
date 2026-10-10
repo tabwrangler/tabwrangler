@@ -1,5 +1,11 @@
 import { StorageLocalPersistState, getStorageLocalPersist } from "./queries";
-import { type TabRule, type TabRulesConfig, findMatchingRule, getStaleAfterMs } from "./tabRules";
+import {
+  type TabRule,
+  type TabRulesConfig,
+  findMatchingRule,
+  getStaleAfterMs,
+  shouldSaveToCorral,
+} from "./tabRules";
 import {
   incrementTotalTabsRemoved,
   removeTabTime,
@@ -47,6 +53,7 @@ export function getURLPositionFilterByWrangleOption(
 export function wrangleTabs(
   storageLocalPersist: StorageLocalPersistState,
   tabs: Array<chrome.tabs.Tab>,
+  tabRules?: TabRulesConfig,
 ) {
   // No tabs, nothing to do
   if (tabs.length === 0) return;
@@ -60,16 +67,18 @@ export function wrangleTabs(
 
   const tabIdsToRemove: Array<number> = [];
   for (let i = 0; i < tabs.length; i++) {
-    const existingTabPosition = findURLPositionByWrangleOption(tabs[i]);
-    const closingDate = Date.now();
+    if (tabRules == null || shouldSaveToCorral(tabs[i], tabRules)) {
+      const existingTabPosition = findURLPositionByWrangleOption(tabs[i]);
+      const closingDate = Date.now();
 
-    if (existingTabPosition > -1) {
-      storageLocalPersist.savedTabs.splice(existingTabPosition, 1);
+      if (existingTabPosition > -1) {
+        storageLocalPersist.savedTabs.splice(existingTabPosition, 1);
+      }
+
+      // @ts-expect-error `closedAt` is a TW expando property on tabs
+      tabs[i].closedAt = closingDate;
+      storageLocalPersist.savedTabs.unshift(tabs[i]);
     }
-
-    // @ts-expect-error `closedAt` is a TW expando property on tabs
-    tabs[i].closedAt = closingDate;
-    storageLocalPersist.savedTabs.unshift(tabs[i]);
     storageLocalPersist.totalTabsWrangled += 1;
 
     const tabId = tabs[i].id;
@@ -98,11 +107,14 @@ export function wrangleTabs(
   }
 }
 
-export async function wrangleTabsAndPersist(tabs: Array<chrome.tabs.Tab>) {
+export async function wrangleTabsAndPersist(
+  tabs: Array<chrome.tabs.Tab>,
+  tabRules?: TabRulesConfig,
+) {
   if (tabs.length === 0) return;
 
   const storageLocalPersist = await getStorageLocalPersist();
-  wrangleTabs(storageLocalPersist, tabs);
+  wrangleTabs(storageLocalPersist, tabs, tabRules);
   await chrome.storage.local.set({
     "persist:localStorage": storageLocalPersist,
   });

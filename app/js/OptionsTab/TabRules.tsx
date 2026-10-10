@@ -9,7 +9,7 @@ import {
 } from "../tabRules";
 import { isEqual, xorWith } from "lodash-es";
 import settings, { type SettingsSchema } from "../settings";
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import { ButtonGroup } from "react-bootstrap";
 import cx from "classnames";
@@ -56,6 +56,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
   const elseOutcome: RuleOutcome = elseRule?.then ?? {
     action: "stale",
     afterSeconds: DEFAULT_STALE_AFTER_SECONDS,
+    save: "corral",
   };
   const [elseEditing, setElseEditing] = useState<{
     savingFrom: TabRulesConfig | null;
@@ -845,18 +846,23 @@ function RuleOutcomeText({ outcome }: { outcome: RuleOutcome }) {
   switch (outcome.action) {
     case "lock":
       return (
-        <span className="text-nowrap">
+        <div className="text-nowrap">
           <i className="fas fa-lock me-1" />
           {chrome.i18n.getMessage("options_tabRules_action_lock")}
-        </span>
+        </div>
       );
     case "stale":
       return (
-        <span>
+        <div>
           {chrome.i18n.getMessage("options_tabRules_action_staleAfter", [
             formatDuration(outcome.afterSeconds),
           ])}
-        </span>
+          {outcome.save === "none" && (
+            <div className="form-text mt-0">
+              {chrome.i18n.getMessage("options_tabRules_save_none")}
+            </div>
+          )}
+        </div>
       );
     default:
       outcome satisfies never;
@@ -883,11 +889,11 @@ function RuleClause({
         className,
       )}
     >
-      <span className="tab-rule-line flex-shrink-0">
+      <div className="tab-rule-line flex-shrink-0">
         <span className="badge rounded-pill text-bg-secondary text-uppercase tab-rule-badge">
           {label}
         </span>
-      </span>
+      </div>
       {children}
     </div>
   );
@@ -906,6 +912,7 @@ function OutcomeFields({
   outcome: RuleOutcome;
   readOnly: boolean;
 }) {
+  const saveId = useId();
   return (
     <div className="d-flex flex-column gap-2">
       <select
@@ -916,7 +923,7 @@ function OutcomeFields({
         onChange={(event) => {
           onChange(
             event.target.value === "stale"
-              ? { action: "stale", afterSeconds: DEFAULT_STALE_AFTER_SECONDS }
+              ? { action: "stale", afterSeconds: DEFAULT_STALE_AFTER_SECONDS, save: "corral" }
               : { action: "lock" },
           );
         }}
@@ -926,14 +933,31 @@ function OutcomeFields({
         <option value="stale">{chrome.i18n.getMessage("options_tabRules_action_stale")}</option>
       </select>
       {outcome.action === "stale" && (
-        <DurationInput
-          error={outcome.afterSeconds === 0}
-          onChange={(afterSeconds) => {
-            onChange({ action: "stale", afterSeconds });
-          }}
-          readOnly={readOnly}
-          seconds={outcome.afterSeconds}
-        />
+        <>
+          <DurationInput
+            error={outcome.afterSeconds === 0}
+            onChange={(afterSeconds) => {
+              onChange({ ...outcome, afterSeconds });
+            }}
+            readOnly={readOnly}
+            seconds={outcome.afterSeconds}
+          />
+          <div className="form-check form-switch">
+            <input
+              checked={outcome.save === "corral"}
+              className="form-check-input"
+              disabled={readOnly}
+              id={saveId}
+              onChange={(event) => {
+                onChange({ ...outcome, save: event.target.checked ? "corral" : "none" });
+              }}
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor={saveId}>
+              {chrome.i18n.getMessage("options_tabRules_save_corral")}
+            </label>
+          </div>
+        </>
       )}
     </div>
   );

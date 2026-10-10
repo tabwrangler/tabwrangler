@@ -136,6 +136,34 @@ describe("wrangleTabsAndPersist", () => {
     expect(data["persist:localStorage"].totalTabsWrangled).toEqual(1);
   });
 
+  test("closes tabs without saving them when their stale rule doesn't save", async () => {
+    settings.get = jest
+      .fn()
+      .mockImplementationOnce(() => 100)
+      .mockImplementationOnce(() => "exactURLMatch");
+    const searchUrl = "https://www.google.com/search?q=tabs";
+    await setSavedTabs([createTab({ id: 1, url: searchUrl })]);
+    const tabRules = createTabRules();
+    tabRules.rules.unshift({
+      ...createUrlIncludesRule("google.com/search"),
+      then: { action: "stale", afterSeconds: 60, save: "none" },
+    });
+
+    await wrangleTabsAndPersist(
+      [createTab({ id: 2, url: searchUrl }), createTab({ id: 3, url: "https://www.nytimes.com" })],
+      tabRules,
+    );
+
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith(2);
+    expect(window.chrome.tabs.remove).toHaveBeenCalledWith(3);
+    const data = await chrome.storage.local.get("persist:localStorage");
+    // The earlier copy of the unsaved tab's URL stays in the corral.
+    expect(data["persist:localStorage"].savedTabs.map((tab: chrome.tabs.Tab) => tab.id)).toEqual([
+      3, 1,
+    ]);
+    expect(data["persist:localStorage"].totalTabsWrangled).toEqual(2);
+  });
+
   test("Tab saved size should not be higher than average", async () => {
     // respectively: 237, 1050 and 240 bytes as stored, when this test has been added
     const testTabs = [
@@ -322,7 +350,7 @@ describe("getTabLockStatus", () => {
 
   test("manual locks override a rule that makes the tab stale", () => {
     const tabRules = createTabRules({ whitelist: ["github.com"] });
-    tabRules.rules[1].then = { action: "stale", afterSeconds: 60 };
+    tabRules.rules[1].then = { action: "stale", afterSeconds: 60, save: "corral" };
     expect(
       getTabLockStatus(createTab({ groupId: -1, id: 42, url: "https://github.com" }), {
         ...defaultOptions,
@@ -687,7 +715,9 @@ describe("resetTabTimesPastTimeout", () => {
     const next: TabRulesConfig = {
       ...prev,
       rules: prev.rules.map((rule) =>
-        rule.when.length === 0 ? { ...rule, then: { action: "stale", afterSeconds: 600 } } : rule,
+        rule.when.length === 0
+          ? { ...rule, then: { action: "stale", afterSeconds: 600, save: "corral" } }
+          : rule,
       ),
     };
     const tabTimes = await getTabTimesAfterReset(
@@ -704,7 +734,10 @@ describe("resetTabTimesPastTimeout", () => {
     const next: TabRulesConfig = {
       ...prev,
       rules: [
-        { ...createUrlIncludesRule("news"), then: { action: "stale", afterSeconds: 600 } },
+        {
+          ...createUrlIncludesRule("news"),
+          then: { action: "stale", afterSeconds: 600, save: "corral" },
+        },
         ...prev.rules,
       ],
     };

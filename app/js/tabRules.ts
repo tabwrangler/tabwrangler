@@ -27,7 +27,9 @@ export type TabCondition =
   | { type: "pinned" }
   | { type: "url"; op: "includes"; value: string };
 
-export type RuleOutcome = { action: "lock" } | { action: "stale"; afterSeconds: number };
+export type RuleOutcome =
+  | { action: "lock" }
+  | { action: "stale"; afterSeconds: number; save: "corral" | "none" };
 
 export function generateRuleId(): string {
   return Math.random().toString(36).slice(2, 10);
@@ -104,6 +106,13 @@ export function getStaleAfterMs(config: TabRulesConfig, tab?: chrome.tabs.Tab): 
   return staleSeconds.length > 0 ? Math.max(...staleSeconds) * 1000 : Infinity;
 }
 
+// Whether a tab closed under its rule goes to the corral. Tabs whose rule doesn't make them stale,
+// like ones closed by hand, are always saved.
+export function shouldSaveToCorral(tab: chrome.tabs.Tab, config: TabRulesConfig): boolean {
+  const outcome = getTabOutcome(tab, config);
+  return outcome?.action !== "stale" || outcome.save === "corral";
+}
+
 export function isUrlIncludesRule(
   rule: TabRule,
 ): rule is TabRule & { when: [{ type: "url"; op: "includes"; value: string }] } {
@@ -171,6 +180,7 @@ export function buildTabRulesFromLegacySettings(legacy: LegacyRuleSettings): Tab
             Number.isFinite(afterSeconds) && afterSeconds >= 0
               ? afterSeconds
               : DEFAULT_STALE_AFTER_SECONDS,
+          save: "corral",
         },
       },
     ],

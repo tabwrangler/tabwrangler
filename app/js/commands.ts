@@ -25,14 +25,15 @@ export async function wrangleNow(): Promise<chrome.tabs.Tab[]> {
     chrome.tabs.query({ active: true, lastFocusedWindow: true }),
     chrome.storage.local.get<{ tabTimes: TabTimes }>({ tabTimes: {} }),
   ]);
+  const tabRules = settings.get("tabRules");
   const tabsToWrangle = findTabsToWrangleNow(tabTimes, tabs, activeTab?.id, {
     lockedIds: settings.get("lockedIds"),
     lockedWindowIds: settings.get("lockedWindowIds"),
     minTabs: settings.get("minTabs"),
     minTabsStrategy: settings.get("minTabsStrategy"),
-    tabRules: settings.get("tabRules"),
+    tabRules,
   });
-  await wrangleTabsAndPersist(tabsToWrangle);
+  await wrangleTabsAndPersist(tabsToWrangle, tabRules);
   return tabsToWrangle;
 }
 

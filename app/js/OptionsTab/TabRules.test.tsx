@@ -181,7 +181,11 @@ describe("TabRules", () => {
     fireEvent.click(screen.getByText("options_save"));
     const { rules } = lastSavedTabRules(onSaveSetting);
     expect(lastSavedRules(onSaveSetting)).toEqual(["about:", "chrome://", "example", "audible"]);
-    expect(rules[rules.length - 1].then).toEqual({ action: "stale", afterSeconds: 300 });
+    expect(rules[rules.length - 1].then).toEqual({
+      action: "stale",
+      afterSeconds: 300,
+      save: "corral",
+    });
   });
 
   test("makes the else rule lock tabs", () => {
@@ -216,6 +220,7 @@ describe("TabRules", () => {
     expect(rules[rules.length - 1].then).toEqual({
       action: "stale",
       afterSeconds: DEFAULT_STALE_AFTER_SECONDS,
+      save: "corral",
     });
   });
 
@@ -424,6 +429,7 @@ describe("TabRules", () => {
     expect(lastSavedTabRules(onSaveSetting).rules[0].then).toEqual({
       action: "stale",
       afterSeconds: 7200,
+      save: "corral",
     });
   });
 
@@ -437,7 +443,7 @@ describe("TabRules", () => {
           enabled: true,
           match: "every",
           when: [{ type: "url", op: "includes", value: "news" }],
-          then: { action: "stale", afterSeconds: 600 },
+          then: { action: "stale", afterSeconds: 600, save: "corral" },
         },
         ...tabRules.rules,
       ],
@@ -445,6 +451,46 @@ describe("TabRules", () => {
     render(<TabRules onSaveSetting={jest.fn()} />);
     // The new rule's timeout and the Else rule's.
     expect(screen.getAllByText("options_tabRules_action_staleAfter")).toHaveLength(2);
+  });
+
+  test("adds a stale rule that doesn't save closed tabs to the corral", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+      target: { value: "google.com/search" },
+    });
+    fireEvent.change(screen.getByLabelText("options_tabRules_action"), {
+      target: { value: "stale" },
+    });
+    const save = screen.getByLabelText("options_tabRules_save_corral");
+    expect((save as HTMLInputElement).checked).toBe(true);
+    fireEvent.click(save);
+    fireEvent.click(screen.getByText("options_save"));
+    expect(lastSavedTabRules(onSaveSetting).rules[0].then).toEqual({
+      action: "stale",
+      afterSeconds: DEFAULT_STALE_AFTER_SECONDS,
+      save: "none",
+    });
+  });
+
+  test("notes stale rules that don't save closed tabs in the list", () => {
+    const tabRules = mockSettings.tabRules as TabRulesConfig;
+    mockSettings.tabRules = {
+      ...tabRules,
+      rules: [
+        {
+          id: "a",
+          enabled: true,
+          match: "every",
+          when: [{ type: "url", op: "includes", value: "news" }],
+          then: { action: "stale", afterSeconds: 600, save: "none" },
+        },
+        ...tabRules.rules,
+      ],
+    };
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(screen.getAllByText("options_tabRules_save_none")).toHaveLength(1);
   });
 
   test("saves a duration typed just before pressing Enter", () => {
@@ -464,6 +510,7 @@ describe("TabRules", () => {
     expect(lastSavedTabRules(onSaveSetting).rules[0].then).toEqual({
       action: "stale",
       afterSeconds: 7200,
+      save: "corral",
     });
   });
 
@@ -477,7 +524,7 @@ describe("TabRules", () => {
           enabled: true,
           match: "every",
           when: [{ type: "url", op: "includes", value: "news" }],
-          then: { action: "stale", afterSeconds: 600 },
+          then: { action: "stale", afterSeconds: 600, save: "corral" },
         },
         ...tabRules.rules,
       ],
@@ -493,6 +540,7 @@ describe("TabRules", () => {
     expect(lastSavedTabRules(onSaveSetting).rules[0].then).toEqual({
       action: "stale",
       afterSeconds: 900,
+      save: "corral",
     });
   });
 

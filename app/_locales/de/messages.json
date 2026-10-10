@@ -97,10 +97,6 @@
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "URL stimmt genau überein"
   },
-  "options_dedupe_option_exactURLMatch_description": {
-    "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "Wenn ein Tab geschlossen wird, dann wird er der Tab Liste hinzugefügt und vorhandene Tabs mit der exakt gleichen URL werden aus der Tab Liste entfernt."
-  },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
     "message": "URL stimmt genau überein"
@@ -109,17 +105,9 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "Hostname und Seitentitel stimmen genau überein"
   },
-  "options_dedupe_option_hostnameAndTitleMatch_description": {
-    "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "Wenn ein Tab geschlossen und der Tab Liste hinzugefügt wird, dann wird ein bereits vorhandener Eintrag mit dem gleichen Hostnamen (like \"wikipedia.org\") und Seitentitel entfernt und durch den neuen Tab ersetzt."
-  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Hostname und Seitentitel stimmen genau überein"
-  },
-  "options_dedupe_option_withDupes_description": {
-    "description": "Description of the never de-duplicating tabs option",
-    "message": "Ein Tab wird geschlossen und der Tab Liste hinzugefügt. Es werden keine weiteren Änderungen am Corral durchgeführt."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -216,16 +204,6 @@
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "Geschützt"
-  },
-  "tabLock_lockedReason_matches": {
-    "description": "Label for a tab that is locked because it matches the whitelist",
-    "message": "Entspricht '$pattern$'",
-    "placeholders": {
-      "pattern": {
-        "content": "$1",
-        "example": "chrome://"
-      }
-    }
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",

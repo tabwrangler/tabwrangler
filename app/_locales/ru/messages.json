@@ -109,10 +109,6 @@
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "Если URL будет совпадать"
   },
-  "options_dedupe_option_exactURLMatch_description": {
-    "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "Когда вкладка будет закрыта, она будет добавлена в список вкладок, и все предыдущие вкладки с совпадающим URL будут удалены из списка."
-  },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
     "message": "Если URL будет совпадать"
@@ -121,10 +117,6 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "Если адрес страницы и её название совпадают"
   },
-  "options_dedupe_option_hostnameAndTitleMatch_description": {
-    "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "Когда вкладка будет закрыта, она будет добавлена в список вкладок, и все предыдущие вкладки с совпадающим доменом (по типу \"wikipedia.org\") и названием страницы будут удалены из списка."
-  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Если адрес страницы и её название совпадают"
@@ -132,10 +124,6 @@
   "options_dedupe_option_withDupes": {
     "description": "Label for option to never de-duplicate the tab corral",
     "message": "Никогда (По умолчанию)"
-  },
-  "options_dedupe_option_withDupes_description": {
-    "description": "Description of the never de-duplicating tabs option",
-    "message": "Когда вкладка будет закрыта, она будет добавлена в список вкладок. Никаких других изменений в списке вкладок не будет."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -391,16 +379,6 @@
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "Зафиксировано"
-  },
-  "tabLock_lockedReason_matches": {
-    "description": "Label for a tab that is locked because it matches the whitelist",
-    "message": "Совпадает с '$pattern$'",
-    "placeholders": {
-      "pattern": {
-        "content": "$1",
-        "example": "chrome://"
-      }
-    }
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",

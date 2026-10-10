@@ -109,10 +109,6 @@
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "Si corresponde exactamente a la URL"
   },
-  "options_dedupe_option_exactURLMatch_description": {
-    "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "Cuando se manipula una pestaña nueva, se agregará al registro y las pestañas anteriores con la misma URL serán eliminadas."
-  },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
     "message": "Si corresponde exactamente a la URL"
@@ -121,10 +117,6 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "Si coinciden el dominio y título de la página"
   },
-  "options_dedupe_option_hostnameAndTitleMatch_description": {
-    "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "Cuando una pestaña se cierre, esta se añadirá al registro, y cualquier otra pestaña con el mismo dominio (i.e: \"wikipedia.org\") y título se eliminaran de este."
-  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Si el dominio y el título de la página coinciden"
@@ -132,10 +124,6 @@
   "options_dedupe_option_withDupes": {
     "description": "Label for option to never de-duplicate the tab corral",
     "message": "Nunca (por defecto)"
-  },
-  "options_dedupe_option_withDupes_description": {
-    "description": "Description of the never de-duplicating tabs option",
-    "message": "Cuando una pestaña se cierre, se añadirá al registro. No se hará ningún otro cambio al registro."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -391,16 +379,6 @@
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "Bloqueado"
-  },
-  "tabLock_lockedReason_matches": {
-    "description": "Label for a tab that is locked because it matches the whitelist",
-    "message": "Coincide con el patrón '$pattern$'",
-    "placeholders": {
-      "pattern": {
-        "content": "$1",
-        "example": "chrome://"
-      }
-    }
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",

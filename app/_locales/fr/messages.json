@@ -97,10 +97,6 @@
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "Si l’URL correspond exactement"
   },
-  "options_dedupe_option_exactURLMatch_description": {
-    "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "Lorsqu’un onglet est enlevé, il sera ajouté au Corail et les onglets avec le même URL seront retirés du Corail."
-  },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
     "message": "Si l’URL correspond exactement"
@@ -109,17 +105,9 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "Si le nom d'hôte et le titre correspondent"
   },
-  "options_dedupe_option_hostnameAndTitleMatch_description": {
-    "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "Lorsqu’un onglet est enlevé, il est ajouté au Corail et tout ancien onglet avec le même URL (comme \"wikipedia.org\") sera retiré du Corail."
-  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Si le nom d'hôte et le titre correspondent"
-  },
-  "options_dedupe_option_withDupes_description": {
-    "description": "Description of the never de-duplicating tabs option",
-    "message": "Quand un onglet est enlevé, il est ajouté au Corail. Aucun autre changement ne sera fait au Corail."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -200,16 +188,6 @@
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "Verrouillé"
-  },
-  "tabLock_lockedReason_matches": {
-    "description": "Label for a tab that is locked because it matches the whitelist",
-    "message": "Correspond à '$pattern$'",
-    "placeholders": {
-      "pattern": {
-        "content": "$1",
-        "example": "chrome://"
-      }
-    }
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",

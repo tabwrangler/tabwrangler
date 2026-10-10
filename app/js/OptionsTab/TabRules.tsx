@@ -1010,17 +1010,32 @@ function DurationInput({
   return (
     <div>
       <div className="input-group">
-        <input className="form-control" min="0" readOnly={readOnly} type="number" {...daysDraft} />
+        <input
+          className="form-control"
+          min="0"
+          name="days"
+          readOnly={readOnly}
+          type="number"
+          {...daysDraft}
+        />
         <abbr className="input-group-text">
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_days")}
         </abbr>
-        <input className="form-control" min="0" readOnly={readOnly} type="number" {...hoursDraft} />
+        <input
+          className="form-control"
+          min="0"
+          name="hours"
+          readOnly={readOnly}
+          type="number"
+          {...hoursDraft}
+        />
         <abbr className="input-group-text">
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_hours")}
         </abbr>
         <input
           className="form-control"
           min="0"
+          name="minutes"
           readOnly={readOnly}
           type="number"
           {...minutesDraft}
@@ -1031,6 +1046,7 @@ function DurationInput({
         <input
           className="form-control"
           min="0"
+          name="seconds"
           readOnly={readOnly}
           type="number"
           {...secondsDraft}

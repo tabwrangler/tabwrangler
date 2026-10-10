@@ -109,10 +109,6 @@
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "URLが完全に一致する場合"
   },
-  "options_dedupe_option_exactURLMatch_description": {
-    "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "タブが整理されると一覧に追加され、同じURLの古いタブは一覧から削除されます。"
-  },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
     "message": "URLが完全に一致する場合"
@@ -121,10 +117,6 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "ホスト名とページタイトルが一致する場合"
   },
-  "options_dedupe_option_hostnameAndTitleMatch_description": {
-    "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "タブが整理されると一覧に追加され、同じホスト名（例：「wikipedia.org」）とページタイトルを持つ古いタブは一覧から削除されます。"
-  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "ホスト名とページタイトルが一致する場合"
@@ -132,10 +124,6 @@
   "options_dedupe_option_withDupes": {
     "description": "Label for option to never de-duplicate the tab corral",
     "message": "常にしない（デフォルト）"
-  },
-  "options_dedupe_option_withDupes_description": {
-    "description": "Description of the never de-duplicating tabs option",
-    "message": "タブが整理されると一覧に追加されます。その他、一覧に変更は加えられません。"
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -391,16 +379,6 @@
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "ロック済み"
-  },
-  "tabLock_lockedReason_matches": {
-    "description": "Label for a tab that is locked because it matches the whitelist",
-    "message": "「$pattern$」に一致",
-    "placeholders": {
-      "pattern": {
-        "content": "$1",
-        "example": "chrome://"
-      }
-    }
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",

@@ -97,10 +97,6 @@
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "如果網址完全符合"
   },
-  "options_dedupe_option_exactURLMatch_description": {
-    "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "如果分頁被移出，它會被置於擱置區。如果過往有相同網址的分頁，則會將之移除。"
-  },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
     "message": "如果網址完全符合"
@@ -109,17 +105,9 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "如果網域名稱及標題符合"
   },
-  "options_dedupe_option_hostnameAndTitleMatch_description": {
-    "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "如果分頁被移出，它會被置於擱置區。如果過往有相同網域名稱(如 \"wikipedia.org\") 及標題的分頁，則會將之移除。"
-  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "如果網域名稱及標題符合"
-  },
-  "options_dedupe_option_withDupes_description": {
-    "description": "Description of the never de-duplicating tabs option",
-    "message": "如果分頁被移出，它會被置於擱置區。不再有其他變更。"
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -200,16 +188,6 @@
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "已鎖定"
-  },
-  "tabLock_lockedReason_matches": {
-    "description": "Label for a tab that is locked because it matches the whitelist",
-    "message": "符合 \"$pattern$\"",
-    "placeholders": {
-      "pattern": {
-        "content": "$1",
-        "example": "chrome://"
-      }
-    }
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",

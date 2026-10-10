@@ -109,10 +109,6 @@
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "网址完全相同"
   },
-  "options_dedupe_option_exactURLMatch_description": {
-    "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "在一个标签页被贮藏关闭时，它被添加到“待用标签页”列表。任何以前贮藏且有完全相同网址（URL）的标签页记录将被移除。"
-  },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
     "message": "网址完全相同"
@@ -121,10 +117,6 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "主机名和页面标题匹配"
   },
-  "options_dedupe_option_hostnameAndTitleMatch_description": {
-    "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "在一个标签页被贮藏关闭时，它被添加到“待用标签页”列表。任何以前贮藏且有相同主机名（域名）且页面标题相同的标签页记录将被移除。"
-  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "主机名和页面标题匹配"
@@ -132,10 +124,6 @@
   "options_dedupe_option_withDupes": {
     "description": "Label for option to never de-duplicate the tab corral",
     "message": "从不（默认）"
-  },
-  "options_dedupe_option_withDupes_description": {
-    "description": "Description of the never de-duplicating tabs option",
-    "message": "在一个标签页被贮藏关闭时，它被添加到“待用标签页”列表。不会更改以前贮藏的标签页记录。"
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -391,16 +379,6 @@
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "已锁定"
-  },
-  "tabLock_lockedReason_matches": {
-    "description": "Label for a tab that is locked because it matches the whitelist",
-    "message": "匹配 '$pattern$'",
-    "placeholders": {
-      "pattern": {
-        "content": "$1",
-        "example": "chrome://"
-      }
-    }
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",

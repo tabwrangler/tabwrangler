@@ -97,10 +97,6 @@
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "Ja vietnes URL sakrīt precīzi"
   },
-  "options_dedupe_option_exactURLMatch_description": {
-    "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "Kad cilne tiek iedzīta aplokā, tā tiek pievienota aplokam un pārējās vecākas cilnes ar tieši tādu pašu vietnes URL tiek dzēstas no aploka."
-  },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
     "message": "Ja vietnes URL sakrīt precīzi"
@@ -109,17 +105,9 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "Ja resursdatora nosaukums un lapas nosaukums sakrīt"
   },
-  "options_dedupe_option_hostnameAndTitleMatch_description": {
-    "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "Kad cilne tiek iedzīta aplokā, tā tiek pievienota aplokam, un pārējās vecākas cilnes ar tādu pašu vietnes URL (piemēram, \"wikipedia.org\") un lapas nosaukumu tiek dzēstas no aploka."
-  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Ja resursdatora nosaukums un lapas nosaukums sakrīt"
-  },
-  "options_dedupe_option_withDupes_description": {
-    "description": "Description of the never de-duplicating tabs option",
-    "message": "Kad cilne tiek iedzīta aplokā, tā tiek pievienota aplokam. Nekādas citas izmaiņas aplokā netiek veiktas."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -220,16 +208,6 @@
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "Bloķēts"
-  },
-  "tabLock_lockedReason_matches": {
-    "description": "Label for a tab that is locked because it matches the whitelist",
-    "message": "Atbilst '$pattern$'",
-    "placeholders": {
-      "pattern": {
-        "content": "$1",
-        "example": "chrome://"
-      }
-    }
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",

@@ -94,7 +94,7 @@ describe("migrateSync", () => {
       { then: { action: "lock" }, when: [{ type: "url", op: "includes", value: "github.com" }] },
       { then: { action: "lock" }, when: [{ type: "audible" }] },
       { then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
-      { then: { action: "stale", afterSeconds: 330 }, when: [] },
+      { then: { action: "stale", afterSeconds: 330, save: "corral" }, when: [] },
     ]);
     expect(whitelist).toEqual(["github.com"]);
   });
@@ -104,7 +104,7 @@ describe("migrateSync", () => {
     const { tabRules } = await chrome.storage.sync.get("tabRules");
     expect(tabRules.rules).toHaveLength(5);
     expect(tabRules.rules[0].when).toEqual([{ type: "pinned" }]);
-    expect(tabRules.rules[4].then).toEqual({ action: "stale", afterSeconds: 3600 });
+    expect(tabRules.rules[4].then).toEqual({ action: "stale", afterSeconds: 3600, save: "corral" });
   });
 
   test("leaves tabRules that were already migrated, even by another device", async () => {
@@ -116,7 +116,7 @@ describe("migrateSync", () => {
           enabled: true,
           match: "every",
           when: [],
-          then: { action: "stale", afterSeconds: 10 },
+          then: { action: "stale", afterSeconds: 10, save: "corral" },
         },
       ],
     };

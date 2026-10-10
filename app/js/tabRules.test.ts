@@ -6,6 +6,7 @@ import {
   findMatchingRule,
   getStaleAfterMs,
   getTabOutcome,
+  shouldSaveToCorral,
   withElseRule,
 } from "./tabRules";
 
@@ -58,7 +59,7 @@ describe("buildTabRulesFromLegacySettings", () => {
       },
       { enabled: true, then: { action: "lock" }, when: [{ type: "audible" }] },
       { enabled: true, then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
-      { enabled: true, then: { action: "stale", afterSeconds: 3600 }, when: [] },
+      { enabled: true, then: { action: "stale", afterSeconds: 3600, save: "corral" }, when: [] },
     ]);
     expect(config.rules.every((rule) => rule.match === "every")).toBe(true);
   });
@@ -87,7 +88,7 @@ describe("buildTabRulesFromLegacySettings", () => {
           secondsInactive: 30,
         }),
       ),
-    ).toEqual({ action: "stale", afterSeconds: 1230 });
+    ).toEqual({ action: "stale", afterSeconds: 1230, save: "corral" });
   });
 
   test("coerces timeouts stored as strings", () => {
@@ -99,13 +100,13 @@ describe("buildTabRulesFromLegacySettings", () => {
           secondsInactive: "15",
         }),
       ),
-    ).toEqual({ action: "stale", afterSeconds: 315 });
+    ).toEqual({ action: "stale", afterSeconds: 315, save: "corral" });
   });
 
   test("falls back to the default timeout when the stored one is not a number", () => {
     expect(
       elseOf(buildTabRulesFromLegacySettings({ ...LEGACY_DEFAULTS, minutesInactive: "abc" })),
-    ).toEqual({ action: "stale", afterSeconds: 3600 });
+    ).toEqual({ action: "stale", afterSeconds: 3600, save: "corral" });
   });
 
   test("ignores a whitelist that is not an array of strings", () => {
@@ -150,7 +151,11 @@ describe("getTabOutcome", () => {
   });
 
   test("uses the final rule for tabs no other rule matches", () => {
-    expect(getTabOutcome(createTab(), config)).toEqual({ action: "stale", afterSeconds: 3600 });
+    expect(getTabOutcome(createTab(), config)).toEqual({
+      action: "stale",
+      afterSeconds: 3600,
+      save: "corral",
+    });
   });
 
   test("leaves tabs that match no rule alone", () => {
@@ -176,7 +181,7 @@ describe("getTabOutcome", () => {
           enabled: true,
           match: "every",
           when: [{ type: "url", op: "includes", value: "example" }],
-          then: { action: "stale", afterSeconds: 10 },
+          then: { action: "stale", afterSeconds: 10, save: "corral" },
         },
         ...config.rules,
       ],
@@ -184,6 +189,7 @@ describe("getTabOutcome", () => {
     expect(getTabOutcome(createTab({ audible: true }), ordered)).toEqual({
       action: "stale",
       afterSeconds: 10,
+      save: "corral",
     });
   });
 
@@ -214,14 +220,14 @@ describe("getStaleAfterMs", () => {
         enabled: true,
         match: "every",
         when: [{ type: "url", op: "includes", value: "news" }],
-        then: { action: "stale", afterSeconds: 7200 },
+        then: { action: "stale", afterSeconds: 7200, save: "corral" },
       },
       {
         id: "b",
         enabled: true,
         match: "every",
         when: [],
-        then: { action: "stale", afterSeconds: 60 },
+        then: { action: "stale", afterSeconds: 60, save: "corral" },
       },
     ],
   };
@@ -239,6 +245,47 @@ describe("getStaleAfterMs", () => {
 
   test("uses the longest timeout without a tab", () => {
     expect(getStaleAfterMs(config)).toBe(7_200_000);
+  });
+});
+
+describe("shouldSaveToCorral", () => {
+  const config: TabRulesConfig = {
+    version: 1,
+    rules: [
+      {
+        id: "a",
+        enabled: true,
+        match: "every",
+        when: [{ type: "url", op: "includes", value: "search" }],
+        then: { action: "stale", afterSeconds: 60, save: "none" },
+      },
+      {
+        id: "b",
+        enabled: true,
+        match: "every",
+        when: [{ type: "pinned" }],
+        then: { action: "lock" },
+      },
+      {
+        id: "c",
+        enabled: true,
+        match: "every",
+        when: [],
+        then: { action: "stale", afterSeconds: 3600, save: "corral" },
+      },
+    ],
+  };
+
+  test("follows the save option of the stale rule matching the tab", () => {
+    expect(shouldSaveToCorral(createTab({ url: "https://example.com/search" }), config)).toBe(
+      false,
+    );
+    expect(shouldSaveToCorral(createTab(), config)).toBe(true);
+  });
+
+  test("saves tabs whose rule doesn't make them stale", () => {
+    expect(shouldSaveToCorral(createTab({ pinned: true }), config)).toBe(true);
+    expect(shouldSaveToCorral(createTab(), { ...config, rules: [] })).toBe(true);
   });
 });
 

@@ -348,7 +348,7 @@ async function checkToClose() {
     if (tabsToClose.length > 0) {
       await ASYNC_LOCK.acquire("persist:localStorage", async () => {
         const storageLocalPersist = await getStorageLocalPersist();
-        wrangleTabs(storageLocalPersist, tabsToClose);
+        wrangleTabs(storageLocalPersist, tabsToClose, settings.get("tabRules"));
         await chrome.storage.local.set({
           "persist:localStorage": storageLocalPersist,
         });

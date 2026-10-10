@@ -141,7 +141,7 @@
   },
   "extension_wrangleNow_title": {
     "description": "Tooltip for the 'Wrangle Now' button when there are tabs it would close",
-    "message": "Close the $count$ oldest stale tabs. They go to the Tab Corral.",
+    "message": "Close the $count$ oldest stale tabs.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -911,6 +911,14 @@
   "options_tabRules_removeCondition": {
     "description": "Accessible label for the button that removes one condition from a tab rule",
     "message": "Remove condition"
+  },
+  "options_tabRules_save_corral": {
+    "description": "Checkbox label in the tab rule form, shown under the inactive time, that chooses whether tabs auto-closed by the rule are saved to the Tab Corral",
+    "message": "Save tab to Tab Corral when closed (Recommended)"
+  },
+  "options_tabRules_save_none": {
+    "description": "Note shown in the list of rules under a rule's action when tabs it auto-closes are not saved to the Tab Corral",
+    "message": "Close without saving to the Tab Corral"
   },
   "options_tabRules_then": {
     "description": "Label in front of a tab rule's action, as in \"Then lock tab\"",

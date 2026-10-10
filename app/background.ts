@@ -5,18 +5,17 @@ import { SessionTab, TabTimes } from "./js/types";
 import {
   findTabToFreeze,
   findTabsToCloseCandidates,
-  initTabs,
   isTabLocked,
   makeTabPersistKey,
   makeWindowPersistKey,
   onNewTab,
   removeTab,
+  resetTabTimesPastTimeout,
   updateClosedCount,
   updateLastAccessed,
   wrangleTabs,
 } from "./js/tabUtil";
 import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
-import { getTabOutcome, staleTimeoutsChanged } from "./js/tabRules";
 import {
   lockUnlockActiveTab,
   lockUnlockCurrentWindow,
@@ -28,6 +27,7 @@ import {
 import { removeAllSavedTabs, unwrangleTabs } from "./js/actions/localStorageActions";
 import Menus from "./js/menus";
 import { debounce } from "lodash-es";
+import { getTabOutcome } from "./js/tabRules";
 import settings from "./js/settings";
 
 const menus = new Menus();
@@ -37,20 +37,21 @@ const menus = new Menus();
 // preserve them.
 let startupComplete = false;
 
-// Resolves with the list of tabs restored from the previous session. During restoration, Chrome
-// fires tabs.onCreated for each restored tab. We wait up to 5s for the first event to arrive; if
-// none arrives, there is nothing to restore. Once restoration starts, we debounce: the promise
-// resolves 1s after the last onCreated event, indicating the burst of restored tabs has settled.
+// Resolves once the browser has finished restoring tabs from the previous session. During
+// restoration, Chrome fires tabs.onCreated for each restored tab. We wait up to 5s for the first
+// event to arrive; if none arrives, there is nothing to restore. Once restoration starts, we
+// debounce: the promise resolves 1s after the last onCreated event. The events only signal timing;
+// a tab the user opens in this window looks the same as a restored one, so startup queries tabs
+// afterward instead of trusting the events' tabs.
 const TABS_RESTORED_FIRST_EVENT_MS = 5_000;
 const TABS_RESTORED_DEBOUNCE_MS = 1_000;
-let resolveTabsRestored: (tabs: chrome.tabs.Tab[]) => void;
-const tabsRestoredPromise = new Promise<chrome.tabs.Tab[]>((resolve) => {
+let resolveTabsRestored: () => void;
+const tabsRestoredPromise = new Promise<void>((resolve) => {
   resolveTabsRestored = resolve;
 });
 
-const restoredTabs: chrome.tabs.Tab[] = [];
 let tabsRestoredTimeout: ReturnType<typeof setTimeout> | null = setTimeout(
-  () => resolveTabsRestored(restoredTabs),
+  () => resolveTabsRestored(),
   TABS_RESTORED_FIRST_EVENT_MS,
 );
 
@@ -128,15 +129,10 @@ chrome.tabs.onActivated.addListener(async function onActivated(tabInfo) {
 
 chrome.tabs.onCreated.addListener((tab: chrome.tabs.Tab) => {
   if (!startupComplete) {
-    // During startup, accumulate restored tabs. The first event switches from the 5s first-event
-    // timeout to a 1s debounce; each subsequent event resets that debounce. Once 1s passes without a
-    // new onCreated event, tabsRestoredPromise resolves with the full list.
-    restoredTabs.push(tab);
+    // During startup, the first event switches from the 5s first-event timeout to a 1s debounce;
+    // each subsequent event resets that debounce. Startup's migration gives these tabs their times.
     if (tabsRestoredTimeout != null) clearTimeout(tabsRestoredTimeout);
-    tabsRestoredTimeout = setTimeout(
-      () => resolveTabsRestored(restoredTabs),
-      TABS_RESTORED_DEBOUNCE_MS,
-    );
+    tabsRestoredTimeout = setTimeout(() => resolveTabsRestored(), TABS_RESTORED_DEBOUNCE_MS);
   } else {
     onNewTab(tab);
   }
@@ -213,12 +209,8 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
     case "sync": {
       // The first write of `tabRules` is the migration, which changes no timeouts.
-      if (
-        changes.tabRules?.oldValue != null &&
-        staleTimeoutsChanged(changes.tabRules.oldValue, changes.tabRules.newValue)
-      ) {
-        // Reset stored `tabTimes` because a timeout changed, otherwise old times may exceed it.
-        initTabs();
+      if (changes.tabRules?.oldValue != null) {
+        resetTabTimesPastTimeout(changes.tabRules.oldValue, changes.tabRules.newValue);
       }
 
       if (changes["persist:settings"]) {
@@ -468,7 +460,7 @@ async function migratePersistedData(
 }
 
 async function startup() {
-  const [restoredTabs] = await Promise.all([
+  await Promise.all([
     // Wait for browser to finish restoring tabs from the previous session before migrating data.
     tabsRestoredPromise,
     settings.init(),
@@ -478,18 +470,14 @@ async function startup() {
 
   if (settings.get("purgeClosedTabs") !== false) await removeAllSavedTabs();
 
-  // Remove stale tab IDs from lockedIds. Use the restored tabs list on browser restart; otherwise
-  // query current tabs (service worker restart with no session restore).
-  const allTabs = restoredTabs.length > 0 ? restoredTabs : await chrome.tabs.query({});
+  const allTabs = await chrome.tabs.query({});
   await settings.cleanupLockedIds(allTabs);
 
-  // Migrate tab and window data from a browser restart. On a service worker restart,
-  // restoredTabs is empty (no tabs.onCreated events fire), tab IDs are unchanged, and there is
-  // nothing to migrate.
-  if (restoredTabs.length > 0) {
-    const { tabsToRelock, windowIdsToRelock } = await migratePersistedData(restoredTabs);
-    await Promise.all([settings.lockTabs(tabsToRelock), settings.lockWindows(windowIdsToRelock)]);
-  }
+  // Runs on every startup rather than detecting a browser restart: tabs whose IDs survived (a
+  // service worker or extension restart) keep their stored data, and only tabs with new IDs (a
+  // browser restart) are matched by persist key.
+  const { tabsToRelock, windowIdsToRelock } = await migratePersistedData(allTabs);
+  await Promise.all([settings.lockTabs(tabsToRelock), settings.lockWindows(windowIdsToRelock)]);
 
   startupComplete = true;
   scheduleCheckToClose();

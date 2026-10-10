@@ -4,6 +4,17 @@ body {
   width: 700px;
 }
 
+.options-page {
+  background-color: var(--bs-tertiary-bg);
+
+  body {
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-top: 0;
+    box-shadow: var(--bs-box-shadow-sm);
+    margin: 0 auto;
+  }
+}
+
 .container {
   /* Override any @media queries inside Bootstrap */
   width: auto !important;

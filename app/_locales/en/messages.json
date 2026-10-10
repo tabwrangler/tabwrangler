@@ -179,7 +179,7 @@
   },
   "options_dedupe_option_exactURLMatch_description": {
     "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "When a tab is wrangled, it will be added to the Corral and any older tabs with the exact same URL will be removed from the Corral."
+    "message": "When a tab is added to the Corral, any older tabs with the exact same URL are removed from the Corral."
   },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
@@ -191,7 +191,7 @@
   },
   "options_dedupe_option_hostnameAndTitleMatch_description": {
     "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "When a tab is wrangled, it will be added to the Corral and any older tabs with the same hostname (like \"wikipedia.org\") and page title will be removed from the Corral."
+    "message": "When a tab is added to the Corral, any older tabs with the same hostname (like \"wikipedia.org\") and page title are removed from the Corral."
   },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
@@ -203,7 +203,7 @@
   },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
-    "message": "When a tab is wrangled, it will be added to the Corral. No other changes will be made to the Corral."
+    "message": "When a tab is is added to the Corral no other changes are made to the Corral."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",

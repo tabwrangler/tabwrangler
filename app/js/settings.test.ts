@@ -1,9 +1,22 @@
-import Settings from "./settings";
+import Settings, { SETTINGS_DEFAULTS } from "./settings";
+
+function mockSyncStorage(items: Record<string, unknown>) {
+  (chrome.storage.sync.get as jest.Mock).mockResolvedValue(items);
+  (chrome.storage.sync.set as jest.Mock).mockResolvedValue(undefined);
+}
+
+// Each test loads settings again, as a fresh extension page would.
+function resetSettings() {
+  jest.resetAllMocks();
+  Settings._initPromise = undefined;
+  Settings.cache = { ...SETTINGS_DEFAULTS };
+}
 
 describe("settings", () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
-    Settings.init();
+  beforeEach(async () => {
+    resetSettings();
+    mockSyncStorage({});
+    await Settings.init();
   });
 
   test("sets maxTabs to 1000", () => {
@@ -28,19 +41,8 @@ describe("settings", () => {
 });
 
 describe("tabRules migration", () => {
-  function mockSyncStorage(items: Record<string, unknown>) {
-    (chrome.storage.sync.get as jest.Mock).mockImplementation(
-      (_keys: unknown, callback?: (items: Record<string, unknown>) => void) => {
-        callback?.(items);
-        return Promise.resolve(items);
-      },
-    );
-    (chrome.storage.sync.set as jest.Mock).mockResolvedValue(undefined);
-  }
-
   beforeEach(() => {
-    jest.resetAllMocks();
-    Settings._initPromise = undefined;
+    resetSettings();
   });
 
   test("derives tabRules from legacy settings when none are stored", async () => {
@@ -81,7 +83,6 @@ describe("tabRules migration", () => {
       rules: [
         {
           id: "a",
-          enabled: true,
           match: "every",
           when: [],
           then: { action: "stale", afterSeconds: 10, save: "corral" },
@@ -99,5 +100,59 @@ describe("tabRules migration", () => {
     expect(Settings.get("tabRules").rules).toEqual([
       expect.objectContaining({ then: { action: "lock" }, when: [] }),
     ]);
+  });
+});
+
+describe("storage changes", () => {
+  beforeEach(async () => {
+    resetSettings();
+    mockSyncStorage({ maxTabs: 500 });
+    await Settings.init();
+  });
+
+  test("updates the cache and notifies subscribers", () => {
+    const listener = jest.fn();
+    Settings.subscribe("maxTabs", listener);
+    Settings._onStorageChanged({ maxTabs: { newValue: 200, oldValue: 500 } }, "sync");
+    expect(Settings.get("maxTabs")).toBe(200);
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  test("ignores other storage areas", () => {
+    Settings._onStorageChanged({ maxTabs: { newValue: 200 } }, "local");
+    expect(Settings.get("maxTabs")).toBe(500);
+  });
+
+  test("falls back to the default when a setting is removed", () => {
+    Settings._onStorageChanged({ maxTabs: { oldValue: 500 } }, "sync");
+    expect(Settings.get("maxTabs")).toBe(SETTINGS_DEFAULTS.maxTabs);
+  });
+
+  test("derives tabRules from legacy settings when they are removed", () => {
+    Settings._onStorageChanged(
+      { tabRules: { oldValue: SETTINGS_DEFAULTS.tabRules }, whitelist: { newValue: [] } },
+      "sync",
+    );
+    expect(Settings.get("tabRules").rules.map(({ when }) => when)).toEqual([
+      [{ type: "pinned" }],
+      [{ type: "audible" }],
+      [],
+    ]);
+  });
+
+  test("keeps a change made while settings were loading", async () => {
+    resetSettings();
+    let resolveGet: (items: Record<string, unknown>) => void = () => {};
+    (chrome.storage.sync.get as jest.Mock).mockReturnValue(
+      new Promise((resolve) => {
+        resolveGet = resolve;
+      }),
+    );
+    const init = Settings.init();
+    Settings._onStorageChanged({ maxTabs: { newValue: 200 } }, "sync");
+    resolveGet({ maxTabs: 500, minTabs: 3 });
+    await init;
+    expect(Settings.get("maxTabs")).toBe(200);
+    expect(Settings.get("minTabs")).toBe(3);
   });
 });

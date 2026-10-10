@@ -1,6 +1,6 @@
 import { migrateSync, pauseExtension, setIdle } from "./storage";
+import settings, { SETTINGS_DEFAULTS } from "./settings";
 import { TextEncoder } from "util";
-import settings from "./settings";
 
 Object.assign(global, { TextEncoder });
 
@@ -99,12 +99,23 @@ describe("migrateSync", () => {
     expect(whitelist).toEqual(["github.com"]);
   });
 
-  test("migrates the legacy defaults when no settings were changed", async () => {
+  test("uses legacy defaults for legacy settings that were never changed", async () => {
+    await chrome.storage.sync.set({ whitelist: ["github.com"] });
     await migrateSync();
     const { tabRules } = await chrome.storage.sync.get("tabRules");
-    expect(tabRules.rules).toHaveLength(5);
-    expect(tabRules.rules[0].when).toEqual([{ type: "pinned" }]);
-    expect(tabRules.rules[4].then).toEqual({ action: "stale", afterSeconds: 3600, save: "corral" });
+    expect(tabRules.rules.map(({ when }: { when: unknown[] }) => when)).toEqual([
+      [{ type: "pinned" }],
+      [{ type: "url", op: "includes", value: "github.com" }],
+      [{ type: "audible" }],
+      [],
+    ]);
+    expect(tabRules.rules[3].then).toEqual({ action: "stale", afterSeconds: 3600, save: "corral" });
+  });
+
+  test("stores the default rules when no settings were changed", async () => {
+    await migrateSync();
+    const { tabRules } = await chrome.storage.sync.get("tabRules");
+    expect(tabRules).toEqual(SETTINGS_DEFAULTS.tabRules);
   });
 
   test("leaves tabRules that were already migrated, even by another device", async () => {
@@ -113,7 +124,6 @@ describe("migrateSync", () => {
       rules: [
         {
           id: "a",
-          enabled: true,
           match: "every",
           when: [],
           then: { action: "stale", afterSeconds: 10, save: "corral" },

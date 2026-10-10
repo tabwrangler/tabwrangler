@@ -1,5 +1,7 @@
 import { AVERAGE_TAB_BYTES_SIZE, TabLockStatus, getTabLockStatus } from "./tabUtil";
 import {
+  DEFAULT_STALE_AFTER_SECONDS,
+  TAB_RULES_VERSION,
   type TabRulesConfig,
   buildTabRulesFromLegacySettings,
   getStaleAfterMs,
@@ -42,7 +44,7 @@ export interface SettingsSchema {
 const defaultLockedIds: Array<number> = [];
 const defaultLockedWindowIds: Array<number> = [];
 
-const SETTINGS_DEFAULTS_WITHOUT_TAB_RULES: Omit<SettingsSchema, "tabRules"> = {
+export const SETTINGS_DEFAULTS: SettingsSchema = {
   // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
   corralTabSortOrder: null,
 
@@ -93,6 +95,44 @@ const SETTINGS_DEFAULTS_WITHOUT_TAB_RULES: Omit<SettingsSchema, "tabRules"> = {
   // When true, shows the number of closed tabs in the list as a badge on the browser icon.
   showBadgeCount: false,
 
+  // Rules deciding which tabs are locked and when the rest become stale. Equivalent to the defaults
+  // of the legacy settings they replace.
+  tabRules: {
+    version: TAB_RULES_VERSION,
+    rules: [
+      {
+        id: "pinned",
+        match: "every",
+        when: [{ type: "pinned" }],
+        then: { action: "lock" },
+      },
+      {
+        id: "audible",
+        match: "every",
+        when: [{ type: "audible" }],
+        then: { action: "lock" },
+      },
+      {
+        id: "about",
+        match: "every",
+        when: [{ type: "url", op: "includes", value: "about:" }],
+        then: { action: "lock" },
+      },
+      {
+        id: "chrome",
+        match: "every",
+        when: [{ type: "url", op: "includes", value: "chrome://" }],
+        then: { action: "lock" },
+      },
+      {
+        id: "else",
+        match: "every",
+        when: [],
+        then: { action: "stale", afterSeconds: DEFAULT_STALE_AFTER_SECONDS, save: "corral" },
+      },
+    ],
+  },
+
   // Superseded by `tabRules`; read only to migrate.
   whitelist: ["about:", "chrome://"],
 
@@ -100,60 +140,69 @@ const SETTINGS_DEFAULTS_WITHOUT_TAB_RULES: Omit<SettingsSchema, "tabRules"> = {
   wrangleOption: "withDupes",
 };
 
-export const SETTINGS_DEFAULTS: SettingsSchema = {
-  ...SETTINGS_DEFAULTS_WITHOUT_TAB_RULES,
-  // Rules deciding which tabs are locked and when the rest become stale.
-  tabRules: buildTabRulesFromLegacySettings(SETTINGS_DEFAULTS_WITHOUT_TAB_RULES),
-};
+// Settings from before Tab Rules have no `tabRules`, so derive equivalent rules from the legacy
+// settings until `migrateSync` persists them.
+function loadLegacyTabRules(
+  stored: TabRulesConfig | undefined,
+  legacy: SettingsSchema,
+): TabRulesConfig {
+  return stored == null ? buildTabRulesFromLegacySettings(legacy) : withElseRule(stored);
+}
 
 // This is a SINGLETON! It is imported both by backgrounnd.ts and by popup.tsx and used in both
 // environments.
 const Settings = {
+  // Keys changed while loading, which the load must not overwrite with its older snapshot. Only set
+  // while loading.
+  _initChangedKeys: null as Set<string> | null,
   _initPromise: undefined as Promise<void> | undefined,
   _listeners: {} as { [K in keyof SettingsSchema]?: Set<() => void> },
   cache: { ...SETTINGS_DEFAULTS } as SettingsSchema,
 
-  // Gets all settings from sync and stores them locally.
+  // Loads all settings from sync storage into the cache. Later changes, including those made in
+  // another extension page, arrive through `_onStorageChanged`.
   init(): Promise<void> {
     if (this._initPromise != null) return this._initPromise;
 
-    Object.assign(this.cache, SETTINGS_DEFAULTS);
-    const keys = Object.keys(this.cache);
+    const initChangedKeys = new Set<string>();
+    this._initChangedKeys = initChangedKeys;
+    this._initPromise = (async () => {
+      const items = await chrome.storage.sync.get<Partial<SettingsSchema>>(
+        Object.keys(SETTINGS_DEFAULTS) as (keyof SettingsSchema)[],
+      );
 
-    // Sync the cache with the browser's storage area. Changes in the background pages should sync
-    // with those in the popup and vice versa.
-    //
-    // Note: this does NOT integrate with React, this is not a replacement for Redux. React
-    // components will not be notified of the new values. For now this is okay because settings are
-    // only updated via the popup and so React is already aware of the changes.
-    chrome.storage.onChanged.addListener(
-      (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
-        if (areaName !== "sync") return;
-        for (const [key, value] of Object.entries(changes)) {
-          if (key in SETTINGS_DEFAULTS) {
-            Object.assign(this.cache, {
-              [key]: key === "tabRules" ? withElseRule(value.newValue) : value.newValue,
-            });
-            this._listeners[key as keyof SettingsSchema]?.forEach((l) => l());
-          }
-        }
-      },
-    );
+      for (const [key, value] of Object.entries(items)) {
+        if (key !== "tabRules" && !initChangedKeys.has(key))
+          Object.assign(this.cache, { [key]: value });
+      }
 
-    this._initPromise = new Promise((resolve) => {
-      chrome.storage.sync.get(keys, (items) => {
-        Object.assign(this.cache, items);
-        // Settings from before Tab Rules have no `tabRules`, so derive equivalent rules from the
-        // legacy settings until `migrateSync` persists them.
-        this.cache.tabRules =
-          items.tabRules == null
-            ? buildTabRulesFromLegacySettings(this.cache)
-            : withElseRule(items.tabRules);
-        resolve();
-      });
-    });
+      if (!initChangedKeys.has("tabRules"))
+        this.cache.tabRules = loadLegacyTabRules(items.tabRules, this.cache);
+
+      this._initChangedKeys = null;
+    })();
 
     return this._initPromise;
+  },
+
+  _onStorageChanged(changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) {
+    if (areaName !== "sync") return;
+    const keys = Object.keys(changes).filter(
+      (key): key is keyof SettingsSchema => key in SETTINGS_DEFAULTS,
+    );
+
+    // `newValue` is undefined when the key was removed from storage. Removed `tabRules` are derived
+    // from the legacy settings, so those are applied first.
+    for (const key of keys) {
+      this._initChangedKeys?.add(key);
+      if (key !== "tabRules")
+        Object.assign(this.cache, { [key]: changes[key].newValue ?? SETTINGS_DEFAULTS[key] });
+    }
+
+    if (keys.includes("tabRules"))
+      this.cache.tabRules = loadLegacyTabRules(changes.tabRules.newValue, this.cache);
+
+    keys.forEach((key) => this._listeners[key]?.forEach((l) => l()));
   },
 
   async cleanupLockedIds(tabs: chrome.tabs.Tab[]): Promise<void> {
@@ -318,6 +367,7 @@ const Settings = {
   },
 
   setValue<K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]): Promise<void> {
+    this._initChangedKeys?.add(key);
     this.cache[key] =
       key === "tabRules" ? (withElseRule(value as TabRulesConfig) as typeof value) : value;
     this._listeners[key]?.forEach((l) => l());
@@ -352,5 +402,12 @@ const Settings = {
     return this.set("lockedIds", nextLockedIds);
   },
 };
+
+// Register when the module loads so a service worker adds it synchronously as required by
+// Chrome's [service worker documentation][0].
+// [0]: https://developer.chrome.com/docs/extensions/get-started/tutorial/service-worker-events
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  Settings._onStorageChanged(changes, areaName);
+});
 
 export default Settings;

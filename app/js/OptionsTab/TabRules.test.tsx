@@ -49,7 +49,7 @@ describe("TabRules", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
-    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_url"), {
       target: { value: "news" },
     });
     fireEvent.click(screen.getByText("options_save"));
@@ -66,20 +66,20 @@ describe("TabRules", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
-    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_url"), {
       target: { value: "example" },
     });
     expect(screen.getByText("options_tabRules_duplicateRule")).toBeTruthy();
-    fireEvent.submit(screen.getByLabelText("options_tabRules_condition_urlIncludes"));
+    fireEvent.submit(screen.getByLabelText("options_tabRules_condition_url"));
     expect(onSaveSetting).not.toHaveBeenCalled();
   });
 
   test("hides the new rule form until requested and on cancel", () => {
     render(<TabRules onSaveSetting={jest.fn()} />);
-    expect(screen.queryByLabelText("options_tabRules_condition_urlIncludes")).toBeNull();
+    expect(screen.queryByLabelText("options_tabRules_condition_url")).toBeNull();
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
     fireEvent.click(screen.getByText("options_tabRules_cancel"));
-    expect(screen.queryByLabelText("options_tabRules_condition_urlIncludes")).toBeNull();
+    expect(screen.queryByLabelText("options_tabRules_condition_url")).toBeNull();
   });
 
   test("moves rules up and down", () => {
@@ -152,7 +152,7 @@ describe("TabRules", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
-    const input = screen.getByLabelText("options_tabRules_condition_urlIncludes");
+    const input = screen.getByLabelText("options_tabRules_condition_url");
     fireEvent.change(input, { target: { value: "news site" } });
     expect(screen.getByText("options_tabRules_whitespace")).toBeTruthy();
     fireEvent.submit(input);
@@ -248,11 +248,10 @@ describe("TabRules", () => {
     fireEvent.change(screen.getByLabelText("options_tabRules_condition"), {
       target: { value: "groupId" },
     });
-    expect(screen.queryByLabelText("options_tabRules_condition_urlIncludes")).toBeNull();
+    expect(screen.queryByLabelText("options_tabRules_condition_url")).toBeNull();
     fireEvent.click(screen.getByText("options_save"));
     expect(lastSavedTabRules(onSaveSetting).rules[0]).toEqual(
       expect.objectContaining({
-        enabled: true,
         then: { action: "lock" },
         when: [{ type: "groupId", op: "some" }],
       }),
@@ -275,7 +274,7 @@ describe("TabRules", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
-    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_url"), {
       target: { value: "youtube.com" },
     });
     fireEvent.click(screen.getByText("options_tabRules_addCondition"));
@@ -296,7 +295,7 @@ describe("TabRules", () => {
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
     fireEvent.click(screen.getByText("options_tabRules_addCondition"));
-    const [first, second] = screen.getAllByLabelText("options_tabRules_condition_urlIncludes");
+    const [first, second] = screen.getAllByLabelText("options_tabRules_condition_url");
     fireEvent.change(first, { target: { value: "github.com" } });
     fireEvent.change(second, { target: { value: "linear.app" } });
     fireEvent.change(screen.getByLabelText("options_tabRules_match"), {
@@ -341,7 +340,7 @@ describe("TabRules", () => {
     render(<TabRules onSaveSetting={jest.fn()} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
     fireEvent.click(screen.getByText("options_tabRules_addCondition"));
-    const [first, second] = screen.getAllByLabelText("options_tabRules_condition_urlIncludes");
+    const [first, second] = screen.getAllByLabelText("options_tabRules_condition_url");
     fireEvent.change(first, { target: { value: "news" } });
     fireEvent.change(second, { target: { value: "news" } });
     expect(screen.getByText("options_tabRules_duplicateCondition")).toBeTruthy();
@@ -364,6 +363,23 @@ describe("TabRules", () => {
     ]);
   });
 
+  test("adds a rule for tab group name text, which can contain spaces", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition"), {
+      target: { value: "groupTitle" },
+    });
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_groupTitle"), {
+      target: { value: "Q4 planning" },
+    });
+    expect(screen.queryByText("options_tabRules_whitespace")).toBeNull();
+    fireEvent.click(screen.getByText("options_save"));
+    expect(lastSavedTabRules(onSaveSetting).rules[0].when).toEqual([
+      { type: "groupTitle", op: "includes", value: "Q4 planning" },
+    ]);
+  });
+
   test("allows the same text for a URL and a title condition in one rule", () => {
     render(<TabRules onSaveSetting={jest.fn()} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
@@ -371,7 +387,7 @@ describe("TabRules", () => {
     fireEvent.change(screen.getAllByLabelText("options_tabRules_condition")[1], {
       target: { value: "title" },
     });
-    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_url"), {
       target: { value: "news" },
     });
     fireEvent.change(screen.getByLabelText("options_tabRules_condition_title"), {
@@ -387,7 +403,6 @@ describe("TabRules", () => {
       rules: [
         {
           id: "a",
-          enabled: true,
           match: "some",
           when: [{ type: "url", op: "includes", value: "github.com" }, { type: "audible" }],
           then: { action: "lock" },
@@ -416,7 +431,7 @@ describe("TabRules", () => {
     expect((screen.getByLabelText("options_tabRules_condition") as HTMLSelectElement).value).toBe(
       "audible",
     );
-    expect(screen.queryByLabelText("options_tabRules_condition_urlIncludes")).toBeNull();
+    expect(screen.queryByLabelText("options_tabRules_condition_url")).toBeNull();
   });
 
   test("adds a rule for pinned tabs", () => {
@@ -448,7 +463,7 @@ describe("TabRules", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
-    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_url"), {
       target: { value: "news" },
     });
     fireEvent.change(screen.getByLabelText("options_tabRules_action"), {
@@ -473,7 +488,6 @@ describe("TabRules", () => {
       rules: [
         {
           id: "a",
-          enabled: true,
           match: "every",
           when: [{ type: "url", op: "includes", value: "news" }],
           then: { action: "stale", afterSeconds: 600, save: "corral" },
@@ -490,7 +504,7 @@ describe("TabRules", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
-    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_url"), {
       target: { value: "google.com/search" },
     });
     fireEvent.change(screen.getByLabelText("options_tabRules_action"), {
@@ -514,7 +528,6 @@ describe("TabRules", () => {
       rules: [
         {
           id: "a",
-          enabled: true,
           match: "every",
           when: [{ type: "url", op: "includes", value: "news" }],
           then: { action: "stale", afterSeconds: 600, save: "none" },
@@ -530,7 +543,7 @@ describe("TabRules", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
-    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_url"), {
       target: { value: "news" },
     });
     const action = screen.getByLabelText("options_tabRules_action");
@@ -554,7 +567,6 @@ describe("TabRules", () => {
       rules: [
         {
           id: "a",
-          enabled: true,
           match: "every",
           when: [{ type: "url", op: "includes", value: "news" }],
           then: { action: "stale", afterSeconds: 600, save: "corral" },
@@ -581,7 +593,7 @@ describe("TabRules", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
     fireEvent.click(screen.getByText("options_tabRules_addRule"));
-    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_url"), {
       target: { value: "news" },
     });
     const action = screen.getByLabelText("options_tabRules_action");

@@ -29,6 +29,7 @@ import Menus from "./js/menus";
 import { debounce } from "lodash-es";
 import { getTabOutcome } from "./js/tabRules";
 import settings from "./js/settings";
+import tabGroupTitles from "./js/tabGroupTitles";
 
 const menus = new Menus();
 
@@ -108,7 +109,7 @@ chrome.runtime.onStartup.addListener(async () => {
 let onActivatedGeneration = 0;
 chrome.tabs.onActivated.addListener(async function onActivated(tabInfo) {
   const generation = ++onActivatedGeneration;
-  await settings.init();
+  await Promise.all([settings.init(), tabGroupTitles.init()]);
 
   // *Always* update last accessed because onActivated always matters for each tab
   if (settings.get("debounceOnActivated")) debouncedUpdateLastAccessed(tabInfo.tabId);
@@ -464,6 +465,7 @@ async function startup() {
     // Wait for browser to finish restoring tabs from the previous session before migrating data.
     tabsRestoredPromise,
     settings.init(),
+    tabGroupTitles.init(),
   ]);
 
   await Promise.all([updateIcon(), updateClosedCount()]);

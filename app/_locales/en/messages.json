@@ -840,6 +840,20 @@
     "description": "Tab rule condition matching tabs that are in a tab group. The tab is the implied subject, as in \"If in a tab group, then lock tab\"",
     "message": "In a tab group"
   },
+  "options_tabRules_condition_groupTitle": {
+    "description": "Tab rule condition in the condition menu and the list of rules, matching tabs in a tab group whose name includes the text that follows it",
+    "message": "Tab group name includes"
+  },
+  "options_tabRules_condition_groupTitleIncludes": {
+    "description": "Tooltip describing a tab rule condition that matches tabs in a tab group whose name includes the given text, as in: Tab group name includes \"Work\"",
+    "message": "Tab group name includes \"$text$\"",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
   "options_tabRules_condition_pinned": {
     "description": "Tab rule condition matching tabs that are pinned. The tab is the implied subject, as in \"If pinned, then lock tab\"",
     "message": "Pinned"
@@ -858,16 +872,26 @@
       }
     }
   },
-  "options_tabRules_condition_urlIncludes": {
-    "description": "Tab rule condition matching tabs whose URL includes the given text",
+  "options_tabRules_condition_url": {
+    "description": "Tab rule condition in the condition menu and the list of rules, matching tabs whose URL includes the text that follows it",
     "message": "URL includes"
+  },
+  "options_tabRules_condition_urlIncludes": {
+    "description": "Tooltip describing a tab rule condition that matches tabs whose URL includes the given text, as in: URL includes \"wikipedia.org\"",
+    "message": "URL includes \"$text$\"",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "wikipedia.org"
+      }
+    }
   },
   "options_tabRules_description": {
     "description": "Description of the tab rules section shown below its header",
     "message": "Rules are checked top to bottom. Tabs are only handled by the first rule they match."
   },
   "options_tabRules_duplicateCondition": {
-    "description": "Error shown when a tab rule lists the same URL or title text twice",
+    "description": "Error shown when a tab rule lists the same URL, title, or tab group name text twice",
     "message": "This condition is already in the rule."
   },
   "options_tabRules_duplicateRule": {
@@ -893,10 +917,6 @@
   "options_tabRules_empty": {
     "description": "Message shown when there are no tab rules yet",
     "message": "No additional rules yet. Use \"Add rule\" to create one."
-  },
-  "options_tabRules_enabled": {
-    "description": "Label next to the switch that turns a built-in tab rule on or off",
-    "message": "Enable"
   },
   "options_tabRules_if": {
     "description": "Label in front of the first tab rule's condition, as in \"If URL includes example\"",

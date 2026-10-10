@@ -9,6 +9,7 @@ import {
   shouldSaveToCorral,
   withElseRule,
 } from "./tabRules";
+import tabGroupTitles from "./tabGroupTitles";
 
 const LEGACY_DEFAULTS: LegacyRuleSettings = {
   filterAudio: true,
@@ -45,21 +46,19 @@ describe("buildTabRulesFromLegacySettings", () => {
   test("maps legacy settings to rules in the order the Tab Rules UI shows them", () => {
     const config = buildTabRulesFromLegacySettings({ ...LEGACY_DEFAULTS, filterGroupedTabs: true });
     expect(config.version).toBe(1);
-    expect(config.rules.map(({ enabled, then, when }) => ({ enabled, then, when }))).toEqual([
-      { enabled: true, then: { action: "lock" }, when: [{ type: "pinned" }] },
+    expect(config.rules.map(({ then, when }) => ({ then, when }))).toEqual([
+      { then: { action: "lock" }, when: [{ type: "pinned" }] },
       {
-        enabled: true,
         then: { action: "lock" },
         when: [{ type: "url", op: "includes", value: "about:" }],
       },
       {
-        enabled: true,
         then: { action: "lock" },
         when: [{ type: "url", op: "includes", value: "chrome://" }],
       },
-      { enabled: true, then: { action: "lock" }, when: [{ type: "audible" }] },
-      { enabled: true, then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
-      { enabled: true, then: { action: "stale", afterSeconds: 3600, save: "corral" }, when: [] },
+      { then: { action: "lock" }, when: [{ type: "audible" }] },
+      { then: { action: "lock" }, when: [{ type: "groupId", op: "some" }] },
+      { then: { action: "stale", afterSeconds: 3600, save: "corral" }, when: [] },
     ]);
     expect(config.rules.every((rule) => rule.match === "every")).toBe(true);
   });
@@ -142,7 +141,7 @@ describe("getTabOutcome", () => {
     filterGroupedTabs: true,
   });
 
-  test("locks tabs matching an enabled rule", () => {
+  test("locks tabs matching a rule", () => {
     expect(getTabOutcome(createTab({ url: "chrome://extensions" }), config)).toEqual({
       action: "lock",
     });
@@ -162,23 +161,12 @@ describe("getTabOutcome", () => {
     expect(getTabOutcome(createTab(), { ...config, rules: config.rules.slice(0, -1) })).toBeNull();
   });
 
-  test("skips disabled rules", () => {
-    const disabled = {
-      ...config,
-      rules: config.rules.map((rule) =>
-        rule.when[0]?.type === "audible" ? { ...rule, enabled: false } : rule,
-      ),
-    };
-    expect(getTabOutcome(createTab({ audible: true }), disabled)?.action).toBe("stale");
-  });
-
   test("uses the first matching rule", () => {
     const ordered: TabRulesConfig = {
       ...config,
       rules: [
         {
           id: "a",
-          enabled: true,
           match: "every",
           when: [{ type: "url", op: "includes", value: "example" }],
           then: { action: "stale", afterSeconds: 10, save: "corral" },
@@ -199,7 +187,6 @@ describe("getTabOutcome", () => {
       rules: [
         {
           id: "a",
-          enabled: true,
           match: "every",
           when: [{ type: "groupId", op: "none" }],
           then: { action: "lock" },
@@ -217,14 +204,12 @@ describe("getStaleAfterMs", () => {
     rules: [
       {
         id: "a",
-        enabled: true,
         match: "every",
         when: [{ type: "url", op: "includes", value: "news" }],
         then: { action: "stale", afterSeconds: 7200, save: "corral" },
       },
       {
         id: "b",
-        enabled: true,
         match: "every",
         when: [],
         then: { action: "stale", afterSeconds: 60, save: "corral" },
@@ -254,21 +239,18 @@ describe("shouldSaveToCorral", () => {
     rules: [
       {
         id: "a",
-        enabled: true,
         match: "every",
         when: [{ type: "url", op: "includes", value: "search" }],
         then: { action: "stale", afterSeconds: 60, save: "none" },
       },
       {
         id: "b",
-        enabled: true,
         match: "every",
         when: [{ type: "pinned" }],
         then: { action: "lock" },
       },
       {
         id: "c",
-        enabled: true,
         match: "every",
         when: [],
         then: { action: "stale", afterSeconds: 3600, save: "corral" },
@@ -295,7 +277,6 @@ describe("match", () => {
     rules: [
       {
         id: "a",
-        enabled: true,
         match,
         when: [{ type: "url", op: "includes", value: "youtube.com" }, { type: "audible" }],
         then: { action: "lock" },
@@ -323,7 +304,6 @@ describe("match", () => {
       rules: [
         {
           id: "a",
-          enabled: true,
           match: "every",
           when: [{ type: "title", op: "includes", value: "Google Search" }],
           then: { action: "lock" },
@@ -337,10 +317,29 @@ describe("match", () => {
     expect(getTabOutcome(createTab({ title: undefined }), config)).toBeNull();
   });
 
+  test("matches tab group names that include the text", () => {
+    tabGroupTitles.set(7, "Work: Q4 planning");
+    tabGroupTitles.set(8, "");
+    const config: TabRulesConfig = {
+      version: 1,
+      rules: [
+        {
+          id: "a",
+          match: "every",
+          when: [{ type: "groupTitle", op: "includes", value: "Work" }],
+          then: { action: "lock" },
+        },
+      ],
+    };
+    expect(getTabOutcome(createTab({ groupId: 7 }), config)).toEqual({ action: "lock" });
+    expect(getTabOutcome(createTab({ groupId: 8 }), config)).toBeNull();
+    expect(getTabOutcome(createTab({ groupId: -1 }), config)).toBeNull();
+  });
+
   test("matches every tab when a rule has no conditions, whatever its match", () => {
     const config: TabRulesConfig = {
       version: 1,
-      rules: [{ id: "a", enabled: true, match: "some", when: [], then: { action: "lock" } }],
+      rules: [{ id: "a", match: "some", when: [], then: { action: "lock" } }],
     };
     expect(getTabOutcome(createTab(), config)).toEqual({ action: "lock" });
   });

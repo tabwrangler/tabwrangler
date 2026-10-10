@@ -25,6 +25,7 @@ export type TabCondition =
   | { type: "audible" }
   | { type: "groupId"; op: "none" | "some" }
   | { type: "pinned" }
+  | { type: "title"; op: "includes"; value: string }
   | { type: "url"; op: "includes"; value: string };
 
 export type RuleOutcome =
@@ -39,6 +40,10 @@ function matchesCondition(condition: TabCondition, tab: chrome.tabs.Tab): boolea
   switch (condition.type) {
     case "url":
       return condition.op === "includes" && tab.url != null && tab.url.includes(condition.value);
+    case "title":
+      return (
+        condition.op === "includes" && tab.title != null && tab.title.includes(condition.value)
+      );
     case "audible":
       return tab.audible === true;
     case "groupId": {

@@ -20,7 +20,12 @@ type SaveSetting = <K extends keyof SettingsSchema>(key: K, value: SettingsSchem
 
 type ConditionType = TabCondition["type"];
 
-const CONDITION_TYPES: ConditionType[] = ["url", "pinned", "audible", "groupId"];
+const CONDITION_TYPES: ConditionType[] = ["url", "title", "pinned", "audible", "groupId"];
+
+// Condition types the user types text for. Each can appear more than once in a rule.
+function hasTextValue(type: ConditionType): type is "title" | "url" {
+  return type === "title" || type === "url";
+}
 
 interface ConditionDraft {
   type: ConditionType;
@@ -570,6 +575,7 @@ const CONDITION_TYPE_MESSAGES: Record<ConditionType, string> = {
   audible: "options_tabRules_condition_audible",
   groupId: "options_tabRules_condition_grouped",
   pinned: "options_tabRules_condition_pinned",
+  title: "options_tabRules_condition_title",
   url: "options_tabRules_condition_urlIncludes",
 };
 
@@ -600,10 +606,12 @@ function RuleJoin({ match }: { match: TabRule["match"] }) {
 
 function ConditionText({ condition }: { condition: TabCondition }) {
   switch (condition.type) {
+    case "title":
     case "url":
       return (
         <span className="text-nowrap tab-rule-shrink">
-          {conditionTypeLabel("url")} <code className="tab-rule-value">{condition.value}</code>
+          {conditionTypeLabel(condition.type)}{" "}
+          <code className="tab-rule-value">{condition.value}</code>
         </span>
       );
     case "audible":
@@ -700,7 +708,7 @@ function RuleForm({
                 )}
                 <select
                   aria-label={chrome.i18n.getMessage("options_tabRules_condition")}
-                  autoFocus={index === 0 && condition.type !== "url"}
+                  autoFocus={index === 0 && !hasTextValue(condition.type)}
                   className="form-select form-select-sm w-auto"
                   disabled={readOnly}
                   onChange={(event) => {
@@ -713,10 +721,10 @@ function RuleForm({
                 >
                   {CONDITION_TYPES.map((type) => (
                     <option
-                      // Audio and tab group conditions have nothing to configure, so repeating one
-                      // in a rule changes nothing.
+                      // Conditions without text have nothing to configure, so repeating one in a
+                      // rule changes nothing.
                       disabled={
-                        type !== "url" &&
+                        !hasTextValue(type) &&
                         type !== condition.type &&
                         draft.conditions.some((other) => other.type === type)
                       }
@@ -728,12 +736,12 @@ function RuleForm({
                   ))}
                 </select>
                 <div className="tab-rule-input">
-                  {condition.type === "url" && (
+                  {hasTextValue(condition.type) && (
                     <>
                       <input
                         aria-describedby={error != null ? `${inputId}-error` : undefined}
                         aria-invalid={error != null}
-                        aria-label={conditionTypeLabel("url")}
+                        aria-label={conditionTypeLabel(condition.type)}
                         autoFocus
                         className={cx("form-control form-control-sm", {
                           "is-invalid": error != null,
@@ -1104,8 +1112,8 @@ function getListedRules(tabRules: TabRulesConfig): TabRule[] {
 }
 
 function conditionToDraft(condition: TabCondition): ConditionDraft | null {
-  if (condition.type === "url" && condition.op === "includes")
-    return { type: "url", value: condition.value };
+  if ((condition.type === "url" || condition.type === "title") && condition.op === "includes")
+    return { type: condition.type, value: condition.value };
   if (condition.type === "audible") return { type: "audible", value: "" };
   if (condition.type === "groupId" && condition.op === "some")
     return { type: "groupId", value: "" };
@@ -1117,7 +1125,7 @@ function draftToCondition(draft: ConditionDraft): TabCondition {
   if (draft.type === "audible") return { type: "audible" };
   if (draft.type === "groupId") return { type: "groupId", op: "some" };
   if (draft.type === "pinned") return { type: "pinned" };
-  return { type: "url", op: "includes", value: draft.value };
+  return { type: draft.type, op: "includes", value: draft.value };
 }
 
 // The parts of a rule the form edits.
@@ -1151,17 +1159,19 @@ function isValidDraft(draft: Draft) {
   // Tab URLs never contain whitespace (spaces are encoded as %20), so a pattern with any can't match.
   return draft.conditions.every(
     (condition) =>
-      condition.type !== "url" || (condition.value.length > 0 && !/\s/.test(condition.value)),
+      !hasTextValue(condition.type) ||
+      (condition.value.length > 0 && (condition.type !== "url" || !/\s/.test(condition.value))),
   );
 }
 
 function draftErrors(draft: Draft, rules: TabRule[], exceptId: string | null): DraftErrors {
   const conditions = draft.conditions.map((condition, index) => {
-    if (condition.type !== "url") return null;
-    if (/\s/.test(condition.value)) return chrome.i18n.getMessage("options_tabRules_whitespace");
+    if (!hasTextValue(condition.type)) return null;
+    if (condition.type === "url" && /\s/.test(condition.value))
+      return chrome.i18n.getMessage("options_tabRules_whitespace");
     const repeated = draft.conditions
       .slice(0, index)
-      .some((other) => other.type === "url" && other.value === condition.value);
+      .some((other) => other.type === condition.type && other.value === condition.value);
     if (repeated && condition.value !== "")
       return chrome.i18n.getMessage("options_tabRules_duplicateCondition");
     return null;

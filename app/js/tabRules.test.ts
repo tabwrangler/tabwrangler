@@ -317,6 +317,26 @@ describe("match", () => {
     expect(getTabOutcome(createTab(), rule("some"))).toBeNull();
   });
 
+  test("matches titles that include the text", () => {
+    const config: TabRulesConfig = {
+      version: 1,
+      rules: [
+        {
+          id: "a",
+          enabled: true,
+          match: "every",
+          when: [{ type: "title", op: "includes", value: "Google Search" }],
+          then: { action: "lock" },
+        },
+      ],
+    };
+    expect(getTabOutcome(createTab({ title: "tabs - Google Search" }), config)).toEqual({
+      action: "lock",
+    });
+    expect(getTabOutcome(createTab({ title: "Google" }), config)).toBeNull();
+    expect(getTabOutcome(createTab({ title: undefined }), config)).toBeNull();
+  });
+
   test("matches every tab when a rule has no conditions, whatever its match", () => {
     const config: TabRulesConfig = {
       version: 1,

@@ -347,6 +347,39 @@ describe("TabRules", () => {
     expect(screen.getByText("options_tabRules_duplicateCondition")).toBeTruthy();
   });
 
+  test("adds a rule for title text, which can contain spaces", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition"), {
+      target: { value: "title" },
+    });
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_title"), {
+      target: { value: "Google Search" },
+    });
+    expect(screen.queryByText("options_tabRules_whitespace")).toBeNull();
+    fireEvent.click(screen.getByText("options_save"));
+    expect(lastSavedTabRules(onSaveSetting).rules[0].when).toEqual([
+      { type: "title", op: "includes", value: "Google Search" },
+    ]);
+  });
+
+  test("allows the same text for a URL and a title condition in one rule", () => {
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.click(screen.getByText("options_tabRules_addCondition"));
+    fireEvent.change(screen.getAllByLabelText("options_tabRules_condition")[1], {
+      target: { value: "title" },
+    });
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+      target: { value: "news" },
+    });
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_title"), {
+      target: { value: "news" },
+    });
+    expect(screen.queryByText("options_tabRules_duplicateCondition")).toBeNull();
+  });
+
   test("shows each condition after the first with its connector", () => {
     const tabRules = mockSettings.tabRules as TabRulesConfig;
     mockSettings.tabRules = {

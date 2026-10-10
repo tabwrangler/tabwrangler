@@ -2,11 +2,9 @@ import {
   type LegacyRuleSettings,
   type TabRulesConfig,
   buildTabRulesFromLegacySettings,
-  createUrlIncludesRule,
   findMatchingRule,
   getElseRule,
   getStaleAfterMs,
-  getStaleTimeoutsKey,
   getTabOutcome,
 } from "./tabRules";
 
@@ -240,27 +238,6 @@ describe("getStaleAfterMs", () => {
 
   test("uses the longest timeout without a tab", () => {
     expect(getStaleAfterMs(config)).toBe(7_200_000);
-  });
-});
-
-describe("getStaleTimeoutsKey", () => {
-  const config = buildTabRulesFromLegacySettings(LEGACY_DEFAULTS);
-
-  test("changes when the else timeout changes", () => {
-    expect(getStaleTimeoutsKey(config)).not.toBe(
-      getStaleTimeoutsKey({
-        ...config,
-        rules: config.rules.map((rule) =>
-          rule.when.length === 0 ? { ...rule, then: { action: "stale", afterSeconds: 5 } } : rule,
-        ),
-      }),
-    );
-  });
-
-  test("does not change when only lock rules change", () => {
-    expect(getStaleTimeoutsKey(config)).toBe(
-      getStaleTimeoutsKey({ ...config, rules: [createUrlIncludesRule("news"), ...config.rules] }),
-    );
   });
 });
 

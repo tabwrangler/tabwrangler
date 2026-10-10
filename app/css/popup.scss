@@ -127,15 +127,35 @@ $tab-rule-line-height: add(
 }
 
 /**
- * Lets a flex item shrink below its content width so text can truncate. Unlike `overflow: hidden`,
- * this doesn't clip the focus ring (box-shadow) of inputs inside it.
+ * Lets a flex item shrink below its content width so long text inside it can wrap. Unlike
+ * `overflow: hidden`, this doesn't clip the focus ring (box-shadow) of inputs inside it.
  */
 .tab-rule-shrink {
   min-width: 0;
 }
 
+/**
+ * Nothing in a rule truncates. Clauses are capped at the row's width so a clause too wide to share a
+ * line with the other wraps onto its own line instead.
+ */
+.tab-rule-if,
+.tab-rule-then {
+  max-width: 100%;
+}
+
+// URL text has no spaces, so let it break anywhere once it alone is wider than the row.
+.tab-rule-value {
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
 .tab-rule-if {
   flex: 1 1 10rem;
+
+  // Forms stack "Then" under "If", where the flex basis would become a minimum height.
+  .flex-column > & {
+    flex: none;
+  }
 }
 
 /**
@@ -165,6 +185,19 @@ $tab-rule-line-height: add(
 .tab-rule-input {
   flex-grow: 1;
   min-width: 6rem;
+
+  // Conditions without a value draw a line through the empty slot to tie them to their remove
+  // button at the end of the line.
+  &:empty {
+    // Half-strength body text color, so it shows on the form's background in light and dark themes.
+    background: repeating-linear-gradient(
+        to right,
+        var(--#{$prefix}tertiary-color) 0 4px,
+        transparent 4px 8px
+      )
+      center / 100% 1px no-repeat;
+    min-height: $tab-rule-line-height;
+  }
 }
 
 .tab-rule-then {

@@ -1,5 +1,5 @@
 import { type TabRulesConfig, buildTabRulesFromLegacySettings } from "../tabRules";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import TabRules from "./TabRules";
 
 const mockSettings: Record<string, unknown> = {};
@@ -350,5 +350,112 @@ describe("TabRules", () => {
     expect(
       screen.getAllByText("options_tabRules_if")[0].closest(".tab-rule-clause")?.textContent,
     ).toContain("options_tabRules_condition_pinned");
+  });
+
+  test("adds a rule that marks tabs stale after a set time", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+      target: { value: "news" },
+    });
+    fireEvent.change(screen.getByLabelText("options_tabRules_action"), {
+      target: { value: "stale" },
+    });
+    // The new rule starts at 1 hour; change it to 2 hours.
+    const hours = screen.getAllByDisplayValue("1")[0];
+    fireEvent.change(hours, { target: { value: "2" } });
+    fireEvent.blur(hours);
+    fireEvent.click(screen.getByText("options_save"));
+    expect(lastSavedTabRules(onSaveSetting).rules[0].then).toEqual({
+      action: "stale",
+      afterSeconds: 7200,
+    });
+  });
+
+  test("shows a stale rule's timeout in the list", () => {
+    const tabRules = mockSettings.tabRules as TabRulesConfig;
+    mockSettings.tabRules = {
+      ...tabRules,
+      rules: [
+        {
+          id: "a",
+          enabled: true,
+          match: "every",
+          when: [{ type: "url", op: "includes", value: "news" }],
+          then: { action: "stale", afterSeconds: 600 },
+        },
+        ...tabRules.rules,
+      ],
+    };
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(screen.getByText("options_tabRules_action_staleAfter")).toBeTruthy();
+  });
+
+  test("saves a duration typed just before pressing Enter", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+      target: { value: "news" },
+    });
+    const action = screen.getByLabelText("options_tabRules_action");
+    fireEvent.change(action, { target: { value: "stale" } });
+    const hours = within(action.closest("form")!).getByDisplayValue("1");
+    fireEvent.change(hours, { target: { value: "2" } });
+    // Enter submits the form without blurring the input first.
+    fireEvent.keyDown(hours, { key: "Enter" });
+    fireEvent.submit(hours);
+    expect(lastSavedTabRules(onSaveSetting).rules[0].then).toEqual({
+      action: "stale",
+      afterSeconds: 7200,
+    });
+  });
+
+  test("saves an edit that only changes the duration when pressing Enter", () => {
+    const tabRules = mockSettings.tabRules as TabRulesConfig;
+    mockSettings.tabRules = {
+      ...tabRules,
+      rules: [
+        {
+          id: "a",
+          enabled: true,
+          match: "every",
+          when: [{ type: "url", op: "includes", value: "news" }],
+          then: { action: "stale", afterSeconds: 600 },
+        },
+        ...tabRules.rules,
+      ],
+    };
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getAllByLabelText("options_tabRules_edit")[0]);
+    const form = screen.getByLabelText("options_tabRules_action").closest("form")!;
+    const minutes = within(form).getByDisplayValue("10");
+    fireEvent.change(minutes, { target: { value: "15" } });
+    fireEvent.keyDown(minutes, { key: "Enter" });
+    fireEvent.submit(minutes);
+    expect(lastSavedTabRules(onSaveSetting).rules[0].then).toEqual({
+      action: "stale",
+      afterSeconds: 900,
+    });
+  });
+
+  test("can't save a rule that marks tabs stale after zero time", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_urlIncludes"), {
+      target: { value: "news" },
+    });
+    const action = screen.getByLabelText("options_tabRules_action");
+    fireEvent.change(action, { target: { value: "stale" } });
+    const hours = within(action.closest("form")!).getByDisplayValue("1");
+    fireEvent.change(hours, { target: { value: "0" } });
+    fireEvent.blur(hours);
+    expect(screen.getByText("options_option_timeInactive_error_zero")).toBeTruthy();
+    expect((screen.getByText("options_save") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.submit(hours);
+    expect(onSaveSetting).not.toHaveBeenCalled();
   });
 });

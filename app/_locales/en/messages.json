@@ -282,9 +282,9 @@
     "description": "Label for option to count tabs across all windows",
     "message": "total (across all windows)"
   },
-  "options_option_minTabs_postLabel": {
-    "description": "Label following input for setting minimum number of tabs",
-    "message": "(does not include locked tabs)."
+  "options_option_minTabs_midLabel": {
+    "description": "Label describing which tabs can be auto-closed when the minimum is exceeded",
+    "message": "unlocked tabs"
   },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
@@ -786,13 +786,31 @@
     "description": "Header for the tab rules section of the options tab",
     "message": "Tab Rules"
   },
+  "options_tabRules_action": {
+    "description": "Accessible label for the menu choosing what a tab rule does to matching tabs",
+    "message": "Action"
+  },
   "options_tabRules_action_closeAfter": {
     "description": "Tab rule action for tabs matching no rule, followed by inputs for how long a tab must be inactive (not the active tab) before it becomes stale (eligible to be auto-closed)",
-    "message": "Mark tab stale after being inactive for"
+    "message": "Mark tab stale after inactive for"
   },
   "options_tabRules_action_lock": {
     "description": "Tab rule action that locks matching tabs so they are never auto-closed",
     "message": "Lock tab"
+  },
+  "options_tabRules_action_stale": {
+    "description": "Tab rule action in the action menu, followed by inputs for how long matching tabs must be inactive before they're marked stale and can be auto-closed",
+    "message": "Mark tab stale after inactive for"
+  },
+  "options_tabRules_action_staleAfter": {
+    "description": "Tab rule action shown in the list of rules, as in \"Then mark tab stale after 2 hours\"",
+    "message": "Mark tab stale after inactive for $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2 hours, 30 minutes"
+      }
+    }
   },
   "options_tabRules_addCondition": {
     "description": "Button in the tab rule form that adds another condition to the rule",
@@ -832,7 +850,7 @@
   },
   "options_tabRules_description": {
     "description": "Description of the tab rules section shown below its header",
-    "message": "Rules are checked from top to bottom. Tabs are handled by the first rule they match."
+    "message": "Rules are checked top to bottom. Tabs are only handled by the first rule they match."
   },
   "options_tabRules_duplicateCondition": {
     "description": "Error shown when a tab rule lists the same URL text twice",
@@ -856,7 +874,7 @@
   },
   "options_tabRules_empty": {
     "description": "Message shown when there are no tab rules yet",
-    "message": "No rules yet. Use \"Add rule\" to create one."
+    "message": "No additional rules yet. Use \"Add rule\" to create one."
   },
   "options_tabRules_enabled": {
     "description": "Label next to the switch that turns a built-in tab rule on or off",

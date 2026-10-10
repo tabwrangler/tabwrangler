@@ -88,11 +88,6 @@ export function getStaleAfterMs(config: TabRulesConfig, tab?: chrome.tabs.Tab): 
   return staleSeconds.length > 0 ? Math.max(...staleSeconds) * 1000 : Infinity;
 }
 
-// Changes when anything that decides a tab's stale timeout changes; lock-only edits leave it alone.
-export function getStaleTimeoutsKey(config: TabRulesConfig): string {
-  return JSON.stringify(config.rules.filter((rule) => rule.then.action === "stale"));
-}
-
 export function isUrlIncludesRule(
   rule: TabRule,
 ): rule is TabRule & { when: [{ type: "url"; op: "includes"; value: string }] } {

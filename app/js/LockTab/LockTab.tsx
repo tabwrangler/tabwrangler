@@ -128,7 +128,13 @@ function useNow() {
   return now;
 }
 
-export default function LockTab() {
+interface LockTabProps {
+  // Owned by the page so collapsed groups stay collapsed when switching between tabs
+  collapsedGroupIds: Set<number>;
+  setCollapsedGroupIds: React.Dispatch<React.SetStateAction<Set<number>>>;
+}
+
+export default function LockTab({ collapsedGroupIds, setCollapsedGroupIds }: LockTabProps) {
   const now = useNow();
   const lastSelectedTabRef = useRef<chrome.tabs.Tab | null>(null);
   const [sortOrder, setSortOrder] = useState<string | null>(settings.get("lockTabSortOrder"));
@@ -149,6 +155,18 @@ export default function LockTab() {
     if (sorter == null) sorter = DEFAULT_SORTER;
     return sorter;
   });
+
+  // Only tab order keeps each group's tabs together, so groups can't be collapsed in other orders
+  const groupsCollapsible = currSorter === TabOrderSorter || currSorter === ReverseTabOrderSorter;
+
+  function toggleGroupCollapsed(groupId: number) {
+    setCollapsedGroupIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
+      return next;
+    });
+  }
 
   const tabsQuery = useTabsQuery();
   const tabTimesQuery = useTabTimesQuery();
@@ -198,7 +216,9 @@ export default function LockTab() {
     let tabsToToggle = [tab];
     if (multiselect && lastSelectedTabRef.current != null) {
       const lastSelectedWindowIndex = tabsByWindowId.findIndex(([winId]) => winId === windowId);
-      const tabs = tabsByWindowId[lastSelectedWindowIndex]?.[1];
+      const tabs = tabsByWindowId[lastSelectedWindowIndex]?.[1].filter(
+        (t) => !groupsCollapsible || !collapsedGroupIds.has(t.groupId),
+      );
       if (tabs != null) {
         const fromIndex = tabs.indexOf(lastSelectedTabRef.current);
         const toIndex = tabs.indexOf(tab);
@@ -301,6 +321,7 @@ export default function LockTab() {
         <UseNowContext.Provider value={now}>
           {tabsByWindowId.map(([windowId, tabs]) => (
             <WindowCard
+              collapsedGroupIds={groupsCollapsible ? collapsedGroupIds : undefined}
               isCurrent={currWindow?.id === windowId}
               isLocked={lockedWindowIds.has(windowId)}
               isLastFocused={lastFocusedWindowQuery.data?.id === windowId}
@@ -311,6 +332,7 @@ export default function LockTab() {
               tabTimes={tabTimesQuery.data}
               totalUnlockedTabCount={unlockedTabCount}
               onToggle={toggleWindow}
+              onToggleGroupCollapsed={toggleGroupCollapsed}
               onToggleTab={toggleTab}
             />
           ))}

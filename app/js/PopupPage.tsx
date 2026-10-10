@@ -5,6 +5,7 @@ import PageShell from "./PageShell";
 import { useState } from "react";
 
 export default function PopupPage() {
+  const [collapsedGroupIds, setCollapsedGroupIds] = useState<Set<number>>(new Set());
   const [activeTabId, setActiveTabId] = useState<NavBarTabID>("corral");
 
   let activeTab;
@@ -14,7 +15,12 @@ export default function PopupPage() {
       break;
     case "lock":
     default:
-      activeTab = <LockTab />;
+      activeTab = (
+        <LockTab
+          collapsedGroupIds={collapsedGroupIds}
+          setCollapsedGroupIds={setCollapsedGroupIds}
+        />
+      );
       break;
   }
 

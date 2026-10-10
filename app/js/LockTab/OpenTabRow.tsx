@@ -1,13 +1,15 @@
 import "./OpenTabRow.css";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import type { TabCondition, TabRule } from "../tabRules";
+import TabGroupIndicator, { getTabGroupColor } from "./TabGroupIndicator";
+import { type TabRowHandle, animateRowHeight, fadeIn, rotateChevron } from "./rowAnimations";
+import { useContext, useImperativeHandle, useRef } from "react";
 import TabFavicon from "../TabFavicon";
 import type { TabLockStatus } from "../tabUtil";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
 import settings from "../settings";
 import { shouldFreezeActiveTabTimer } from "../tabUtil";
-import { useContext } from "react";
 import usePauseTimesQuery from "../api/usePauseTimesQuery";
 import { useStorageSyncPersistQuery } from "../storage";
 import useTabLockStatus from "../useTabLockStatus";
@@ -21,6 +23,8 @@ interface OpenTabRowProps {
   tabsWillAutoClose: boolean;
   windowId: number;
   windowLocked: boolean;
+  ref?: React.Ref<TabRowHandle>;
+  onCollapseGroup?: () => void;
   onToggleTab: (
     windowId: number,
     tab: chrome.tabs.Tab,
@@ -38,6 +42,8 @@ export default function OpenTabRow({
   tabsWillAutoClose,
   windowId,
   windowLocked,
+  ref,
+  onCollapseGroup,
   onToggleTab,
 }: OpenTabRowProps) {
   const tabLockStatus = useTabLockStatus(tab);
@@ -57,73 +63,96 @@ export default function OpenTabRow({
   const timeRemaining = -1 * Math.round((cutOff - tabTime) / 1000);
   const isOverdue = !tabLockStatus.locked && !windowLocked && !paused && timeRemaining < 0;
 
+  const titleCellRef = useRef<HTMLTableCellElement>(null);
+  const titleCellContentRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const statusCellRef = useRef<HTMLTableCellElement>(null);
+  const statusCellContentRef = useRef<HTMLDivElement>(null);
+  const chevronRef = useRef<HTMLElement>(null);
+  useImperativeHandle(ref, () => ({
+    animateHeight: (direction) =>
+      animateRowHeight(
+        [titleCellRef.current, statusCellRef.current],
+        [titleCellContentRef.current, statusCellContentRef.current],
+        direction,
+      ),
+    fadeIn: () => fadeIn([titleRef.current, statusCellContentRef.current]),
+    rotateChevron: (direction) => rotateChevron(chevronRef.current, direction),
+  }));
+
   function setTabActive() {
     if (tab.id == null) return;
     chrome.tabs.update(tab.id, { active: true });
-  }
-
-  let groupColor: string | undefined;
-  if (tabGroup != null) {
-    groupColor =
-      tabGroup.color != null ? `var(--tw-tab-group-color-${tabGroup.color})` : "var(--bs-primary)";
   }
 
   return (
     <tr className={cx({ "fst-italic": isOverdue, "table-active": tab.active })}>
       <td
         className="ps-2"
+        ref={titleCellRef}
         style={{ paddingBottom: "4px", paddingTop: "4px", position: "relative", width: "100%" }}
       >
         {tabGroup != null && (
-          <div className="OpenTabRow-group-border" style={{ backgroundColor: groupColor }} />
-        )}
-        <div className={cx("d-flex align-items-center gap-2", { "ps-1": tabGroup != null })}>
-          {isFirstInGroup && (
-            <OverlayTrigger
-              overlay={
-                <Tooltip>
-                  {tabGroup?.title || chrome.i18n.getMessage("tabLock_groupIndicator_unnamed")}
-                </Tooltip>
-              }
-            >
-              <div
-                className="OpenTabRow-group-indicator flex-shrink-0"
-                style={{ backgroundColor: groupColor }}
-              />
-            </OverlayTrigger>
-          )}
-          <TabFavicon
-            alt=""
-            height={16}
-            pageUrl={tab.url}
-            src={tab.favIconUrl}
-            style={{ height: "16px", maxWidth: "none" }}
-            width={16}
-          />
           <div
-            className={cx("flex-fill d-flex min-w-0", { "text-muted": isOverdue && !tab.active })}
-            role="button"
-            style={{ lineHeight: "1.3" }}
-            tabIndex={0}
-            onClick={setTabActive}
+            className="OpenTabRow-group-border"
+            style={{ backgroundColor: getTabGroupColor(tabGroup) }}
+          />
+        )}
+        <div
+          className={cx("d-flex align-items-center gap-2", { "ps-1": tabGroup != null })}
+          ref={titleCellContentRef}
+        >
+          {isFirstInGroup && (
+            <TabGroupIndicator
+              chevronRef={chevronRef}
+              tabGroup={tabGroup}
+              onToggleCollapsed={onCollapseGroup}
+            />
+          )}
+          <div
+            className="flex-fill d-flex align-items-center gap-2"
+            ref={titleRef}
+            style={{ minWidth: 0 }}
           >
-            <div className="flex-fill text-truncate" style={{ width: "1px" }}>
-              {tab.title}
-              <br />
-              <small className={cx({ "text-muted": !tab.active })}>({tab.url})</small>
+            <TabFavicon
+              alt=""
+              height={16}
+              pageUrl={tab.url}
+              src={tab.favIconUrl}
+              style={{ height: "16px", maxWidth: "none" }}
+              width={16}
+            />
+            <div
+              className={cx("flex-fill d-flex min-w-0", {
+                "text-muted": isOverdue && !tab.active,
+              })}
+              role="button"
+              style={{ lineHeight: "1.3" }}
+              tabIndex={0}
+              onClick={setTabActive}
+            >
+              <div className="flex-fill text-truncate" style={{ width: "1px" }}>
+                {tab.title}
+                <br />
+                <small className={cx({ "text-muted": !tab.active })}>({tab.url})</small>
+              </div>
             </div>
           </div>
         </div>
       </td>
       <td
         className="pe-2"
+        ref={statusCellRef}
         style={{
           verticalAlign: "middle",
           whiteSpace: "nowrap",
           width: "1px",
         }}
       >
-        <div className="d-flex align-items-center justify-content-end gap-2">
+        <div
+          className="d-flex align-items-center justify-content-end gap-2"
+          ref={statusCellContentRef}
+        >
           <TabLockContent
             hasPausedAt={pausedAt != null}
             isBrowserIdle={idleAt != null}

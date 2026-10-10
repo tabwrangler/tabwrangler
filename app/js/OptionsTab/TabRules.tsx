@@ -20,11 +20,18 @@ type SaveSetting = <K extends keyof SettingsSchema>(key: K, value: SettingsSchem
 
 type ConditionType = TabCondition["type"];
 
-const CONDITION_TYPES: ConditionType[] = ["url", "title", "pinned", "audible", "groupId"];
+const CONDITION_TYPES: ConditionType[] = [
+  "url",
+  "title",
+  "pinned",
+  "audible",
+  "groupId",
+  "groupTitle",
+];
 
 // Condition types the user types text for. Each can appear more than once in a rule.
-function hasTextValue(type: ConditionType): type is "title" | "url" {
-  return type === "title" || type === "url";
+function hasTextValue(type: ConditionType): type is "groupTitle" | "title" | "url" {
+  return type === "groupTitle" || type === "title" || type === "url";
 }
 
 interface ConditionDraft {
@@ -180,7 +187,6 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     event.preventDefault();
     if (!isValidDraft(newDraft) || hasErrors(newDraftErrors) || savingFrom === savedRules) return;
     const rule: TabRule = {
-      enabled: true,
       id: generateRuleId(),
       ...draftToFields(newDraft),
     };
@@ -214,7 +220,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
     setEditing({ ...editing, savingFrom: savedRules });
     saveRules(
       getListedRules(settings.get("tabRules")).map((r) =>
-        r.id === editing.id ? { enabled: r.enabled, id: r.id, ...fields } : r,
+        r.id === editing.id ? { id: r.id, ...fields } : r,
       ),
     );
   }
@@ -235,10 +241,7 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
       ...current,
       rules:
         currentElseRule == null
-          ? [
-              ...current.rules,
-              { enabled: true, id: generateRuleId(), match: "every", then, when: [] },
-            ]
+          ? [...current.rules, { id: generateRuleId(), match: "every", then, when: [] }]
           : current.rules.map((rule) => (rule === currentElseRule ? { ...rule, then } : rule)),
     });
   }
@@ -411,7 +414,6 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
                 ) : (
                   <>
                     <RuleLine
-                      className={cx({ "opacity-50": !rule.enabled })}
                       ifLabel={conditionLabel(index + firstRuleIndex)}
                       then={<RuleOutcomeText outcome={rule.then} />}
                     >
@@ -574,9 +576,10 @@ function conditionLabel(position: number) {
 const CONDITION_TYPE_MESSAGES: Record<ConditionType, string> = {
   audible: "options_tabRules_condition_audible",
   groupId: "options_tabRules_condition_grouped",
+  groupTitle: "options_tabRules_condition_groupTitle",
   pinned: "options_tabRules_condition_pinned",
   title: "options_tabRules_condition_title",
-  url: "options_tabRules_condition_urlIncludes",
+  url: "options_tabRules_condition_url",
 };
 
 function conditionTypeLabel(type: ConditionType) {
@@ -606,6 +609,7 @@ function RuleJoin({ match }: { match: TabRule["match"] }) {
 
 function ConditionText({ condition }: { condition: TabCondition }) {
   switch (condition.type) {
+    case "groupTitle":
     case "title":
     case "url":
       return (
@@ -697,6 +701,7 @@ function RuleForm({
                     aria-label={chrome.i18n.getMessage("options_tabRules_match")}
                     className="form-select form-select-sm w-auto tab-rule-join"
                     disabled={readOnly}
+                    name={`${inputId}-match`}
                     onChange={(event) => {
                       onChange({ ...draft, match: event.target.value as Draft["match"] });
                     }}
@@ -711,6 +716,7 @@ function RuleForm({
                   autoFocus={index === 0 && !hasTextValue(condition.type)}
                   className="form-select form-select-sm w-auto"
                   disabled={readOnly}
+                  name={`${inputId}-conditionType`}
                   onChange={(event) => {
                     updateCondition(index, {
                       ...condition,
@@ -815,13 +821,11 @@ function RuleForm({
 
 function RuleLine({
   children,
-  className,
   editable = false,
   ifLabel,
   then,
 }: {
   children: React.ReactNode;
-  className?: string;
   // Forms stack "Then" under "If", since either can grow to several lines of controls.
   editable?: boolean;
   ifLabel: string;
@@ -833,7 +837,6 @@ function RuleLine({
         "d-flex column-gap-3 row-gap-1 flex-grow-1 tab-rule-shrink",
         // Forms stretch each clause to the full width so their controls stay put as values change.
         editable ? "flex-column" : "flex-wrap align-items-start",
-        className,
       )}
     >
       <RuleClause alignStart className="tab-rule-if" label={ifLabel}>
@@ -928,6 +931,7 @@ function OutcomeFields({
         autoFocus={autoFocus}
         className="form-select form-select-sm w-auto align-self-start"
         disabled={readOnly}
+        name="action"
         onChange={(event) => {
           onChange(
             event.target.value === "stale"
@@ -1005,18 +1009,33 @@ function DurationInput({
 
   return (
     <div>
-      <div className="input-group w-75">
-        <input className="form-control" min="0" readOnly={readOnly} type="number" {...daysDraft} />
+      <div className="input-group">
+        <input
+          className="form-control"
+          min="0"
+          name="days"
+          readOnly={readOnly}
+          type="number"
+          {...daysDraft}
+        />
         <abbr className="input-group-text">
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_days")}
         </abbr>
-        <input className="form-control" min="0" readOnly={readOnly} type="number" {...hoursDraft} />
+        <input
+          className="form-control"
+          min="0"
+          name="hours"
+          readOnly={readOnly}
+          type="number"
+          {...hoursDraft}
+        />
         <abbr className="input-group-text">
           {chrome.i18n.getMessage("options_option_timeInactive_abbr_hours")}
         </abbr>
         <input
           className="form-control"
           min="0"
+          name="minutes"
           readOnly={readOnly}
           type="number"
           {...minutesDraft}
@@ -1027,6 +1046,7 @@ function DurationInput({
         <input
           className="form-control"
           min="0"
+          name="seconds"
           readOnly={readOnly}
           type="number"
           {...secondsDraft}
@@ -1112,7 +1132,10 @@ function getListedRules(tabRules: TabRulesConfig): TabRule[] {
 }
 
 function conditionToDraft(condition: TabCondition): ConditionDraft | null {
-  if ((condition.type === "url" || condition.type === "title") && condition.op === "includes")
+  if (
+    (condition.type === "url" || condition.type === "title" || condition.type === "groupTitle") &&
+    condition.op === "includes"
+  )
     return { type: condition.type, value: condition.value };
   if (condition.type === "audible") return { type: "audible", value: "" };
   if (condition.type === "groupId" && condition.op === "some")

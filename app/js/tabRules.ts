@@ -1,9 +1,10 @@
 /*
- * Tab Rules are evaluated top-to-bottom and the first enabled rule that matches a tab decides its
- * outcome. A rule matches when all of its conditions match, or any of them with `match: "some"`. A
- * rule with no conditions matches every tab. A tab that matches no rule is never locked or made
- * stale.
+ * Tab Rules are evaluated top-to-bottom and the first rule that matches a tab decides its outcome.
+ * A rule matches when all of its conditions match, or any of them with `match: "some"`. A rule
+ * with no conditions matches every tab. A tab that matches no rule is never locked or made stale.
  */
+
+import tabGroupTitles from "./tabGroupTitles";
 
 export const TAB_RULES_VERSION = 1;
 export const DEFAULT_STALE_AFTER_SECONDS = 60 * 60;
@@ -15,7 +16,6 @@ export interface TabRulesConfig {
 
 export interface TabRule {
   id: string;
-  enabled: boolean;
   match: "every" | "some";
   when: TabCondition[];
   then: RuleOutcome;
@@ -24,6 +24,7 @@ export interface TabRule {
 export type TabCondition =
   | { type: "audible" }
   | { type: "groupId"; op: "none" | "some" }
+  | { type: "groupTitle"; op: "includes"; value: string }
   | { type: "pinned" }
   | { type: "title"; op: "includes"; value: string }
   | { type: "url"; op: "includes"; value: string };
@@ -50,6 +51,10 @@ function matchesCondition(condition: TabCondition, tab: chrome.tabs.Tab): boolea
       const grouped = "groupId" in tab && tab.groupId > 0;
       return condition.op === "some" ? grouped : !grouped;
     }
+    case "groupTitle": {
+      const title = "groupId" in tab && tab.groupId > 0 ? tabGroupTitles.get(tab.groupId) : null;
+      return condition.op === "includes" && title != null && title.includes(condition.value);
+    }
     case "pinned":
       return tab.pinned;
     default:
@@ -66,7 +71,7 @@ function matchesRule(rule: TabRule, tab: chrome.tabs.Tab): boolean {
 }
 
 export function findMatchingRule(tab: chrome.tabs.Tab, config: TabRulesConfig): TabRule | null {
-  return config.rules.find((rule) => rule.enabled && matchesRule(rule, tab)) ?? null;
+  return config.rules.find((rule) => matchesRule(rule, tab)) ?? null;
 }
 
 export function getTabOutcome(tab: chrome.tabs.Tab, config: TabRulesConfig): RuleOutcome | null {
@@ -90,7 +95,7 @@ export function withElseRule(config: TabRulesConfig): TabRulesConfig {
     ...config,
     rules: [
       ...config.rules,
-      { id: generateRuleId(), enabled: true, match: "every", when: [], then: { action: "lock" } },
+      { id: generateRuleId(), match: "every", when: [], then: { action: "lock" } },
     ],
   };
 }
@@ -132,7 +137,6 @@ export function isUrlIncludesRule(
 export function createLockRule(condition: TabCondition): TabRule {
   return {
     id: generateRuleId(),
-    enabled: true,
     match: "every",
     when: [condition],
     then: { action: "lock" },
@@ -176,7 +180,6 @@ export function buildTabRulesFromLegacySettings(legacy: LegacyRuleSettings): Tab
       ...(legacy.filterGroupedTabs ? [createLockRule({ type: "groupId", op: "some" })] : []),
       {
         id: generateRuleId(),
-        enabled: true,
         match: "every",
         when: [],
         then: {

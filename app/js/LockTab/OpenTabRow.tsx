@@ -321,6 +321,7 @@ function RuleLockedReason({ rule }: { rule: TabRule }) {
       return chrome.i18n.getMessage("tabLock_lockedReason_group");
     case "pinned":
       return chrome.i18n.getMessage("tabLock_lockedReason_pinned");
+    case "groupTitle":
     case "title":
       return (
         <abbr title={describeCondition(condition)}>
@@ -345,10 +346,15 @@ function RuleLockedReason({ rule }: { rule: TabRule }) {
 
 function describeCondition(condition: TabCondition): string {
   switch (condition.type) {
+    case "groupTitle":
+      return chrome.i18n.getMessage(
+        "options_tabRules_condition_groupTitleIncludes",
+        condition.value,
+      );
     case "title":
       return chrome.i18n.getMessage("options_tabRules_condition_titleIncludes", condition.value);
     case "url":
-      return `${chrome.i18n.getMessage("options_tabRules_condition_urlIncludes", condition.value)}`;
+      return chrome.i18n.getMessage("options_tabRules_condition_urlIncludes", condition.value);
     case "audible":
       return chrome.i18n.getMessage("options_tabRules_condition_audible");
     case "groupId":

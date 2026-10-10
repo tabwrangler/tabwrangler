@@ -20,3 +20,22 @@
   top: 0;
   width: 3px;
 }
+
+button.OpenTabRow-group-indicator {
+  align-items: center;
+  border: 0;
+  color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  font-size: 10px;
+  justify-content: center;
+  padding: 0;
+}
+
+button.OpenTabRow-group-indicator:focus-visible {
+  outline: 2px solid var(--bs-focus-ring-color);
+  outline-offset: 1px;
+}
+
+button.OpenTabRow-group-indicator-collapsed > i {
+  transform: rotate(-90deg);
+}

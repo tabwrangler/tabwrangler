@@ -7,6 +7,7 @@ import PageShell from "./PageShell";
 import { useState } from "react";
 
 export default function OptionsPage() {
+  const [collapsedGroupIds, setCollapsedGroupIds] = useState<Set<number>>(new Set());
   const [activeTabId, setActiveTabId] = useState<NavBarTabID>("options");
 
   let activeTab;
@@ -18,7 +19,12 @@ export default function OptionsPage() {
       activeTab = <CorralTab />;
       break;
     case "lock":
-      activeTab = <LockTab />;
+      activeTab = (
+        <LockTab
+          collapsedGroupIds={collapsedGroupIds}
+          setCollapsedGroupIds={setCollapsedGroupIds}
+        />
+      );
       break;
     case "options":
       activeTab = <OptionsTab />;

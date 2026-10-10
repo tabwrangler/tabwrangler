@@ -13,6 +13,7 @@ import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import { ButtonGroup } from "react-bootstrap";
 import cx from "classnames";
+import { prefersReducedMotion } from "../util";
 import useDraftInput from "../useDraftInput";
 import useSetting from "../useSetting";
 
@@ -563,10 +564,6 @@ export default function TabRules({ onSaveSetting }: { onSaveSetting: SaveSetting
       </div>
     </>
   );
-}
-
-function prefersReducedMotion() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 function conditionLabel(position: number) {

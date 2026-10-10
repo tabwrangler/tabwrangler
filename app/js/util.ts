@@ -2,6 +2,10 @@ export function assertUnreachable(_never: never, message: string): never {
   throw new Error(message);
 }
 
+export function prefersReducedMotion(): boolean {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 export function extractHostname(url: string): string {
   let hostname;
 

@@ -556,6 +556,30 @@
     "description": "Fallback tooltip for a tab group with no title.",
     "message": "Unnamed group"
   },
+  "tabLock_collapsedGroup_summary": {
+    "description": "Shown in place of a tab group's tabs after the group is collapsed in the list of open tabs. Used when the group has more than one tab.",
+    "message": "$title$: $count$ tabs",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Research"
+      },
+      "count": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "tabLock_collapsedGroup_summary_one": {
+    "description": "Shown in place of a tab group's tabs after the group is collapsed in the list of open tabs. Used when the group has exactly one tab.",
+    "message": "$title$: 1 tab",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Research"
+      }
+    }
+  },
   "tabLock_overdueTooltip": {
     "description": "Tooltip on the hourglass shown when a tab's countdown has run out and the tab is stale (eligible to be auto-closed)",
     "message": "Stale: waiting to be auto-closed"

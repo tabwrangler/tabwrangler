@@ -162,12 +162,24 @@ $tab-rule-line-height: add(
   white-space: normal;
 }
 
+/**
+ * "Then" shares the "If" line only as a fixed-width column at the end of it, so every outcome on
+ * that line starts in the same place. "If" is at least as wide as the rest of the line, so an
+ * outcome wider than the column, or conditions too wide to fit beside it, wrap "Then" onto its own
+ * line instead of shifting where it starts.
+ */
+$tab-rule-then-width: 9rem;
+// Bootstrap's `column-gap-3` between the clauses
+$tab-rule-clause-column-gap: map-get($spacers, 3);
+
 .tab-rule-if {
-  flex: 1 1 10rem;
+  flex: 1 1 auto;
+  min-width: calc(100% - #{$tab-rule-then-width + $tab-rule-clause-column-gap});
 
   // Forms stack "Then" under "If", where the flex basis would become a minimum height.
   .flex-column > & {
     flex: none;
+    min-width: 0;
   }
 }
 
@@ -175,10 +187,14 @@ $tab-rule-line-height: add(
  * A rule's conditions, one per line. Lines after the first start with the "and" / "or" connector.
  */
 .tab-rule-conditions {
+  --tab-rule-condition-gap: #{map-get($spacers, 2)};
+  // The "and" / "or" select: wide enough for its text and arrow
+  --tab-rule-join-height: #{$tab-rule-line-height};
+  --tab-rule-join-width: 4.5rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: map-get($spacers, 2);
+  gap: var(--tab-rule-condition-gap);
 }
 
 // The If / Else if / Then / Else badges share a minimum width so the content after them lines up.
@@ -186,9 +202,76 @@ $tab-rule-line-height: add(
   min-width: 3.5rem;
 }
 
-// AND and OR share one width so the conditions after them line up.
+/**
+ * A compound rule's conditions hang off a dashed line. It leaves the "If" badge's right edge to
+ * reach the first condition, and halfway there branches down through the middle of each later
+ * condition's "and" / "or" connector. So the connectors start right under the badge's right edge.
+ * Every condition, the first included, starts where the connectors end, so they line up as one
+ * list belonging to the "If". Rules with one condition have no line or indent.
+ */
+$tab-rule-clause-gap: map-get($spacers, 2);
+// Dimmer than the connectors so the line stays in the background
+$tab-rule-join-line: var(--#{$prefix}border-width) dashed var(--#{$prefix}tertiary-color);
+
+.tab-rule-if {
+  // The "and" / "or" badge, which `.tab-rule-conditions` replaces with a select when editing
+  --tab-rule-join-height: #{$badge-font-size * (1 + 2 * divide($badge-padding-y, 1em))};
+  --tab-rule-join-width: 3rem;
+}
+
+.tab-rule-condition {
+  position: relative;
+}
+
+.tab-rule-condition-continues:not(.tab-rule-condition-join) {
+  padding-left: var(--tab-rule-join-width);
+
+  // From the "If" badge toward the first condition, ending in line with the connectors' right edges
+  &::before {
+    border-top: $tab-rule-join-line;
+    content: "";
+    left: -$tab-rule-clause-gap;
+    position: absolute;
+    top: calc(#{$tab-rule-line-height} / 2);
+    width: var(--tab-rule-join-width);
+  }
+
+  &::after {
+    left: calc(var(--tab-rule-join-width) / 2 - #{$tab-rule-clause-gap});
+    top: calc(#{$tab-rule-line-height} / 2);
+  }
+}
+
+.tab-rule-condition-join {
+  margin-left: -$tab-rule-clause-gap;
+
+  &::after {
+    left: calc(var(--tab-rule-join-width) / 2);
+    top: calc((#{$tab-rule-line-height} + var(--tab-rule-join-height)) / 2);
+  }
+}
+
+// Down into the top of the next condition's connector. One element spans the whole way, since
+// dashes restart in each element and two meeting end to end look solid where they meet.
+.tab-rule-condition-continues::after {
+  border-left: $tab-rule-join-line;
+  bottom: calc(
+    -1 * (var(--tab-rule-condition-gap, 0px) +
+          (#{$tab-rule-line-height} - var(--tab-rule-join-height)) / 2)
+  );
+  content: "";
+  position: absolute;
+}
+
+// AND and OR share one width so the line runs through their middles and the conditions after
+// them line up. Their outline is dimmed to sit back like the line.
 .tab-rule-join-badge {
-  min-width: 3rem;
+  border-color: var(--#{$prefix}tertiary-color);
+  min-width: var(--tab-rule-join-width);
+}
+
+.tab-rule-join {
+  width: var(--tab-rule-join-width);
 }
 
 /**
@@ -215,7 +298,7 @@ $tab-rule-line-height: add(
 
 .tab-rule-then {
   flex-shrink: 0;
-  min-width: 9rem;
+  min-width: $tab-rule-then-width;
 }
 
 .tab-rule-controls {

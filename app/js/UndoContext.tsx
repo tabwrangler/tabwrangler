@@ -18,6 +18,9 @@ interface RestoreAction {
 }
 
 interface WrangleAction {
+  // The closed tabs that were saved to the corral. The rest, closed by a rule that doesn't save
+  // them, can only be reopened from here.
+  savedTabs: chrome.tabs.Tab[];
   tabs: chrome.tabs.Tab[];
   type: "wrangle";
 }
@@ -103,9 +106,9 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const recordWrangle = useCallback((tabs: chrome.tabs.Tab[]) => {
+  const recordWrangle = useCallback(({ savedTabs, tabs }: Omit<WrangleAction, "type">) => {
     if (tabs.length === 0) return;
-    const action: WrangleAction = { type: "wrangle", tabs };
+    const action: WrangleAction = { type: "wrangle", savedTabs, tabs };
     setState((prev) => ({
       past: [...prev.past, action].slice(-MAX_HISTORY),
       future: [],
@@ -166,15 +169,17 @@ export function UndoProvider({ children }: { children: React.ReactNode }) {
           await addSavedTabs(lastAction.tabs);
           break;
         case "wrangle": {
-          // Undo wrangle: Reopen the wrangled tabs that are still in the corral
+          // Undo wrangle: Reopen the wrangled tabs that weren't saved to the corral, and those that
+          // were and are still in it. Tabs already restored or removed from the corral stay closed.
           const [{ savedTabs }, sessions] = await Promise.all([
             getStorageLocalPersist(),
             chrome.sessions.getRecentlyClosed(),
           ]);
-          const savedTabKeys = new Set(savedTabs.map(serializeTab));
+          const corralTabKeys = new Set(savedTabs.map(serializeTab));
+          const savedByWrangle = new Set(lastAction.savedTabs);
           await requestUnwrangleTabs(
             lastAction.tabs
-              .filter((tab) => savedTabKeys.has(serializeTab(tab)))
+              .filter((tab) => !savedByWrangle.has(tab) || corralTabKeys.has(serializeTab(tab)))
               .map((tab) => ({
                 session: sessions.find((session) => sessionFuzzyMatchesTab(session, tab)),
                 tab,

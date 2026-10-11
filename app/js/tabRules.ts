@@ -155,6 +155,14 @@ export interface LegacyRuleSettings {
   whitelist: unknown;
 }
 
+export const LEGACY_RULE_SETTINGS: readonly (keyof LegacyRuleSettings)[] = [
+  "filterAudio",
+  "filterGroupedTabs",
+  "minutesInactive",
+  "secondsInactive",
+  "whitelist",
+];
+
 /**
  * Builds Tab Rules equivalent to the settings that preceded them: pinned tabs, then each whitelist
  * entry, then audio, then tab groups, then a final rule making every other tab stale after the

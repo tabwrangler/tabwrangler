@@ -1,6 +1,8 @@
 import { AVERAGE_TAB_BYTES_SIZE, TabLockStatus, getTabLockStatus } from "./tabUtil";
 import {
   DEFAULT_STALE_AFTER_SECONDS,
+  LEGACY_RULE_SETTINGS,
+  type LegacyRuleSettings,
   TAB_RULES_VERSION,
   type TabRulesConfig,
   buildTabRulesFromLegacySettings,
@@ -140,14 +142,24 @@ export const SETTINGS_DEFAULTS: SettingsSchema = {
   wrangleOption: "withDupes",
 };
 
-// Settings from before Tab Rules have no `tabRules`, so derive equivalent rules from the legacy
-// settings until `migrateSync` persists them.
-function loadLegacyTabRules(
-  stored: TabRulesConfig | undefined,
-  legacy: SettingsSchema,
-): TabRulesConfig {
-  return stored == null ? buildTabRulesFromLegacySettings(legacy) : withElseRule(stored);
+/**
+ * Tab Rules equivalent to the legacy settings stored in sync storage, or null when none are stored
+ * and the default rules apply. Legacy settings that were never changed use their defaults.
+ */
+export function buildTabRulesFromStoredLegacySettings(
+  stored: Partial<LegacyRuleSettings>,
+): TabRulesConfig | null {
+  if (LEGACY_RULE_SETTINGS.every((key) => stored[key] == null)) return null;
+  return buildTabRulesFromLegacySettings({
+    filterAudio: stored.filterAudio ?? SETTINGS_DEFAULTS.filterAudio,
+    filterGroupedTabs: stored.filterGroupedTabs ?? SETTINGS_DEFAULTS.filterGroupedTabs,
+    minutesInactive: stored.minutesInactive ?? SETTINGS_DEFAULTS.minutesInactive,
+    secondsInactive: stored.secondsInactive ?? SETTINGS_DEFAULTS.secondsInactive,
+    whitelist: stored.whitelist ?? SETTINGS_DEFAULTS.whitelist,
+  });
 }
+
+const LEGACY_RULE_SETTINGS_SET = new Set<string>(LEGACY_RULE_SETTINGS);
 
 // This is a SINGLETON! It is imported both by backgrounnd.ts and by popup.tsx and used in both
 // environments.
@@ -157,6 +169,8 @@ const Settings = {
   _initChangedKeys: null as Set<string> | null,
   _initPromise: undefined as Promise<void> | undefined,
   _listeners: {} as { [K in keyof SettingsSchema]?: Set<() => void> },
+  // Values in sync storage without defaults, which decide where Tab Rules come from.
+  _stored: {} as Partial<SettingsSchema>,
   cache: { ...SETTINGS_DEFAULTS } as SettingsSchema,
 
   // Loads all settings from sync storage into the cache. Later changes, including those made in
@@ -172,12 +186,12 @@ const Settings = {
       );
 
       for (const [key, value] of Object.entries(items)) {
-        if (key !== "tabRules" && !initChangedKeys.has(key))
-          Object.assign(this.cache, { [key]: value });
+        if (initChangedKeys.has(key)) continue;
+        Object.assign(this._stored, { [key]: value });
+        if (key !== "tabRules") Object.assign(this.cache, { [key]: value });
       }
 
-      if (!initChangedKeys.has("tabRules"))
-        this.cache.tabRules = loadLegacyTabRules(items.tabRules, this.cache);
+      if (!initChangedKeys.has("tabRules")) this.cache.tabRules = this._loadTabRules();
 
       this._initChangedKeys = null;
     })();
@@ -191,18 +205,39 @@ const Settings = {
       (key): key is keyof SettingsSchema => key in SETTINGS_DEFAULTS,
     );
 
-    // `newValue` is undefined when the key was removed from storage. Removed `tabRules` are derived
-    // from the legacy settings, so those are applied first.
+    // `newValue` is undefined when the key was removed from storage.
     for (const key of keys) {
       this._initChangedKeys?.add(key);
+      const { newValue } = changes[key];
+      if (newValue == null) delete this._stored[key];
+      else Object.assign(this._stored, { [key]: newValue });
       if (key !== "tabRules")
-        Object.assign(this.cache, { [key]: changes[key].newValue ?? SETTINGS_DEFAULTS[key] });
+        Object.assign(this.cache, { [key]: newValue ?? SETTINGS_DEFAULTS[key] });
     }
 
-    if (keys.includes("tabRules"))
-      this.cache.tabRules = loadLegacyTabRules(changes.tabRules.newValue, this.cache);
+    // Until Tab Rules are first saved, they follow the legacy settings.
+    if (
+      keys.some(
+        (key) =>
+          key === "tabRules" ||
+          (this._stored.tabRules == null && LEGACY_RULE_SETTINGS_SET.has(key)),
+      )
+    ) {
+      this.cache.tabRules = this._loadTabRules();
+      if (!keys.includes("tabRules")) keys.push("tabRules");
+    }
 
     keys.forEach((key) => this._listeners[key]?.forEach((l) => l()));
+  },
+
+  _loadTabRules(): TabRulesConfig {
+    const stored = this._stored.tabRules;
+    return stored == null ? this.getLegacyTabRules() : withElseRule(stored);
+  },
+
+  // The Tab Rules in effect until they are first saved, by `migrateSync` or by the user.
+  getLegacyTabRules(): TabRulesConfig {
+    return buildTabRulesFromStoredLegacySettings(this._stored) ?? SETTINGS_DEFAULTS.tabRules;
   },
 
   async cleanupLockedIds(tabs: chrome.tabs.Tab[]): Promise<void> {
@@ -368,6 +403,7 @@ const Settings = {
 
   setValue<K extends keyof SettingsSchema>(key: K, value: SettingsSchema[K]): Promise<void> {
     this._initChangedKeys?.add(key);
+    this._stored[key] = value;
     this.cache[key] =
       key === "tabRules" ? (withElseRule(value as TabRulesConfig) as typeof value) : value;
     this._listeners[key]?.forEach((l) => l());

@@ -69,7 +69,8 @@ a tab's outcome: `lock` or `stale` after `afterSeconds`. A rule matches when `ev
 conditions match (`url`, `title`, or tab group name includes, `audible`, `groupId`, `pinned`). The last rule has no conditions
 and is the "Else" row. `migrateSync()` in `storage.ts` builds it once from the legacy settings
 (`whitelist`, `filterAudio`, `filterGroupedTabs`, `minutesInactive`, `secondsInactive`), which are
-left in place but no longer read.
+left in place. When none of those were changed, nothing is stored: until `tabRules` is first
+saved, `settings` derives it from whatever legacy settings exist, or uses the default rules.
 
 ### UI layer
 

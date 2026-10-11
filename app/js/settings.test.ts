@@ -9,6 +9,7 @@ function mockSyncStorage(items: Record<string, unknown>) {
 function resetSettings() {
   jest.resetAllMocks();
   Settings._initPromise = undefined;
+  Settings._stored = {};
   Settings.cache = { ...SETTINGS_DEFAULTS };
 }
 
@@ -63,8 +64,8 @@ describe("tabRules migration", () => {
     ]);
   });
 
-  test("uses legacy defaults for settings that were never changed", async () => {
-    mockSyncStorage({});
+  test("uses legacy defaults for legacy settings that were never changed", async () => {
+    mockSyncStorage({ minutesInactive: 30 });
     await Settings.init();
     const { rules } = Settings.get("tabRules");
     expect(rules.map(({ when }) => when)).toEqual([
@@ -74,7 +75,13 @@ describe("tabRules migration", () => {
       [{ type: "audible" }],
       [],
     ]);
-    expect(rules[4].then).toEqual({ action: "stale", afterSeconds: 3600, save: "corral" });
+    expect(rules[4].then).toEqual({ action: "stale", afterSeconds: 1800, save: "corral" });
+  });
+
+  test("uses the default rules when no legacy settings are stored", async () => {
+    mockSyncStorage({});
+    await Settings.init();
+    expect(Settings.get("tabRules")).toEqual(SETTINGS_DEFAULTS.tabRules);
   });
 
   test("prefers stored tabRules", async () => {
@@ -138,6 +145,27 @@ describe("storage changes", () => {
       [{ type: "audible" }],
       [],
     ]);
+  });
+
+  test("follows legacy settings that sync in before tabRules are saved", () => {
+    const listener = jest.fn();
+    Settings.subscribe("tabRules", listener);
+    Settings._onStorageChanged({ whitelist: { newValue: ["github.com"] } }, "sync");
+    expect(Settings.get("tabRules").rules.map(({ when }) => when)).toEqual([
+      [{ type: "pinned" }],
+      [{ type: "url", op: "includes", value: "github.com" }],
+      [{ type: "audible" }],
+      [],
+    ]);
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  test("ignores legacy settings once tabRules are saved", () => {
+    const stored = { version: 1 as const, rules: [] };
+    Settings._onStorageChanged({ tabRules: { newValue: stored } }, "sync");
+    const tabRules = Settings.get("tabRules");
+    Settings._onStorageChanged({ whitelist: { newValue: ["github.com"] } }, "sync");
+    expect(Settings.get("tabRules")).toBe(tabRules);
   });
 
   test("keeps a change made while settings were loading", async () => {

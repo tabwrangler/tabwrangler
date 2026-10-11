@@ -149,11 +149,18 @@ describe("wrangleTabsAndPersist", () => {
       then: { action: "stale", afterSeconds: 60, save: "none" },
     });
 
-    await wrangleTabsAndPersist(
-      [createTab({ id: 2, url: searchUrl }), createTab({ id: 3, url: "https://www.nytimes.com" })],
-      tabRules,
-    );
+    const tabs = [
+      createTab({ id: 2, url: searchUrl }),
+      createTab({ id: 3, url: "https://www.nytimes.com" }),
+    ];
+    const savedTabs = await wrangleTabsAndPersist(tabs, tabRules);
 
+    expect(savedTabs.map((tab) => tab.id)).toEqual([3]);
+    // Both get `closedAt` so undo can find their browser sessions.
+    expect(tabs).toEqual([
+      expect.objectContaining({ closedAt: expect.any(Number) }),
+      expect.objectContaining({ closedAt: expect.any(Number) }),
+    ]);
     expect(window.chrome.tabs.remove).toHaveBeenCalledWith(2);
     expect(window.chrome.tabs.remove).toHaveBeenCalledWith(3);
     const data = await chrome.storage.local.get("persist:localStorage");
@@ -603,6 +610,29 @@ describe("findTabsToWrangleNow", () => {
       makeSettings({ minTabs: 2 }),
     );
     expect(result.map((t) => t.id)).toEqual([1, 3]);
+  });
+
+  test("orders tabs by time remaining under their own rule's timeout", () => {
+    const now = Date.now();
+    const tabRules = createTabRules();
+    tabRules.rules.unshift({
+      ...createUrlIncludesRule("example.com"),
+      then: { action: "stale", afterSeconds: 7 * 24 * 60 * 60, save: "corral" },
+    });
+    const tabs = [
+      // Inactive longer, but has days left under its rule.
+      createTab({ id: 1, url: "https://example.com" }),
+      // Already past the default 1 hour timeout.
+      createTab({ id: 2 }),
+      createTab({ id: 3 }),
+    ];
+    const result = findTabsToWrangleNow(
+      { "1": now - 2 * 60 * 60 * 1000, "2": now - 90 * 60 * 1000, "3": now },
+      tabs,
+      undefined,
+      makeSettings({ minTabs: 1, tabRules }),
+    );
+    expect(result.map((t) => t.id)).toEqual([2, 3]);
   });
 
   test("returns [] when unlocked tabs do not exceed minTabs", () => {

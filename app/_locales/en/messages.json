@@ -221,7 +221,7 @@
     "message": "Import/Export Error"
   },
   "options_errorSavingSettings": {
-    "message": "Error Saving Setttings"
+    "message": "Error Saving Settings"
   },
   "options_unsavedChanges": {
     "message": "Unsaved changes"
@@ -343,19 +343,19 @@
     "message": "System"
   },
   "options_option_timeInactive_abbr_days": {
-    "description": "Abbreviation for 'days' shown in the inactive time input",
+    "description": "Abbreviation for 'days' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "d"
   },
   "options_option_timeInactive_abbr_hours": {
-    "description": "Abbreviation for 'hours' shown in the inactive time input",
+    "description": "Abbreviation for 'hours' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "h"
   },
   "options_option_timeInactive_abbr_minutes": {
-    "description": "Abbreviation for 'minutes' shown in the inactive time input",
+    "description": "Abbreviation for 'minutes' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "m"
   },
   "options_option_timeInactive_abbr_seconds": {
-    "description": "Abbreviation for 'seconds' shown in the inactive time input",
+    "description": "Abbreviation for 'seconds' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "s"
   },
   "options_option_timeInactive_duration_day": {
@@ -820,15 +820,15 @@
   },
   "options_tabRules_action_stale": {
     "description": "Tab rule action in the action menu, followed by inputs for how long matching tabs must be inactive before they're marked stale and can be auto-closed",
-    "message": "Mark tab stale after inactive for"
+    "message": "Stale after inactive for"
   },
   "options_tabRules_action_staleAfter": {
     "description": "Tab rule action shown in the list of rules, as in \"Then mark tab stale after 2 hours\"",
-    "message": "Mark tab stale after inactive for $DURATION$",
+    "message": "Stale after inactive for $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",
-        "example": "2 hours, 30 minutes"
+        "example": "2h 30m"
       }
     }
   },
@@ -877,6 +877,10 @@
         "example": "Work"
       }
     }
+  },
+  "options_tabRules_condition_notGrouped": {
+    "description": "Tab rule condition matching tabs that are not in a tab group. The tab is the implied subject, as in \"If not in a tab group, then lock tab\"",
+    "message": "Not in a tab group"
   },
   "options_tabRules_condition_pinned": {
     "description": "Tab rule condition matching tabs that are pinned. The tab is the implied subject, as in \"If pinned, then lock tab\"",
@@ -976,7 +980,7 @@
   },
   "options_tabRules_save_none": {
     "description": "Note shown in the list of rules under a rule's action when tabs it auto-closes are not saved to the Tab Corral",
-    "message": "Close without saving to the Tab Corral"
+    "message": "Do not save to the Tab Corral when closed"
   },
   "options_tabRules_then": {
     "description": "Label in front of a tab rule's action, as in \"Then lock tab\"",

@@ -2,7 +2,6 @@ name: CI
 
 permissions:
   contents: read
-  pull-requests: write
 
 on:
   push:
@@ -50,6 +49,14 @@ jobs:
   build:
     needs: [check-types, lint, test]
     runs-on: ubuntu-latest
+
+    # Attestation permissions are scoped to this job so other jobs running `npm ci` can't mint OIDC
+    # tokens. Job-level permissions replace the workflow's, so `contents: read` is repeated.
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write
+
     steps:
       - uses: actions/checkout@v6
 
@@ -61,8 +68,16 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
+
       - run: npm ci
       - run: npm run build
+
+      - name: Generate artifact attestations
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/attest@v4
+        with:
+          subject-path: "dist/tabwrangler-*.zip"
+
       - uses: actions/upload-artifact@v6
         with:
           name: tabwrangler-builds-${{ env.PACKAGE_VERSION }}

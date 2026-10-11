@@ -7,7 +7,7 @@ import {
   findElseRule,
   generateRuleId,
 } from "../tabRules";
-import { isEqual, xorWith } from "lodash-es";
+import { findLastIndex, isEqual, xorWith } from "lodash-es";
 import settings, { type SettingsSchema } from "../settings";
 import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
@@ -587,7 +587,10 @@ function RuleConditions({ rule }: { rule: TabRule }) {
   return (
     <div className="tab-rule-shrink">
       {rule.when.map((condition, index) => (
-        <div className="tab-rule-line gap-2" key={index}>
+        <div
+          className={cx("tab-rule-line gap-2", conditionClassName(index, rule.when.length))}
+          key={index}
+        >
           {index > 0 && <RuleJoin match={rule.match} />}
           <ConditionText condition={condition} />
         </div>
@@ -596,9 +599,17 @@ function RuleConditions({ rule }: { rule: TabRule }) {
   );
 }
 
+// Places a condition along the dashed line tying a rule's later conditions to its "If" badge.
+function conditionClassName(index: number, count: number) {
+  return cx("tab-rule-condition", {
+    "tab-rule-condition-continues": index < count - 1,
+    "tab-rule-condition-join": index > 0,
+  });
+}
+
 function RuleJoin({ match }: { match: TabRule["match"] }) {
   return (
-    <span className="badge rounded-pill badge-outline text-secondary-emphasis tab-rule-join-badge">
+    <span className="badge rounded-pill badge-outline text-body-secondary tab-rule-join-badge">
       {chrome.i18n.getMessage(match === "some" ? "options_tabRules_or" : "options_tabRules_and")}
     </span>
   );
@@ -623,7 +634,13 @@ function ConditionText({ condition }: { condition: TabCondition }) {
         </span>
       );
     case "groupId":
-      return <span className="text-nowrap">{conditionTypeLabel("groupId")}</span>;
+      return (
+        <span className="text-nowrap">
+          {condition.op === "none"
+            ? chrome.i18n.getMessage("options_tabRules_condition_notGrouped")
+            : conditionTypeLabel("groupId")}
+        </span>
+      );
     case "pinned":
       return (
         <span className="text-nowrap">
@@ -692,11 +709,17 @@ function RuleForm({
             const error = errors?.conditions[index] ?? null;
             const inputId = `${id}-${index}`;
             return (
-              <div className="d-flex align-items-start gap-2" key={index}>
+              <div
+                className={cx(
+                  "d-flex align-items-start gap-2",
+                  conditionClassName(index, draft.conditions.length),
+                )}
+                key={index}
+              >
                 {index > 0 && (
                   <select
                     aria-label={chrome.i18n.getMessage("options_tabRules_match")}
-                    className="form-select form-select-sm w-auto tab-rule-join"
+                    className="form-select form-select-sm tab-rule-join"
                     disabled={readOnly}
                     name={`${inputId}-match`}
                     onChange={(event) => {
@@ -859,12 +882,19 @@ function RuleOutcomeText({ outcome }: { outcome: RuleOutcome }) {
           {chrome.i18n.getMessage("options_tabRules_action_lock")}
         </div>
       );
-    case "stale":
+    case "stale": {
+      // The marker splits the message where the duration goes, so it can be styled like condition
+      // values wherever a translation puts it.
+      const [beforeDuration, afterDuration] = chrome.i18n
+        .getMessage("options_tabRules_action_staleAfter", [DURATION_MARKER])
+        .split(DURATION_MARKER);
       return (
         <div>
-          {chrome.i18n.getMessage("options_tabRules_action_staleAfter", [
-            formatDuration(outcome.afterSeconds),
-          ])}
+          {beforeDuration}
+          <code className="text-nowrap">
+            <DurationText seconds={outcome.afterSeconds} />
+          </code>
+          {afterDuration}
           {outcome.save === "none" && (
             <div className="form-text mt-0">
               {chrome.i18n.getMessage("options_tabRules_save_none")}
@@ -872,6 +902,7 @@ function RuleOutcomeText({ outcome }: { outcome: RuleOutcome }) {
           )}
         </div>
       );
+    }
     default:
       outcome satisfies never;
       return null;
@@ -898,7 +929,7 @@ function RuleClause({
       )}
     >
       <div className="tab-rule-line flex-shrink-0">
-        <span className="badge rounded-pill text-bg-secondary text-uppercase tab-rule-badge">
+        <span className="badge rounded-pill bg-body-secondary text-body-secondary text-uppercase tab-rule-badge">
           {label}
         </span>
       </div>
@@ -1070,6 +1101,60 @@ function splitDuration(totalSeconds: number) {
     minutes: totalMinutes % 60,
     seconds: totalSeconds % 60,
   };
+}
+
+const DURATION_MARKER = "\uE000";
+
+// A duration of one unit spelled out, like "5 hours", since "5h" is too terse alone. Several units
+// are compact and spelled out on hover.
+function DurationText({ seconds }: { seconds: number }) {
+  const { days, hours, minutes, seconds: secondsPart } = splitDuration(seconds);
+  const unitCount = [days, hours, minutes, secondsPart].filter((value) => value > 0).length;
+  return unitCount <= 1 ? (
+    <time dateTime={formatDatetimeDuration(seconds)}>{formatDuration(seconds)}</time>
+  ) : (
+    <time dateTime={formatDatetimeDuration(seconds)} title={formatDuration(seconds)}>
+      {formatShortDuration(seconds)}
+    </time>
+  );
+}
+
+/**
+ * A compact duration like "3d 04h 15m 13s", from the largest unit that isn't zero to the smallest.
+ * Units after the first are zero-padded so each reads like a clock's: "8s", but "3m 08s".
+ */
+function formatShortDuration(totalSeconds: number): string {
+  const { days, hours, minutes, seconds } = splitDuration(totalSeconds);
+  const units = [
+    [days, "options_option_timeInactive_abbr_days"],
+    [hours, "options_option_timeInactive_abbr_hours"],
+    [minutes, "options_option_timeInactive_abbr_minutes"],
+    [seconds, "options_option_timeInactive_abbr_seconds"],
+  ] as const;
+  const first = units.findIndex(([value]) => value > 0);
+  const last = findLastIndex(units, ([value]) => value > 0);
+  if (first === -1) return `0${chrome.i18n.getMessage("options_option_timeInactive_abbr_seconds")}`;
+  return units
+    .slice(first, last + 1)
+    .map(
+      ([value, unit], index) =>
+        `${index === 0 ? value : String(value).padStart(2, "0")}${chrome.i18n.getMessage(unit)}`,
+    )
+    .join(" ");
+}
+
+// A duration for `<time datetime>`, like "P3DT4H15M13S".
+function formatDatetimeDuration(totalSeconds: number): string {
+  const { days, hours, minutes, seconds } = splitDuration(totalSeconds);
+  const time = [
+    [hours, "H"],
+    [minutes, "M"],
+    [seconds, "S"],
+  ]
+    .flatMap(([value, unit]) => (value === 0 ? [] : [`${value}${unit}`]))
+    .join("");
+  if (days === 0 && time === "") return "PT0S";
+  return `P${days === 0 ? "" : `${days}D`}${time === "" ? "" : `T${time}`}`;
 }
 
 function formatDuration(totalSeconds: number): string {

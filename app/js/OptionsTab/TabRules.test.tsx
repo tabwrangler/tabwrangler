@@ -459,6 +459,19 @@ describe("TabRules", () => {
     ).toContain("options_tabRules_condition_pinned");
   });
 
+  test("shows a rule for tabs not in a tab group", () => {
+    const tabRules = mockSettings.tabRules as TabRulesConfig;
+    tabRules.rules.unshift({
+      id: "ungrouped",
+      match: "every",
+      when: [{ type: "groupId", op: "none" }],
+      then: { action: "lock" },
+    });
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(screen.getByText("options_tabRules_condition_notGrouped")).toBeTruthy();
+    expect(screen.queryByText("options_tabRules_condition_grouped")).toBeNull();
+  });
+
   test("adds a rule that marks tabs stale after a set time", () => {
     const onSaveSetting = jest.fn();
     render(<TabRules onSaveSetting={onSaveSetting} />);
@@ -498,6 +511,62 @@ describe("TabRules", () => {
     render(<TabRules onSaveSetting={jest.fn()} />);
     // The new rule's timeout and the Else rule's.
     expect(screen.getAllByText("options_tabRules_action_staleAfter")).toHaveLength(2);
+  });
+
+  test("spells out single-unit timeouts and shortens the rest, zero-padding later units", () => {
+    const messages: Record<string, string> = {
+      options_option_timeInactive_abbr_days: "d",
+      options_option_timeInactive_abbr_hours: "h",
+      options_option_timeInactive_abbr_minutes: "m",
+      options_option_timeInactive_abbr_seconds: "s",
+      options_option_timeInactive_duration_day: "$1 day",
+      options_option_timeInactive_duration_days: "$1 days",
+      options_option_timeInactive_duration_hour: "$1 hour",
+      options_option_timeInactive_duration_hours: "$1 hours",
+      options_option_timeInactive_duration_minute: "$1 minute",
+      options_option_timeInactive_duration_minutes: "$1 minutes",
+      options_option_timeInactive_duration_second: "$1 second",
+      options_option_timeInactive_duration_seconds: "$1 seconds",
+    };
+    Object.assign(chrome.i18n, {
+      getMessage: (key: string, substitutions?: string[]) =>
+        (messages[key] ?? key).replace("$1", substitutions?.[0] ?? ""),
+    });
+    const tabRules = mockSettings.tabRules as TabRulesConfig;
+    const durations = [
+      8,
+      3600,
+      6 * 3600,
+      3 * 60 + 8,
+      3600 + 8,
+      3 * 86400 + 4 * 3600 + 15 * 60 + 13,
+    ];
+    mockSettings.tabRules = {
+      ...tabRules,
+      rules: [
+        ...durations.map((afterSeconds, index) => ({
+          id: String(index),
+          match: "every" as const,
+          when: [{ type: "url" as const, op: "includes" as const, value: `site${index}` }],
+          then: { action: "stale" as const, afterSeconds, save: "corral" as const },
+        })),
+        ...tabRules.rules,
+      ],
+    };
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    for (const [text, dateTime, title] of [
+      ["8 seconds", "PT8S", null],
+      ["1 hour", "PT1H", null],
+      ["6 hours", "PT6H", null],
+      ["3m 08s", "PT3M8S", "3 minutes, 8 seconds"],
+      ["1h 00m 08s", "PT1H8S", "1 hour, 8 seconds"],
+      ["3d 04h 15m 13s", "P3DT4H15M13S", "3 days, 4 hours, 15 minutes, 13 seconds"],
+    ]) {
+      const time = screen.getByText(text as string);
+      expect(time.tagName).toBe("TIME");
+      expect(time.getAttribute("datetime")).toBe(dateTime);
+      expect(time.getAttribute("title")).toBe(title);
+    }
   });
 
   test("adds a stale rule that doesn't save closed tabs to the corral", () => {

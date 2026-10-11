@@ -15,6 +15,7 @@ import {
 import settings, { SettingsSchema, SettingsSchemaWrangleOption } from "./settings";
 import { ACTIVE_TAB_TIMER_FREEZE_WINDOW_MS } from "./constants";
 import { TabTimes } from "./types";
+import { sortBy } from "lodash-es";
 
 export const AVERAGE_TAB_BYTES_SIZE = 600;
 
@@ -49,14 +50,14 @@ export function getURLPositionFilterByWrangleOption(
   return () => -1;
 }
 
-// Note: Mutates `storageLocalPersist`!
+// Note: Mutates `storageLocalPersist`! Returns the tabs saved to the corral.
 export function wrangleTabs(
   storageLocalPersist: StorageLocalPersistState,
   tabs: Array<chrome.tabs.Tab>,
   tabRules?: TabRulesConfig,
-) {
+): chrome.tabs.Tab[] {
   // No tabs, nothing to do
-  if (tabs.length === 0) return;
+  if (tabs.length === 0) return [];
 
   const maxTabs = settings.get("maxTabs");
   const wrangleOption = settings.get("wrangleOption");
@@ -65,19 +66,21 @@ export function wrangleTabs(
     wrangleOption,
   );
 
+  const savedTabs: chrome.tabs.Tab[] = [];
   const tabIdsToRemove: Array<number> = [];
   for (let i = 0; i < tabs.length; i++) {
+    // Set on every tab, saved or not, so undoing a wrangle can match it to its browser session.
+    // @ts-expect-error `closedAt` is a TW expando property on tabs
+    tabs[i].closedAt = Date.now();
+
     if (tabRules == null || shouldSaveToCorral(tabs[i], tabRules)) {
       const existingTabPosition = findURLPositionByWrangleOption(tabs[i]);
-      const closingDate = Date.now();
-
       if (existingTabPosition > -1) {
         storageLocalPersist.savedTabs.splice(existingTabPosition, 1);
       }
 
-      // @ts-expect-error `closedAt` is a TW expando property on tabs
-      tabs[i].closedAt = closingDate;
       storageLocalPersist.savedTabs.unshift(tabs[i]);
+      savedTabs.push(tabs[i]);
     }
     storageLocalPersist.totalTabsWrangled += 1;
 
@@ -105,19 +108,23 @@ export function wrangleTabs(
     console.log(tabsToTrim.map((t) => t.url));
     storageLocalPersist.savedTabs = storageLocalPersist.savedTabs.splice(0, maxTabs);
   }
+
+  return savedTabs;
 }
 
+// Returns the tabs saved to the corral.
 export async function wrangleTabsAndPersist(
   tabs: Array<chrome.tabs.Tab>,
   tabRules?: TabRulesConfig,
-) {
-  if (tabs.length === 0) return;
+): Promise<chrome.tabs.Tab[]> {
+  if (tabs.length === 0) return [];
 
   const storageLocalPersist = await getStorageLocalPersist();
-  wrangleTabs(storageLocalPersist, tabs, tabRules);
+  const savedTabs = wrangleTabs(storageLocalPersist, tabs, tabRules);
   await chrome.storage.local.set({
     "persist:localStorage": storageLocalPersist,
   });
+  return savedTabs;
 }
 
 /**
@@ -300,14 +307,19 @@ export function findTabsToWrangleNow(
 ): chrome.tabs.Tab[] {
   const now = Date.now();
 
+  // Each tab's rule sets its own timeout, so the time it goes stale orders tabs by time remaining.
+  function staleAt(tab: chrome.tabs.Tab): number {
+    return (tabTimes[tab.id!] ?? now) + getStaleAfterMs(lockSettings.tabRules, tab);
+  }
+
   function findInGroup(groupTabs: chrome.tabs.Tab[]): chrome.tabs.Tab[] {
     const unlockedTabs = filterUnlockedTabs(groupTabs, lockSettings);
     const excess = unlockedTabs.length - minTabs;
     if (excess <= 0) return [];
-    return unlockedTabs
-      .filter((tab) => tab.id != null && tab.id !== protectedTabId)
-      .sort((a, b) => (tabTimes[a.id!] ?? now) - (tabTimes[b.id!] ?? now))
-      .slice(0, excess);
+    return sortBy(
+      unlockedTabs.filter((tab) => tab.id != null && tab.id !== protectedTabId),
+      staleAt,
+    ).slice(0, excess);
   }
 
   switch (minTabsStrategy) {

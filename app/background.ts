@@ -176,6 +176,8 @@ chrome.windows.onRemoved.addListener((windowId: number) => {
 });
 
 chrome.commands.onCommand.addListener(async (command) => {
+  // A command can be what starts the service worker, before startup has loaded settings.
+  await Promise.all([settings.init(), tabGroupTitles.init()]);
   switch (command) {
     case "lock-unlock-active-tab":
       await lockUnlockActiveTab();
@@ -201,6 +203,16 @@ chrome.commands.onCommand.addListener(async (command) => {
   }
 });
 
+// Before Tab Rules are first saved, the rules in effect are derived from the legacy settings. So a
+// migration that saves them changes no timeouts.
+async function onTabRulesChanged({ newValue, oldValue }: chrome.storage.StorageChange) {
+  await settings.init();
+  await resetTabTimesPastTimeout(
+    oldValue ?? settings.getLegacyTabRules(),
+    newValue ?? settings.getLegacyTabRules(),
+  );
+}
+
 chrome.storage.onChanged.addListener((changes, areaName) => {
   switch (areaName) {
     case "local": {
@@ -209,10 +221,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     }
 
     case "sync": {
-      // The first write of `tabRules` is the migration, which changes no timeouts.
-      if (changes.tabRules?.oldValue != null) {
-        resetTabTimesPastTimeout(changes.tabRules.oldValue, changes.tabRules.newValue);
-      }
+      if (changes.tabRules != null) onTabRulesChanged(changes.tabRules);
 
       if (changes["persist:settings"]) {
         if (

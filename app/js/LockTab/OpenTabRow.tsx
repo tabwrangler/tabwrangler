@@ -347,6 +347,12 @@ function RuleLockedReason({ rule }: { rule: TabRule }) {
         </abbr>
       );
     case "groupId":
+      if (condition.type === "groupId" && condition.op === "none")
+        return (
+          <abbr title={describeCondition(condition)}>
+            {chrome.i18n.getMessage("tabLock_lockedStatus_autolocked")}
+          </abbr>
+        );
       return chrome.i18n.getMessage("tabLock_lockedReason_group");
     case "pinned":
       return chrome.i18n.getMessage("tabLock_lockedReason_pinned");
@@ -387,7 +393,11 @@ function describeCondition(condition: TabCondition): string {
     case "audible":
       return chrome.i18n.getMessage("options_tabRules_condition_audible");
     case "groupId":
-      return chrome.i18n.getMessage("options_tabRules_condition_grouped");
+      return chrome.i18n.getMessage(
+        condition.op === "none"
+          ? "options_tabRules_condition_notGrouped"
+          : "options_tabRules_condition_grouped",
+      );
     case "pinned":
       return chrome.i18n.getMessage("options_tabRules_condition_pinned");
     default:

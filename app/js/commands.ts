@@ -19,7 +19,11 @@ export async function wrangleActiveTab(): Promise<void> {
   await wrangleTabsAndPersist(tabs);
 }
 
-export async function wrangleNow(): Promise<chrome.tabs.Tab[]> {
+// Returns the closed tabs and which of them were saved to the corral.
+export async function wrangleNow(): Promise<{
+  savedTabs: chrome.tabs.Tab[];
+  tabs: chrome.tabs.Tab[];
+}> {
   const [tabs, [activeTab], { tabTimes }] = await Promise.all([
     chrome.tabs.query({}),
     chrome.tabs.query({ active: true, lastFocusedWindow: true }),
@@ -33,8 +37,8 @@ export async function wrangleNow(): Promise<chrome.tabs.Tab[]> {
     minTabsStrategy: settings.get("minTabsStrategy"),
     tabRules,
   });
-  await wrangleTabsAndPersist(tabsToWrangle, tabRules);
-  return tabsToWrangle;
+  const savedTabs = await wrangleTabsAndPersist(tabsToWrangle, tabRules);
+  return { savedTabs, tabs: tabsToWrangle };
 }
 
 export async function wrangleOtherTabs(): Promise<void> {

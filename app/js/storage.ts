@@ -1,8 +1,8 @@
-import { type LegacyRuleSettings, buildTabRulesFromLegacySettings } from "./tabRules";
+import { LEGACY_RULE_SETTINGS, type LegacyRuleSettings } from "./tabRules";
+import { SETTINGS_DEFAULTS, buildTabRulesFromStoredLegacySettings } from "./settings";
 import { setTabTime, shiftTabTimes } from "./actions/localStorageActions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AsyncLock from "async-lock";
-import { SETTINGS_DEFAULTS } from "./settings";
 import { getStorageSyncPersist } from "./queries";
 import { useEffect } from "react";
 
@@ -50,35 +50,17 @@ export async function migrateSync() {
   // `whitelist` with `tabRules`. The legacy settings are left in place so downgrading keeps working.
   const { tabRules, ...stored } = await chrome.storage.sync.get<
     Partial<LegacyRuleSettings> & { tabRules?: unknown }
-  >([
-    "filterAudio",
-    "filterGroupedTabs",
-    "minutesInactive",
-    "secondsInactive",
-    "tabRules",
-    "whitelist",
-  ]);
+  >([...LEGACY_RULE_SETTINGS, "tabRules"]);
   if (tabRules != null) return;
 
-  // New installs, and users who never changed the legacy settings, get the default rules.
-  const storedLegacy = Object.fromEntries(
-    Object.entries(stored).filter(([, value]) => value != null),
-  );
-  if (Object.keys(storedLegacy).length === 0) {
-    await chrome.storage.sync.set({ tabRules: SETTINGS_DEFAULTS.tabRules });
-    return;
-  }
+  // New installs, and users who never changed the legacy settings, store nothing and get the
+  // default rules from `settings`. On a new device, synced legacy settings may not have arrived
+  // yet, and storing the defaults would keep them from ever being migrated.
+  const nextTabRules = buildTabRulesFromStoredLegacySettings(stored);
+  if (nextTabRules == null) return;
 
   // A long whitelist can produce rules over the sync quota for one item. Writing them would
   // reject, so leave `settings` deriving them from the legacy settings instead.
-  const nextTabRules = buildTabRulesFromLegacySettings({
-    filterAudio: SETTINGS_DEFAULTS.filterAudio,
-    filterGroupedTabs: SETTINGS_DEFAULTS.filterGroupedTabs,
-    minutesInactive: SETTINGS_DEFAULTS.minutesInactive,
-    secondsInactive: SETTINGS_DEFAULTS.secondsInactive,
-    whitelist: SETTINGS_DEFAULTS.whitelist,
-    ...storedLegacy,
-  });
   const bytes = new TextEncoder().encode(`tabRules${JSON.stringify(nextTabRules)}`).length;
   if (bytes > (chrome.storage.sync.QUOTA_BYTES_PER_ITEM ?? 8192)) {
     console.warn(`[migrateSync]: Tab Rules (${bytes} bytes) exceed the sync quota; not migrating`);

@@ -1,6 +1,6 @@
 import { migrateSync, pauseExtension, setIdle } from "./storage";
-import settings, { SETTINGS_DEFAULTS } from "./settings";
 import { TextEncoder } from "util";
+import settings from "./settings";
 
 Object.assign(global, { TextEncoder });
 
@@ -112,10 +112,9 @@ describe("migrateSync", () => {
     expect(tabRules.rules[3].then).toEqual({ action: "stale", afterSeconds: 3600, save: "corral" });
   });
 
-  test("stores the default rules when no settings were changed", async () => {
+  test("stores nothing when no legacy settings were changed", async () => {
     await migrateSync();
-    const { tabRules } = await chrome.storage.sync.get("tabRules");
-    expect(tabRules).toEqual(SETTINGS_DEFAULTS.tabRules);
+    expect(await chrome.storage.sync.get(null)).toEqual({});
   });
 
   test("leaves tabRules that were already migrated, even by another device", async () => {

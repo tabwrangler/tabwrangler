@@ -132,9 +132,6 @@
   "options_errorImportExport": {
     "message": "Помилка імпорту/експорту"
   },
-  "options_errorSavingSettings": {
-    "message": "Помилка збереження налаштувань"
-  },
   "options_unsavedChanges": {
     "message": "Не збережені зміни"
   },

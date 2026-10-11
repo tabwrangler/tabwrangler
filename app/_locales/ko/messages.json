@@ -132,9 +132,6 @@
   "options_errorImportExport": {
     "message": "불러오기/내보내기 오류"
   },
-  "options_errorSavingSettings": {
-    "message": "설정 저장 오류"
-  },
   "options_unsavedChanges": {
     "message": "저장되지 않은 변경사항"
   },

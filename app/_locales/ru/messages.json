@@ -140,9 +140,6 @@
   "options_errorImportExport": {
     "message": "Ошибка импорта/экспорта"
   },
-  "options_errorSavingSettings": {
-    "message": "Ошибка сохранения настроек"
-  },
   "options_unsavedChanges": {
     "message": "Несохраненные изменения"
   },
@@ -251,19 +248,19 @@
     "message": "Системная"
   },
   "options_option_timeInactive_abbr_days": {
-    "description": "Abbreviation for 'days' shown in the inactive time input",
+    "description": "Abbreviation for 'days' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "дн."
   },
   "options_option_timeInactive_abbr_hours": {
-    "description": "Abbreviation for 'hours' shown in the inactive time input",
+    "description": "Abbreviation for 'hours' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "ч"
   },
   "options_option_timeInactive_abbr_minutes": {
-    "description": "Abbreviation for 'minutes' shown in the inactive time input",
+    "description": "Abbreviation for 'minutes' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "мин"
   },
   "options_option_timeInactive_abbr_seconds": {
-    "description": "Abbreviation for 'seconds' shown in the inactive time input",
+    "description": "Abbreviation for 'seconds' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "с"
   },
   "options_option_timeInactive_duration_day": {

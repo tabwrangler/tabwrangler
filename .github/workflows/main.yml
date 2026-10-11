@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: npm ci
+      - run: npm ci --no-audit --no-fund
       - run: npm run check-types
 
   lint:
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: npm ci
+      - run: npm ci --no-audit --no-fund
       - run: npm run lint
 
   test:
@@ -43,14 +43,14 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: npm ci
+      - run: npm ci --no-audit --no-fund
       - run: npm run test
 
   build:
     needs: [check-types, lint, test]
     runs-on: ubuntu-latest
 
-    # Attestation permissions are scoped to this job so other jobs running `npm ci` can't mint OIDC
+    # Attestation permissions are scoped to this job so other jobs running `npm ci --no-audit --no-fund` can't mint OIDC
     # tokens. Job-level permissions replace the workflow's, so `contents: read` is repeated.
     permissions:
       attestations: write
@@ -69,7 +69,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - run: npm ci
+      - run: npm ci --no-audit --no-fund
       - run: npm run build
 
       - name: Generate artifact attestations

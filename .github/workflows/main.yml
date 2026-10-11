@@ -52,6 +52,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
+      - name: Extract version from package.json, name it $PACKAGE_VERSION
+        run: |
+          PACKAGE_VERSION=$(jq -r '.version' package.json)
+          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> "$GITHUB_ENV"
+
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -59,6 +65,6 @@ jobs:
       - run: npm run build
       - uses: actions/upload-artifact@v6
         with:
-          name: tabwrangler-builds
+          name: tabwrangler-builds-${{ env.PACKAGE_VERSION }}
           path: dist/tabwrangler-*.zip
           if-no-files-found: error

@@ -297,7 +297,7 @@ async function checkToClose() {
 
     const idle = await isIdle();
     await setIdle(idle);
-    if (idle || !withinActiveHours) return;
+    if (idle) return;
 
     const tabsToClose = await ASYNC_LOCK.acquire("local.tabTimes", async () => {
       const [lastFocusedWindow, allWindows, { tabTimes }] = await Promise.all([
@@ -324,21 +324,25 @@ async function checkToClose() {
         if (getTabOutcome(tab, tabRules)?.action === "lock") tabTimes[String(tab.id)] = updatedAt;
       });
 
+      // Outside active hours nothing closes, but the persist keys below are still stored so locks
+      // and tab times survive a browser restart.
       let candidateTabs: chrome.tabs.Tab[] = [];
       const minTabsStrategy = settings.get("minTabsStrategy");
-      switch (minTabsStrategy) {
-        case "allWindows":
-          // * "allWindows" - sum tabs across all open browser windows
-          candidateTabs = findTabsToCloseCandidates(tabTimes, allTabs);
-          break;
-        case "givenWindow":
-          // * "givenWindow" (default) - count tabs within any given window
-          candidateTabs = allWindows.flatMap((win) =>
-            win.tabs == null ? [] : findTabsToCloseCandidates(tabTimes, win.tabs),
-          );
-          break;
-        default:
-          minTabsStrategy satisfies never;
+      if (withinActiveHours) {
+        switch (minTabsStrategy) {
+          case "allWindows":
+            // * "allWindows" - sum tabs across all open browser windows
+            candidateTabs = findTabsToCloseCandidates(tabTimes, allTabs);
+            break;
+          case "givenWindow":
+            // * "givenWindow" (default) - count tabs within any given window
+            candidateTabs = allWindows.flatMap((win) =>
+              win.tabs == null ? [] : findTabsToCloseCandidates(tabTimes, win.tabs),
+            );
+            break;
+          default:
+            minTabsStrategy satisfies never;
+        }
       }
 
       // Populate and cull `tabTimes` before storing again.

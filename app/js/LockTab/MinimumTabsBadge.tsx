@@ -1,4 +1,5 @@
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import useActiveHoursState from "../useActiveHoursState";
 import { useStorageSyncPersistQuery } from "../storage";
 
 type MinTabsStrategyState =
@@ -19,7 +20,8 @@ export default function MinimumTabsBadge({
   unlockedTabCount,
 }: MinimumTabsBadgeProps) {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
-  const paused = syncPersistData?.paused ?? false;
+  const { active: withinActiveHours } = useActiveHoursState();
+  const paused = (syncPersistData?.paused ?? false) || !withinActiveHours;
   const tabsWillAutoClose = unlockedTabCount > minTabs;
 
   let tooltipMessage;

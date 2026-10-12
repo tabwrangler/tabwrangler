@@ -1,6 +1,7 @@
 import { exportData, importData } from "../actions/importExportActions";
 import settings, { type SettingsSchema } from "../settings";
 import { useRef, useState } from "react";
+import ActiveHours from "./ActiveHours";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import FileSaver from "file-saver";
@@ -136,7 +137,7 @@ export default function OptionsTab() {
           <label className="form-label">
             <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
           </label>
-          <div>
+          <div className="mb-2">
             <ButtonGroup>
               <Button
                 active={theme == null || theme === "system"}
@@ -171,6 +172,34 @@ export default function OptionsTab() {
                 {chrome.i18n.getMessage("options_option_theme_dark")}
               </Button>
             </ButtonGroup>
+          </div>
+          <div className="form-check form-switch mb-1">
+            <input
+              className="form-check-input"
+              defaultChecked={settings.get("showBadgeCount")}
+              id="showBadgeCount"
+              name="showBadgeCount"
+              onChange={handleSettingsChange}
+              role="switch"
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="showBadgeCount">
+              {chrome.i18n.getMessage("options_option_showBadgeCount_label")}
+            </label>
+          </div>
+          <div className="form-check form-switch mb-3">
+            <input
+              className="form-check-input"
+              defaultChecked={settings.get("createContextMenu")}
+              id="createContextMenu"
+              name="createContextMenu"
+              onChange={handleSettingsChange}
+              role="switch"
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="createContextMenu">
+              {chrome.i18n.getMessage("options_option_createContextMenu_label")}
+            </label>
           </div>
         </form>
         <TabRules onSaveSetting={saveSetting} />
@@ -216,7 +245,7 @@ export default function OptionsTab() {
               </div>
             </div>
           </div>
-          <div className="form-check form-switch mb-1">
+          <div className="form-check form-switch mb-1 mt-2">
             <input
               className="form-check-input"
               defaultChecked={settings.get("debounceOnActivated")}
@@ -231,7 +260,11 @@ export default function OptionsTab() {
             </label>
           </div>
           <PauseWhenIdleOption onSaveSetting={saveSetting} />
-          <label className="form-label mt-3" htmlFor="maxTabs">
+        </form>
+        <ActiveHours onSaveSetting={saveSetting} />
+        <h5 className="mt-3">Tab Corral</h5>
+        <form>
+          <label className="form-label" htmlFor="maxTabs">
             <strong>{chrome.i18n.getMessage("options_option_rememberTabs_label")}</strong>
           </label>
           <div className="row align-items-center">
@@ -277,7 +310,7 @@ export default function OptionsTab() {
               </div>
             </div>
           )}
-          <div className="form-check form-switch mb-1 mt-2">
+          <div className="form-check form-switch mb-3 mt-2">
             <input
               className="form-check-input"
               defaultChecked={settings.get("purgeClosedTabs")}
@@ -289,34 +322,6 @@ export default function OptionsTab() {
             />
             <label className="form-check-label" htmlFor="purgeClosedTabs">
               {chrome.i18n.getMessage("options_option_clearOnQuit_label")}
-            </label>
-          </div>
-          <div className="form-check form-switch mb-1">
-            <input
-              className="form-check-input"
-              defaultChecked={settings.get("showBadgeCount")}
-              id="showBadgeCount"
-              name="showBadgeCount"
-              onChange={handleSettingsChange}
-              role="switch"
-              type="checkbox"
-            />
-            <label className="form-check-label" htmlFor="showBadgeCount">
-              {chrome.i18n.getMessage("options_option_showBadgeCount_label")}
-            </label>
-          </div>
-          <div className="form-check form-switch mb-3">
-            <input
-              className="form-check-input"
-              defaultChecked={settings.get("createContextMenu")}
-              id="createContextMenu"
-              name="createContextMenu"
-              onChange={handleSettingsChange}
-              role="switch"
-              type="checkbox"
-            />
-            <label className="form-check-label" htmlFor="createContextMenu">
-              {chrome.i18n.getMessage("options_option_createContextMenu_label")}
             </label>
           </div>
           <TabWrangleOption

@@ -3,6 +3,7 @@ import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import type { TabCondition, TabRule } from "../tabRules";
 import TabGroupIndicator, { getTabGroupColor } from "./TabGroupIndicator";
 import { type TabRowHandle, animateRowHeight, fadeIn, rotateChevron } from "./rowAnimations";
+import { inactiveMs, isWithinActiveHours } from "../activeHours";
 import { useContext, useImperativeHandle, useRef } from "react";
 import TabFavicon from "../TabFavicon";
 import type { TabLockStatus } from "../tabUtil";
@@ -11,6 +12,7 @@ import cx from "classnames";
 import settings from "../settings";
 import { shouldFreezeActiveTabTimer } from "../tabUtil";
 import usePauseTimesQuery from "../api/usePauseTimesQuery";
+import useSetting from "../useSetting";
 import { useStorageSyncPersistQuery } from "../storage";
 import useTabLockStatus from "../useTabLockStatus";
 
@@ -49,19 +51,27 @@ export default function OpenTabRow({
   const tabLockStatus = useTabLockStatus(tab);
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const { data: pauseTimes } = usePauseTimesQuery();
+  const activeHours = useSetting("activeHours");
   const now = useContext(UseNowContext);
   const tabTime = tabTimeProp ?? now;
   const paused = syncPersistData?.paused;
   // Only use `pausedAt` while paused because unpausing from another browser does not remove it here
   const pausedAt = paused ? pauseTimes?.pausedAt : null;
   const idleAt = pauseTimes?.idleAt;
-  // Timers do not count down while paused or idle, so show them as they were when that began
-  const timersPausedAt = pausedAt ?? idleAt;
-  const timerNow = timersPausedAt == null ? now : Math.max(timersPausedAt, tabTime);
+  const clockCheckedAt = pauseTimes?.clockCheckedAt;
+  const outsideActiveHours = !isWithinActiveHours(now, activeHours);
+  // Timers do not count down while paused or idle, so show them as they were when that began. Tab
+  // times exclude time outside active hours only up to `clockCheckedAt`, so leave out the rest.
+  const timersPausedAt =
+    pausedAt ??
+    idleAt ??
+    (clockCheckedAt == null ? now : now - inactiveMs(clockCheckedAt, now, activeHours));
+  const timerNow = Math.max(timersPausedAt, tabTime);
   const staleAfterMs = settings.stayOpen(tab);
   const cutOff = timerNow - staleAfterMs;
   const timeRemaining = -1 * Math.round((cutOff - tabTime) / 1000);
-  const isOverdue = !tabLockStatus.locked && !windowLocked && !paused && timeRemaining < 0;
+  const isOverdue =
+    !tabLockStatus.locked && !windowLocked && !paused && !outsideActiveHours && timeRemaining < 0;
 
   const titleCellRef = useRef<HTMLTableCellElement>(null);
   const titleCellContentRef = useRef<HTMLDivElement>(null);
@@ -156,6 +166,7 @@ export default function OpenTabRow({
           <TabLockContent
             hasPausedAt={pausedAt != null}
             isBrowserIdle={idleAt != null}
+            isOutsideActiveHours={outsideActiveHours}
             isTabActive={tab.active}
             staleAfterMs={staleAfterMs}
             timerFrozen={
@@ -230,6 +241,7 @@ function TabVolumeControl({ tab }: { tab: chrome.tabs.Tab }) {
 function TabLockContent({
   hasPausedAt,
   isBrowserIdle,
+  isOutsideActiveHours,
   isTabActive,
   staleAfterMs,
   timerFrozen,
@@ -240,6 +252,7 @@ function TabLockContent({
 }: {
   hasPausedAt: boolean;
   isBrowserIdle: boolean;
+  isOutsideActiveHours: boolean;
   isTabActive: boolean;
   staleAfterMs: number;
   timerFrozen: boolean;
@@ -291,6 +304,8 @@ function TabLockContent({
     } else if (paused) {
       // Paused from another browser, so there is no `pausedAt` here to calculate time remaining
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
+    } else if (isOutsideActiveHours) {
+      timeLeftContent = <OutsideActiveHoursTimeRemaining timeRemaining={timeRemaining} />;
     } else if (isBrowserIdle) {
       timeLeftContent = <IdleTimeRemaining timeRemaining={timeRemaining} />;
     } else if (timeRemaining <= 0 && tabsWillAutoClose) {
@@ -413,6 +428,21 @@ function PausedTimeRemaining({ timeRemaining }: { timeRemaining: number }) {
     >
       <span>
         <i className="text-warning opacity-50 fas fa-pause" />{" "}
+        <time className="font-monospace">{formatSecondsToDhms(Math.max(0, timeRemaining))}</time>
+      </span>
+    </OverlayTrigger>
+  );
+}
+
+function OutsideActiveHoursTimeRemaining({ timeRemaining }: { timeRemaining: number }) {
+  return (
+    <OverlayTrigger
+      overlay={
+        <Tooltip>{chrome.i18n.getMessage("tabLock_timerOutsideActiveHours_tooltip")}</Tooltip>
+      }
+    >
+      <span>
+        <i className="text-warning opacity-50 fas fa-moon" />{" "}
         <time className="font-monospace">{formatSecondsToDhms(Math.max(0, timeRemaining))}</time>
       </span>
     </OverlayTrigger>

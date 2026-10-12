@@ -15,6 +15,30 @@
     "description": "Link to the extension's support site",
     "message": "Support"
   },
+  "activeHours_noActiveHours": {
+    "description": "Shown next to the disabled Resume button when no day has active hours, so Tab Wrangler never runs",
+    "message": "No active hours set"
+  },
+  "activeHours_pausedUntil": {
+    "description": "Shown when Tab Wrangler is paused because it is outside the active hours set in Options. TIME is when active hours begin again: a time, or a weekday and time when it is not today",
+    "message": "Paused until $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "Mon 9:00 AM"
+      }
+    }
+  },
+  "activeHours_runningUntil": {
+    "description": "Shown in Options under the active hours while Tab Wrangler is running. TIME is when active hours end: a time, or a weekday and time when it is not today",
+    "message": "Currently running until $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "5:00 PM"
+      }
+    }
+  },
   "commandLockUnlockActiveTab": {
     "description": "Description of keyboard shortcut to lock or unlock the current tab",
     "message": "Lock/Unlock current tab"
@@ -166,6 +190,56 @@
       "minTabs": {
         "content": "$1",
         "example": "20"
+      }
+    }
+  },
+  "options_activeHours_allDay": {
+    "description": "Label for checkbox that makes a day active for all 24 hours, disabling its start and end time menus",
+    "message": "All day"
+  },
+  "options_activeHours_description": {
+    "description": "Description of the Active Hours section of the options page",
+    "message": "Tab timers count down and tabs are auto-closed only during these hours."
+  },
+  "options_activeHours_from": {
+    "description": "Accessible label for the menu choosing when active hours begin on a given day",
+    "message": "$DAY$ start time",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Monday"
+      }
+    }
+  },
+  "options_activeHours_midnight": {
+    "description": "Last option in the menu choosing when active hours end on a given day: the end of that day",
+    "message": "Midnight"
+  },
+  "options_activeHours_noDays": {
+    "description": "Warning shown when no day of the week is selected in Active Hours",
+    "message": "No days are selected, so Tab Wrangler will never close tabs."
+  },
+  "options_activeHours_toggleDayLabel": {
+    "description": "Button label for toggling a day of the week on or off in Active Hours",
+    "message": "Toggle $DAY$",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Monday"
+      }
+    }
+  },
+  "options_activeHours_to": {
+    "description": "Text between the start and end time menus of a day's active hours, as in \"9:00 AM to 5:00 PM\"",
+    "message": "to"
+  },
+  "options_activeHours_until": {
+    "description": "Accessible label for the menu choosing when active hours end on a given day",
+    "message": "$DAY$ end time",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Monday"
       }
     }
   },
@@ -548,6 +622,10 @@
     "description": "Tooltip shown next to a tab's paused countdown while the browser is idle",
     "message": "Browser idle: timers do NOT count down"
   },
+  "tabLock_timerOutsideActiveHours_tooltip": {
+    "description": "Tooltip shown next to a tab's paused countdown while it is outside the active hours set in Options",
+    "message": "Outside active hours: timers do NOT count down"
+  },
   "tabLock_timerPaused_tooltip": {
     "description": "Tooltip shown next to a tab's paused countdown while the extension is paused",
     "message": "Extension paused: timers do NOT count down"
@@ -806,6 +884,10 @@
       }
     }
   },
+  "options_section_activeHours": {
+    "description": "Heading for the options section that sets which hours of each day Tab Wrangler runs",
+    "message": "Active Hours"
+  },
   "options_section_tabRules": {
     "description": "Header for the tab rules section of the options tab",
     "message": "Tab Rules"
@@ -820,11 +902,11 @@
   },
   "options_tabRules_action_stale": {
     "description": "Tab rule action in the action menu, followed by inputs for how long matching tabs must be inactive before they're marked stale and can be auto-closed",
-    "message": "Stale after inactive for"
+    "message": "Mark tab stale after inactive for"
   },
   "options_tabRules_action_staleAfter": {
     "description": "Tab rule action shown in the list of rules, as in \"Then mark tab stale after 2 hours\"",
-    "message": "Stale after inactive for $DURATION$",
+    "message": "Mark tab stale after inactive for $DURATION$",
     "placeholders": {
       "duration": {
         "content": "$1",

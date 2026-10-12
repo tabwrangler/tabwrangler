@@ -1,4 +1,12 @@
-import { migrateSync, pauseExtension, setIdle } from "./storage";
+import { ALWAYS_ACTIVE_HOURS, type DayOfWeek } from "./activeHours";
+import {
+  excludeTimeOutsideActiveHours,
+  migrateSync,
+  onActiveHoursChanged,
+  pauseExtension,
+  setIdle,
+  unpauseExtension,
+} from "./storage";
 import { TextEncoder } from "util";
 import settings from "./settings";
 
@@ -69,6 +77,138 @@ describe("pauseExtension", () => {
     expect(idleAt).toBeUndefined();
     expect(pausedAt).toBe(46_000);
     expect(tabTimes["1"]).toBe(45_500);
+  });
+});
+
+describe("excludeTimeOutsideActiveHours", () => {
+  const HOUR_MS = 60 * 60 * 1000;
+  const fridayCheckAt = new Date("2026-10-09T16:55").getTime();
+  const fridayEndAt = new Date("2026-10-09T17:00").getTime();
+  const saturdayAt = new Date("2026-10-10T10:00").getTime();
+  const mondayAt = new Date("2026-10-12T09:05").getTime();
+  const tabTime = fridayCheckAt - HOUR_MS;
+
+  beforeEach(() => {
+    process.env.TZ = "America/New_York";
+    settings.stayOpen = jest.fn(() => 7 * 24 * HOUR_MS);
+    settings.cache.activeHours = ([1, 2, 3, 4, 5] as DayOfWeek[]).map((dayOfWeek) => ({
+      dayOfWeek,
+      startMinute: 9 * 60,
+      endMinute: 17 * 60,
+    }));
+  });
+
+  afterEach(() => {
+    settings.cache.activeHours = ALWAYS_ACTIVE_HOURS;
+  });
+
+  test("starts the clock without shifting tab times", async () => {
+    await chrome.storage.local.set({ tabTimes: { "1": tabTime } });
+    jest.spyOn(Date, "now").mockReturnValue(saturdayAt);
+
+    await excludeTimeOutsideActiveHours();
+
+    const { clockCheckedAt, tabTimes } = await chrome.storage.local.get([
+      "clockCheckedAt",
+      "tabTimes",
+    ]);
+    expect(clockCheckedAt).toBe(saturdayAt);
+    expect(tabTimes["1"]).toBe(tabTime);
+  });
+
+  test("leaves tab times alone outside active hours", async () => {
+    await chrome.storage.local.set({ clockCheckedAt: fridayCheckAt, tabTimes: { "1": tabTime } });
+    jest.spyOn(Date, "now").mockReturnValue(saturdayAt);
+
+    await excludeTimeOutsideActiveHours();
+
+    const { clockCheckedAt, tabTimes } = await chrome.storage.local.get([
+      "clockCheckedAt",
+      "tabTimes",
+    ]);
+    expect(clockCheckedAt).toBe(fridayCheckAt);
+    expect(tabTimes["1"]).toBe(tabTime);
+  });
+
+  test("excludes a weekend spent asleep once active hours begin", async () => {
+    const tabActivatedOnSaturdayAt = saturdayAt + HOUR_MS;
+    await chrome.storage.local.set({
+      clockCheckedAt: fridayCheckAt,
+      tabTimes: { "1": tabTime, "2": tabActivatedOnSaturdayAt },
+    });
+    jest.spyOn(Date, "now").mockReturnValue(mondayAt);
+
+    await excludeTimeOutsideActiveHours();
+
+    const { clockCheckedAt, tabTimes } = await chrome.storage.local.get([
+      "clockCheckedAt",
+      "tabTimes",
+    ]);
+    expect(clockCheckedAt).toBe(mondayAt);
+    expect(tabTimes["1"]).toBe(tabTime + 64 * HOUR_MS);
+    // Activated outside active hours, so only time since they began counts.
+    expect(tabTimes["2"]).toBe(new Date("2026-10-12T09:00").getTime());
+  });
+
+  test("excludes the time before an idle period, which excludes the rest", async () => {
+    await chrome.storage.local.set({
+      clockCheckedAt: fridayCheckAt,
+      idleAt: saturdayAt,
+      tabTimes: { "1": tabTime },
+    });
+    jest.spyOn(Date, "now").mockReturnValue(saturdayAt + 5_000);
+
+    await excludeTimeOutsideActiveHours();
+    let { tabTimes } = await chrome.storage.local.get("tabTimes");
+    expect(tabTimes["1"]).toBe(tabTime + (saturdayAt - fridayEndAt));
+
+    jest.spyOn(Date, "now").mockReturnValue(mondayAt);
+    await excludeTimeOutsideActiveHours();
+    await setIdle(false);
+    ({ tabTimes } = await chrome.storage.local.get("tabTimes"));
+    expect(tabTimes["1"]).toBe(tabTime + (mondayAt - fridayEndAt));
+  });
+
+  test("excludes time that was outside active hours before they changed", async () => {
+    const mondayCheckAt = new Date("2026-10-12T09:35:00").getTime();
+    const mondayOffAt = mondayCheckAt + 4_000;
+    const mondayOnAt = mondayOffAt + 60_000;
+    const withoutMonday = ALWAYS_ACTIVE_HOURS.filter((w) => w.dayOfWeek !== 1);
+    settings.cache.activeHours = ALWAYS_ACTIVE_HOURS;
+    await chrome.storage.local.set({ clockCheckedAt: mondayCheckAt, tabTimes: { "1": tabTime } });
+
+    jest.spyOn(Date, "now").mockReturnValue(mondayOffAt);
+    settings.cache.activeHours = withoutMonday;
+    await onActiveHoursChanged(ALWAYS_ACTIVE_HOURS);
+
+    jest.spyOn(Date, "now").mockReturnValue(mondayOffAt + 5_000);
+    await excludeTimeOutsideActiveHours();
+
+    jest.spyOn(Date, "now").mockReturnValue(mondayOnAt);
+    settings.cache.activeHours = ALWAYS_ACTIVE_HOURS;
+    await onActiveHoursChanged(withoutMonday);
+
+    jest.spyOn(Date, "now").mockReturnValue(mondayOnAt + 5_000);
+    await excludeTimeOutsideActiveHours();
+
+    const { tabTimes } = await chrome.storage.local.get("tabTimes");
+    expect(tabTimes["1"]).toBe(tabTime + 60_000);
+  });
+
+  test("excludes the time before a pause, which excludes the rest", async () => {
+    await chrome.storage.local.set({ clockCheckedAt: fridayCheckAt, tabTimes: { "1": tabTime } });
+    jest.spyOn(Date, "now").mockReturnValue(saturdayAt);
+    await pauseExtension();
+
+    jest.spyOn(Date, "now").mockReturnValue(saturdayAt + 5_000);
+    await excludeTimeOutsideActiveHours();
+
+    jest.spyOn(Date, "now").mockReturnValue(mondayAt);
+    await excludeTimeOutsideActiveHours();
+    await unpauseExtension();
+
+    const { tabTimes } = await chrome.storage.local.get("tabTimes");
+    expect(tabTimes["1"]).toBe(tabTime + (mondayAt - fridayEndAt));
   });
 });
 

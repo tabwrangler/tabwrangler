@@ -1,4 +1,15 @@
-import { ASYNC_LOCK, migrateLocal, migrateSync, setIdle } from "./js/storage";
+import { ALWAYS_ACTIVE_HOURS, isWithinActiveHours } from "./js/activeHours";
+import {
+  ASYNC_LOCK,
+  CLOCK_STATE_DEFAULTS,
+  type ClockState,
+  excludeInactiveHours,
+  excludeTimeOutsideActiveHours,
+  migrateLocal,
+  migrateSync,
+  onActiveHoursChanged,
+  setIdle,
+} from "./js/storage";
 import { CHECK_TO_CLOSE_INTERVAL_MS, IDLE_PERMISSIONS } from "./js/constants";
 import { RuntimeMessage, UnwrangleTabsResponse } from "./js/messages";
 import { SessionTab, TabTimes } from "./js/types";
@@ -68,7 +79,7 @@ async function updateIcon(tab?: chrome.tabs.Tab): Promise<void> {
   // Ignore any but the most recent callback.
   if (generation !== updateIconGeneration) return;
 
-  if (storageSyncPersist.paused) {
+  if (storageSyncPersist.paused || !isWithinActiveHours(Date.now(), settings.get("activeHours"))) {
     await chrome.action.setIcon({ path: ICON_PAUSED_PATH });
     return;
   }
@@ -221,6 +232,8 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     }
 
     case "sync": {
+      if (changes.activeHours != null)
+        onActiveHoursChanged(changes.activeHours.oldValue ?? ALWAYS_ACTIVE_HOURS);
       if (changes.tabRules != null) onTabRulesChanged(changes.tabRules);
 
       if (changes["persist:settings"]) {
@@ -232,7 +245,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
         }
       }
 
-      if (changes.lockedIds || changes.lockedWindowIds || changes.tabRules) {
+      if (changes.activeHours || changes.lockedIds || changes.lockedWindowIds || changes.tabRules) {
         updateIcon();
       }
 
@@ -258,6 +271,7 @@ async function isIdle(): Promise<boolean> {
   return state !== "active";
 }
 
+let wasWithinActiveHours: boolean | undefined;
 let checkToCloseTimeout: NodeJS.Timeout | undefined;
 function scheduleCheckToClose() {
   if (checkToCloseTimeout != null) clearTimeout(checkToCloseTimeout);
@@ -269,12 +283,21 @@ async function checkToClose() {
   try {
     const storageSyncPersist = await getStorageSyncPersist();
 
+    // Before the idle check, so time outside active hours is excluded even when the first check
+    // after a long sleep finds the screen locked.
+    await excludeTimeOutsideActiveHours();
+    const withinActiveHours = isWithinActiveHours(Date.now(), settings.get("activeHours"));
+    if (withinActiveHours !== wasWithinActiveHours) {
+      wasWithinActiveHours = withinActiveHours;
+      updateIcon();
+    }
+
     // Extension is paused, no work needs to be done.
     if (storageSyncPersist.paused) return;
 
     const idle = await isIdle();
     await setIdle(idle);
-    if (idle) return;
+    if (idle || !withinActiveHours) return;
 
     const tabsToClose = await ASYNC_LOCK.acquire("local.tabTimes", async () => {
       const [lastFocusedWindow, allWindows, { tabTimes }] = await Promise.all([
@@ -390,17 +413,40 @@ async function migratePersistedData(
     const now = Date.now();
     const [
       windows,
-      { lastSeenAt, lockedTabPersistKeys, lockedWindowPersistKeys, tabTimes, tabTimesByPersistKey },
+      {
+        lastSeenAt,
+        lockedTabPersistKeys,
+        lockedWindowPersistKeys,
+        tabTimes,
+        tabTimesByPersistKey,
+        ...clock
+      },
+      { paused },
     ] = await Promise.all([
       chrome.windows.getAll({ populate: true }),
-      chrome.storage.local.get({
+      chrome.storage.local.get<
+        ClockState & {
+          lastSeenAt: number | null;
+          lockedTabPersistKeys: string[];
+          lockedWindowPersistKeys: string[];
+          tabTimes: TabTimes;
+          tabTimesByPersistKey: { [key: string]: number };
+        }
+      >({
+        ...CLOCK_STATE_DEFAULTS,
         lastSeenAt: null,
         lockedTabPersistKeys: [],
         lockedWindowPersistKeys: [],
         tabTimes: {},
         tabTimesByPersistKey: {},
       }),
+      getStorageSyncPersist(),
     ]);
+
+    // Exclude time outside active hours since the last check, which a long sleep can make days.
+    // For tabs restored after a browser restart, only until the browser closed: the offline gap
+    // excludes the rest.
+    const activeHours = settings.get("activeHours");
 
     // Time the browser was closed. Applied to migrated timestamps so that offline time
     // is not counted against a tab's countdown.
@@ -418,12 +464,19 @@ async function migratePersistedData(
       let tabTime: number;
       const tabPersistKey = makeTabPersistKey(tab);
       if (tabTimes[tab.id] != null) {
-        // Tab ID still exists in storage (no restart, or same ID reused) - keep as-is.
-        tabTime = tabTimes[tab.id];
+        // Tab ID still exists in storage (no restart, or same ID reused).
+        tabTime = excludeInactiveHours(tabTimes[tab.id], now, clock, paused, activeHours);
       } else if (tabPersistKey != null && tabTimesByPersistKey[tabPersistKey] != null) {
         // Tab ID changed (browser restart) - look up by persist key and shift the timestamp
         // forward by the offline gap so time spent with the browser closed is not counted.
-        tabTime = tabTimesByPersistKey[tabPersistKey] + offlineGap;
+        tabTime =
+          excludeInactiveHours(
+            tabTimesByPersistKey[tabPersistKey],
+            lastSeenAt ?? now,
+            clock,
+            paused,
+            activeHours,
+          ) + offlineGap;
         migratedTabTimes++;
       } else {
         tabTime = now;
@@ -454,6 +507,7 @@ async function migratePersistedData(
     }
 
     await chrome.storage.local.set({
+      clockCheckedAt: now,
       lastSeenAt: now,
       lockedTabPersistKeys: nextLockedTabPersistKeys,
       lockedWindowPersistKeys: nextLockedWindowPersistKeys,

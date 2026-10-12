@@ -1,3 +1,4 @@
+import { ALWAYS_ACTIVE_HOURS, type ActiveHours } from "./activeHours";
 import { AVERAGE_TAB_BYTES_SIZE, TabLockStatus, getTabLockStatus } from "./tabUtil";
 import {
   DEFAULT_STALE_AFTER_SECONDS,
@@ -22,6 +23,7 @@ export type MinTabsStrategyOption = "allWindows" | "givenWindow";
 export type SettingsSchemaWrangleOption = "exactURLMatch" | "hostnameAndTitleMatch" | "withDupes";
 
 export interface SettingsSchema {
+  activeHours: ActiveHours;
   corralTabSortOrder: string | null;
   createContextMenu: boolean;
   debounceOnActivated: boolean;
@@ -47,6 +49,9 @@ const defaultLockedIds: Array<number> = [];
 const defaultLockedWindowIds: Array<number> = [];
 
 export const SETTINGS_DEFAULTS: SettingsSchema = {
+  // Hours of each day Tab Wrangler runs. Outside them it is paused.
+  activeHours: ALWAYS_ACTIVE_HOURS,
+
   // Saved sort order for list of closed tabs. When null, default sort is used (resverse chrono.)
   corralTabSortOrder: null,
 

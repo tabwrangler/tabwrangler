@@ -45,8 +45,13 @@ export default function ActiveHours({ onSaveSetting }: { onSaveSetting: SaveSett
       <div className="d-flex gap-2 mt-2">
         {daysOfWeek.map((dayOfWeek) => {
           const pressed = activeHours.some((w) => w.dayOfWeek === dayOfWeek);
+          const title = chrome.i18n.getMessage(
+            "options_activeHours_toggleDayLabel",
+            formatDayOfWeek(dayOfWeek, "long"),
+          );
           return (
             <button
+              aria-label={title}
               aria-pressed={pressed}
               className={cx("btn btn-sm rounded-circle p-0", {
                 "btn-outline-secondary": !pressed,
@@ -55,10 +60,7 @@ export default function ActiveHours({ onSaveSetting }: { onSaveSetting: SaveSett
               key={dayOfWeek}
               onClick={() => saveWindow(dayOfWeek, pressed ? null : ALL_DAY)}
               style={{ height: "2rem", width: "2rem" }}
-              title={chrome.i18n.getMessage(
-                "options_activeHours_toggleDayLabel",
-                formatDayOfWeek(dayOfWeek, "long"),
-              )}
+              title={title}
               type="button"
             >
               {formatDayOfWeek(dayOfWeek, "narrow")}

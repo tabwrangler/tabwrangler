@@ -184,11 +184,24 @@ function shiftTabTimesForActiveHours(
       return;
     }
 
-    const { tabTimes } = await chrome.storage.local.get<{ tabTimes: TabTimes }>({ tabTimes: {} });
-    const nextTabTimes: TabTimes = {};
-    for (const [tabId, tabTime] of Object.entries(tabTimes))
-      nextTabTimes[tabId] = excludeInactiveHours(tabTime, now, clock, paused, activeHours);
-    await chrome.storage.local.set({ clockCheckedAt: now, tabTimes: nextTabTimes });
+    // Shift the times kept by persist key too: they are only refreshed while Tab Wrangler runs, and
+    // a browser restart measures them from the new `clockCheckedAt`.
+    const { tabTimes, tabTimesByPersistKey } = await chrome.storage.local.get<{
+      tabTimes: TabTimes;
+      tabTimesByPersistKey: { [key: string]: number };
+    }>({ tabTimes: {}, tabTimesByPersistKey: {} });
+    const shift = (times: { [key: string]: number }) =>
+      Object.fromEntries(
+        Object.entries(times).map(([key, time]) => [
+          key,
+          excludeInactiveHours(time, now, clock, paused, activeHours),
+        ]),
+      );
+    await chrome.storage.local.set({
+      clockCheckedAt: now,
+      tabTimes: shift(tabTimes),
+      tabTimesByPersistKey: shift(tabTimesByPersistKey),
+    });
   });
 }
 

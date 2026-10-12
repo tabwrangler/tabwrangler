@@ -10,16 +10,22 @@ export default function useActiveHoursState(): ActiveHoursState & { now: number 
   const [now, setNow] = useState(() => Date.now());
   const state = getActiveHoursState(now, activeHours);
 
+  // `now` is stale when the schedule changes, so refresh it right away.
   useEffect(() => {
-    function refresh() {
-      setNow(Date.now());
-    }
-    // `now` is stale when the schedule changes, so refresh it right away too.
-    const timeouts = [window.setTimeout(refresh, 0)];
-    if (state.nextChangeAt != null)
-      timeouts.push(window.setTimeout(refresh, state.nextChangeAt - Date.now()));
-    return () => timeouts.forEach((timeout) => window.clearTimeout(timeout));
-  }, [activeHours, state.nextChangeAt]);
+    const timeout = window.setTimeout(() => setNow(Date.now()), 0);
+    return () => window.clearTimeout(timeout);
+  }, [activeHours]);
+
+  // Re-armed after every refresh because a timer can fire before `nextChangeAt` by the wall clock,
+  // like when the clock is set back, and refreshing then changes nothing else.
+  useEffect(() => {
+    if (state.nextChangeAt == null) return undefined;
+    const timeout = window.setTimeout(
+      () => setNow(Date.now()),
+      Math.max(0, state.nextChangeAt - Date.now()),
+    );
+    return () => window.clearTimeout(timeout);
+  }, [now, state.nextChangeAt]);
 
   return { ...state, now };
 }

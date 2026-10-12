@@ -21,8 +21,9 @@ export default function PauseButton() {
     pausedMutation.mutate(false);
   }
 
-  // Outside active hours the schedule pauses Tab Wrangler, and only editing it resumes early.
-  if (!activeHoursState.active) {
+  // Outside active hours the schedule pauses Tab Wrangler, and only editing it resumes early. A
+  // manual pause outlasts active hours, so it keeps its own Resume button.
+  if (!activeHoursState.active && !storageSyncPersistData?.paused) {
     // A disabled button gets no pointer events, so the wrapper shows the tooltip.
     return (
       <OverlayTrigger

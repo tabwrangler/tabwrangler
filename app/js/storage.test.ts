@@ -195,6 +195,21 @@ describe("excludeTimeOutsideActiveHours", () => {
     expect(tabTimes["1"]).toBe(tabTime + 60_000);
   });
 
+  test("shifts tab times kept by persist key so a browser restart keeps the exclusion", async () => {
+    await chrome.storage.local.set({
+      clockCheckedAt: fridayCheckAt,
+      idleAt: saturdayAt,
+      tabTimes: { "1": tabTime },
+      tabTimesByPersistKey: { "https://example.com/": tabTime },
+    });
+    jest.spyOn(Date, "now").mockReturnValue(saturdayAt + 5_000);
+
+    await excludeTimeOutsideActiveHours();
+
+    const { tabTimesByPersistKey } = await chrome.storage.local.get("tabTimesByPersistKey");
+    expect(tabTimesByPersistKey["https://example.com/"]).toBe(tabTime + (saturdayAt - fridayEndAt));
+  });
+
   test("excludes the time before a pause, which excludes the rest", async () => {
     await chrome.storage.local.set({ clockCheckedAt: fridayCheckAt, tabTimes: { "1": tabTime } });
     jest.spyOn(Date, "now").mockReturnValue(saturdayAt);

@@ -173,20 +173,6 @@ export default function OptionsTab() {
               </Button>
             </ButtonGroup>
           </div>
-          <div className="form-check form-switch mb-1">
-            <input
-              className="form-check-input"
-              defaultChecked={settings.get("showBadgeCount")}
-              id="showBadgeCount"
-              name="showBadgeCount"
-              onChange={handleSettingsChange}
-              role="switch"
-              type="checkbox"
-            />
-            <label className="form-check-label" htmlFor="showBadgeCount">
-              {chrome.i18n.getMessage("options_option_showBadgeCount_label")}
-            </label>
-          </div>
           <div className="form-check form-switch mb-3">
             <input
               className="form-check-input"
@@ -262,7 +248,7 @@ export default function OptionsTab() {
           <PauseWhenIdleOption onSaveSetting={saveSetting} />
         </form>
         <ActiveHours onSaveSetting={saveSetting} />
-        <h5 className="mt-3">Tab Corral</h5>
+        <h5 className="mt-3">{chrome.i18n.getMessage("tabCorral_name")}</h5>
         <form>
           <label className="form-label" htmlFor="maxTabs">
             <strong>{chrome.i18n.getMessage("options_option_rememberTabs_label")}</strong>
@@ -310,7 +296,21 @@ export default function OptionsTab() {
               </div>
             </div>
           )}
-          <div className="form-check form-switch mb-3 mt-2">
+          <div className="form-check form-switch mb-1 mt-2">
+            <input
+              className="form-check-input"
+              defaultChecked={settings.get("showBadgeCount")}
+              id="showBadgeCount"
+              name="showBadgeCount"
+              onChange={handleSettingsChange}
+              role="switch"
+              type="checkbox"
+            />
+            <label className="form-check-label" htmlFor="showBadgeCount">
+              {chrome.i18n.getMessage("options_option_showBadgeCount_label")}
+            </label>
+          </div>
+          <div className="form-check form-switch mb-3">
             <input
               className="form-check-input"
               defaultChecked={settings.get("purgeClosedTabs")}

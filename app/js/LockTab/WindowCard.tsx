@@ -16,6 +16,7 @@ interface WindowCardProps {
   isCurrent: boolean;
   isLocked: boolean;
   isLastFocused: boolean;
+  outsideActiveHours: boolean;
   windowId: number;
   tabGroupsById: Map<number, chrome.tabGroups.TabGroup>;
   tabs: chrome.tabs.Tab[];
@@ -36,6 +37,7 @@ export default function WindowCard({
   isCurrent,
   isLocked,
   isLastFocused,
+  outsideActiveHours,
   windowId,
   tabGroupsById,
   tabs,
@@ -115,6 +117,7 @@ export default function WindowCard({
             isFirstInGroup={groupId != null && isFirstInGroup}
             isInLastFocusedWindow={isLastFocused}
             key={tab.id}
+            outsideActiveHours={outsideActiveHours}
             ref={(handle) => {
               if (tab.id == null) return;
               if (handle == null) tabRowRefs.current.delete(tab.id);

@@ -3,12 +3,12 @@ import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import type { TabCondition, TabRule } from "../tabRules";
 import TabGroupIndicator, { getTabGroupColor } from "./TabGroupIndicator";
 import { type TabRowHandle, animateRowHeight, fadeIn, rotateChevron } from "./rowAnimations";
-import { inactiveMs, isWithinActiveHours } from "../activeHours";
 import { useContext, useImperativeHandle, useRef } from "react";
 import TabFavicon from "../TabFavicon";
 import type { TabLockStatus } from "../tabUtil";
 import { UseNowContext } from "./LockTab";
 import cx from "classnames";
+import { inactiveMs } from "../activeHours";
 import settings from "../settings";
 import { shouldFreezeActiveTabTimer } from "../tabUtil";
 import usePauseTimesQuery from "../api/usePauseTimesQuery";
@@ -19,6 +19,7 @@ import useTabLockStatus from "../useTabLockStatus";
 interface OpenTabRowProps {
   isFirstInGroup?: boolean;
   isInLastFocusedWindow?: boolean;
+  outsideActiveHours: boolean;
   tab: chrome.tabs.Tab;
   tabGroup?: chrome.tabGroups.TabGroup;
   tabTime: number | undefined;
@@ -38,6 +39,7 @@ interface OpenTabRowProps {
 export default function OpenTabRow({
   isFirstInGroup = false,
   isInLastFocusedWindow = false,
+  outsideActiveHours,
   tab,
   tabGroup,
   tabTime: tabTimeProp,
@@ -55,11 +57,12 @@ export default function OpenTabRow({
   const now = useContext(UseNowContext);
   const tabTime = tabTimeProp ?? now;
   const paused = syncPersistData?.paused;
+
   // Only use `pausedAt` while paused because unpausing from another browser does not remove it here
   const pausedAt = paused ? pauseTimes?.pausedAt : null;
   const idleAt = pauseTimes?.idleAt;
   const clockCheckedAt = pauseTimes?.clockCheckedAt;
-  const outsideActiveHours = !isWithinActiveHours(now, activeHours);
+
   // Timers do not count down while paused or idle, so show them as they were when that began. Tab
   // times exclude time outside active hours only up to `clockCheckedAt`, so leave out the rest.
   const timersPausedAt =

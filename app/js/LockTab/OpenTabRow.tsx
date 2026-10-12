@@ -64,12 +64,15 @@ export default function OpenTabRow({
   const clockCheckedAt = pauseTimes?.clockCheckedAt;
 
   // Timers do not count down while paused or idle, so show them as they were when that began. Tab
-  // times exclude time outside active hours only up to `clockCheckedAt`, so leave out the rest.
-  const timersPausedAt =
-    pausedAt ??
-    idleAt ??
-    (clockCheckedAt == null ? now : now - inactiveMs(clockCheckedAt, now, activeHours));
-  const timerNow = Math.max(timersPausedAt, tabTime);
+  // times exclude time outside active hours only up to `clockCheckedAt`, so leave out the rest
+  // until then, as `excludeInactiveHours` will.
+  const timersPausedAt = pausedAt ?? idleAt ?? now;
+  const timerNow = Math.max(
+    clockCheckedAt == null
+      ? timersPausedAt
+      : timersPausedAt - inactiveMs(Math.max(tabTime, clockCheckedAt), timersPausedAt, activeHours),
+    tabTime,
+  );
   const staleAfterMs = settings.stayOpen(tab);
   const cutOff = timerNow - staleAfterMs;
   const timeRemaining = -1 * Math.round((cutOff - tabTime) / 1000);

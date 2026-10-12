@@ -10,9 +10,6 @@ import {
   setActiveWindow,
 } from "./activeHours";
 
-// US Eastern time has DST changes on March 8 and November 1, 2026.
-process.env.TZ = "America/New_York";
-
 const HOUR_MS = 60 * 60 * 1000;
 
 function at(isoLocal: string): number {

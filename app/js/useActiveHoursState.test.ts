@@ -2,8 +2,6 @@ import { act, renderHook } from "@testing-library/react";
 import { type DayOfWeek } from "./activeHours";
 import useActiveHoursState from "./useActiveHoursState";
 
-process.env.TZ = "America/New_York";
-
 const mockSettings: Record<string, unknown> = {};
 jest.mock("./useSetting", () => (key: string) => mockSettings[key]);
 

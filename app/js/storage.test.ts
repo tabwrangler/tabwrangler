@@ -89,7 +89,6 @@ describe("excludeTimeOutsideActiveHours", () => {
   const tabTime = fridayCheckAt - HOUR_MS;
 
   beforeEach(() => {
-    process.env.TZ = "America/New_York";
     settings.stayOpen = jest.fn(() => 7 * 24 * HOUR_MS);
     settings.cache.activeHours = ([1, 2, 3, 4, 5] as DayOfWeek[]).map((dayOfWeek) => ({
       dayOfWeek,

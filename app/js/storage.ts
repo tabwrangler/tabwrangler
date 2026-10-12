@@ -1,8 +1,10 @@
+import { type ActiveHours, inactiveMs, isWithinActiveHours } from "./activeHours";
 import { LEGACY_RULE_SETTINGS, type LegacyRuleSettings } from "./tabRules";
-import { SETTINGS_DEFAULTS, buildTabRulesFromStoredLegacySettings } from "./settings";
 import { setTabTime, shiftTabTimes } from "./actions/localStorageActions";
+import settings, { SETTINGS_DEFAULTS, buildTabRulesFromStoredLegacySettings } from "./settings";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AsyncLock from "async-lock";
+import { TabTimes } from "./types";
 import { getStorageSyncPersist } from "./queries";
 import { useEffect } from "react";
 
@@ -98,6 +100,109 @@ export async function setIdle(idle: boolean): Promise<void> {
     await shiftTabTimes(idleAt);
     await chrome.storage.local.remove("idleAt");
   }
+}
+
+export interface ClockState {
+  // Tab times exclude time outside active hours up to here.
+  clockCheckedAt: number | null;
+  idleAt: number | null;
+  pausedAt: number | null;
+}
+
+export const CLOCK_STATE_DEFAULTS: ClockState = {
+  clockCheckedAt: null,
+  idleAt: null,
+  pausedAt: null,
+};
+
+/**
+ * Returns `tabTime` shifted so time outside active hours until `untilMs` does not count against it,
+ * starting from `clockCheckedAt` or the tab's own time if later. Time after a pause or idle period
+ * began is left to the end of that period, which excludes all of it.
+ */
+export function excludeInactiveHours(
+  tabTime: number,
+  untilMs: number,
+  clock: ClockState,
+  paused: boolean,
+  activeHours: ActiveHours,
+): number {
+  if (clock.clockCheckedAt == null) return tabTime;
+  let endMs = untilMs;
+  if (paused && clock.pausedAt != null) endMs = Math.min(endMs, clock.pausedAt);
+  if (clock.idleAt != null) endMs = Math.min(endMs, clock.idleAt);
+  return tabTime + inactiveMs(Math.max(tabTime, clock.clockCheckedAt), endMs, activeHours);
+}
+
+/**
+ * Shifts tab times so time outside active hours does not count against them. Outside active hours
+ * this waits until they begin again, or a pause or idle period starts, so countdowns stay where
+ * they were when active hours ended.
+ */
+export function excludeTimeOutsideActiveHours(): Promise<void> {
+  return shiftTabTimesForActiveHours(settings.get("activeHours"), true);
+}
+
+/**
+ * Excludes time outside the active hours that were in effect until now. Must run when they change,
+ * before anything measures the time since `clockCheckedAt` against the new ones.
+ */
+export function onActiveHoursChanged(previousActiveHours: ActiveHours): Promise<void> {
+  return shiftTabTimesForActiveHours(previousActiveHours, false);
+}
+
+// Takes `activeHours` rather than reading it once the lock is acquired because a queued call must
+// use the active hours from when it was made: they may have changed while it waited.
+function shiftTabTimesForActiveHours(
+  activeHours: ActiveHours,
+  waitForActiveHours: boolean,
+): Promise<void> {
+  return ASYNC_LOCK.acquire("local.tabTimes", async () => {
+    const now = Date.now();
+    const [clock, { paused }] = await Promise.all([
+      chrome.storage.local.get<ClockState>(CLOCK_STATE_DEFAULTS),
+      getStorageSyncPersist(),
+    ]);
+
+    if (
+      waitForActiveHours &&
+      clock.clockCheckedAt != null &&
+      !paused &&
+      clock.idleAt == null &&
+      !isWithinActiveHours(now, activeHours)
+    )
+      return;
+
+    // Each tab's interval lies within the one since `clockCheckedAt`, so when that has no time
+    // outside active hours, neither does any tab's.
+    if (
+      clock.clockCheckedAt == null ||
+      excludeInactiveHours(clock.clockCheckedAt, now, clock, paused, activeHours) ===
+        clock.clockCheckedAt
+    ) {
+      await chrome.storage.local.set({ clockCheckedAt: now });
+      return;
+    }
+
+    // Shift the times kept by persist key too: they are only refreshed while Tab Wrangler runs, and
+    // a browser restart measures them from the new `clockCheckedAt`.
+    const { tabTimes, tabTimesByPersistKey } = await chrome.storage.local.get<{
+      tabTimes: TabTimes;
+      tabTimesByPersistKey: { [key: string]: number };
+    }>({ tabTimes: {}, tabTimesByPersistKey: {} });
+    const shift = (times: { [key: string]: number }) =>
+      Object.fromEntries(
+        Object.entries(times).map(([key, time]) => [
+          key,
+          excludeInactiveHours(time, now, clock, paused, activeHours),
+        ]),
+      );
+    await chrome.storage.local.set({
+      clockCheckedAt: now,
+      tabTimes: shift(tabTimes),
+      tabTimesByPersistKey: shift(tabTimesByPersistKey),
+    });
+  });
 }
 
 export async function pauseExtension(): Promise<void> {

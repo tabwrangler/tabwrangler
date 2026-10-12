@@ -42,6 +42,7 @@ All coordination goes through storage events:
 | `local` | `pausedAt`             | Timestamp when paused; absent when running                               |
 | `local` | `idleAt`               | Timestamp when browser went idle (`pauseWhenIdle`); absent when active   |
 | `local` | `browserStartedAt`     | Timestamp of last browser start; saved `groupId`s older than it are stale |
+| `local` | `clockCheckedAt`       | `tabTimes` exclude time outside `activeHours` up to this timestamp        |
 
 `app/js/storage.ts` wraps all storage access. Every mutating function acquires `ASYNC_LOCK`
 (5s max) to prevent race conditions. React Query hooks (`useStorageSyncPersistQuery`,

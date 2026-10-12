@@ -22,6 +22,9 @@ module.exports = {
     "^lodash-es$": "lodash",
   },
 
+  // A path to a module which exports an async function that is triggered once before all test suites
+  globalSetup: "./jest.globalSetup.js",
+
   // A preset that is used as a base for Jest's configuration
   preset: "ts-jest",
 

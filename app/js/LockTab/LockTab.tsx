@@ -6,7 +6,9 @@ import { Dropdown } from "react-bootstrap";
 import MinimumTabsBadge from "./MinimumTabsBadge";
 import WindowCard from "./WindowCard";
 import cx from "classnames";
+import { isWithinActiveHours } from "../activeHours";
 import { useGetTabLockStatus } from "../useTabLockStatus";
+import useSetting from "../useSetting";
 import { useStorageSyncQuery } from "../storage";
 import useTabGroupsQuery from "../api/useTabGroupsQuery";
 import useTabTimesQuery from "../api/useTabTimesQuery";
@@ -242,9 +244,11 @@ export default function LockTab({ collapsedGroupIds, setCollapsedGroupIds }: Loc
     lastSelectedTabRef.current = tab;
   }
 
-  const minTabs = settings.get("minTabs");
-  const minTabsStrategy = settings.get("minTabsStrategy");
+  const minTabs = useSetting("minTabs");
+  const minTabsStrategy = useSetting("minTabsStrategy");
   const showMinTabsBadge = minTabsStrategy === "allWindows";
+  const activeHours = useSetting("activeHours");
+  const outsideActiveHours = !isWithinActiveHours(now, activeHours);
 
   return (
     <div className="tab-pane active">
@@ -326,6 +330,7 @@ export default function LockTab({ collapsedGroupIds, setCollapsedGroupIds }: Loc
               isLocked={lockedWindowIds.has(windowId)}
               isLastFocused={lastFocusedWindowQuery.data?.id === windowId}
               key={windowId}
+              outsideActiveHours={outsideActiveHours}
               windowId={windowId}
               tabGroupsById={tabGroupsById}
               tabs={tabs}

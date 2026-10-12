@@ -140,9 +140,6 @@
   "options_errorImportExport": {
     "message": "导入/导出错误"
   },
-  "options_errorSavingSettings": {
-    "message": "保存设置时出错"
-  },
   "options_unsavedChanges": {
     "message": "未保存的更改"
   },
@@ -251,19 +248,19 @@
     "message": "系统"
   },
   "options_option_timeInactive_abbr_days": {
-    "description": "Abbreviation for 'days' shown in the inactive time input",
+    "description": "Abbreviation for 'days' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "天"
   },
   "options_option_timeInactive_abbr_hours": {
-    "description": "Abbreviation for 'hours' shown in the inactive time input",
+    "description": "Abbreviation for 'hours' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "小时"
   },
   "options_option_timeInactive_abbr_minutes": {
-    "description": "Abbreviation for 'minutes' shown in the inactive time input",
+    "description": "Abbreviation for 'minutes' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "分"
   },
   "options_option_timeInactive_abbr_seconds": {
-    "description": "Abbreviation for 'seconds' shown in the inactive time input",
+    "description": "Abbreviation for 'seconds' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
     "message": "秒"
   },
   "options_option_timeInactive_duration_day": {

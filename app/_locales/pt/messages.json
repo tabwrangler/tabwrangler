@@ -132,9 +132,6 @@
   "options_errorImportExport": {
     "message": "Erro de Importação/Exportação"
   },
-  "options_errorSavingSettings": {
-    "message": "Erro ao salvar configurações"
-  },
   "options_unsavedChanges": {
     "message": "Alterações não salvas"
   },

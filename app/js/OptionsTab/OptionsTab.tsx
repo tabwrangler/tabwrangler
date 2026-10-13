@@ -34,10 +34,13 @@ export default function OptionsTab() {
   const saveAlertTimeoutRef = useRef<number>(null);
   const [saveAlertVisible, setSaveAlertVisible] = useState(false);
 
-  const [maxTabs, setMaxTabs] = useState<number | string>(settings.get("maxTabs"));
+  const savedMaxTabs = useSetting("maxTabs");
+  const minTabsStrategy = useSetting("minTabsStrategy");
+  const wrangleOption = useSetting("wrangleOption");
+  const [maxTabs, setMaxTabs] = useState<number | string>(savedMaxTabs);
 
   function resetMaxTabs() {
-    setMaxTabs(settings.get("maxTabs"));
+    setMaxTabs(savedMaxTabs);
   }
 
   function saveMaxTabs() {
@@ -219,7 +222,7 @@ export default function OptionsTab() {
                     saveSetting("minTabsStrategy", event.target.value);
                   }}
                   style={{ flex: 3 }}
-                  value={settings.get("minTabsStrategy")}
+                  value={minTabsStrategy}
                 >
                   <option value="allWindows">
                     {chrome.i18n.getMessage("options_option_minTabs_option_total")}
@@ -257,7 +260,7 @@ export default function OptionsTab() {
             <div className="col-3">
               <input
                 className={cx("form-control me-1", {
-                  "border-primary": maxTabs !== settings.get("maxTabs"),
+                  "border-primary": maxTabs !== savedMaxTabs,
                 })}
                 id="maxTabs"
                 min="0"
@@ -282,14 +285,14 @@ export default function OptionsTab() {
               </div>
             </div>
           )}
-          {typeof maxTabs === "number" && maxTabs < settings.get("maxTabs") && (
+          {typeof maxTabs === "number" && maxTabs < savedMaxTabs && (
             <div className="row">
               <div className="col-9 form-text text-primary">
                 {chrome.i18n.getMessage("options_option_rememberTabs_truncateMsg")}
               </div>
             </div>
           )}
-          {typeof maxTabs === "number" && maxTabs > settings.get("maxTabs") && (
+          {typeof maxTabs === "number" && maxTabs > savedMaxTabs && (
             <div className="row">
               <div className="col-9 form-text text-primary">
                 {chrome.i18n.getMessage("options_option_rememberTabs_saveToConfirm")}
@@ -324,10 +327,7 @@ export default function OptionsTab() {
               {chrome.i18n.getMessage("options_option_clearOnQuit_label")}
             </label>
           </div>
-          <TabWrangleOption
-            onChange={handleSettingsChange}
-            selectedOption={settings.get("wrangleOption")}
-          />
+          <TabWrangleOption onChange={handleSettingsChange} selectedOption={wrangleOption} />
         </form>
 
         <h5 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h5>
@@ -404,7 +404,7 @@ export default function OptionsTab() {
         <Toast bg="success" show={saveAlertVisible}>
           <Toast.Body className="text-light">{chrome.i18n.getMessage("options_saving")}</Toast.Body>
         </Toast>
-        <Toast bg="primary" show={maxTabs !== settings.get("maxTabs")}>
+        <Toast bg="primary" show={maxTabs !== savedMaxTabs}>
           <Toast.Body className="d-flex align-items-center justify-content-between">
             <div className="text-light">{chrome.i18n.getMessage("options_unsavedChanges")}</div>
             <div className="d-flex gap-2">

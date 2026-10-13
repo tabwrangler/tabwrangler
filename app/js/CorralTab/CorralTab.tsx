@@ -471,7 +471,7 @@ export default function CorralTab() {
             String(
               localStorageData == null || !("totalTabsWrangled" in localStorageData)
                 ? 0
-                : localStorageData.totalTabsWrangled,
+                : Intl.NumberFormat().format(localStorageData.totalTabsWrangled),
             ),
             String(percentClosed),
           ])}

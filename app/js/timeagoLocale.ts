@@ -1,4 +1,4 @@
-import * as langs from "timeago.js/lib/lang";
+import * as langs from "timeago.js/lib/lang/index";
 
 type TimeagoLocale = (number: number, index: number) => [string, string];
 

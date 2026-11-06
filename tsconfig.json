@@ -7,7 +7,10 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es2017",
+    "paths": {
+      "timeago.js/lib/lang/index": ["./node_modules/timeago.js/dist/lang/index.d.ts"]
+    }
   },
   "include": [
     "app"

@@ -7,13 +7,69 @@
     "description": "Link to the extension's list of changes per release",
     "message": "Список змін"
   },
+  "about_sourceCode": {
+    "description": "Link to the extension's source code and its license type (MIT)",
+    "message": "Вихідний код (GPLv3)"
+  },
   "about_support": {
     "description": "Link to the extension's support site",
     "message": "Підтримка"
   },
+  "activeHours_noActiveHours": {
+    "description": "Shown next to the disabled Resume button when no day has active hours, so Tab Wrangler never runs",
+    "message": "Активні години не вказано"
+  },
+  "activeHours_pausedUntil": {
+    "description": "Shown when Tab Wrangler is paused because it is outside the active hours set in Options. TIME is when active hours begin again: a time, or a weekday and time when it is not today",
+    "message": "Призупинено до $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "Mon 9:00 AM"
+      }
+    }
+  },
+  "activeHours_runningUntil": {
+    "description": "Shown in Options under the active hours while Tab Wrangler is running. TIME is when active hours end: a time, or a weekday and time when it is not today",
+    "message": "Триває до $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "5:00 PM"
+      }
+    }
+  },
+  "commandLockUnlockActiveTab": {
+    "description": "Description of keyboard shortcut to lock or unlock the current tab",
+    "message": "Заблокувати/Розблокувати поточну вкладку"
+  },
+  "commandLockUnlockCurrentWindow": {
+    "description": "Description of keyboard shortcut to lock or unlock the current window",
+    "message": "Заблокувати/Розблокувати поточне вікно"
+  },
+  "commandCloseCurrentTab": {
+    "description": "Description of keyboard shortcut to close and save the current tab",
+    "message": "Закрити поточну вкладку"
+  },
+  "commandCloseTabsToRight": {
+    "description": "Description of keyboard shortcut to close and save all tabs to the right of the current tab",
+    "message": "Закрити вкладки праворуч"
+  },
+  "commandCloseOtherTabs": {
+    "description": "Description of keyboard shortcut to close and save all tabs except the current tab",
+    "message": "Закрити інші вкладки"
+  },
+  "commandWrangleNow": {
+    "description": "Description of keyboard shortcut that does the same thing as the 'Wrangle Now' button: immediately closes the unlocked tabs with the least time remaining, down to the minimum number of tabs, and saves them to the Tab Corral",
+    "message": "Закрити неактивні"
+  },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "Відкрити спливаюче вікно"
+  },
+  "contextMenu_corralTab": {
+    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
+    "message": "Закрити цю вкладку"
   },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
@@ -93,6 +149,100 @@
     "description": "Label for button that resumes (unpauses) the extension",
     "message": "Продовжити"
   },
+  "extension_wrangleNow": {
+    "description": "Label for button that immediately closes tabs down to the minimum number of tabs",
+    "message": "Закрити неактивні"
+  },
+  "extension_wrangleNow_done": {
+    "description": "Message shown after the 'Wrangle Now' button closed tabs",
+    "message": "Вкладок закрито: $count$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "extension_wrangleNow_title": {
+    "description": "Tooltip for the 'Wrangle Now' button when there are tabs it would close",
+    "message": "Закрити $count$ найстаріших неактивних вкладок.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "extension_wrangleNow_title_none_allWindows": {
+    "description": "Tooltip for the disabled 'Wrangle Now' button when there are no tabs it would close and the minimum tabs setting counts tabs across all windows",
+    "message": "Нема що закривати: щонайменше $minTabs$ незафіксованих вкладок завжди залишаються відкритими.",
+    "placeholders": {
+      "minTabs": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "extension_wrangleNow_title_none_givenWindow": {
+    "description": "Tooltip for the disabled 'Wrangle Now' button when there are no tabs it would close and the minimum tabs setting counts tabs in each window separately",
+    "message": "Нема що закривати: у кожному вікні щонайменше $minTabs$ незафіксованих вкладок завжди залишаються відкритими.",
+    "placeholders": {
+      "minTabs": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "options_activeHours_allDay": {
+    "description": "Label for checkbox that makes a day active for all 24 hours, disabling its start and end time menus",
+    "message": "Увесь день"
+  },
+  "options_activeHours_description": {
+    "description": "Description of the Active Hours section of the options page",
+    "message": "Відлік часу вкладок та їх автоматичне закриття відбувається лише в ці години."
+  },
+  "options_activeHours_from": {
+    "description": "Accessible label for the menu choosing when active hours begin on a given day",
+    "message": "$DAY$ час початку",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Monday"
+      }
+    }
+  },
+  "options_activeHours_midnight": {
+    "description": "Last option in the menu choosing when active hours end on a given day: the end of that day",
+    "message": "Опівніч"
+  },
+  "options_activeHours_noDays": {
+    "description": "Warning shown when no day of the week is selected in Active Hours",
+    "message": "Дні не обрано, тому Tab Wrangler ніколи не закриватиме вкладки."
+  },
+  "options_activeHours_toggleDayLabel": {
+    "description": "Button label for toggling a day of the week on or off in Active Hours",
+    "message": "Перемкнути $DAY$",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Monday"
+      }
+    }
+  },
+  "options_activeHours_to": {
+    "description": "Text between the start and end time menus of a day's active hours, as in \"9:00 AM to 5:00 PM\"",
+    "message": "до"
+  },
+  "options_activeHours_until": {
+    "description": "Accessible label for the menu choosing when active hours end on a given day",
+    "message": "$DAY$ час закінчення",
+    "placeholders": {
+      "day": {
+        "content": "$1",
+        "example": "Monday"
+      }
+    }
+  },
   "options_dedupe_label": {
     "description": "Label for the de-duplicating option",
     "message": "Запобігати дублікатам в списку вкладок:"
@@ -100,6 +250,10 @@
   "options_dedupe_option_exactURLMatch": {
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "Якщо URL збігається"
+  },
+  "options_dedupe_option_exactURLMatch_description": {
+    "description": "Description for option to de-duplicate when URL matches exactly",
+    "message": "Коли вкладка додається до списку вкладок - усі старіші вкладки з точно такою самою URL-адресою видаляються зі списку."
   },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
@@ -109,6 +263,10 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "Якщо збігаються адрес та назва сторінки"
   },
+  "options_dedupe_option_hostnameAndTitleMatch_description": {
+    "description": "Extended description for option to de-duplicate when hostname and page title match",
+    "message": "Коли вкладка додається до списку вкладок - усі старіші вкладки з таким самим доменом (напр. \"wikipedia.org\") та заголовком сторінки видаляються зі списку."
+  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Якщо збігаються адрес та назва сторінки"
@@ -116,6 +274,10 @@
   "options_dedupe_option_withDupes": {
     "description": "Label for option to never de-duplicate the tab corral",
     "message": "Ніколи (за замовчуванням)"
+  },
+  "options_dedupe_option_withDupes_description": {
+    "description": "Description of the never de-duplicating tabs option",
+    "message": "Коли вкладка додається до списку вкладок, жодних інших змін у списку не відбувається."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -131,6 +293,9 @@
   },
   "options_errorImportExport": {
     "message": "Помилка імпорту/експорту"
+  },
+  "options_errorSavingSettings": {
+    "message": "Помилка збереження налаштувань"
   },
   "options_unsavedChanges": {
     "message": "Не збережені зміни"
@@ -179,6 +344,10 @@
     "description": "Label for checkbox to reset a tab's timer only after it's active for 1 second",
     "message": "Перезапускати таймер вкладки лише якщо вона була активною протягом 1 секунди"
   },
+  "options_option_minTabs_label": {
+    "description": "Label preceding the minimum number of tabs. Stale tabs are tabs whose timer has run out, making them eligible to be auto-closed",
+    "message": "Автоматично закривати неактивні вкладки, якщо їх більше ніж:"
+  },
   "options_option_minTabs_option_givenWindow": {
     "description": "Label for option to count tabs per window",
     "message": "у цьому вікні"
@@ -187,9 +356,17 @@
     "description": "Label for option to count tabs across all windows",
     "message": "всього (для всіх вікон)"
   },
+  "options_option_minTabs_midLabel": {
+    "description": "Label describing which tabs can be auto-closed when the minimum is exceeded",
+    "message": "незафіксованих вкладок"
+  },
   "options_option_minTabs_tabs": {
     "description": "Input title for minimum number of tabs",
     "message": "Тут має бути число, більше або рівне 0"
+  },
+  "options_option_pauseWhenIdle_label": {
+    "description": "Label for checkbox to stop tab timers from counting down while the browser reports it is idle (no keyboard or mouse input for 1 minute, or the screen is locked)",
+    "message": "Призупиняти відлік часу на вкладках, коли браузер перебуває в режимі очікування"
   },
   "options_option_rememberTabs_label": {
     "description": "Label preceeding input for number of tabs to remember",
@@ -239,6 +416,106 @@
     "description": "'System' choice for color theme. Uses the preferred color theme of user's OS.",
     "message": "Системна"
   },
+  "options_option_timeInactive_abbr_days": {
+    "description": "Abbreviation for 'days' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
+    "message": "д"
+  },
+  "options_option_timeInactive_abbr_hours": {
+    "description": "Abbreviation for 'hours' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
+    "message": "год"
+  },
+  "options_option_timeInactive_abbr_minutes": {
+    "description": "Abbreviation for 'minutes' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
+    "message": "хв"
+  },
+  "options_option_timeInactive_abbr_seconds": {
+    "description": "Abbreviation for 'seconds' shown in the inactive time input, and after numbers in durations like \"3d 04h 15m\"",
+    "message": "сек"
+  },
+  "options_option_timeInactive_duration_day": {
+    "description": "Singular 'day' unit with count in the inactive time description",
+    "message": "$count$ день",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_days": {
+    "description": "Plural 'days' unit with count in the inactive time description",
+    "message": "$count$ днів",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hour": {
+    "description": "Singular 'hour' unit with count in the inactive time description",
+    "message": "$count$ година",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_hours": {
+    "description": "Plural 'hours' unit with count in the inactive time description",
+    "message": "$count$ годин",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minute": {
+    "description": "Singular 'minute' unit with count in the inactive time description",
+    "message": "$count$ хвилина",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_minutes": {
+    "description": "Plural 'minutes' unit with count in the inactive time description",
+    "message": "$count$ хвилин",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_second": {
+    "description": "Singular 'second' unit with count in the inactive time description",
+    "message": "$count$ секунда",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "options_option_timeInactive_duration_seconds": {
+    "description": "Plural 'seconds' unit with count in the inactive time description",
+    "message": "$count$ секунд",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
+  "options_option_timeInactive_error_zero": {
+    "description": "Error shown when the time before a tab becomes stale is set to zero",
+    "message": "Тривалість повинна бути більшою за 0 секунд."
+  },
   "options_saving": {
     "description": "Message displayed when options are being saved",
     "message": "Збереження…"
@@ -251,9 +528,33 @@
     "description": "Name of the 'Tab Corral' feature, the list of tabs closed by the extension",
     "message": "Список вкладок"
   },
+  "tabLock_locked": {
+    "description": "Label for a locked window",
+    "message": "Зафіксовано"
+  },
+  "tabLock_unlocked": {
+    "description": "Label for an unlocked window",
+    "message": "Не зафіксовано"
+  },
+  "tabLock_lockedStatus_autolocked": {
+    "message": "Зафіксовано автоматично"
+  },
+  "tabLock_lockedStatus_locked": {
+    "message": "Зафіксовано"
+  },
   "tabLock_lockedReason_locked": {
     "description": "Label for tab that is locked because the user locked it",
     "message": "Зафіксовано"
+  },
+  "tabLock_lockedReason_matches": {
+    "description": "Tooltip for a tab that is locked by a Tab Rule because its URL includes the given text",
+    "message": "URL містить \"$text$\"",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "chrome://"
+      }
+    }
   },
   "tabLock_lockedReason_paused": {
     "description": "Label for a tab when the extension is paused",
@@ -271,9 +572,107 @@
     "description": "Label for a tab that is locked because it's in a group",
     "message": "Згруповано"
   },
+  "tabLock_lockedReason_window": {
+    "description": "Label for a tab that is protected because its window is locked",
+    "message": "Вікно зафіксовано"
+  },
+  "tabLock_minTabsStatus": {
+    "description": "Tab count / minimum shown in the min-tabs badge.",
+    "message": "$count$ / $minTabs$ вкладок",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "minTabs": {
+        "content": "$2",
+        "example": "20"
+      }
+    }
+  },
+  "tabLock_minTabsBadge_paused": {
+    "description": "Min-tabs badge tooltip when the extension is paused.",
+    "message": "Розширення призупинено: вкладки НЕ закриватимуться автоматично"
+  },
+  "tabLock_minTabsBadge_allWindows_aboveMin": {
+    "description": "Min-tabs badge tooltip when total tabs exceed the minimum.",
+    "message": "Перевищено мінімальне значення: застарілі вкладки БУДУТЬ автоматично закриватися"
+  },
+  "tabLock_minTabsBadge_allWindows_belowMin": {
+    "description": "Min-tabs badge tooltip when total tabs are at or below the minimum.",
+    "message": "Мінімальне значення НЕ перевищено: застарілі вкладки НЕ закриватимуться автоматично"
+  },
+  "tabLock_minTabsBadge_givenWindow_locked": {
+    "description": "Min-tabs badge tooltip when the window is locked.",
+    "message": "Вікно зафіксовано: вкладки НЕ закриватимуться автоматично"
+  },
+  "tabLock_minTabsBadge_givenWindow_aboveMin": {
+    "description": "Min-tabs badge tooltip when this window's tabs exceed the minimum.",
+    "message": "Перевищено мінімальне значення: застарілі вкладки в цьому вікні БУДУТЬ автоматично закриватися"
+  },
+  "tabLock_minTabsBadge_givenWindow_belowMin": {
+    "description": "Min-tabs badge tooltip when this window's tabs are at or below the minimum.",
+    "message": "Мінімальне значення НЕ перевищено: застарілі вкладки в цьому вікні НЕ закриватимуться автоматично"
+  },
+  "tabLock_timerFrozen_tooltip": {
+    "description": "Tooltip shown instead of a countdown for active tab in the last focused window",
+    "message": "Заморожено: на активній вкладці в останньому вікні, на якому був фокус, відлік часу НЕ ведеться"
+  },
+  "tabLock_timerIdle_tooltip": {
+    "description": "Tooltip shown next to a tab's paused countdown while the browser is idle",
+    "message": "Браузер у режимі очікування: таймери НЕ відраховують час"
+  },
+  "tabLock_timerOutsideActiveHours_tooltip": {
+    "description": "Tooltip shown next to a tab's paused countdown while it is outside the active hours set in Options",
+    "message": "Поза робочим часом: таймери НЕ відраховують час"
+  },
+  "tabLock_timerPaused_tooltip": {
+    "description": "Tooltip shown next to a tab's paused countdown while the extension is paused",
+    "message": "Роботу розширення призупинено: таймери НЕ відраховують час"
+  },
+  "tabLock_groupIndicator_unnamed": {
+    "description": "Fallback tooltip for a tab group with no title.",
+    "message": "Неназвана група"
+  },
+  "tabLock_collapsedGroup_summary": {
+    "description": "Shown in place of a tab group's tabs after the group is collapsed in the list of open tabs. Used when the group has more than one tab.",
+    "message": "$title$: $count$ вкладок",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Research"
+      },
+      "count": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "tabLock_collapsedGroup_summary_one": {
+    "description": "Shown in place of a tab group's tabs after the group is collapsed in the list of open tabs. Used when the group has exactly one tab.",
+    "message": "$title$: 1 вкладка",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Research"
+      }
+    }
+  },
+  "tabLock_overdueTooltip": {
+    "description": "Tooltip on the hourglass shown when a tab's countdown has run out and the tab is stale (eligible to be auto-closed)",
+    "message": "Застаріле: очікує на автоматичне закриття"
+  },
   "tabLock_lockLabel": {
     "description": "Explanation of the lock checkbox's functionality",
     "message": "Виберіть вкладки, які потрібно зафіксувати (запобігти їх автоматичному закриттю)."
+  },
+  "tabLock_unmuteSite": {
+    "description": "Label for button that unmutes a site",
+    "message": "Увімкнути звук на сайті"
+  },
+  "tabLock_muteSite": {
+    "description": "Label for button that mutes a site",
+    "message": "Вимкнути звук на сайті"
   },
   "tabLock_name": {
     "description": "Name of the 'Tab Lock' feature, the list of open tabs with UI to lock them",
@@ -298,6 +697,30 @@
   "tabLock_sort_tabOrder_desc_short": {
     "description": "Short version of tabLock_sort_tabOrder_desc",
     "message": "Порядок вкладок (спад.)"
+  },
+  "tabLock_sort_timeUntilClose": {
+    "description": "Description for sorting tabs by how much time until TW closes them",
+    "message": "Часу до застарівання"
+  },
+  "tabLock_sort_timeUntilClose_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose",
+    "message": "Часу до застарівання"
+  },
+  "tabLock_sort_timeUntilClose_desc": {
+    "description": "Description for sorting tabs by how much time until TW closes them, in reverse",
+    "message": "Часу до застарівання (за спаданням)"
+  },
+  "tabLock_sort_timeUntilClose_desc_short": {
+    "description": "Short version of tabLock_sort_timeUntilClose_desc",
+    "message": "Часу до застарівання (спад.)"
+  },
+  "tabLock_lockTab": {
+    "description": "Button label for locking a tab",
+    "message": "Зафіксувати вкладку"
+  },
+  "tabLock_unlockTab": {
+    "description": "Button label for unlocking a tab",
+    "message": "Прибрати фіксування вкладки"
   },
   "corral_tabsWrangledFull": {
     "description": "Description of number of tabs wrangled by this extension",
@@ -387,6 +810,10 @@
     "description": "Short label (for use in a narrow button) for sorting the tab corral list by domain in descending order",
     "message": "Домен (спад.)"
   },
+  "extDescription": {
+    "description": "Brief description of the extension",
+    "message": "Автоматично закриває вкладки, якими ви давно не користувалися та дозволяє легко їх відновити"
+  },
   "corral_remove": {
     "description": "Label for button that removes selected tabs",
     "message": "Прибрати"
@@ -427,6 +854,16 @@
       }
     }
   },
+  "corral_undo_wrangle": {
+    "description": "Button title for undoing a 'Wrangle Now' action, which reopens the wrangled tabs",
+    "message": "Повернути закриті (вкладок: $count$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "corral_redo_remove": {
     "description": "Button title for redoing a remove action",
     "message": "Прибрати відновлене (сторінок: $count$)",
@@ -446,5 +883,197 @@
         "example": "3"
       }
     }
+  },
+  "options_section_activeHours": {
+    "description": "Heading for the options section that sets which hours of each day Tab Wrangler runs",
+    "message": "Активні Години"
+  },
+  "options_section_tabRules": {
+    "description": "Header for the tab rules section of the options tab",
+    "message": "Правила вкладок"
+  },
+  "options_tabRules_action": {
+    "description": "Accessible label for the menu choosing what a tab rule does to matching tabs",
+    "message": "Дія"
+  },
+  "options_tabRules_action_lock": {
+    "description": "Tab rule action that locks matching tabs so they are never auto-closed",
+    "message": "Зафіксувати вкладку"
+  },
+  "options_tabRules_action_stale": {
+    "description": "Tab rule action in the action menu, followed by inputs for how long matching tabs must be inactive before they're marked stale and can be auto-closed",
+    "message": "Позначити вкладку застарілою після бездіяльності протягом"
+  },
+  "options_tabRules_action_staleAfter": {
+    "description": "Tab rule action shown in the list of rules, as in \"Then mark tab stale after 2 hours\"",
+    "message": "Позначити вкладку застарілою після бездіяльності протягом $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h 30m"
+      }
+    }
+  },
+  "options_tabRules_addCondition": {
+    "description": "Button in the tab rule form that adds another condition to the rule",
+    "message": "Додати умову"
+  },
+  "options_tabRules_addRule": {
+    "description": "Button label for adding a new tab rule",
+    "message": "Додати правило"
+  },
+  "options_tabRules_always": {
+    "description": "Label in front of the final tab rule's action when there are no other rules, so it applies to every tab, as in \"Always: Lock tab\"",
+    "message": "Завжди"
+  },
+  "options_tabRules_and": {
+    "description": "Connector shown between a tab rule's conditions when all of them must match. Shown in uppercase",
+    "message": "І"
+  },
+  "options_tabRules_cancel": {
+    "description": "Button label for discarding a new tab rule before it is saved",
+    "message": "Скасувати"
+  },
+  "options_tabRules_condition": {
+    "description": "Accessible label for the menu choosing what a tab rule checks, like whether the URL includes some text",
+    "message": "Умова"
+  },
+  "options_tabRules_condition_audible": {
+    "description": "Tab rule condition matching tabs that are currently playing audio. The tab is the implied subject, as in \"If playing audio, then lock tab\"",
+    "message": "Відтворення звуку"
+  },
+  "options_tabRules_condition_grouped": {
+    "description": "Tab rule condition matching tabs that are in a tab group. The tab is the implied subject, as in \"If in a tab group, then lock tab\"",
+    "message": "В групі вкладок"
+  },
+  "options_tabRules_condition_groupTitle": {
+    "description": "Tab rule condition in the condition menu and the list of rules, matching tabs in a tab group whose name includes the text that follows it",
+    "message": "Назва групи вкладок містить"
+  },
+  "options_tabRules_condition_groupTitleIncludes": {
+    "description": "Tooltip describing a tab rule condition that matches tabs in a tab group whose name includes the given text, as in: Tab group name includes \"Work\"",
+    "message": "Назва групи вкладок містить \"$text$\"",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "options_tabRules_condition_notGrouped": {
+    "description": "Tab rule condition matching tabs that are not in a tab group. The tab is the implied subject, as in \"If not in a tab group, then lock tab\"",
+    "message": "Не в групі вкладок"
+  },
+  "options_tabRules_condition_pinned": {
+    "description": "Tab rule condition matching tabs that are pinned. The tab is the implied subject, as in \"If pinned, then lock tab\"",
+    "message": "Закріплено"
+  },
+  "options_tabRules_condition_title": {
+    "description": "Tab rule condition in the condition menu and the list of rules, matching tabs whose title includes the text that follows it",
+    "message": "Заголовок містить"
+  },
+  "options_tabRules_condition_titleIncludes": {
+    "description": "Tooltip describing a tab rule condition that matches tabs whose title includes the given text, as in: Title includes \"Wikipedia\"",
+    "message": "Заголовок містить \"$text$\"",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "Wikipedia"
+      }
+    }
+  },
+  "options_tabRules_condition_url": {
+    "description": "Tab rule condition in the condition menu and the list of rules, matching tabs whose URL includes the text that follows it",
+    "message": "URL містить"
+  },
+  "options_tabRules_condition_urlIncludes": {
+    "description": "Tooltip describing a tab rule condition that matches tabs whose URL includes the given text, as in: URL includes \"wikipedia.org\"",
+    "message": "URL містить \"$text$\"",
+    "placeholders": {
+      "text": {
+        "content": "$1",
+        "example": "wikipedia.org"
+      }
+    }
+  },
+  "options_tabRules_description": {
+    "description": "Description of the tab rules section shown below its header",
+    "message": "Правила перевіряються зверху вниз. Вкладки обробляються лише першим правилом, якому вони відповідають."
+  },
+  "options_tabRules_duplicateCondition": {
+    "description": "Error shown when a tab rule lists the same URL, title, or tab group name text twice",
+    "message": "Ця умова вже міститься в правилі."
+  },
+  "options_tabRules_duplicateRule": {
+    "description": "Error shown when a tab rule has the same conditions as an existing rule",
+    "message": "Правило з цими умовами вже існує."
+  },
+  "options_tabRules_edit": {
+    "description": "Accessible label and tooltip for the button that edits a tab rule",
+    "message": "Редагувати правило"
+  },
+  "options_tabRules_editElse": {
+    "description": "Accessible label and tooltip for the button that edits the final \"Else\" tab rule, which applies to tabs matching no other rule",
+    "message": "Редагувати правило \"ІНАКШЕ\""
+  },
+  "options_tabRules_else": {
+    "description": "Label in front of the action for tabs that match no rule, as in \"Else: Close tab after being inactive for 20m\"",
+    "message": "Інакше"
+  },
+  "options_tabRules_elseIf": {
+    "description": "Label in front of the condition of every tab rule after the first, as in \"Else if URL includes example\"",
+    "message": "Інакше якщо"
+  },
+  "options_tabRules_empty": {
+    "description": "Message shown when there are no tab rules yet",
+    "message": "Поки що немає додаткових правил. Щоб створити правило, скористайтеся функцією \"Додати правило\"."
+  },
+  "options_tabRules_if": {
+    "description": "Label in front of the first tab rule's condition, as in \"If URL includes example\"",
+    "message": "Якщо"
+  },
+  "options_tabRules_match": {
+    "description": "Accessible label for the menu choosing whether all or any of a tab rule's conditions must match",
+    "message": "Обʼєднати умови з"
+  },
+  "options_tabRules_moveDown": {
+    "description": "Accessible label for the button that moves a tab rule down one position",
+    "message": "Перемістити правило вниз"
+  },
+  "options_tabRules_moveUp": {
+    "description": "Accessible label for the button that moves a tab rule up one position",
+    "message": "Перемістити правило вгору"
+  },
+  "options_tabRules_or": {
+    "description": "Connector shown between a tab rule's conditions when any one of them can match. Shown in uppercase",
+    "message": "АБО"
+  },
+  "options_tabRules_remove": {
+    "description": "Accessible label for the button that removes a tab rule",
+    "message": "Видалити правило"
+  },
+  "options_tabRules_removeCondition": {
+    "description": "Accessible label for the button that removes one condition from a tab rule",
+    "message": "Видалити умову"
+  },
+  "options_tabRules_save_corral": {
+    "description": "Checkbox label in the tab rule form, shown under the inactive time, that chooses whether tabs auto-closed by the rule are saved to the Tab Corral",
+    "message": "Зберігати вкладку до списку вкладок після закриття (рекомендовано)"
+  },
+  "options_tabRules_save_none": {
+    "description": "Note shown in the list of rules under a rule's action when tabs it auto-closes are not saved to the Tab Corral",
+    "message": "Не зберігати до списку вкладок, коли вікно закрите"
+  },
+  "options_tabRules_then": {
+    "description": "Label in front of a tab rule's action, as in \"Then lock tab\"",
+    "message": "Тоді"
+  },
+  "options_tabRules_whitespace": {
+    "description": "Error shown when a tab rule's URL text contains spaces, which never appear in tab URLs",
+    "message": "Текст URL-адреси не може містити пробілів."
+  },
+  "tabLock_lockedReason_else": {
+    "description": "Tooltip for a tab that is locked because it matches no other Tab Rule and the final \"Else\" rule locks tabs",
+    "message": "Відповідає правилу «ІНАКШЕ»"
   }
 }

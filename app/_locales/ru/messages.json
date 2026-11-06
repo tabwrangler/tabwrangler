@@ -19,9 +19,25 @@
     "description": "Description of keyboard shortcut to lock or unlock the current window",
     "message": "Закрепить/открепить текущее окно"
   },
+  "commandCloseCurrentTab": {
+    "description": "Description of keyboard shortcut to close and save the current tab",
+    "message": "Закрыть текущую вкладку"
+  },
+  "commandCloseTabsToRight": {
+    "description": "Description of keyboard shortcut to close and save all tabs to the right of the current tab",
+    "message": "Закрыть вкладки справа"
+  },
+  "commandCloseOtherTabs": {
+    "description": "Description of keyboard shortcut to close and save all tabs except the current tab",
+    "message": "Закрыть остальные вкладки"
+  },
   "commandWrangleOpenPopup": {
     "description": "Description of keyboard shortcut to open TabWrangler popup",
     "message": "Открыть окно"
+  },
+  "contextMenu_corralTab": {
+    "description": "Label for context menu item that closes the clicked tab and adds it to the corral",
+    "message": "Закрыть эту вкладку"
   },
   "contextMenu_lockDomain": {
     "description": "Label for context menu item that locks the domain of the clicked tab",
@@ -618,5 +634,13 @@
         "example": "3"
       }
     }
+  },
+  "options_tabRules_always": {
+    "description": "Label in front of the final tab rule's action when there are no other rules, so it applies to every tab, as in \"Always: Lock tab\"",
+    "message": "Всегда"
+  },
+  "options_tabRules_and": {
+    "description": "Connector shown between a tab rule's conditions when all of them must match. Shown in uppercase",
+    "message": "И"
   }
 }

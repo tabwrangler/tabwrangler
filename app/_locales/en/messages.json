@@ -324,6 +324,44 @@
     "description": "Description of the destructiveness of importing; current tabs are overwritten",
     "message": "Warning: Importing data will overwrite all existing data. There is no way back (unless you have a backup)."
   },
+  "options_importExportSettings_description": {
+    "description": "Description of the settings import/export feature shown next to its buttons. 'Tab Rules' and 'Active Hours' are names of sections of the options.",
+    "message": "Export your settings: Tab Rules, Active Hours, the other options, the theme, and the addresses of tabs you locked or that are in windows you locked. Closed tabs are not included. This is a convenient way to move your settings to another browser."
+  },
+  "options_importExportSettings_error_invalidFile": {
+    "description": "Error shown when the file chosen to import settings from is not a settings export",
+    "message": "This is not a Tab Wrangler settings file."
+  },
+  "options_importExportSettings_error_invalidSetting": {
+    "description": "Error shown when a settings export has a value that cannot be used for one setting. No settings are changed.",
+    "message": "The settings file has an invalid value for \"$name$\". Nothing was imported.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "tabRules"
+      }
+    }
+  },
+  "options_importExportSettings_export": {
+    "description": "Button label to begin exporting settings",
+    "message": "Export settings"
+  },
+  "options_importExportSettings_exporting": {
+    "description": "Label displayed when exporting settings",
+    "message": "Exporting settings..."
+  },
+  "options_importExportSettings_import": {
+    "description": "Button label to begin importing settings",
+    "message": "Import settings"
+  },
+  "options_importExportSettings_importing": {
+    "description": "Label displayed when importing settings",
+    "message": "Importing settings..."
+  },
+  "options_importExportSettings_importWarning": {
+    "description": "Description of what importing settings changes and what it leaves alone",
+    "message": "Warning: Importing settings replaces your current settings. Closed tabs are not changed, and Tab Wrangler stays paused or running as it is."
+  },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",
     "message": "Options"

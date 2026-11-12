@@ -90,7 +90,8 @@ export function mutateStorageSyncPersist({
 
 /**
  * Records when the browser became idle. Once it is no longer idle, shifts tab times so time spent
- * idle does not count against them (same as unpausing).
+ * idle does not count against them (same as unpausing). A Tab Rule pausing all timers counts as
+ * idle too.
  */
 export async function setIdle(idle: boolean): Promise<void> {
   const { idleAt } = await chrome.storage.local.get<{ idleAt: number | null }>({ idleAt: null });

@@ -86,7 +86,10 @@ Wrangler is allowed to close.
   how many tabs are open versus your configured minimum. A yellow badge means Tab Wrangler is
   holding off on closing tabs because the minimum hasn't been reached yet.
 - **Pause**: The extension can be paused from the popup header, stopping all countdowns and
-  auto-closing until you resume it.
+  auto-closing until you resume it. A Tab Rule can also pause all countdowns for as long as a tab
+  matches it, like while a training page is the tab in view (the active tab of the browser window
+  in front): add a rule with the "Pause all tab timers" action. The tab doing the pausing shows
+  "Pausing timers".
 
 ### Options Tab
 

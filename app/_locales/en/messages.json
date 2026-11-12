@@ -539,6 +539,10 @@
   "tabLock_lockedStatus_autolocked": {
     "message": "Auto-locked"
   },
+  "tabLock_lockedStatus_pausingTimers": {
+    "description": "Status of an open tab whose Tab Rule is pausing all tab timers",
+    "message": "Pausing timers"
+  },
   "tabLock_lockedStatus_locked": {
     "message": "Locked"
   },
@@ -590,6 +594,10 @@
       }
     }
   },
+  "tabLock_minTabsBadge_rulePaused": {
+    "description": "Tooltip on the tab count badge while a Tab Rule is pausing all tab timers",
+    "message": "Paused by a Tab Rule: tabs will NOT auto-close"
+  },
   "tabLock_minTabsBadge_paused": {
     "description": "Min-tabs badge tooltip when the extension is paused.",
     "message": "Extension paused: tabs will NOT auto-close"
@@ -625,6 +633,10 @@
   "tabLock_timerOutsideActiveHours_tooltip": {
     "description": "Tooltip shown next to a tab's paused countdown while it is outside the active hours set in Options",
     "message": "Outside active hours: timers do NOT count down"
+  },
+  "tabLock_timerRulePaused_tooltip": {
+    "description": "Tooltip on a tab's timer while a Tab Rule is pausing all tab timers",
+    "message": "Paused by a Tab Rule: timers do NOT count down"
   },
   "tabLock_timerPaused_tooltip": {
     "description": "Tooltip shown next to a tab's paused countdown while the extension is paused",
@@ -900,6 +912,14 @@
     "description": "Tab rule action that locks matching tabs so they are never auto-closed",
     "message": "Lock tab"
   },
+  "options_tabRules_action_pauseTimers": {
+    "description": "Tab Rule action. While any open tab matches the rule, no tab's timer counts down and no tabs are closed.",
+    "message": "Pause all tab timers"
+  },
+  "options_tabRules_action_pauseTimers_help": {
+    "description": "Help text shown under the 'Pause all tab timers' action while editing a Tab Rule. 'Active tab' is the name of a rule condition.",
+    "message": "While a tab matches this rule, no tab's timer counts down and no tabs are closed. Add the \"Active tab\" condition to pause only while that tab is the one in view: the selected tab of the browser window in front."
+  },
   "options_tabRules_action_stale": {
     "description": "Tab rule action in the action menu, followed by inputs for how long matching tabs must be inactive before they're marked stale and can be auto-closed",
     "message": "Mark tab stale after inactive for"
@@ -937,6 +957,10 @@
   "options_tabRules_condition": {
     "description": "Accessible label for the menu choosing what a tab rule checks, like whether the URL includes some text",
     "message": "Condition"
+  },
+  "options_tabRules_condition_active": {
+    "description": "Tab Rule condition matching the tab in view: the selected tab of the browser window in front. The selected tabs of windows behind it do not match.",
+    "message": "Active tab"
   },
   "options_tabRules_condition_audible": {
     "description": "Tab rule condition matching tabs that are currently playing audio. The tab is the implied subject, as in \"If playing audio, then lock tab\"",
@@ -1047,6 +1071,10 @@
   "options_tabRules_or": {
     "description": "Connector shown between a tab rule's conditions when any one of them can match. Shown in uppercase",
     "message": "OR"
+  },
+  "options_tabRules_pauseTimersAlways": {
+    "description": "Error shown when a Tab Rule with the 'Pause all tab timers' action would match whichever tab is in view. 'Active tab' is the name of a rule condition.",
+    "message": "There is always an active tab, so this rule would pause timers all the time. Combine \"Active tab\" with another condition using AND."
   },
   "options_tabRules_remove": {
     "description": "Accessible label for the button that removes a tab rule",

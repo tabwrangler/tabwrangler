@@ -20,6 +20,7 @@ import {
 } from "./tabRules";
 import { TabTimes } from "./types";
 import { TextEncoder } from "util";
+import frontWindow from "./frontWindow";
 import { setSavedTabs } from "./actions/localStorageActions";
 import settings from "./settings";
 
@@ -275,6 +276,34 @@ describe("getTabLockStatus", () => {
     expect(getTabLockStatus(createTab({ groupId: -1 }), defaultOptions)).toEqual({
       locked: false,
     });
+  });
+
+  test("locks a tab whose rule pauses all tab timers, so it is never a candidate to close", () => {
+    const rule = {
+      id: "video",
+      match: "every" as const,
+      when: [{ type: "active" as const }, { type: "audible" as const }],
+      then: { action: "pauseTimers" as const },
+    };
+    const tabRules = {
+      ...defaultOptions.tabRules,
+      rules: [rule, ...defaultOptions.tabRules.rules],
+    };
+
+    const watching = createTab({ active: true, audible: true });
+    frontWindow.set(watching.windowId);
+
+    expect(getTabLockStatus(watching, { ...defaultOptions, tabRules })).toEqual({
+      locked: true,
+      reason: "rule",
+      rule,
+    });
+    expect(
+      getTabLockStatus(createTab({ active: false, audible: true }), {
+        ...defaultOptions,
+        tabRules,
+      }),
+    ).toEqual({ locked: false });
   });
 
   test("locks a pinned tab with the migrated pinned rule", () => {

@@ -26,6 +26,7 @@ import {
   updateLastAccessed,
   wrangleTabs,
 } from "./js/tabUtil";
+import { findTimerPausingTab, getTabOutcome, isLockOutcome } from "./js/tabRules";
 import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
 import {
   lockUnlockActiveTab,
@@ -38,7 +39,7 @@ import {
 import { removeAllSavedTabs, unwrangleTabs } from "./js/actions/localStorageActions";
 import Menus from "./js/menus";
 import { debounce } from "lodash-es";
-import { getTabOutcome } from "./js/tabRules";
+import frontWindow from "./js/frontWindow";
 import settings from "./js/settings";
 import tabGroupTitles from "./js/tabGroupTitles";
 
@@ -120,7 +121,7 @@ chrome.runtime.onStartup.addListener(async () => {
 let onActivatedGeneration = 0;
 chrome.tabs.onActivated.addListener(async function onActivated(tabInfo) {
   const generation = ++onActivatedGeneration;
-  await Promise.all([settings.init(), tabGroupTitles.init()]);
+  await Promise.all([settings.init(), tabGroupTitles.init(), frontWindow.init()]);
 
   // *Always* update last accessed because onActivated always matters for each tab
   if (settings.get("debounceOnActivated")) debouncedUpdateLastAccessed(tabInfo.tabId);
@@ -188,7 +189,7 @@ chrome.windows.onRemoved.addListener((windowId: number) => {
 
 chrome.commands.onCommand.addListener(async (command) => {
   // A command can be what starts the service worker, before startup has loaded settings.
-  await Promise.all([settings.init(), tabGroupTitles.init()]);
+  await Promise.all([settings.init(), tabGroupTitles.init(), frontWindow.init()]);
   switch (command) {
     case "lock-unlock-active-tab":
       await lockUnlockActiveTab();
@@ -271,6 +272,13 @@ async function isIdle(): Promise<boolean> {
   return state !== "active";
 }
 
+async function isPausedByRule(): Promise<boolean> {
+  // Rules matching the active tab need the front window, and a focus change can be missed while
+  // the service worker is stopped.
+  const [tabs] = await Promise.all([chrome.tabs.query({}), frontWindow.refresh()]);
+  return findTimerPausingTab(tabs, settings.get("tabRules")) != null;
+}
+
 let wasWithinActiveHours: boolean | undefined;
 let checkToCloseTimeout: NodeJS.Timeout | undefined;
 function scheduleCheckToClose() {
@@ -295,7 +303,9 @@ async function checkToClose() {
     // Extension is paused, no work needs to be done.
     if (storageSyncPersist.paused) return;
 
-    const idle = await isIdle();
+    // A Tab Rule pausing all timers stops them the same way an idle browser does, so it shares
+    // idle's bookkeeping: timers are shifted by the time spent paused once nothing pauses them.
+    const idle = (await isIdle()) || (await isPausedByRule());
     await setIdle(idle);
     if (idle) return;
 
@@ -321,7 +331,7 @@ async function checkToClose() {
       // when audio stops or a tab is unpinned.
       const tabRules = settings.get("tabRules");
       allTabs.forEach((tab) => {
-        if (getTabOutcome(tab, tabRules)?.action === "lock") tabTimes[String(tab.id)] = updatedAt;
+        if (isLockOutcome(getTabOutcome(tab, tabRules))) tabTimes[String(tab.id)] = updatedAt;
       });
 
       // Outside active hours nothing closes, but the persist keys below are still stored so locks
@@ -533,6 +543,7 @@ async function startup() {
     tabsRestoredPromise,
     settings.init(),
     tabGroupTitles.init(),
+    frontWindow.init(),
   ]);
 
   await Promise.all([updateIcon(), updateClosedCount()]);

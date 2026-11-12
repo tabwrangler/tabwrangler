@@ -26,6 +26,7 @@ import {
   updateLastAccessed,
   wrangleTabs,
 } from "./js/tabUtil";
+import { findTimerPausingTab, getTabOutcome, isLockOutcome } from "./js/tabRules";
 import { getStorageLocalPersist, getStorageSyncPersist } from "./js/queries";
 import {
   lockUnlockActiveTab,
@@ -38,7 +39,6 @@ import {
 import { removeAllSavedTabs, unwrangleTabs } from "./js/actions/localStorageActions";
 import Menus from "./js/menus";
 import { debounce } from "lodash-es";
-import { getTabOutcome } from "./js/tabRules";
 import settings from "./js/settings";
 import tabGroupTitles from "./js/tabGroupTitles";
 
@@ -271,6 +271,10 @@ async function isIdle(): Promise<boolean> {
   return state !== "active";
 }
 
+async function isPausedByRule(): Promise<boolean> {
+  return findTimerPausingTab(await chrome.tabs.query({}), settings.get("tabRules")) != null;
+}
+
 let wasWithinActiveHours: boolean | undefined;
 let checkToCloseTimeout: NodeJS.Timeout | undefined;
 function scheduleCheckToClose() {
@@ -295,7 +299,9 @@ async function checkToClose() {
     // Extension is paused, no work needs to be done.
     if (storageSyncPersist.paused) return;
 
-    const idle = await isIdle();
+    // A Tab Rule pausing all timers stops them the same way an idle browser does, so it shares
+    // idle's bookkeeping: timers are shifted by the time spent paused once nothing pauses them.
+    const idle = (await isIdle()) || (await isPausedByRule());
     await setIdle(idle);
     if (idle) return;
 
@@ -321,7 +327,7 @@ async function checkToClose() {
       // when audio stops or a tab is unpinned.
       const tabRules = settings.get("tabRules");
       allTabs.forEach((tab) => {
-        if (getTabOutcome(tab, tabRules)?.action === "lock") tabTimes[String(tab.id)] = updatedAt;
+        if (isLockOutcome(getTabOutcome(tab, tabRules))) tabTimes[String(tab.id)] = updatedAt;
       });
 
       // Outside active hours nothing closes, but the persist keys below are still stored so locks

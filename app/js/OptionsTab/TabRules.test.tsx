@@ -676,6 +676,94 @@ describe("TabRules", () => {
     expect(onSaveSetting).not.toHaveBeenCalled();
   });
 
+  test("adds a rule that pauses all tab timers while a matching tab is active", () => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    fireEvent.change(screen.getByLabelText("options_tabRules_condition_url"), {
+      target: { value: "youtube.com" },
+    });
+    fireEvent.click(screen.getByText("options_tabRules_addCondition"));
+    fireEvent.change(screen.getAllByLabelText("options_tabRules_condition")[1], {
+      target: { value: "active" },
+    });
+    fireEvent.change(screen.getByLabelText("options_tabRules_action"), {
+      target: { value: "pauseTimers" },
+    });
+    expect(screen.getByText("options_tabRules_action_pauseTimers_help")).toBeTruthy();
+    fireEvent.click(screen.getByText("options_save"));
+    expect(lastSavedTabRules(onSaveSetting).rules[0]).toEqual(
+      expect.objectContaining({
+        match: "every",
+        then: { action: "pauseTimers" },
+        when: [{ type: "url", op: "includes", value: "youtube.com" }, { type: "active" }],
+      }),
+    );
+  });
+
+  test("shows a saved rule that pauses timers and lets it be edited", () => {
+    const tabRules = mockSettings.tabRules as TabRulesConfig;
+    mockSettings.tabRules = {
+      ...tabRules,
+      rules: [
+        {
+          id: "video",
+          match: "every",
+          when: [{ type: "url", op: "includes", value: "youtube.com" }, { type: "active" }],
+          then: { action: "pauseTimers" },
+        },
+        ...tabRules.rules,
+      ],
+    };
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    expect(screen.getByText("options_tabRules_action_pauseTimers")).toBeTruthy();
+    expect(screen.getByText("options_tabRules_condition_active")).toBeTruthy();
+
+    fireEvent.click(screen.getAllByLabelText("options_tabRules_edit")[0]);
+    expect((screen.getByLabelText("options_tabRules_action") as HTMLSelectElement).value).toBe(
+      "pauseTimers",
+    );
+  });
+
+  test.each([
+    ["on its own", "every"],
+    ["joined to another condition with OR", "some"],
+  ])("rejects pausing timers for the active tab %s, which would always pause", (_label, match) => {
+    const onSaveSetting = jest.fn();
+    render(<TabRules onSaveSetting={onSaveSetting} />);
+    fireEvent.click(screen.getByText("options_tabRules_addRule"));
+    if (match === "some") {
+      fireEvent.change(screen.getByLabelText("options_tabRules_condition_url"), {
+        target: { value: "youtube.com" },
+      });
+      fireEvent.click(screen.getByText("options_tabRules_addCondition"));
+      fireEvent.change(screen.getAllByLabelText("options_tabRules_condition")[1], {
+        target: { value: "active" },
+      });
+      fireEvent.change(screen.getByLabelText("options_tabRules_match"), {
+        target: { value: "some" },
+      });
+    } else {
+      fireEvent.change(screen.getByLabelText("options_tabRules_condition"), {
+        target: { value: "active" },
+      });
+    }
+    expect(screen.queryByText("options_tabRules_pauseTimersAlways")).toBeNull();
+    fireEvent.change(screen.getByLabelText("options_tabRules_action"), {
+      target: { value: "pauseTimers" },
+    });
+    expect(screen.getByText("options_tabRules_pauseTimersAlways")).toBeTruthy();
+    fireEvent.click(screen.getByText("options_save"));
+    expect(onSaveSetting).not.toHaveBeenCalled();
+  });
+
+  test("does not offer pausing timers for the Else rule, which matches every tab", () => {
+    render(<TabRules onSaveSetting={jest.fn()} />);
+    fireEvent.click(screen.getByLabelText("options_tabRules_editElse"));
+    const action = screen.getByLabelText("options_tabRules_action") as HTMLSelectElement;
+    expect(Array.from(action.options).map((option) => option.value)).toEqual(["lock", "stale"]);
+  });
+
   test("labels the else rule Always when it is the only rule", () => {
     const tabRules = mockSettings.tabRules as TabRulesConfig;
     mockSettings.tabRules = { ...tabRules, rules: tabRules.rules.slice(-1) };

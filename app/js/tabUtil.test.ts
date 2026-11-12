@@ -277,6 +277,29 @@ describe("getTabLockStatus", () => {
     });
   });
 
+  test("locks a tab whose rule pauses all tab timers, so it is never a candidate to close", () => {
+    const rule = {
+      id: "video",
+      match: "every" as const,
+      when: [{ type: "active" as const }, { type: "audible" as const }],
+      then: { action: "pauseTimers" as const },
+    };
+    const tabRules = {
+      ...defaultOptions.tabRules,
+      rules: [rule, ...defaultOptions.tabRules.rules],
+    };
+
+    expect(
+      getTabLockStatus(createTab({ active: true, audible: true }), { ...defaultOptions, tabRules }),
+    ).toEqual({ locked: true, reason: "rule", rule });
+    expect(
+      getTabLockStatus(createTab({ active: false, audible: true }), {
+        ...defaultOptions,
+        tabRules,
+      }),
+    ).toEqual({ locked: false });
+  });
+
   test("locks a pinned tab with the migrated pinned rule", () => {
     expect(getTabLockStatus(createTab({ pinned: true }), defaultOptions)).toEqual({
       locked: true,

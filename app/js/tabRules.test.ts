@@ -13,6 +13,7 @@ import {
   shouldSaveToCorral,
   withElseRule,
 } from "./tabRules";
+import frontWindow from "./frontWindow";
 import tabGroupTitles from "./tabGroupTitles";
 
 const LEGACY_DEFAULTS: LegacyRuleSettings = {
@@ -375,12 +376,35 @@ describe("active condition", () => {
     rules: [{ id: "a", match: "every", when: [{ type: "active" }], then: { action: "lock" } }],
   };
 
-  test("matches the selected tab of a window", () => {
-    expect(getTabOutcome(createTab({ active: true }), config)).toEqual({ action: "lock" });
+  beforeEach(() => {
+    frontWindow.set(1);
   });
 
-  test("does not match the window's other tabs", () => {
-    expect(getTabOutcome(createTab({ active: false }), config)).toBeNull();
+  test("matches the selected tab of the front window", () => {
+    expect(getTabOutcome(createTab({ active: true, windowId: 1 }), config)).toEqual({
+      action: "lock",
+    });
+  });
+
+  test("does not match the front window's other tabs", () => {
+    expect(getTabOutcome(createTab({ active: false, windowId: 1 }), config)).toBeNull();
+  });
+
+  test("does not match the selected tab of a window behind the front one", () => {
+    expect(getTabOutcome(createTab({ active: true, windowId: 2 }), config)).toBeNull();
+  });
+
+  test("follows the front window as focus moves", () => {
+    const tab = createTab({ active: true, windowId: 2 });
+    frontWindow.set(2);
+    expect(getTabOutcome(tab, config)).toEqual({ action: "lock" });
+    frontWindow.set(1);
+    expect(getTabOutcome(tab, config)).toBeNull();
+  });
+
+  test("matches no tab while the front window is unknown", () => {
+    frontWindow.set(undefined);
+    expect(getTabOutcome(createTab({ active: true, windowId: 1 }), config)).toBeNull();
   });
 });
 
@@ -405,6 +429,10 @@ describe("findTimerPausingTab", () => {
     ],
   };
 
+  beforeEach(() => {
+    frontWindow.set(1);
+  });
+
   test("finds the tab matching a rule that pauses timers", () => {
     const watching = createTab({ active: true, id: 2, url: youtube });
     expect(findTimerPausingTab([createTab(), watching, createTab({ pinned: true })], config)).toBe(
@@ -415,6 +443,11 @@ describe("findTimerPausingTab", () => {
   test("finds none once the tab no longer matches, like after switching away from it", () => {
     const tabs = [createTab({ active: true }), createTab({ active: false, id: 2, url: youtube })];
     expect(findTimerPausingTab(tabs, config)).toBeNull();
+  });
+
+  test("finds none while the tab is selected in a window behind the front one", () => {
+    const behind = createTab({ active: true, id: 2, url: youtube, windowId: 2 });
+    expect(findTimerPausingTab([createTab({ active: true }), behind], config)).toBeNull();
   });
 
   test("finds none among tabs that are only locked or going stale", () => {

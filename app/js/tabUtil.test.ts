@@ -20,6 +20,7 @@ import {
 } from "./tabRules";
 import { TabTimes } from "./types";
 import { TextEncoder } from "util";
+import frontWindow from "./frontWindow";
 import { setSavedTabs } from "./actions/localStorageActions";
 import settings from "./settings";
 
@@ -289,9 +290,14 @@ describe("getTabLockStatus", () => {
       rules: [rule, ...defaultOptions.tabRules.rules],
     };
 
-    expect(
-      getTabLockStatus(createTab({ active: true, audible: true }), { ...defaultOptions, tabRules }),
-    ).toEqual({ locked: true, reason: "rule", rule });
+    const watching = createTab({ active: true, audible: true });
+    frontWindow.set(watching.windowId);
+
+    expect(getTabLockStatus(watching, { ...defaultOptions, tabRules })).toEqual({
+      locked: true,
+      reason: "rule",
+      rule,
+    });
     expect(
       getTabLockStatus(createTab({ active: false, audible: true }), {
         ...defaultOptions,

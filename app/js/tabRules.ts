@@ -7,6 +7,7 @@
  * counts down. See `findTimerPausingTab`.
  */
 
+import frontWindow from "./frontWindow";
 import tabGroupTitles from "./tabGroupTitles";
 
 export const TAB_RULES_VERSION = 1;
@@ -25,7 +26,7 @@ export interface TabRule {
 }
 
 export type TabCondition =
-  // The selected tab of its window, whether or not that window has focus.
+  // The tab in view: the selected tab of the front browser window. See `frontWindow`.
   | { type: "active" }
   | { type: "audible" }
   | { type: "groupId"; op: "none" | "some" }
@@ -53,7 +54,8 @@ function matchesCondition(condition: TabCondition, tab: chrome.tabs.Tab): boolea
         condition.op === "includes" && tab.title != null && tab.title.includes(condition.value)
       );
     case "active":
-      return tab.active === true;
+      // `tab.active` alone is true for the selected tab of every window.
+      return tab.active === true && tab.windowId === frontWindow.get();
     case "audible":
       return tab.audible === true;
     case "groupId": {
@@ -97,8 +99,8 @@ export function isLockOutcome(outcome: RuleOutcome | null | undefined): boolean 
 
 /**
  * The first tab whose rule pauses all tab timers, or null when timers run. Such a tab stops every
- * tab's timer for as long as it matches its rule, like while it stays the active tab of its window
- * or keeps playing audio, and the timers pick up where they left off once no tab does.
+ * tab's timer for as long as it matches its rule, like while it stays the tab in view or keeps
+ * playing audio, and the timers pick up where they left off once no tab does.
  */
 export function findTimerPausingTab(
   tabs: chrome.tabs.Tab[],
@@ -109,8 +111,8 @@ export function findTimerPausingTab(
 
 /**
  * Whether a rule that pauses all tab timers would pause them all the time, stopping Tab Wrangler
- * for good. A rule without conditions matches every tab. Every window always has an active tab, so
- * a rule that matches any active tab always matches one.
+ * for good. A rule without conditions matches every tab. The front window always has an active
+ * tab, so a rule that matches any active tab always matches one.
  */
 export function alwaysPausesTimers(rule: Pick<TabRule, "match" | "then" | "when">): boolean {
   return (

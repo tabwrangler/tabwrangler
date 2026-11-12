@@ -40,7 +40,7 @@ All coordination goes through storage events:
 | `local` | `persist:localStorage` | Saved/closed tabs, statistics, install date                              |
 | `local` | `tabTimes`             | `{ [tabId]: lastAccessedTimestamp }` — written frequently, kept separate |
 | `local` | `pausedAt`             | Timestamp when paused; absent when running                               |
-| `local` | `idleAt`               | Timestamp when browser went idle (`pauseWhenIdle`); absent when active   |
+| `local` | `idleAt`               | Timestamp when timers stopped for an idle browser (`pauseWhenIdle`) or a `pauseTimers` rule; absent when running |
 | `local` | `browserStartedAt`     | Timestamp of last browser start; saved `groupId`s older than it are stale |
 | `local` | `clockCheckedAt`       | `tabTimes` exclude time outside `activeHours` up to this timestamp        |
 
@@ -66,12 +66,18 @@ configured `maxTabs` limit.
 ### Tab Rules (`app/js/tabRules.ts`)
 
 The `tabRules` sync setting is an ordered list of rules, and the first matching rule decides
-a tab's outcome: `lock` or `stale` after `afterSeconds`. A rule matches when `every` or `some` of its
-conditions match (`url`, `title`, or tab group name includes, `audible`, `groupId`, `pinned`). The last rule has no conditions
+a tab's outcome: `lock`, `stale` after `afterSeconds`, or `pauseTimers`. A rule matches when `every` or `some` of its
+conditions match (`url`, `title`, or tab group name includes, `active`, `audible`, `groupId`, `pinned`). The last rule has no conditions
 and is the "Else" row. `migrateSync()` in `storage.ts` builds it once from the legacy settings
 (`whitelist`, `filterAudio`, `filterGroupedTabs`, `minutesInactive`, `secondsInactive`), which are
 left in place. When none of those were changed, nothing is stored: until `tabRules` is first
 saved, `settings` derives it from whatever legacy settings exist, or uses the default rules.
+
+`pauseTimers` locks its tab and reaches past it: while any open tab matches such a rule
+(`findTimerPausingTab`), `checkToClose` treats the browser as idle, so every timer stops at `idleAt`
+and resumes where it left off. `active` matches the selected tab of the front browser window only,
+which the `frontWindow` singleton (`app/js/frontWindow.ts`) tracks like `tabGroupTitles` tracks
+group names.
 
 ### UI layer
 

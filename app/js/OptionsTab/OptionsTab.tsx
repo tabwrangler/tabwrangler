@@ -1,4 +1,9 @@
 import { exportData, importData } from "../actions/importExportActions";
+import {
+  exportSettings,
+  importSettings,
+  settingsExportFileName,
+} from "../actions/settingsImportExportActions";
 import settings, { type SettingsSchema } from "../settings";
 import { useRef, useState } from "react";
 import ActiveHours from "./ActiveHours";
@@ -25,6 +30,10 @@ export default function OptionsTab() {
   const { reset: resetUndo } = useUndo();
 
   const fileSelectorRef = useRef<HTMLInputElement | null>(null);
+  const settingsFileSelectorRef = useRef<HTMLInputElement | null>(null);
+  // Bumped after a settings import to remount the forms: several inputs are uncontrolled and read
+  // their setting only once, when they mount.
+  const [formsKey, setFormsKey] = useState(0);
   const importExportAlertTimeoutRef = useRef<number>(null);
   const theme: string = syncPersistData?.theme ?? "system";
   const [errors, setErrors] = useState<Error[]>([]);
@@ -133,9 +142,37 @@ export default function OptionsTab() {
     );
   }
 
+  function handleExportSettings(event: React.MouseEvent<HTMLButtonElement>) {
+    importExportDataWithFeedback(
+      chrome.i18n.getMessage("options_importExportSettings_exporting") || "",
+      exportSettings,
+      event,
+      (blob) => {
+        FileSaver.saveAs(blob, settingsExportFileName(new Date(Date.now())));
+      },
+    );
+  }
+
+  function handleImportSettings(event: React.FormEvent<HTMLInputElement>) {
+    const input = event.target as HTMLInputElement;
+    importExportDataWithFeedback(
+      chrome.i18n.getMessage("options_importExportSettings_importing") || "",
+      (importEvent: React.FormEvent<HTMLInputElement>) =>
+        importSettings(importEvent).finally(() => {
+          // Otherwise choosing the same file again, like after fixing it, does not fire `onChange`.
+          input.value = "";
+        }),
+      event,
+      () => {
+        setMaxTabs(settings.get("maxTabs"));
+        setFormsKey((key) => key + 1);
+      },
+    );
+  }
+
   return (
     <>
-      <div className="tab-pane active">
+      <div className="tab-pane active" key={formsKey}>
         <form>
           <label className="form-label">
             <strong>{chrome.i18n.getMessage("options_option_theme_label")}</strong>
@@ -364,6 +401,45 @@ export default function OptionsTab() {
           <div className="col-9">
             <div className="alert alert-warning">
               {chrome.i18n.getMessage("options_importExport_importWarning")}
+            </div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-9">
+            {chrome.i18n.getMessage("options_importExportSettings_description")}
+          </div>
+        </div>
+        <div className="row my-2">
+          <div className="col-9 mb-1">
+            <Button variant="secondary" onClick={handleExportSettings}>
+              <i className="fas fa-file-export me-1" />
+              {chrome.i18n.getMessage("options_importExportSettings_export")}
+            </Button>{" "}
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (settingsFileSelectorRef.current != null)
+                  settingsFileSelectorRef.current.click();
+              }}
+            >
+              <i className="fas fa-file-import me-1" />
+              {chrome.i18n.getMessage("options_importExportSettings_import")}
+            </Button>
+            <input
+              accept=".json"
+              onChange={handleImportSettings}
+              ref={(input) => {
+                settingsFileSelectorRef.current = input;
+              }}
+              style={{ display: "none" }}
+              type="file"
+            />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-9">
+            <div className="alert alert-warning">
+              {chrome.i18n.getMessage("options_importExportSettings_importWarning")}
             </div>
           </div>
         </div>

@@ -107,7 +107,7 @@ The Options tab lets you configure how Tab Wrangler behaves.
   Corral.
 - **Icon badge**: Optionally show a count of saved tabs on the extension icon.
 - **Keyboard shortcuts**: Configure keyboard shortcuts for common Tab Wrangler actions.
-- **Import / Export**: Back up your saved tabs list and settings to a file, or restore from a
+- **Import / Export**: Back up your saved tabs list or your settings to a file, and restore from a
   previous backup.
 
 #### All Saved Settings
@@ -183,6 +183,26 @@ type TabWranglerExportFormat = {
   totalTabsWrangled: number;
 };
 ```
+
+##### Settings export / import
+
+Settings are exported and imported separately from the list of closed tabs, with the _Export
+settings_ and _Import settings_ buttons in the same _Import / Export_ section. This is a convenient
+way to move your settings to another browser.
+
+The settings file, named similarly to "TabWranglerSettings-2026-11-12.json", holds your Tab Rules,
+Active Hours, the other options, the theme, and the addresses of tabs you locked or that are in
+windows you locked. It does not hold closed tabs.
+
+Importing a settings file replaces the current value of every setting in the file:
+
+- Open tabs with the address of an exported locked tab are locked. An open window that holds every
+  tab of an exported locked window is locked; otherwise that window's tabs that are open are locked
+  one by one.
+- Tab Wrangler stays paused or running as it is.
+- "Pause tab timers while the browser is idle" needs a browser permission that a file cannot grant:
+  switch it on again after importing.
+- If any value in the file is invalid, nothing is imported.
 
 ## Privacy Policy
 

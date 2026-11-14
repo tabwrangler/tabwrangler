@@ -453,10 +453,14 @@ async function migratePersistedData(
     const activeHours = settings.get("activeHours");
 
     // Time the browser was closed. Applied to migrated timestamps so that offline time
-    // is not counted against a tab's countdown.
+    // is not counted against a tab's countdown. Not applied when timers were paused (manually or
+    // by idle) as the browser closed: resuming them excludes everything since they paused, which
+    // includes the offline time.
+    const wasIdleOrPaused = clock.idleAt != null || (paused && clock.pausedAt != null);
+    const offlineGap = lastSeenAt == null || wasIdleOrPaused ? 0 : Math.max(0, now - lastSeenAt);
+
     let migratedLockedIds = 0;
     let migratedTabTimes = 0;
-    const offlineGap = lastSeenAt == null ? 0 : Math.max(0, now - lastSeenAt);
     const lockedTabPersistKeySet = new Set(lockedTabPersistKeys);
     const tabsToRelock: chrome.tabs.Tab[] = [];
     const nextTabTimes: TabTimes = {};

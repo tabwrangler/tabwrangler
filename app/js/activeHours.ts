@@ -23,6 +23,29 @@ export const ALWAYS_ACTIVE_HOURS: ActiveHours = DAYS_OF_WEEK.map((dayOfWeek) => 
   endMinute: MINUTES_PER_DAY,
 }));
 
+/**
+ * Whether a value from outside the extension, like an imported file, can be used as active hours:
+ * at most one window per day, each within the day and not empty. An empty list is valid, and means
+ * Tab Wrangler is never active.
+ */
+export function isActiveHours(value: unknown): value is ActiveHours {
+  if (!Array.isArray(value)) return false;
+  const days = new Set<unknown>();
+  return value.every((window) => {
+    if (typeof window !== "object" || window === null) return false;
+    const { dayOfWeek, endMinute, startMinute } = window as Record<string, unknown>;
+    if (!DAYS_OF_WEEK.includes(dayOfWeek as DayOfWeek) || days.has(dayOfWeek)) return false;
+    days.add(dayOfWeek);
+    return (
+      Number.isInteger(startMinute) &&
+      Number.isInteger(endMinute) &&
+      (startMinute as number) >= 0 &&
+      (endMinute as number) <= MINUTES_PER_DAY &&
+      (startMinute as number) < (endMinute as number)
+    );
+  });
+}
+
 // Long enough that any schedule that is not always active has a change in it.
 const STATE_LOOKAHEAD_DAYS = 8;
 

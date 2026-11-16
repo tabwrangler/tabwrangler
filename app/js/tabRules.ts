@@ -33,6 +33,73 @@ export type RuleOutcome =
   | { action: "lock" }
   | { action: "stale"; afterSeconds: number; save: "corral" | "none" };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+// Kept beside `TabCondition` so a new condition type is added to both together.
+function isTabCondition(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  switch (value.type as TabCondition["type"]) {
+    case "audible":
+    case "pinned":
+      return true;
+    case "groupId":
+      return value.op === "none" || value.op === "some";
+    case "groupTitle":
+    case "title":
+    case "url":
+      return value.op === "includes" && typeof value.value === "string";
+    default:
+      // A condition from a newer version. It never matches here: see `matchesCondition`.
+      return typeof value.type === "string";
+  }
+}
+
+// Kept beside `RuleOutcome` so a new action is added to both together.
+function isRuleOutcome(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  switch (value.action as RuleOutcome["action"]) {
+    case "lock":
+      return true;
+    case "stale":
+      return (
+        typeof value.afterSeconds === "number" &&
+        Number.isFinite(value.afterSeconds) &&
+        // 0 is not offered by the options page but rules migrated from legacy settings can have it.
+        value.afterSeconds >= 0 &&
+        (value.save === "corral" || value.save === "none")
+      );
+    default:
+      // An action from a newer version. Its tabs are neither locked nor made stale here.
+      return typeof value.action === "string";
+  }
+}
+
+/**
+ * Whether a value from outside the extension, like an imported file, can be stored as Tab Rules.
+ * Conditions and actions this version knows must be well formed. Ones it does not know are let
+ * through as long as they have the shape of one: rules written by a newer version also arrive
+ * through sync storage, where they have no effect until this version catches up, and dropping them
+ * would let their tabs fall through to a rule that closes them.
+ */
+export function isTabRulesConfig(value: unknown): value is TabRulesConfig {
+  return (
+    isRecord(value) &&
+    value.version === TAB_RULES_VERSION &&
+    Array.isArray(value.rules) &&
+    value.rules.every(
+      (rule) =>
+        isRecord(rule) &&
+        typeof rule.id === "string" &&
+        (rule.match === "every" || rule.match === "some") &&
+        Array.isArray(rule.when) &&
+        rule.when.every(isTabCondition) &&
+        isRuleOutcome(rule.then),
+    )
+  );
+}
+
 export function generateRuleId(): string {
   return Math.random().toString(36).slice(2, 10);
 }

@@ -1,4 +1,4 @@
-import { ALWAYS_ACTIVE_HOURS, type ActiveHours } from "./activeHours";
+import { ALWAYS_ACTIVE_HOURS, type ActiveHours, isActiveHours } from "./activeHours";
 import { AVERAGE_TAB_BYTES_SIZE, TabLockStatus, getTabLockStatus } from "./tabUtil";
 import {
   DEFAULT_STALE_AFTER_SECONDS,
@@ -8,6 +8,7 @@ import {
   type TabRulesConfig,
   buildTabRulesFromLegacySettings,
   getStaleAfterMs,
+  isTabRulesConfig,
   withElseRule,
 } from "./tabRules";
 import Menus from "./menus";
@@ -146,6 +147,90 @@ export const SETTINGS_DEFAULTS: SettingsSchema = {
   // Allow duplicate entries in the closed/wrangled tabs list
   wrangleOption: "withDupes",
 };
+
+const LOCK_TAB_SORT_ORDERS: readonly unknown[] = [
+  "alpha",
+  "chrono",
+  "reverseAlpha",
+  "reverseChrono",
+  "reverseTabOrder",
+  "tabOrder",
+] satisfies LockTabSortOrderOption[];
+const MIN_TABS_STRATEGIES: readonly unknown[] = [
+  "allWindows",
+  "givenWindow",
+] satisfies MinTabsStrategyOption[];
+const WRANGLE_OPTIONS: readonly unknown[] = [
+  "exactURLMatch",
+  "hostnameAndTitleMatch",
+  "withDupes",
+] satisfies SettingsSchemaWrangleOption[];
+
+function isBoolean(value: unknown): boolean {
+  return typeof value === "boolean";
+}
+
+function isCount(value: unknown, min: number): boolean {
+  return typeof value === "number" && Number.isInteger(value) && value >= min;
+}
+
+/**
+ * How each setting is checked when it comes from outside the extension, like an imported file, or
+ * `null` for a setting that is not exported or imported:
+ *
+ * - `lockedIds` and `lockedWindowIds` are tab and window IDs, which belong to one browser session.
+ * - `filterAudio`, `filterGroupedTabs`, `minutesInactive`, `secondsInactive` and `whitelist` are
+ *   superseded by `tabRules`, which is exported as the rules in effect.
+ *
+ * Every setting is listed, so a new one cannot be added without deciding which it is.
+ */
+const PORTABLE_SETTING_CHECKS: {
+  [K in keyof SettingsSchema]: ((value: unknown) => boolean) | null;
+} = {
+  activeHours: isActiveHours,
+  corralTabSortOrder: (value) => value === null || typeof value === "string",
+  createContextMenu: isBoolean,
+  debounceOnActivated: isBoolean,
+  filterAudio: null,
+  filterGroupedTabs: null,
+  lockedIds: null,
+  lockedWindowIds: null,
+  lockTabSortOrder: (value) => value === null || LOCK_TAB_SORT_ORDERS.includes(value),
+  maxTabs: (value) => isCount(value, 1),
+  minTabs: (value) => isCount(value, 0),
+  minTabsStrategy: (value) => MIN_TABS_STRATEGIES.includes(value),
+  minutesInactive: null,
+  pauseWhenIdle: isBoolean,
+  purgeClosedTabs: isBoolean,
+  secondsInactive: null,
+  showBadgeCount: isBoolean,
+  tabRules: isTabRulesConfig,
+  whitelist: null,
+  wrangleOption: (value) => WRANGLE_OPTIONS.includes(value),
+};
+
+// The settings that are exported and imported.
+export const PORTABLE_SETTING_KEYS = (
+  Object.keys(PORTABLE_SETTING_CHECKS) as (keyof SettingsSchema)[]
+).filter((key) => PORTABLE_SETTING_CHECKS[key] != null);
+
+/**
+ * Returns a setting from outside the extension as the value to store, or `undefined` when this
+ * version cannot use it: a setting it does not have, one that is not portable, or a value it does
+ * not recognize, like an option added by a newer version.
+ */
+export function parsePortableSetting(key: string, value: unknown): unknown {
+  if (!Object.prototype.hasOwnProperty.call(PORTABLE_SETTING_CHECKS, key)) return undefined;
+  const isValid = PORTABLE_SETTING_CHECKS[key as keyof SettingsSchema];
+  if (isValid == null) return undefined;
+
+  // The options page saves number inputs as the strings they hold, so a stored count can be "20".
+  const parsed =
+    (key === "maxTabs" || key === "minTabs") && typeof value === "string" && value.trim() !== ""
+      ? Number(value)
+      : value;
+  return isValid(parsed) ? parsed : undefined;
+}
 
 /**
  * Tab Rules equivalent to the legacy settings stored in sync storage, or null when none are stored

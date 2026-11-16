@@ -6,6 +6,7 @@ import {
   getDaysOfWeekInLocaleOrder,
   getFirstDayOfWeek,
   inactiveMs,
+  isActiveHours,
   isAlwaysActive,
   setActiveWindow,
 } from "./activeHours";
@@ -156,5 +157,32 @@ describe("getFirstDayOfWeek", () => {
     setWeekInfo({});
     expect(getFirstDayOfWeek()).toBe(7);
     expect(getDaysOfWeekInLocaleOrder()).toEqual([7, 1, 2, 3, 4, 5, 6]);
+  });
+});
+
+describe("isActiveHours", () => {
+  test("accepts every day all day, some days, and no days", () => {
+    expect(isActiveHours(ALWAYS_ACTIVE_HOURS)).toBe(true);
+    expect(isActiveHours([{ dayOfWeek: 1, startMinute: 540, endMinute: 1020 }])).toBe(true);
+    expect(isActiveHours([])).toBe(true);
+  });
+
+  test.each<[string, unknown]>([
+    ["a value that is not a list", { dayOfWeek: 1 }],
+    ["a window that is not an object", [null]],
+    ["a day that does not exist", [{ dayOfWeek: 8, startMinute: 0, endMinute: 60 }]],
+    ["an empty window", [{ dayOfWeek: 1, startMinute: 60, endMinute: 60 }]],
+    ["a window past the end of the day", [{ dayOfWeek: 1, startMinute: 0, endMinute: 1441 }]],
+    ["a window starting before the day", [{ dayOfWeek: 1, startMinute: -1, endMinute: 60 }]],
+    ["minutes that are not whole numbers", [{ dayOfWeek: 1, startMinute: 0.5, endMinute: 60 }]],
+    [
+      "two windows on one day",
+      [
+        { dayOfWeek: 1, startMinute: 0, endMinute: 60 },
+        { dayOfWeek: 1, startMinute: 120, endMinute: 180 },
+      ],
+    ],
+  ])("rejects %s", (_label, value) => {
+    expect(isActiveHours(value)).toBe(false);
   });
 });

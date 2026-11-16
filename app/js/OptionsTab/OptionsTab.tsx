@@ -1,9 +1,9 @@
-import { exportData, importData } from "../actions/importExportActions";
 import {
-  exportSettings,
-  importSettings,
-  settingsExportFileName,
-} from "../actions/settingsImportExportActions";
+  type ParsedImport,
+  applyImport,
+  exportData,
+  readImportFile,
+} from "../actions/importExportActions";
 import settings, { type SettingsSchema } from "../settings";
 import { useRef, useState } from "react";
 import ActiveHours from "./ActiveHours";
@@ -11,6 +11,7 @@ import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import FileSaver from "file-saver";
 import { IDLE_PERMISSIONS } from "../constants";
+import ImportConfirm from "./ImportConfirm";
 import TabRules from "./TabRules";
 import TabWrangleOption from "./TabWrangleOption";
 import Toast from "react-bootstrap/Toast";
@@ -22,18 +23,22 @@ import { useDebounceCallback } from "@react-hook/debounce";
 import useIdlePermissionQuery from "../api/useIdlePermissionQuery";
 import { useMutation } from "@tanstack/react-query";
 import useSetting from "../useSetting";
+import { useStorageLocalPersistQuery } from "../storage";
 import { useStorageSyncPersistQuery } from "../storage";
 import { useUndo } from "../UndoContext";
 
 export default function OptionsTab() {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
+  const { data: localPersistData } = useStorageLocalPersistQuery();
   const { reset: resetUndo } = useUndo();
 
   const fileSelectorRef = useRef<HTMLInputElement | null>(null);
-  const settingsFileSelectorRef = useRef<HTMLInputElement | null>(null);
-  // Bumped after a settings import to remount the forms: several inputs are uncontrolled and read
-  // their setting only once, when they mount.
+  // Bumped after settings are imported to remount the forms: several inputs are uncontrolled and
+  // read their setting only once, when they mount.
   const [formsKey, setFormsKey] = useState(0);
+  const [exportClosedTabs, setExportClosedTabs] = useState(true);
+  // An import file that was read and waits for the user to choose what to import from it.
+  const [pendingImport, setPendingImport] = useState<ParsedImport | null>(null);
   const importExportAlertTimeoutRef = useRef<number>(null);
   const theme: string = syncPersistData?.theme ?? "system";
   const [errors, setErrors] = useState<Error[]>([]);
@@ -118,54 +123,48 @@ export default function OptionsTab() {
       });
   }
 
-  function handleExportData(event: React.MouseEvent<HTMLButtonElement>) {
+  function handleExportData() {
     importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_exporting") || "",
       exportData,
-      event,
+      { includeClosedTabs: exportClosedTabs },
       (blob) => {
         FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
       },
     );
   }
 
-  function handleImportData(event: React.FormEvent<HTMLInputElement>) {
+  // Reads the file without importing anything: `ImportConfirm` shows what it holds first.
+  function handleImportFile(event: React.FormEvent<HTMLInputElement>) {
+    const input = event.target as HTMLInputElement;
+    setImportExportErrors([]);
+    readImportFile(event)
+      .then(setPendingImport)
+      .catch((err: Error) => {
+        setPendingImport(null);
+        setImportExportErrors((currImportExportErrors) => [...currImportExportErrors, err]);
+      })
+      .finally(() => {
+        // Otherwise choosing the same file again, like after fixing it, does not fire `onChange`.
+        input.value = "";
+      });
+  }
+
+  function handleImport({ replaceClosedTabs }: { replaceClosedTabs: boolean }) {
+    if (pendingImport == null) return;
     importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_importing") || "",
-      importData,
-      event,
-
-      // Reset the undo/redo context after importing because the set of IDs in the context may clash
-      // with the imported ones. For example: user could import IDs already in the context, and then
-      // "undo" / "redo" might add or remove multiple tabs at once.
-      resetUndo,
-    );
-  }
-
-  function handleExportSettings(event: React.MouseEvent<HTMLButtonElement>) {
-    importExportDataWithFeedback(
-      chrome.i18n.getMessage("options_importExportSettings_exporting") || "",
-      exportSettings,
-      event,
-      (blob) => {
-        FileSaver.saveAs(blob, settingsExportFileName(new Date(Date.now())));
-      },
-    );
-  }
-
-  function handleImportSettings(event: React.FormEvent<HTMLInputElement>) {
-    const input = event.target as HTMLInputElement;
-    importExportDataWithFeedback(
-      chrome.i18n.getMessage("options_importExportSettings_importing") || "",
-      (importEvent: React.FormEvent<HTMLInputElement>) =>
-        importSettings(importEvent).finally(() => {
-          // Otherwise choosing the same file again, like after fixing it, does not fire `onChange`.
-          input.value = "";
-        }),
-      event,
+      (parsed: ParsedImport) => applyImport(parsed, { replaceClosedTabs }),
+      pendingImport,
       () => {
+        setPendingImport(null);
         setMaxTabs(settings.get("maxTabs"));
         setFormsKey((key) => key + 1);
+
+        // Reset the undo/redo context after importing closed tabs because the set of IDs in the
+        // context may clash with the imported ones. For example: user could import IDs already in
+        // the context, and then "undo" / "redo" might add or remove multiple tabs at once.
+        if (replaceClosedTabs) resetUndo();
       },
     );
   }
@@ -388,61 +387,43 @@ export default function OptionsTab() {
             </Button>
             <input
               accept=".json"
-              onChange={handleImportData}
+              onChange={handleImportFile}
               ref={(input) => {
                 fileSelectorRef.current = input;
               }}
               style={{ display: "none" }}
               type="file"
             />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-9">
-            <div className="alert alert-warning">
-              {chrome.i18n.getMessage("options_importExport_importWarning")}
+            <div className="form-check mt-2">
+              <input
+                checked={exportClosedTabs}
+                className="form-check-input"
+                id="exportClosedTabs"
+                onChange={(event) => {
+                  setExportClosedTabs(event.target.checked);
+                }}
+                type="checkbox"
+              />
+              <label className="form-check-label" htmlFor="exportClosedTabs">
+                {chrome.i18n.getMessage("options_importExport_exportClosedTabs")}
+              </label>
             </div>
           </div>
         </div>
-        <div className="row">
-          <div className="col-9">
-            {chrome.i18n.getMessage("options_importExportSettings_description")}
-          </div>
-        </div>
-        <div className="row my-2">
-          <div className="col-9 mb-1">
-            <Button variant="secondary" onClick={handleExportSettings}>
-              <i className="fas fa-file-export me-1" />
-              {chrome.i18n.getMessage("options_importExportSettings_export")}
-            </Button>{" "}
-            <Button
-              variant="secondary"
-              onClick={() => {
-                if (settingsFileSelectorRef.current != null)
-                  settingsFileSelectorRef.current.click();
-              }}
-            >
-              <i className="fas fa-file-import me-1" />
-              {chrome.i18n.getMessage("options_importExportSettings_import")}
-            </Button>
-            <input
-              accept=".json"
-              onChange={handleImportSettings}
-              ref={(input) => {
-                settingsFileSelectorRef.current = input;
-              }}
-              style={{ display: "none" }}
-              type="file"
-            />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-9">
-            <div className="alert alert-warning">
-              {chrome.i18n.getMessage("options_importExportSettings_importWarning")}
+        {pendingImport != null && (
+          <div className="row">
+            <div className="col-9">
+              <ImportConfirm
+                closedTabCount={localPersistData?.savedTabs?.length ?? 0}
+                onCancel={() => {
+                  setPendingImport(null);
+                }}
+                onImport={handleImport}
+                parsed={pendingImport}
+              />
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       <ToastPortal>

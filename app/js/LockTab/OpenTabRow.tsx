@@ -23,6 +23,8 @@ interface OpenTabRowProps {
   tab: chrome.tabs.Tab;
   tabGroup?: chrome.tabGroups.TabGroup;
   tabTime: number | undefined;
+  // Whether an open tab's Tab Rule is pausing all tab timers.
+  timersPausedByRule: boolean;
   tabsWillAutoClose: boolean;
   windowId: number;
   windowLocked: boolean;
@@ -43,6 +45,7 @@ export default function OpenTabRow({
   tab,
   tabGroup,
   tabTime: tabTimeProp,
+  timersPausedByRule,
   tabsWillAutoClose,
   windowId,
   windowLocked,
@@ -77,7 +80,12 @@ export default function OpenTabRow({
   const cutOff = timerNow - staleAfterMs;
   const timeRemaining = -1 * Math.round((cutOff - tabTime) / 1000);
   const isOverdue =
-    !tabLockStatus.locked && !windowLocked && !paused && !outsideActiveHours && timeRemaining < 0;
+    !tabLockStatus.locked &&
+    !windowLocked &&
+    !paused &&
+    !outsideActiveHours &&
+    !timersPausedByRule &&
+    timeRemaining < 0;
 
   const titleCellRef = useRef<HTMLTableCellElement>(null);
   const titleCellContentRef = useRef<HTMLDivElement>(null);
@@ -173,6 +181,7 @@ export default function OpenTabRow({
             hasPausedAt={pausedAt != null}
             isBrowserIdle={idleAt != null}
             isOutsideActiveHours={outsideActiveHours}
+            isPausedByRule={timersPausedByRule}
             isTabActive={tab.active}
             staleAfterMs={staleAfterMs}
             timerFrozen={
@@ -248,6 +257,7 @@ function TabLockContent({
   hasPausedAt,
   isBrowserIdle,
   isOutsideActiveHours,
+  isPausedByRule,
   isTabActive,
   staleAfterMs,
   timerFrozen,
@@ -259,6 +269,7 @@ function TabLockContent({
   hasPausedAt: boolean;
   isBrowserIdle: boolean;
   isOutsideActiveHours: boolean;
+  isPausedByRule: boolean;
   isTabActive: boolean;
   staleAfterMs: number;
   timerFrozen: boolean;
@@ -312,6 +323,9 @@ function TabLockContent({
       timeLeftContent = chrome.i18n.getMessage("tabLock_lockedReason_paused");
     } else if (isOutsideActiveHours) {
       timeLeftContent = <OutsideActiveHoursTimeRemaining timeRemaining={timeRemaining} />;
+    } else if (isPausedByRule) {
+      // Before idle: the background records a rule's pause as idle time.
+      timeLeftContent = <RulePausedTimeRemaining timeRemaining={timeRemaining} />;
     } else if (isBrowserIdle) {
       timeLeftContent = <IdleTimeRemaining timeRemaining={timeRemaining} />;
     } else if (timeRemaining <= 0 && tabsWillAutoClose) {
@@ -340,6 +354,19 @@ function TabLockContent({
 }
 
 function RuleLockedReason({ rule }: { rule: TabRule }) {
+  // Names the tab that is pausing every tab's timer, with the rule's conditions on hover.
+  if (rule.then.action === "pauseTimers") {
+    const join = chrome.i18n
+      .getMessage(rule.match === "some" ? "options_tabRules_or" : "options_tabRules_and")
+      .toLocaleUpperCase();
+    return (
+      <abbr title={rule.when.map(describeCondition).join(` ${join} `)}>
+        <i className="fas fa-pause me-1" />
+        {chrome.i18n.getMessage("tabLock_lockedStatus_pausingTimers")}
+      </abbr>
+    );
+  }
+
   if (rule.when.length > 1) {
     const join = chrome.i18n
       .getMessage(rule.match === "some" ? "options_tabRules_or" : "options_tabRules_and")
@@ -411,6 +438,8 @@ function describeCondition(condition: TabCondition): string {
       return chrome.i18n.getMessage("options_tabRules_condition_titleIncludes", condition.value);
     case "url":
       return chrome.i18n.getMessage("options_tabRules_condition_urlIncludes", condition.value);
+    case "active":
+      return chrome.i18n.getMessage("options_tabRules_condition_active");
     case "audible":
       return chrome.i18n.getMessage("options_tabRules_condition_audible");
     case "groupId":
@@ -449,6 +478,19 @@ function OutsideActiveHoursTimeRemaining({ timeRemaining }: { timeRemaining: num
     >
       <span>
         <i className="text-warning opacity-50 fas fa-moon" />{" "}
+        <time className="font-monospace">{formatSecondsToDhms(Math.max(0, timeRemaining))}</time>
+      </span>
+    </OverlayTrigger>
+  );
+}
+
+function RulePausedTimeRemaining({ timeRemaining }: { timeRemaining: number }) {
+  return (
+    <OverlayTrigger
+      overlay={<Tooltip>{chrome.i18n.getMessage("tabLock_timerRulePaused_tooltip")}</Tooltip>}
+    >
+      <span>
+        <i className="text-warning opacity-50 fas fa-pause" />{" "}
         <time className="font-monospace">{formatSecondsToDhms(Math.max(0, timeRemaining))}</time>
       </span>
     </OverlayTrigger>

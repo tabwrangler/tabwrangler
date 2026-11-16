@@ -6,6 +6,7 @@ import { Dropdown } from "react-bootstrap";
 import MinimumTabsBadge from "./MinimumTabsBadge";
 import WindowCard from "./WindowCard";
 import cx from "classnames";
+import { findTimerPausingTab } from "../tabRules";
 import { isWithinActiveHours } from "../activeHours";
 import { useGetTabLockStatus } from "../useTabLockStatus";
 import useSetting from "../useSetting";
@@ -195,6 +196,11 @@ export default function LockTab({ collapsedGroupIds, setCollapsedGroupIds }: Loc
     });
   }, [currSorter, currWindow?.id, tabTimesQuery.data, tabsQuery.data]);
 
+  // Whether an open tab's Tab Rule is pausing all tab timers. Read from the open tabs rather than
+  // from storage so it shows as soon as a tab matches, before the background's next check.
+  const tabRules = useSetting("tabRules");
+  const timersPausedByRule = findTimerPausingTab(tabsQuery.data ?? [], tabRules) != null;
+
   const getTabLockStatus = useGetTabLockStatus();
   const unlockedTabCount =
     tabsQuery.data?.filter((tab) => !getTabLockStatus(tab).locked).length ?? 0;
@@ -262,6 +268,7 @@ export default function LockTab({ collapsedGroupIds, setCollapsedGroupIds }: Loc
           <MinimumTabsBadge
             minTabs={minTabs}
             minTabsStrategyState={{ minTabsStrategy }}
+            timersPausedByRule={timersPausedByRule}
             unlockedTabCount={unlockedTabCount}
           />
         )}
@@ -335,6 +342,7 @@ export default function LockTab({ collapsedGroupIds, setCollapsedGroupIds }: Loc
               tabGroupsById={tabGroupsById}
               tabs={tabs}
               tabTimes={tabTimesQuery.data}
+              timersPausedByRule={timersPausedByRule}
               totalUnlockedTabCount={unlockedTabCount}
               onToggle={toggleWindow}
               onToggleGroupCollapsed={toggleGroupCollapsed}

@@ -4,6 +4,7 @@ import {
   type TabCondition,
   type TabRule,
   type TabRulesConfig,
+  alwaysPausesTimers,
   findElseRule,
   generateRuleId,
 } from "../tabRules";
@@ -26,6 +27,7 @@ const CONDITION_TYPES: ConditionType[] = [
   "title",
   "pinned",
   "audible",
+  "active",
   "groupId",
   "groupTitle",
 ];
@@ -571,6 +573,7 @@ function conditionLabel(position: number) {
 }
 
 const CONDITION_TYPE_MESSAGES: Record<ConditionType, string> = {
+  active: "options_tabRules_condition_active",
   audible: "options_tabRules_condition_audible",
   groupId: "options_tabRules_condition_grouped",
   groupTitle: "options_tabRules_condition_groupTitle",
@@ -624,6 +627,13 @@ function ConditionText({ condition }: { condition: TabCondition }) {
         <span className="text-nowrap tab-rule-shrink">
           {conditionTypeLabel(condition.type)}{" "}
           <code className="tab-rule-value">{condition.value}</code>
+        </span>
+      );
+    case "active":
+      return (
+        <span className="text-nowrap">
+          <i className="fas fa-eye me-1" />
+          {conditionTypeLabel("active")}
         </span>
       );
     case "audible":
@@ -696,6 +706,7 @@ function RuleForm({
         ifLabel={conditionLabel}
         then={
           <OutcomeFields
+            canPauseTimers
             onChange={(then) => {
               onChange({ ...draft, then });
             }}
@@ -882,6 +893,13 @@ function RuleOutcomeText({ outcome }: { outcome: RuleOutcome }) {
           {chrome.i18n.getMessage("options_tabRules_action_lock")}
         </div>
       );
+    case "pauseTimers":
+      return (
+        <div className="text-nowrap">
+          <i className="fas fa-pause me-1" />
+          {chrome.i18n.getMessage("options_tabRules_action_pauseTimers")}
+        </div>
+      );
     case "stale": {
       // The marker splits the message where the duration goes, so it can be styled like condition
       // values wherever a translation puts it.
@@ -942,11 +960,14 @@ function RuleClause({
 // starts from the default duration rather than one entered before.
 function OutcomeFields({
   autoFocus = false,
+  canPauseTimers = false,
   onChange,
   outcome,
   readOnly,
 }: {
   autoFocus?: boolean;
+  // Not offered for the "Else" rule: it matches every tab, so timers would never run.
+  canPauseTimers?: boolean;
   onChange: (outcome: RuleOutcome) => void;
   outcome: RuleOutcome;
   readOnly: boolean;
@@ -961,17 +982,37 @@ function OutcomeFields({
         disabled={readOnly}
         name="action"
         onChange={(event) => {
-          onChange(
-            event.target.value === "stale"
-              ? { action: "stale", afterSeconds: DEFAULT_STALE_AFTER_SECONDS, save: "corral" }
-              : { action: "lock" },
-          );
+          switch (event.target.value) {
+            case "pauseTimers":
+              onChange({ action: "pauseTimers" });
+              break;
+            case "stale":
+              onChange({
+                action: "stale",
+                afterSeconds: DEFAULT_STALE_AFTER_SECONDS,
+                save: "corral",
+              });
+              break;
+            default:
+              onChange({ action: "lock" });
+          }
         }}
         value={outcome.action}
       >
         <option value="lock">{chrome.i18n.getMessage("options_tabRules_action_lock")}</option>
         <option value="stale">{chrome.i18n.getMessage("options_tabRules_action_stale")}</option>
+        {/* Still listed for a rule that already has it, so the select shows the saved action. */}
+        {(canPauseTimers || outcome.action === "pauseTimers") && (
+          <option value="pauseTimers">
+            {chrome.i18n.getMessage("options_tabRules_action_pauseTimers")}
+          </option>
+        )}
       </select>
+      {outcome.action === "pauseTimers" && (
+        <div className="form-text mt-0">
+          {chrome.i18n.getMessage("options_tabRules_action_pauseTimers_help")}
+        </div>
+      )}
       {outcome.action === "stale" && (
         <>
           <DurationInput
@@ -1219,6 +1260,7 @@ function conditionToDraft(condition: TabCondition): ConditionDraft | null {
     condition.op === "includes"
   )
     return { type: condition.type, value: condition.value };
+  if (condition.type === "active") return { type: "active", value: "" };
   if (condition.type === "audible") return { type: "audible", value: "" };
   if (condition.type === "groupId" && condition.op === "some")
     return { type: "groupId", value: "" };
@@ -1227,6 +1269,7 @@ function conditionToDraft(condition: TabCondition): ConditionDraft | null {
 }
 
 function draftToCondition(draft: ConditionDraft): TabCondition {
+  if (draft.type === "active") return { type: "active" };
   if (draft.type === "audible") return { type: "audible" };
   if (draft.type === "groupId") return { type: "groupId", op: "some" };
   if (draft.type === "pinned") return { type: "pinned" };
@@ -1283,10 +1326,11 @@ function draftErrors(draft: Draft, rules: TabRule[], exceptId: string | null): D
   });
   const fields = draftToFields(draft);
   const duplicate = rules.some((rule) => rule.id !== exceptId && hasSameConditions(rule, fields));
-  return {
-    conditions,
-    rule: duplicate ? chrome.i18n.getMessage("options_tabRules_duplicateRule") : null,
-  };
+  let rule: string | null = null;
+  if (duplicate) rule = chrome.i18n.getMessage("options_tabRules_duplicateRule");
+  else if (alwaysPausesTimers(fields))
+    rule = chrome.i18n.getMessage("options_tabRules_pauseTimersAlways");
+  return { conditions, rule };
 }
 
 function hasErrors(errors: DraftErrors) {

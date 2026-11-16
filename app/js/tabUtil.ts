@@ -4,6 +4,7 @@ import {
   type TabRulesConfig,
   findMatchingRule,
   getStaleAfterMs,
+  isLockOutcome,
   shouldSaveToCorral,
 } from "./tabRules";
 import {
@@ -200,7 +201,7 @@ export function getTabLockStatus(
   { lockedIds, lockedWindowIds, tabRules }: LockSettings,
 ): TabLockStatus {
   const rule = findMatchingRule(tab, tabRules);
-  if (rule?.then.action === "lock") return { locked: true, reason: "rule", rule };
+  if (rule != null && isLockOutcome(rule.then)) return { locked: true, reason: "rule", rule };
   if (tab.id != null && lockedIds.indexOf(tab.id) !== -1) return { locked: true, reason: "manual" };
   if (lockedWindowIds.indexOf(tab.windowId) !== -1) return { locked: true, reason: "window" };
 

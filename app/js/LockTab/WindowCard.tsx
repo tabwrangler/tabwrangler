@@ -21,6 +21,8 @@ interface WindowCardProps {
   tabGroupsById: Map<number, chrome.tabGroups.TabGroup>;
   tabs: chrome.tabs.Tab[];
   tabTimes: TabTimes | undefined;
+  // Whether an open tab's Tab Rule is pausing all tab timers.
+  timersPausedByRule: boolean;
   totalUnlockedTabCount: number;
   onToggle: (windowId: number) => void;
   onToggleGroupCollapsed: (groupId: number) => void;
@@ -42,6 +44,7 @@ export default function WindowCard({
   tabGroupsById,
   tabs,
   tabTimes,
+  timersPausedByRule,
   totalUnlockedTabCount,
   onToggle,
   onToggleGroupCollapsed,
@@ -126,6 +129,7 @@ export default function WindowCard({
             tab={tab}
             tabGroup={tabGroup}
             tabTime={tabTimes == null || tab.id == null ? undefined : tabTimes[tab.id]}
+            timersPausedByRule={timersPausedByRule}
             tabsWillAutoClose={tabsWillAutoClose}
             windowId={windowId}
             windowLocked={isLocked}
@@ -159,6 +163,7 @@ export default function WindowCard({
                     <MinimumTabsBadge
                       minTabs={minTabs}
                       minTabsStrategyState={{ minTabsStrategy, isWindowLocked: isLocked }}
+                      timersPausedByRule={timersPausedByRule}
                       unlockedTabCount={unlockedTabCount}
                     />
                   )}

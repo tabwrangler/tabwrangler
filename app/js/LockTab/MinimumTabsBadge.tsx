@@ -11,22 +11,28 @@ type MinTabsStrategyState =
 interface MinimumTabsBadgeProps {
   minTabs: number;
   minTabsStrategyState: MinTabsStrategyState;
+  // Whether an open tab's Tab Rule is pausing all tab timers.
+  timersPausedByRule: boolean;
   unlockedTabCount: number;
 }
 
 export default function MinimumTabsBadge({
   minTabs,
   minTabsStrategyState,
+  timersPausedByRule,
   unlockedTabCount,
 }: MinimumTabsBadgeProps) {
   const { data: syncPersistData } = useStorageSyncPersistQuery();
   const { active: withinActiveHours } = useActiveHoursState();
-  const paused = (syncPersistData?.paused ?? false) || !withinActiveHours;
+  const extensionPaused = (syncPersistData?.paused ?? false) || !withinActiveHours;
+  const paused = extensionPaused || timersPausedByRule;
   const tabsWillAutoClose = unlockedTabCount > minTabs;
 
   let tooltipMessage;
-  if (paused) {
+  if (extensionPaused) {
     tooltipMessage = chrome.i18n.getMessage("tabLock_minTabsBadge_paused");
+  } else if (timersPausedByRule) {
+    tooltipMessage = chrome.i18n.getMessage("tabLock_minTabsBadge_rulePaused");
   } else {
     switch (minTabsStrategyState.minTabsStrategy) {
       case "allWindows":

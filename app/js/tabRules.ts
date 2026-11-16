@@ -2,8 +2,12 @@
  * Tab Rules are evaluated top-to-bottom and the first rule that matches a tab decides its outcome.
  * A rule matches when all of its conditions match, or any of them with `match: "some"`. A rule
  * with no conditions matches every tab. A tab that matches no rule is never locked or made stale.
+ *
+ * One outcome reaches past its own tab: while any tab's outcome is `pauseTimers`, no tab's timer
+ * counts down. See `findTimerPausingTab`.
  */
 
+import frontWindow from "./frontWindow";
 import tabGroupTitles from "./tabGroupTitles";
 
 export const TAB_RULES_VERSION = 1;
@@ -22,6 +26,8 @@ export interface TabRule {
 }
 
 export type TabCondition =
+  // The tab in view: the selected tab of the front browser window. See `frontWindow`.
+  | { type: "active" }
   | { type: "audible" }
   | { type: "groupId"; op: "none" | "some" }
   | { type: "groupTitle"; op: "includes"; value: string }
@@ -31,6 +37,8 @@ export type TabCondition =
 
 export type RuleOutcome =
   | { action: "lock" }
+  // Locks the tab like "lock" and, while the tab matches, stops every tab's timer.
+  | { action: "pauseTimers" }
   | { action: "stale"; afterSeconds: number; save: "corral" | "none" };
 
 export function generateRuleId(): string {
@@ -45,6 +53,9 @@ function matchesCondition(condition: TabCondition, tab: chrome.tabs.Tab): boolea
       return (
         condition.op === "includes" && tab.title != null && tab.title.includes(condition.value)
       );
+    case "active":
+      // `tab.active` alone is true for the selected tab of every window.
+      return tab.active === true && tab.windowId === frontWindow.get();
     case "audible":
       return tab.audible === true;
     case "groupId": {
@@ -76,6 +87,40 @@ export function findMatchingRule(tab: chrome.tabs.Tab, config: TabRulesConfig): 
 
 export function getTabOutcome(tab: chrome.tabs.Tab, config: TabRulesConfig): RuleOutcome | null {
   return findMatchingRule(tab, config)?.then ?? null;
+}
+
+/**
+ * Whether an outcome keeps its tab open for as long as the tab matches: every outcome except going
+ * stale.
+ */
+export function isLockOutcome(outcome: RuleOutcome | null | undefined): boolean {
+  return outcome != null && outcome.action !== "stale";
+}
+
+/**
+ * The first tab whose rule pauses all tab timers, or null when timers run. Such a tab stops every
+ * tab's timer for as long as it matches its rule, like while it stays the tab in view or keeps
+ * playing audio, and the timers pick up where they left off once no tab does.
+ */
+export function findTimerPausingTab(
+  tabs: chrome.tabs.Tab[],
+  config: TabRulesConfig,
+): chrome.tabs.Tab | null {
+  return tabs.find((tab) => getTabOutcome(tab, config)?.action === "pauseTimers") ?? null;
+}
+
+/**
+ * Whether a rule that pauses all tab timers would pause them all the time, stopping Tab Wrangler
+ * for good. A rule without conditions matches every tab. The front window always has an active
+ * tab, so a rule that matches any active tab always matches one.
+ */
+export function alwaysPausesTimers(rule: Pick<TabRule, "match" | "then" | "when">): boolean {
+  return (
+    rule.then.action === "pauseTimers" &&
+    (rule.when.length === 0 ||
+      (rule.when.some((condition) => condition.type === "active") &&
+        (rule.match === "some" || rule.when.length === 1)))
+  );
 }
 
 // The final "Else" rule: the last rule, when it matches every tab.

@@ -1,4 +1,5 @@
 import { type TabRule, createUrlIncludesRule, isUrlIncludesRule } from "./tabRules";
+import frontWindow from "./frontWindow";
 import settings from "./settings";
 import tabGroupTitles from "./tabGroupTitles";
 import { wrangleTabsAndPersist } from "./tabUtil";
@@ -85,7 +86,7 @@ export default class Menus {
   async onClicked(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab | undefined) {
     // A click can be what starts the service worker. Without loaded settings, locking a domain
     // would save the default rules over the user's.
-    await Promise.all([settings.init(), tabGroupTitles.init()]);
+    await Promise.all([settings.init(), tabGroupTitles.init(), frontWindow.init()]);
     switch (info.menuItemId) {
       case "corralTab":
         this.corralTab(info, tab);

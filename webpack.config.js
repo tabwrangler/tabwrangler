@@ -7,7 +7,7 @@ const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
-const package = require("./package.json");
+const { version, versionName } = require("./version.js");
 const webpack = require("webpack");
 
 const COMMON_CONFIG = {
@@ -61,6 +61,7 @@ const COMMON_CONFIG = {
       ],
     }),
     new MiniCssExtractPlugin(),
+    new webpack.DefinePlugin({ VERSION_NAME: JSON.stringify(versionName) }),
     new HtmlWebpackPlugin({
       cache: false, // Disable cache to always create file in multi-compiler build
       chunks: ["options"],
@@ -95,10 +96,8 @@ module.exports = [
             to: "manifest.json",
             transform(buffer) {
               const manifest = JSON.parse(buffer.toString());
-
-              // Sync extension version to the version in package.json.
-              manifest.version = package.version;
-
+              manifest.version = version;
+              if (versionName !== version) manifest.version_name = versionName;
               return JSON.stringify(manifest, null, 2);
             },
           },
@@ -128,10 +127,7 @@ module.exports = [
             to: "manifest.json",
             transform(buffer) {
               const manifest = JSON.parse(buffer.toString());
-
-              // Sync extension version to the version in package.json.
-              manifest.version = package.version;
-
+              manifest.version = version;
               return JSON.stringify(manifest, null, 2);
             },
           },

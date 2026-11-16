@@ -6,6 +6,7 @@ permissions:
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
     branches: [main]
 
@@ -59,27 +60,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-
-      - name: Extract version from package.json, name it $PACKAGE_VERSION
-        run: |
-          PACKAGE_VERSION=$(jq -r '.version' package.json)
-          echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> "$GITHUB_ENV"
+        with:
+          # Full history and tags so `git describe` can version the build
+          fetch-depth: 0
 
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Name the build version $VERSION_NAME
+        run: echo "VERSION_NAME=$(node -p 'require("./version.js").versionName')" >> "$GITHUB_ENV"
+
       - run: npm ci --no-audit --no-fund
       - run: npm run build
 
       - name: Generate artifact attestations
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
         uses: actions/attest@v4
         with:
           subject-path: "dist/tabwrangler-*.zip"
 
       - uses: actions/upload-artifact@v6
         with:
-          name: tabwrangler-builds-${{ env.PACKAGE_VERSION }}
+          name: tabwrangler-builds-${{ env.VERSION_NAME }}
           path: dist/tabwrangler-*.zip
           if-no-files-found: error

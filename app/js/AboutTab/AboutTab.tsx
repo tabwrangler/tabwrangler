@@ -5,7 +5,7 @@ export default function AboutTab() {
         <a href={EXTENSION_URL} rel="noopener noreferrer" target="_blank">
           {chrome.i18n.getMessage("extName")}
         </a>{" "}
-        v{chrome.runtime.getManifest().version}
+        v{VERSION_NAME}
       </p>
       <ul>
         <li>

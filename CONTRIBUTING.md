@@ -44,6 +44,10 @@
 
         npm run build
 
+The version comes from `git describe`. A commit tagged `vX.Y.Z` builds as `X.Y.Z`, and the tag must
+match the `version` in package.json. Other commits build as `X.Y.Z.N`, where `N` is the number of
+commits since the last tag, with a display name like `X.Y.Z-N-g<hash>`.
+
 ## Contributing Translations
 
 Contribute on [Tab Wrangler's Crowdin Project][3], and your translations will be automatically

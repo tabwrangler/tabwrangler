@@ -251,10 +251,6 @@
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "Se l'URL corrisponde esattamente"
   },
-  "options_dedupe_option_exactURLMatch_description": {
-    "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "Quando una scheda viene aggiunta al Recinto, le schede meno recenti con lo stesso identico URL vengono rimosse dal Recinto."
-  },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
     "message": "Se l'URL corrisponde esattamente"
@@ -263,10 +259,6 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "Se nome host e titolo della pagina corrispondono"
   },
-  "options_dedupe_option_hostnameAndTitleMatch_description": {
-    "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "Quando una scheda viene aggiunta al Recinto, le schede meno recenti con lo stesso nome host (come \"wikipedia.org\") e lo stesso titolo della pagina vengono rimosse dal Recinto."
-  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Se nome host e titolo della pagina corrispondono"
@@ -274,10 +266,6 @@
   "options_dedupe_option_withDupes": {
     "description": "Label for option to never de-duplicate the tab corral",
     "message": "Mai (predefinito)"
-  },
-  "options_dedupe_option_withDupes_description": {
-    "description": "Description of the never de-duplicating tabs option",
-    "message": "Quando una scheda viene aggiunta al Recinto, il Recinto non subisce altre modifiche."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",

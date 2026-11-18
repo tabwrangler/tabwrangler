@@ -113,29 +113,21 @@
     "description": "Label for never de-duplicating option",
     "message": "Jamais"
   },
-  "options_importExport_description": {
-    "description": "Description of the import/export feature shown next to import/export buttons",
-    "message": "Exporter toutes les informations sur les onglets supprimés. Il s'agit d'un moyen pratique pour restaurant un ancien état après la réinstallation de l'extension."
-  },
   "options_importExport_export": {
-    "description": "Button label to begin exporting closed tabs",
+    "description": "Button label to begin exporting settings and closed tabs",
     "message": "Exporter "
   },
   "options_importExport_exporting": {
-    "description": "Label displayed when exporting closed tabs",
+    "description": "Label displayed when exporting settings and closed tabs",
     "message": "Exportation..."
   },
   "options_importExport_import": {
-    "description": "Button label to begin importing closed tabs",
+    "description": "Button label to choose a file to import settings and closed tabs from, and to import what was chosen from it",
     "message": "Importer"
   },
   "options_importExport_importing": {
-    "description": "Label displayed when importing closed tabs",
+    "description": "Label displayed when importing settings and closed tabs",
     "message": "Import en cours..."
-  },
-  "options_importExport_importWarning": {
-    "description": "Description of the destructiveness of importing; current tabs are overwritten",
-    "message": "AVERTISSEMENT : L'importation de données écrasera toutes les données existantes. Il n’y a aucun moyen de retour (sauf si vous avez une sauvegarde)."
   },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",

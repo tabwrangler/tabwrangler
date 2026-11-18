@@ -320,3 +320,8 @@ $tab-rule-join-line: var(--#{$prefix}border-width) dashed var(--#{$prefix}tertia
     justify-content: flex-start;
   }
 }
+
+.import-file {
+  border: var(--#{$prefix}border-width) dashed var(--#{$prefix}border-color);
+  border-radius: var(--#{$prefix}border-radius);
+}

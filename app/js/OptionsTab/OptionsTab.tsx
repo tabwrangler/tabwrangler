@@ -9,6 +9,7 @@ import { useRef, useState } from "react";
 import ActiveHours from "./ActiveHours";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
+import ExportConfirm from "./ExportConfirm";
 import FileSaver from "file-saver";
 import { IDLE_PERMISSIONS } from "../constants";
 import ImportConfirm from "./ImportConfirm";
@@ -33,12 +34,17 @@ export default function OptionsTab() {
   const { reset: resetUndo } = useUndo();
 
   const fileSelectorRef = useRef<HTMLInputElement | null>(null);
+
   // Bumped after settings are imported to remount the forms: several inputs are uncontrolled and
   // read their setting only once, when they mount.
   const [formsKey, setFormsKey] = useState(0);
-  const [exportClosedTabs, setExportClosedTabs] = useState(true);
+  const [showExportConfirm, setShowExportConfirm] = useState(false);
+
   // An import file that was read and waits for the user to choose what to import from it.
   const [pendingImport, setPendingImport] = useState<ParsedImport | null>(null);
+  const [pendingImportFileName, setPendingImportFileName] = useState("");
+  const [showImportConfirm, setShowImportConfirm] = useState(false);
+  const [pendingImportError, setPendingImportError] = useState<Error | null>(null);
   const importExportAlertTimeoutRef = useRef<number>(null);
   const theme: string = syncPersistData?.theme ?? "system";
   const [errors, setErrors] = useState<Error[]>([]);
@@ -123,26 +129,41 @@ export default function OptionsTab() {
       });
   }
 
-  function handleExportData() {
+  function handleExportData({ includeClosedTabs }: { includeClosedTabs: boolean }) {
+    setShowExportConfirm(false);
     importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_exporting") || "",
       exportData,
-      { includeClosedTabs: exportClosedTabs },
+      { includeClosedTabs },
       (blob) => {
         FileSaver.saveAs(blob, exportFileName(new Date(Date.now())));
       },
     );
   }
 
+  function chooseImportFile() {
+    fileSelectorRef.current?.click();
+  }
+
   // Reads the file without importing anything: `ImportConfirm` shows what it holds first.
   function handleImportFile(event: React.FormEvent<HTMLInputElement>) {
     const input = event.target as HTMLInputElement;
+    const fileName = input.files?.[0]?.name ?? "";
     setImportExportErrors([]);
     readImportFile(event)
-      .then(setPendingImport)
+      .then((parsed) => {
+        setPendingImportFileName(fileName);
+        setPendingImport(parsed);
+        setPendingImportError(null);
+        setShowImportConfirm(true);
+      })
       .catch((err: Error) => {
-        setPendingImport(null);
-        setImportExportErrors((currImportExportErrors) => [...currImportExportErrors, err]);
+        if (showImportConfirm) {
+          setPendingImportFileName(fileName);
+          setPendingImportError(err);
+        } else {
+          setImportExportErrors((currImportExportErrors) => [...currImportExportErrors, err]);
+        }
       })
       .finally(() => {
         // Otherwise choosing the same file again, like after fixing it, does not fire `onChange`.
@@ -151,13 +172,13 @@ export default function OptionsTab() {
   }
 
   function handleImport({ replaceClosedTabs }: { replaceClosedTabs: boolean }) {
-    if (pendingImport == null) return;
+    if (pendingImport == null || pendingImportError != null) return;
     importExportDataWithFeedback(
       chrome.i18n.getMessage("options_importExport_importing") || "",
       (parsed: ParsedImport) => applyImport(parsed, { replaceClosedTabs }),
       pendingImport,
       () => {
-        setPendingImport(null);
+        setShowImportConfirm(false);
         setMaxTabs(settings.get("maxTabs"));
         setFormsKey((key) => key + 1);
 
@@ -368,20 +389,17 @@ export default function OptionsTab() {
 
         <h5 className="mt-3">{chrome.i18n.getMessage("options_section_importExport")}</h5>
         <div className="row">
-          <div className="col-9">{chrome.i18n.getMessage("options_importExport_description")}</div>
+          <div className="col-9 form-text">
+            {chrome.i18n.getMessage("options_importExport_description")}
+          </div>
         </div>
         <div className="row my-2">
           <div className="col-9 mb-1">
-            <Button variant="secondary" onClick={handleExportData}>
+            <Button variant="secondary" onClick={() => setShowExportConfirm(true)}>
               <i className="fas fa-file-export me-1" />
               {chrome.i18n.getMessage("options_importExport_export")}
             </Button>{" "}
-            <Button
-              variant="secondary"
-              onClick={() => {
-                if (fileSelectorRef.current != null) fileSelectorRef.current.click();
-              }}
-            >
+            <Button variant="secondary" onClick={chooseImportFile}>
               <i className="fas fa-file-import me-1" />
               {chrome.i18n.getMessage("options_importExport_import")}
             </Button>
@@ -394,35 +412,29 @@ export default function OptionsTab() {
               style={{ display: "none" }}
               type="file"
             />
-            <div className="form-check mt-2">
-              <input
-                checked={exportClosedTabs}
-                className="form-check-input"
-                id="exportClosedTabs"
-                onChange={(event) => {
-                  setExportClosedTabs(event.target.checked);
-                }}
-                type="checkbox"
-              />
-              <label className="form-check-label" htmlFor="exportClosedTabs">
-                {chrome.i18n.getMessage("options_importExport_exportClosedTabs")}
-              </label>
-            </div>
           </div>
         </div>
+        <ExportConfirm
+          closedTabCount={localPersistData?.savedTabs?.length ?? 0}
+          onCancel={() => setShowExportConfirm(false)}
+          onExport={handleExportData}
+          show={showExportConfirm}
+        />
         {pendingImport != null && (
-          <div className="row">
-            <div className="col-9">
-              <ImportConfirm
-                closedTabCount={localPersistData?.savedTabs?.length ?? 0}
-                onCancel={() => {
-                  setPendingImport(null);
-                }}
-                onImport={handleImport}
-                parsed={pendingImport}
-              />
-            </div>
-          </div>
+          <ImportConfirm
+            closedTabCount={localPersistData?.savedTabs?.length ?? 0}
+            error={pendingImportError}
+            fileName={pendingImportFileName}
+            onCancel={() => setShowImportConfirm(false)}
+            onChooseFile={chooseImportFile}
+            onExited={() => {
+              setPendingImport(null);
+              setPendingImportError(null);
+            }}
+            onImport={handleImport}
+            parsed={pendingImport}
+            show={showImportConfirm}
+          />
         )}
       </div>
 

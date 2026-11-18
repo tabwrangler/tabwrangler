@@ -6,6 +6,7 @@ import {
   findMatchingRule,
   getStaleAfterMs,
   getTabOutcome,
+  isTabRulesConfig,
   shouldSaveToCorral,
   withElseRule,
 } from "./tabRules";
@@ -362,5 +363,51 @@ describe("withElseRule", () => {
   test("keeps rules that already end with an Else rule", () => {
     const config = buildTabRulesFromLegacySettings(LEGACY_DEFAULTS);
     expect(withElseRule(config)).toBe(config);
+  });
+});
+
+describe("isTabRulesConfig", () => {
+  const config = (rule: Record<string, unknown>) => ({
+    version: 1,
+    rules: [{ id: "a", match: "every", when: [], then: { action: "lock" }, ...rule }],
+  });
+
+  test("accepts the default rules and rules built from legacy settings", () => {
+    expect(isTabRulesConfig(buildTabRulesFromLegacySettings(LEGACY_DEFAULTS))).toBe(true);
+    expect(isTabRulesConfig({ version: 1, rules: [] })).toBe(true);
+  });
+
+  test("accepts a stale timeout of 0 seconds, which legacy settings can produce", () => {
+    expect(
+      isTabRulesConfig(config({ then: { action: "stale", afterSeconds: 0, save: "corral" } })),
+    ).toBe(true);
+  });
+
+  test("accepts conditions and actions it does not know, as a newer version writes them", () => {
+    expect(isTabRulesConfig(config({ when: [{ type: "newer", anything: 1 }] }))).toBe(true);
+    expect(isTabRulesConfig(config({ then: { action: "newer" } }))).toBe(true);
+  });
+
+  test.each<[string, unknown]>([
+    ["a value that is not an object", "rules"],
+    ["another rules version", { version: 2, rules: [] }],
+    ["rules that are not a list", { version: 1, rules: {} }],
+    ["a rule without an ID", config({ id: undefined })],
+    ["an unknown way to combine conditions", config({ match: "none" })],
+    ["conditions that are not a list", config({ when: { type: "pinned" } })],
+    ["a condition without a type", config({ when: [{ op: "includes", value: "a" }] })],
+    ["a known condition missing its text", config({ when: [{ type: "url", op: "includes" }] })],
+    ["a known condition with another operator", config({ when: [{ type: "groupId", op: "any" }] })],
+    ["an outcome without an action", config({ then: {} })],
+    [
+      "a stale outcome with a negative timeout",
+      config({ then: { action: "stale", afterSeconds: -5, save: "corral" } }),
+    ],
+    [
+      "a stale outcome that saves somewhere unknown",
+      config({ then: { action: "stale", afterSeconds: 60, save: "elsewhere" } }),
+    ],
+  ])("rejects %s", (_label, value) => {
+    expect(isTabRulesConfig(value)).toBe(false);
   });
 });

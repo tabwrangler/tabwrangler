@@ -143,33 +143,37 @@ browser.
 
 #### Back up & Restore
 
-You can back up your list of closed tabs as well as the number of tabs Tab Wrangler has closed by
-using the import/export functionality in the Settings tab.
+You can back up your settings, your list of closed tabs and the number of tabs Tab Wrangler has
+closed by using the import/export functionality in the Settings tab. The same file moves your
+settings to another browser.
 
 ##### Back up / Export
 
 1. Open Tab Wrangler
 2. Switch to the _Settings_ tab
 3. Scroll to _Import / Export_
-4. Click _Export_
+4. Click _Export_. To export settings only, turn off _Include closed tabs in the export_ first.
 
 ##### Restore / Import
-
-If you previously backed up / exported your list of tabs, follow these steps to restore the list in
-Tab Wrangler. **Note: this will overwrite Tab Wrangler's tabs list;** ensure you are not overwriting
-tabs that you wanted to save.
 
 1. Open Tab Wrangler
 2. Switch to the _Settings_ tab
 3. Scroll to _Import / Export_
 4. Click _Import_
 5. Select the file created during back up, it will be named similarly to
-   "TabWranglerExport-6-18-2017.json"
+   "TabWranglerExport-2017-06-18.json"
+6. Check what the file holds, then click _Import_
+
+Settings in the file replace your current settings. Settings your version of Tab Wrangler cannot
+use, like ones added by a newer version, are listed and left as they are.
+
+**Closed tabs are only imported if you turn on _Replace the closed tabs in this browser_, which
+overwrites Tab Wrangler's tabs list;** ensure you are not overwriting tabs that you wanted to save.
+A file from another browser holds that browser's closed tabs.
 
 ##### Back up file format
 
-The "Back up / Export" button creates a JSON file with saved tabs and other usage data. The JSON
-file has the following format:
+The "Back up / Export" button creates a JSON file with the following format:
 
 ```ts
 /**
@@ -177,10 +181,15 @@ file has the following format:
  * @see https://github.com/DefinitelyTyped/DefinitelyTyped/blob/d693ab3ced5aa2b8d86838f721006b16414bb21e/types/chrome/index.d.ts#L9406
  */
 type TabWranglerExportFormat = {
-  savedTabs: Array<chrome.tabs.Tab>;
-  totalTabsRemoved: number;
-  totalTabsUnwrangled: number;
-  totalTabsWrangled: number;
+  version: 2;
+  // Settings by name, as in the table above. Locked tabs and windows are not included.
+  settings: Record<string, unknown>;
+  theme: "dark" | "light" | "system";
+  // Left out when closed tabs are not exported. Files from before version 2 hold only these.
+  savedTabs?: Array<chrome.tabs.Tab>;
+  totalTabsRemoved?: number;
+  totalTabsUnwrangled?: number;
+  totalTabsWrangled?: number;
 };
 ```
 

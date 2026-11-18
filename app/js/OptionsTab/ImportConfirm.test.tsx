@@ -6,22 +6,40 @@ const CLOSED_TABS = {
   savedTabs: [{ id: 1 }, { id: 2 }, { id: 3 }] as unknown as chrome.tabs.Tab[],
 };
 
-function renderConfirm(fields: Partial<ParsedImport>, closedTabCount = 87) {
-  const onCancel = jest.fn();
-  const onImport = jest.fn();
-  render(
-    <ImportConfirm
-      closedTabCount={closedTabCount}
-      fileName="TabWranglerExport-2026-11-18.json"
-      onCancel={onCancel}
-      onImport={onImport}
-      parsed={{ closedTabs: null, settings: {}, skippedSettings: [], theme: null, ...fields }}
-    />,
-  );
-  return { onCancel, onImport };
+function parsedImport(fields: Partial<ParsedImport>): ParsedImport {
+  return { closedTabs: null, settings: {}, skippedSettings: [], theme: null, ...fields };
 }
 
-const replaceLabel = "options_importExport_confirm_replaceClosedTabs:87,3";
+function renderConfirm(
+  fields: Partial<ParsedImport>,
+  { closedTabCount = 87, error = null }: { closedTabCount?: number; error?: Error | null } = {},
+) {
+  const onCancel = jest.fn();
+  const onChooseFile = jest.fn();
+  const onImport = jest.fn();
+  const confirm = (parsed: ParsedImport) => (
+    <ImportConfirm
+      closedTabCount={closedTabCount}
+      error={error}
+      fileName="TabWranglerExport-2026-11-18.json"
+      onCancel={onCancel}
+      onChooseFile={onChooseFile}
+      onExited={jest.fn()}
+      onImport={onImport}
+      parsed={parsed}
+      show
+    />
+  );
+  const { rerender } = render(confirm(parsedImport(fields)));
+  return {
+    chooseFile: (nextFields: Partial<ParsedImport>) => rerender(confirm(parsedImport(nextFields))),
+    onCancel,
+    onChooseFile,
+    onImport,
+  };
+}
+
+const replaceLabel = "options_importExport_confirm_replaceClosedTabs";
 
 beforeEach(() => {
   Object.assign(chrome.i18n, {
@@ -43,19 +61,14 @@ describe("ImportConfirm", () => {
 
   test("replaces closed tabs when its box is ticked, showing how many each side has", () => {
     const { onImport } = renderConfirm({ closedTabs: CLOSED_TABS, settings: { minTabs: 3 } });
+    expect(
+      screen.getByText("options_importExport_confirm_replaceClosedTabs_help:87,3"),
+    ).toBeTruthy();
 
     fireEvent.click(screen.getByLabelText(replaceLabel));
     fireEvent.click(screen.getByText("options_importExport_import"));
 
     expect(onImport).toHaveBeenCalledWith({ replaceClosedTabs: true });
-  });
-
-  test.each<[string, ParsedImport["closedTabs"]]>([
-    ["no closed tabs", null],
-    ["an empty list of closed tabs", { savedTabs: [] }],
-  ])("does not offer to replace closed tabs from a file with %s", (_label, closedTabs) => {
-    renderConfirm({ closedTabs, theme: "dark" });
-    expect(screen.queryByRole("checkbox")).toBeNull();
   });
 
   test("imports nothing from a file with only closed tabs until replacing them is chosen", () => {
@@ -76,6 +89,32 @@ describe("ImportConfirm", () => {
     expect(
       screen.getByText("options_importExport_confirm_skipped:fromTheFuture, theme"),
     ).toBeTruthy();
+  });
+
+  test("asks for another file and starts the replace choice off again for it", () => {
+    const { chooseFile, onChooseFile, onImport } = renderConfirm({ closedTabs: CLOSED_TABS });
+    fireEvent.click(screen.getByLabelText(replaceLabel));
+
+    fireEvent.click(screen.getByText("options_importExport_confirm_chooseFile"));
+    expect(onChooseFile).toHaveBeenCalled();
+
+    chooseFile({ closedTabs: CLOSED_TABS, settings: { minTabs: 3 } });
+    expect((screen.getByLabelText(replaceLabel) as HTMLInputElement).checked).toBe(false);
+    fireEvent.click(screen.getByText("options_importExport_import"));
+    expect(onImport).toHaveBeenCalledWith({ replaceClosedTabs: false });
+  });
+
+  test("shows why a file cannot be imported instead of what it holds", () => {
+    renderConfirm(
+      { closedTabs: CLOSED_TABS, settings: { minTabs: 3 } },
+      { error: new Error("Not an export file") },
+    );
+    expect(screen.getByText("Not an export file")).toBeTruthy();
+    expect(screen.queryByText("options_importExport_confirm_settings")).toBeNull();
+    expect(screen.queryByRole("checkbox")).toBeNull();
+    expect((screen.getByText("options_importExport_import") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
   });
 
   test("cancels without importing", () => {

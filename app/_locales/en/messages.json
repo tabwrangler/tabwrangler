@@ -253,7 +253,7 @@
   },
   "options_dedupe_option_exactURLMatch_description": {
     "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "When a tab is added to the Corral, any older tabs with the exact same URL are removed from the Corral."
+    "message": "When a tab is added to the Corral, any older tabs with the exact same URL are removed."
   },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
@@ -265,7 +265,7 @@
   },
   "options_dedupe_option_hostnameAndTitleMatch_description": {
     "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "When a tab is added to the Corral, any older tabs with the same hostname (like \"wikipedia.org\") and page title are removed from the Corral."
+    "message": "When a tab is added to the Corral, any older tabs with the same hostname (like \"wikipedia.org\") and page title are removed."
   },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
@@ -277,7 +277,7 @@
   },
   "options_dedupe_option_withDupes_description": {
     "description": "Description of the never de-duplicating tabs option",
-    "message": "When a tab is is added to the Corral no other changes are made to the Corral."
+    "message": "When a tab is is added to the Corral no other changes are made."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",
@@ -302,7 +302,7 @@
   },
   "options_importExport_description": {
     "description": "Description of the import/export feature shown next to import/export buttons",
-    "message": "Export your settings and all information about wrangled tabs to a file. This is a convenient way to restore an old state after reinstalling the extension, or to move your settings to another browser."
+    "message": "Save your settings and closed tabs to a file. You can import that file later to restore them after reinstalling Tab Wrangler or to copy them to another browser."
   },
   "options_importExport_export": {
     "description": "Button label to begin exporting settings and closed tabs",
@@ -321,16 +321,24 @@
     "message": "Importing..."
   },
   "options_importExport_cancel": {
-    "description": "Button label to close the import choices without importing anything",
+    "description": "Button label to close the import or export choices without importing or exporting anything",
     "message": "Cancel"
+  },
+  "options_importExport_confirm_chooseFile": {
+    "description": "Button in the import dialog, next to the chosen file's name, to choose a different file to import instead",
+    "message": "Choose file…"
   },
   "options_importExport_confirm_noSettings": {
     "description": "Shown before importing when the chosen file has no settings, like a file exported by an older version",
     "message": "This file has no settings."
   },
   "options_importExport_confirm_replaceClosedTabs": {
-    "description": "Label of the checkbox, off by default, to also replace the closed tabs saved in this browser with the ones in the import file. Shows how many closed tabs each has.",
-    "message": "Replace the closed tabs in this browser ($CURRENT$) with the ones in the file ($FILE$)",
+    "description": "Label of the checkbox, off by default, to also replace the closed tabs saved in this browser with the ones in the import file",
+    "message": "Replace closed tabs"
+  },
+  "options_importExport_confirm_replaceClosedTabs_help": {
+    "description": "Shown under the checkbox to replace closed tabs when importing. Shows how many closed tabs this browser and the file each have, and warns what replacing loses.",
+    "message": "This browser has $CURRENT$ closed tabs and the file has $FILE$. Closed tabs only in this browser will be lost.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -342,13 +350,9 @@
       }
     }
   },
-  "options_importExport_confirm_replaceClosedTabs_help": {
-    "description": "Warning under the checkbox to replace closed tabs when importing",
-    "message": "Closed tabs that are only in this browser will be lost. Leave this off to keep them."
-  },
   "options_importExport_confirm_settings": {
     "description": "Shown before importing when the chosen file has settings",
-    "message": "Settings in the file will replace your current settings. Tab Wrangler stays paused or running as it is."
+    "message": "Your settings will be replaced with the ones in this file. Tab Wrangler stays paused or running as it is."
   },
   "options_importExport_confirm_skipped": {
     "description": "Shown before importing when the file has settings this version cannot use, like ones added by a newer version. Lists the settings' internal names.",
@@ -362,7 +366,7 @@
   },
   "options_importExport_confirm_title": {
     "description": "Heading shown after choosing a file to import, above what the file holds and the choice to replace closed tabs",
-    "message": "Choose what to import"
+    "message": "Import Settings"
   },
   "options_importExport_error_invalidFile": {
     "description": "Error shown when the file chosen to import is not a Tab Wrangler export",
@@ -372,9 +376,27 @@
     "description": "Error shown when the file chosen to import was made by a newer version of Tab Wrangler in a format this version cannot read",
     "message": "This file was made by a newer version of Tab Wrangler. Update Tab Wrangler to import it."
   },
-  "options_importExport_exportClosedTabs": {
+  "options_importExport_exportConfirm_closedTabs": {
     "description": "Label of the checkbox, on by default, to include closed tabs in the export. Turning it off exports settings only.",
-    "message": "Include closed tabs in the export"
+    "message": "Include closed tabs"
+  },
+  "options_importExport_exportConfirm_closedTabs_help": {
+    "description": "Shown under the checkbox to include closed tabs in the export, with how many closed tabs there are",
+    "message": "Closed tabs in the Tab Corral: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "87"
+      }
+    }
+  },
+  "options_importExport_exportConfirm_settings": {
+    "description": "Shown in the export dialog to say that every setting is always exported",
+    "message": "All of your settings will be saved to a file."
+  },
+  "options_importExport_exportConfirm_title": {
+    "description": "Heading of the dialog shown after clicking Export, above the choice to include closed tabs",
+    "message": "Export Settings"
   },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",

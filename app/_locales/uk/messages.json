@@ -300,29 +300,21 @@
   "options_unsavedChanges": {
     "message": "Не збережені зміни"
   },
-  "options_importExport_description": {
-    "description": "Description of the import/export feature shown next to import/export buttons",
-    "message": "Експортувати всю інформацію про закриті та збережені вкладки. Це зручний спосіб відновити попередній стан після перевстановлення розширення."
-  },
   "options_importExport_export": {
-    "description": "Button label to begin exporting closed tabs",
+    "description": "Button label to begin exporting settings and closed tabs",
     "message": "Експортувати"
   },
   "options_importExport_exporting": {
-    "description": "Label displayed when exporting closed tabs",
+    "description": "Label displayed when exporting settings and closed tabs",
     "message": "Експортування..."
   },
   "options_importExport_import": {
-    "description": "Button label to begin importing closed tabs",
+    "description": "Button label to choose a file to import settings and closed tabs from, and to import what was chosen from it",
     "message": "Імпорт"
   },
   "options_importExport_importing": {
-    "description": "Label displayed when importing closed tabs",
+    "description": "Label displayed when importing settings and closed tabs",
     "message": "Імпортуємо..."
-  },
-  "options_importExport_importWarning": {
-    "description": "Description of the destructiveness of importing; current tabs are overwritten",
-    "message": "Увага: імпортовані дані видалять усі попередні. Шляху назад не буде! (звісно, якщо у вас немає резервної копії)."
   },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",

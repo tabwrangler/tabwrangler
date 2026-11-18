@@ -143,29 +143,21 @@
   "options_unsavedChanges": {
     "message": "未保存的更改"
   },
-  "options_importExport_description": {
-    "description": "Description of the import/export feature shown next to import/export buttons",
-    "message": "导出已贮藏标签页相关的所有信息。这对于重新安装扩展前准备以恢复旧有状态相当有用。"
-  },
   "options_importExport_export": {
-    "description": "Button label to begin exporting closed tabs",
+    "description": "Button label to begin exporting settings and closed tabs",
     "message": "导出"
   },
   "options_importExport_exporting": {
-    "description": "Label displayed when exporting closed tabs",
+    "description": "Label displayed when exporting settings and closed tabs",
     "message": "导出中..."
   },
   "options_importExport_import": {
-    "description": "Button label to begin importing closed tabs",
+    "description": "Button label to choose a file to import settings and closed tabs from, and to import what was chosen from it",
     "message": "导入"
   },
   "options_importExport_importing": {
-    "description": "Label displayed when importing closed tabs",
+    "description": "Label displayed when importing settings and closed tabs",
     "message": "导入中..."
-  },
-  "options_importExport_importWarning": {
-    "description": "Description of the destructiveness of importing; current tabs are overwritten",
-    "message": "警告：导入数据将覆盖现有的数据，无法找回（除非您另有备份）。"
   },
   "options_name": {
     "description": "Name of the 'Options' section, where users can configure the extension",

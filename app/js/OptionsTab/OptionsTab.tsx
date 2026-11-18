@@ -39,6 +39,7 @@ export default function OptionsTab() {
   const [exportClosedTabs, setExportClosedTabs] = useState(true);
   // An import file that was read and waits for the user to choose what to import from it.
   const [pendingImport, setPendingImport] = useState<ParsedImport | null>(null);
+  const [pendingImportFileName, setPendingImportFileName] = useState("");
   const importExportAlertTimeoutRef = useRef<number>(null);
   const theme: string = syncPersistData?.theme ?? "system";
   const [errors, setErrors] = useState<Error[]>([]);
@@ -137,9 +138,13 @@ export default function OptionsTab() {
   // Reads the file without importing anything: `ImportConfirm` shows what it holds first.
   function handleImportFile(event: React.FormEvent<HTMLInputElement>) {
     const input = event.target as HTMLInputElement;
+    const fileName = input.files?.[0]?.name ?? "";
     setImportExportErrors([]);
     readImportFile(event)
-      .then(setPendingImport)
+      .then((parsed) => {
+        setPendingImportFileName(fileName);
+        setPendingImport(parsed);
+      })
       .catch((err: Error) => {
         setPendingImport(null);
         setImportExportErrors((currImportExportErrors) => [...currImportExportErrors, err]);
@@ -410,20 +415,15 @@ export default function OptionsTab() {
             </div>
           </div>
         </div>
-        {pendingImport != null && (
-          <div className="row">
-            <div className="col-9">
-              <ImportConfirm
-                closedTabCount={localPersistData?.savedTabs?.length ?? 0}
-                onCancel={() => {
-                  setPendingImport(null);
-                }}
-                onImport={handleImport}
-                parsed={pendingImport}
-              />
-            </div>
-          </div>
-        )}
+        <ImportConfirm
+          closedTabCount={localPersistData?.savedTabs?.length ?? 0}
+          fileName={pendingImportFileName}
+          onCancel={() => {
+            setPendingImport(null);
+          }}
+          onImport={handleImport}
+          parsed={pendingImport}
+        />
       </div>
 
       <ToastPortal>

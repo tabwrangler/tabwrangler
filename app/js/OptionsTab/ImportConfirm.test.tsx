@@ -12,6 +12,7 @@ function renderConfirm(fields: Partial<ParsedImport>, closedTabCount = 87) {
   render(
     <ImportConfirm
       closedTabCount={closedTabCount}
+      fileName="TabWranglerExport-2026-11-18.json"
       onCancel={onCancel}
       onImport={onImport}
       parsed={{ closedTabs: null, settings: {}, skippedSettings: [], theme: null, ...fields }}

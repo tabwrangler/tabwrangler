@@ -251,10 +251,6 @@
     "description": "Label for option to de-duplicate when URL matches exactly",
     "message": "Якщо URL збігається"
   },
-  "options_dedupe_option_exactURLMatch_description": {
-    "description": "Description for option to de-duplicate when URL matches exactly",
-    "message": "Коли вкладка додається до списку вкладок - усі старіші вкладки з точно такою самою URL-адресою видаляються зі списку."
-  },
   "options_dedupe_option_exactURLMatch_label": {
     "description": "Extended label of the de-duplicate when tab URL matches exactly option",
     "message": "Якщо URL збігається"
@@ -263,10 +259,6 @@
     "description": "Label for option to de-duplicate when hostname and page title match",
     "message": "Якщо збігаються адрес та назва сторінки"
   },
-  "options_dedupe_option_hostnameAndTitleMatch_description": {
-    "description": "Extended description for option to de-duplicate when hostname and page title match",
-    "message": "Коли вкладка додається до списку вкладок - усі старіші вкладки з таким самим доменом (напр. \"wikipedia.org\") та заголовком сторінки видаляються зі списку."
-  },
   "options_dedupe_option_hostnameAndTitleMatch_label": {
     "description": "Extended label for option to de-duplicate when hostname and page title match",
     "message": "Якщо збігаються адрес та назва сторінки"
@@ -274,10 +266,6 @@
   "options_dedupe_option_withDupes": {
     "description": "Label for option to never de-duplicate the tab corral",
     "message": "Ніколи (за замовчуванням)"
-  },
-  "options_dedupe_option_withDupes_description": {
-    "description": "Description of the never de-duplicating tabs option",
-    "message": "Коли вкладка додається до списку вкладок, жодних інших змін у списку не відбувається."
   },
   "options_dedupe_option_withDupes_label": {
     "description": "Label for never de-duplicating option",

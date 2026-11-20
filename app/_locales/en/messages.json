@@ -165,7 +165,7 @@
   },
   "extension_wrangleNow_title": {
     "description": "Tooltip for the 'Wrangle Now' button when there are tabs it would close",
-    "message": "Close the $count$ oldest stale tabs.",
+    "message": "Close the $count$ oldest tabs.",
     "placeholders": {
       "count": {
         "content": "$1",

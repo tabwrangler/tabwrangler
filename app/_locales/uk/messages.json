@@ -163,16 +163,6 @@
       }
     }
   },
-  "extension_wrangleNow_title": {
-    "description": "Tooltip for the 'Wrangle Now' button when there are tabs it would close",
-    "message": "Закрити $count$ найстаріших неактивних вкладок.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "5"
-      }
-    }
-  },
   "extension_wrangleNow_title_none_allWindows": {
     "description": "Tooltip for the disabled 'Wrangle Now' button when there are no tabs it would close and the minimum tabs setting counts tabs across all windows",
     "message": "Нема що закривати: щонайменше $minTabs$ незафіксованих вкладок завжди залишаються відкритими.",
